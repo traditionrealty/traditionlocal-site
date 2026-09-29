@@ -1,0 +1,25 @@
+name: Mirror images from Wix
+
+# Run this once from the Actions tab (and again after adding new Wix hosted images).
+# It copies every image into public/media and commits them, so nothing depends on Wix.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: node scripts/mirror-images.mjs
+      - name: Commit images
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add public/media src/data/image-map.json
+          git commit -m "Mirror images from Wix" || echo "Nothing new to commit"
+          git push
