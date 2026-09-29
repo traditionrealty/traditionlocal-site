@@ -1,0 +1,16 @@
+{
+  "name": "traditionlocal-site",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "data": "python3 scripts/prepare_data.py",
+    "mirror-images": "node scripts/mirror-images.mjs"
+  },
+  "dependencies": {
+    "astro": "^5.13.0"
+  }
+}
