@@ -1,0 +1,116 @@
+---
+import Base from '../layouts/Base.astro';
+import PostCard from '../components/PostCard.astro';
+import businesses from '../data/businesses.json';
+import posts from '../data/posts.json';
+import { url } from '../lib/util';
+
+const counts: Record<string, number> = {};
+businesses.forEach((b) => b.categories.forEach((c) => (counts[c] = (counts[c] || 0) + 1)));
+const topCats = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 14).map(([c]) => c);
+const places = [...new Set(businesses.map((b) => b.neighborhood || b.city))].sort();
+const foodPosts = posts.filter((p) => p.categories.includes('food')).slice(0, 3);
+---
+<Base title="Eat" description="Houston restaurants, coffee shops, bakeries, and dessert spots reviewed by Sara Loren and the Tradition Local team.">
+  <section class="band">
+    <div class="wrap">
+      <p class="kicker">Where to eat</p>
+      <h1>Eat like a local</h1>
+      <p class="lede">{businesses.length} spots across Greater Houston, from boba to biryani, each one visited and reviewed.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="filters" id="filters">
+        <label class="search"><span class="sr">Search places</span>
+          <input type="search" id="q" placeholder="Search by name, dish, or neighborhood" />
+        </label>
+        <label><span class="sr">Area</span>
+          <select id="where"><option value="">All areas</option>{places.map((p) => <option value={p}>{p}</option>)}</select>
+        </label>
+        <label class="toggle"><input type="checkbox" id="picks" /> Sara's picks only</label>
+      </div>
+      <div class="chips" role="group" aria-label="Categories">
+        <button class="chip" data-cat="" aria-pressed="true">All</button>
+        {topCats.map((c) => <button class="chip" data-cat={c} aria-pressed="false">{c}</button>)}
+      </div>
+      <p class="muted" id="count" aria-live="polite">{businesses.length} places</p>
+
+      <ul class="biz-list" id="list">
+        {businesses.map((b) => (
+          <li data-name={`${b.name} ${b.description} ${b.categories.join(' ')} ${b.neighborhood || ''} ${b.city}`.toLowerCase()}
+              data-cats={b.categories.join('|')} data-where={b.neighborhood || b.city} data-pick={b.saraPick ? '1' : '0'}>
+            <a href={url(`/eat/${b.slug}`)}>
+              <span class="top">
+                <strong>{b.name}</strong>
+                {b.saraPick && <span class="badge">Sara's pick</span>}
+              </span>
+              <span class="where">{b.neighborhood ? `${b.neighborhood}, ${b.city}` : b.city}</span>
+              <span class="cats">{b.categories.slice(0, 3).join(', ')}</span>
+              <span class="desc">{b.description}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+      <p id="empty" hidden>No places match those filters. Try clearing the search or picking All.</p>
+    </div>
+  </section>
+
+  {foodPosts.length > 0 && (
+    <section class="section tint">
+      <div class="wrap">
+        <div class="section-head"><h2>Latest food stories</h2><a href={url('/all-articles/categories/food')}>All food articles</a></div>
+        <div class="grid">{foodPosts.map((p) => <PostCard post={p} />)}</div>
+      </div>
+    </section>
+  )}
+</Base>
+
+<script>
+  const q = document.getElementById('q') as HTMLInputElement;
+  const where = document.getElementById('where') as HTMLSelectElement;
+  const picks = document.getElementById('picks') as HTMLInputElement;
+  const chips = [...document.querySelectorAll<HTMLButtonElement>('[data-cat]')];
+  const items = [...document.querySelectorAll<HTMLLIElement>('#list li')];
+  const count = document.getElementById('count')!;
+  const empty = document.getElementById('empty')!;
+  let cat = '';
+  function apply() {
+    const term = q.value.trim().toLowerCase();
+    let n = 0;
+    for (const li of items) {
+      const ok = (!term || li.dataset.name!.includes(term))
+        && (!cat || li.dataset.cats!.split('|').includes(cat))
+        && (!where.value || li.dataset.where === where.value)
+        && (!picks.checked || li.dataset.pick === '1');
+      li.hidden = !ok; if (ok) n++;
+    }
+    count.textContent = `${n} ${n === 1 ? 'place' : 'places'}`;
+    empty.hidden = n > 0;
+  }
+  chips.forEach((c) => c.addEventListener('click', () => {
+    cat = c.dataset.cat || '';
+    chips.forEach((x) => x.setAttribute('aria-pressed', String(x === c)));
+    apply();
+  }));
+  [q, where, picks].forEach((el) => el.addEventListener('input', apply));
+</script>
+
+<style>
+  .filters { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
+  .filters input[type=search], .filters select { padding: 12px 16px; border: 1.5px solid var(--line); border-radius: 999px; font-size: 16px; background: #fff; }
+  .search { flex: 1 1 320px; } .search input { width: 100%; }
+  .toggle { display: flex; gap: 8px; align-items: center; font-size: 15px; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  #count { margin: 18px 0; }
+  .biz-list { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 0; border-top: 1px solid var(--line); }
+  .biz-list li[hidden] { display: none; }
+  .biz-list a { display: flex; flex-direction: column; gap: 4px; padding: 20px 18px; text-decoration: none; color: var(--ink); border-bottom: 1px solid var(--line); height: 100%; }
+  .biz-list a:hover { background: var(--cream); }
+  .top { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+  .top strong { font-family: var(--serif); font-weight: 400; font-size: 1.3rem; color: var(--blue); }
+  .where { font-size: 14px; color: var(--navy); font-weight: 600; }
+  .cats { font-size: 13px; color: var(--brown); }
+  .desc { font-size: 15px; color: var(--muted); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; margin-top: 4px; }
+</style>

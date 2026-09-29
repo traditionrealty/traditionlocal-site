@@ -1,0 +1,75 @@
+---
+import Base from '../../layouts/Base.astro';
+import businesses from '../../data/businesses.json';
+import areas from '../../data/areas.json';
+import posts from '../../data/posts.json';
+import { url } from '../../lib/util';
+
+export function getStaticPaths() {
+  return businesses.map((b) => ({ params: { slug: b.slug }, props: { b } }));
+}
+const { b } = Astro.props;
+const area = areas.find((a) => a.slug === b.area);
+const brand = b.name.toLowerCase().replace(/[’']/g, '').split(/[\s–-]+/).slice(0, 2).join(' ');
+const story = posts.find((p) => p.title.toLowerCase().replace(/[’']/g, '').startsWith(brand));
+const otherLocations = businesses.filter((x) => x.name === b.name && x.slug !== b.slug);
+const nearby = businesses.filter((x) => x.slug !== b.slug && x.area && x.area === b.area).slice(0, 6);
+const place = b.neighborhood ? `${b.neighborhood}, ${b.city}` : b.city;
+const ld = { '@context': 'https://schema.org', '@type': 'LocalBusiness', name: b.name, description: b.description,
+  address: { '@type': 'PostalAddress', addressLocality: b.city, addressRegion: 'TX' } };
+---
+<Base title={`${b.name}, ${place}`} description={b.description}>
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify(ld)} />
+  <section class="band">
+    <div class="wrap">
+      <p class="kicker"><a href={url('/food')}>Eat</a> / {b.categories.join(', ')}</p>
+      <h1>{b.name}</h1>
+      <p class="lede">{place}</p>
+      {b.saraPick && <span class="badge">Sara's pick</span>}
+    </div>
+  </section>
+  <section class="section">
+    <div class="wrap layout">
+      <div class="prose">
+        <p class="intro">{b.description}</p>
+        <h2>Sara's review</h2>
+        <blockquote>{b.review}<footer>Visited {b.reviewYear}</footer></blockquote>
+        {story && <p>Read the full story: <a href={url(story.path)}>{story.title}</a></p>}
+      </div>
+      <aside>
+        <dl>
+          <dt>Category</dt><dd>{b.categories.join(', ')}</dd>
+          <dt>Location</dt><dd>{place}</dd>
+          {b.harMarket && (<><dt>Area</dt><dd>{b.harMarket}</dd></>)}
+          {area && (<><dt>Neighborhood guide</dt><dd><a href={url(`/cities/${area.slug}`)}>Living in {area.name}</a></dd></>)}
+        </dl>
+        <a class="btn blue" href={`https://www.google.com/maps/search/${encodeURIComponent(`${b.name} ${b.city} TX`)}`}>Get directions</a>
+        {otherLocations.length > 0 && (
+          <div class="also"><p><strong>Other locations</strong></p><ul>{otherLocations.map((o) => <li><a href={url(`/eat/${o.slug}`)}>{o.neighborhood || o.city}</a></li>)}</ul></div>
+        )}
+      </aside>
+    </div>
+  </section>
+  {nearby.length > 0 && (
+    <section class="section tint">
+      <div class="wrap">
+        <div class="section-head"><h2>More nearby</h2>{area && <a href={url(`/cities/${area.slug}`)}>{area.name} guide</a>}</div>
+        <ul class="nearby">{nearby.map((n) => <li><a href={url(`/eat/${n.slug}`)}><strong>{n.name}</strong><span>{n.categories[0]}</span></a></li>)}</ul>
+      </div>
+    </section>
+  )}
+</Base>
+<style>
+  .kicker a { color: var(--gold); }
+  .layout { display: grid; grid-template-columns: 1fr 320px; gap: 56px; }
+  .intro { font-size: 1.3rem; font-family: var(--serif); color: var(--navy); }
+  blockquote footer { font-family: var(--sans); font-size: 14px; color: var(--muted); margin-top: 10px; }
+  aside { background: var(--cream); padding: 24px; align-self: start; }
+  dl { margin: 0 0 20px; } dt { font-size: 13px; color: var(--brown); margin-top: 12px; } dd { margin: 2px 0 0; }
+  .also ul { padding-left: 18px; }
+  .nearby { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+  .nearby a { display: flex; flex-direction: column; background: #fff; padding: 16px; text-decoration: none; border-left: 4px solid var(--gold); }
+  .nearby strong { font-family: var(--serif); font-weight: 400; font-size: 1.15rem; }
+  .nearby span { font-size: 13px; color: var(--brown); }
+  @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } }
+</style>

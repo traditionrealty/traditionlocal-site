@@ -1,0 +1,44 @@
+---
+import Base from '../../layouts/Base.astro';
+import PostCard from '../../components/PostCard.astro';
+import posts from '../../data/posts.json';
+import { url, img, fmtDate, fixHtml } from '../../lib/util';
+
+export function getStaticPaths() {
+  return posts.map((post) => ({ params: { slug: post.slug }, props: { post } }));
+}
+const { post } = Astro.props;
+const related = posts.filter((p) => p.slug !== post.slug && p.categories.some((c) => post.categories.includes(c))).slice(0, 3);
+const more = related.length ? related : posts.filter((p) => p.slug !== post.slug).slice(0, 3);
+const ld = {
+  '@context': 'https://schema.org', '@type': 'BlogPosting', headline: post.title, description: post.description,
+  datePublished: post.date, dateModified: post.updated, image: post.image,
+  author: { '@type': 'Person', name: post.author }, publisher: { '@type': 'Organization', name: 'Tradition Local' },
+};
+---
+<Base title={post.title} description={post.description} image={post.image} type="article">
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify(ld)} />
+  <article class="wrap post">
+    <header>
+      <p class="crumbs"><a href={url('/all-articles')}>Articles</a>{post.categories.map((c) => <> / <a href={url(`/all-articles/categories/${c}`)}>{c[0].toUpperCase() + c.slice(1)}</a></>)}</p>
+      <h1>{post.title}</h1>
+      <p class="meta">By {post.author}, {fmtDate(post.date, { month: 'long', day: 'numeric', year: 'numeric' })}. {post.readMin} min read.</p>
+    </header>
+    {post.image && <img class="hero-img" src={img(post.image)} alt="" />}
+    <div class="prose" set:html={fixHtml(post.html)} />
+  </article>
+  <section class="section tint">
+    <div class="wrap">
+      <div class="section-head"><h2>Keep reading</h2><a href={url('/all-articles')}>All articles</a></div>
+      <div class="grid">{more.map((p) => <PostCard post={p} />)}</div>
+    </div>
+  </section>
+</Base>
+<style>
+  .post { padding-top: 48px; padding-bottom: 48px; max-width: 820px; }
+  .crumbs { font-size: 14px; margin: 0 0 16px; }
+  .crumbs a { text-decoration: none; }
+  .post h1 { font-size: clamp(2rem, 4.4vw, 3rem); }
+  .meta { color: var(--muted); margin: 0 0 28px; }
+  .hero-img { width: 100%; max-height: 560px; object-fit: cover; border-radius: 6px; margin-bottom: 32px; }
+</style>

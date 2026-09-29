@@ -1,0 +1,165 @@
+---
+import Base from '../layouts/Base.astro';
+import PostCard from '../components/PostCard.astro';
+import posts from '../data/posts.json';
+import events from '../data/events.json';
+import site from '../data/site.json';
+import areas from '../data/areas.json';
+import businesses from '../data/businesses.json';
+import { url, img, fmtDate } from '../lib/util';
+import { config } from '../config';
+
+const [lead, ...rest] = posts;
+const latest = rest.slice(0, 6);
+const spotlight = posts.find((p) => p.categories.includes('spotlight')) || posts.find((p) => /mother/i.test(p.title));
+const today = new Date().toISOString().slice(0, 10);
+const upcoming = events.filter((e) => e.date && e.date >= today).slice(0, 3);
+const picks = businesses.filter((b) => b.saraPick).sort((a, b) => b.reviewYear - a.reviewYear).slice(0, 8);
+const featuredAreas = ['sugar-land', 'the-heights', 'katy', 'memorial-villages', 'montrose', 'bellaire']
+  .map((s) => areas.find((a) => a.slug === s)).filter(Boolean);
+---
+<Base>
+  <section class="band hero">
+    <div class="wrap hero-grid">
+      <div>
+      <p class="kicker">Eat, do, and live like a local</p>
+      <h1>Your guide to the best of Greater Houston</h1>
+      <p class="lede">Food finds, neighborhood guides, and things to do, from people who actually live here.</p>
+      <div class="hero-actions">
+        <a class="btn gold" href={url('/food')}>Find a place to eat</a>
+        <a class="btn ghost light" href={url('/cities')}>Explore neighborhoods</a>
+      </div>
+      </div>
+      {lead.image && <a href={url(lead.path)} class="hero-photo"><img src={img(lead.image, 800)} alt="" /><span>Latest: {lead.title}</span></a>}
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head"><h2>What's new</h2><a href={url('/all-articles')}>View all posts</a></div>
+      <PostCard post={lead} large />
+      <div class="grid three">{latest.map((p) => <PostCard post={p} />)}</div>
+    </div>
+  </section>
+
+  <section class="section tint">
+    <div class="wrap split">
+      {spotlight && (
+        <div>
+          <div class="section-head"><h2>Feature spotlight</h2></div>
+          <PostCard post={spotlight} />
+        </div>
+      )}
+      <div>
+        <div class="section-head"><h2>Our events</h2><a href={url('/living')}>View all things to do</a></div>
+        {upcoming.length ? (
+          <ul class="event-list">
+            {upcoming.map((e) => (
+              <li>
+                <span class="date"><b>{fmtDate(e.date, { day: 'numeric' })}</b>{fmtDate(e.date, { month: 'short' })}</span>
+                <span><a href={url(e.path)}>{e.title}</a><br /><span class="muted">{e.venue}</span></span>
+              </li>
+            ))}
+          </ul>
+        ) : <p>New events are posted monthly. <a href={url('/living')}>See past events</a>.</p>}
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head"><h2>Sara's picks</h2><a href={url('/food')}>Browse all {businesses.length} places</a></div>
+      <div class="picks">
+        {picks.map((b) => (
+          <a class="pick" href={url(`/eat/${b.slug}`)}>
+            <span class="cat">{b.categories[0]}</span>
+            <strong>{b.name}</strong>
+            <span class="muted">{b.neighborhood || b.city}</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section tint">
+    <div class="wrap">
+      <div class="section-head"><h2>Neighborhood guides</h2><a href={url('/cities')}>All {areas.length} guides</a></div>
+      <div class="grid three">
+        {featuredAreas.map((a: any) => (
+          <a class="area" href={url(`/cities/${a.slug}`)}>
+            <strong>{a.name}</strong>
+            <span>{a.vibe}</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="journey">
+    <div class="wrap journey-inner">
+      <div>
+        <h2>Start your next journey</h2>
+        <p>Exploring neighborhoods, schools, food, and local life in Greater Houston? When the time comes, Dillon and {config.brokerage.name} are here to help you make the right move.</p>
+      </div>
+      <a class="btn gold" href={url('/meetdillon')}>Meet Dillon</a>
+    </div>
+  </section>
+
+  {site.videos.length > 0 && (
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head"><h2>Local videos</h2><a href={site.social.youtube}>Watch on YouTube</a></div>
+        <div class="videos">
+          {site.videos.map((v: string) => (
+            <a href={`https://www.youtube.com/watch?v=${v}`} class="video">
+              <img src={`https://i.ytimg.com/vi/${v}/mqdefault.jpg`} alt="Tradition Local video" loading="lazy" />
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <section class="section sponsors">
+    <div class="wrap">
+      <h2>Our sponsors</h2>
+      <div class="sponsor-row">{site.sponsors.map((s: string) => <img src={img(s)} alt="Sponsor logo" loading="lazy" />)}</div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .hero { padding: 96px 0 88px; }
+  .hero h1 { max-width: 16ch; }
+  .hero-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 56px; align-items: center; }
+  .hero-photo { display: block; color: #fff; text-decoration: none; }
+  .hero-photo img { aspect-ratio: 4 / 5; object-fit: cover; width: 100%; border-radius: 4px; }
+  .hero-photo span { display: block; margin-top: 12px; font-size: 15px; }
+  @media (max-width: 860px) { .hero-grid { grid-template-columns: 1fr; } .hero-photo img { aspect-ratio: 3 / 2; } }
+  .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; }
+  .btn.ghost.light { border-color: #fff; color: #fff; }
+  .grid.three { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); margin-top: 28px; }
+  .split { display: grid; grid-template-columns: 1fr 1.3fr; gap: 48px; }
+  .event-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 18px; }
+  .event-list li { display: flex; gap: 18px; align-items: flex-start; background: #fff; border: 1px solid var(--line); padding: 16px; }
+  .event-list a { font-family: var(--serif); font-size: 1.15rem; text-decoration: none; }
+  .date { display: flex; flex-direction: column; align-items: center; min-width: 64px; background: var(--gold); color: var(--navy); padding: 8px; font-size: 13px; text-transform: uppercase; }
+  .date b { font-size: 1.6rem; font-family: var(--serif); line-height: 1; }
+  .picks { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 0; border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
+  .pick { display: flex; flex-direction: column; gap: 4px; padding: 18px; text-decoration: none; color: var(--ink); border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .pick:hover { background: var(--cream); }
+  .pick strong { font-family: var(--serif); color: var(--blue); font-size: 1.2rem; font-weight: 400; }
+  .cat { font-size: 13px; color: var(--brown); }
+  .area { display: flex; flex-direction: column; gap: 8px; padding: 24px; background: #fff; border-top: 4px solid var(--gold); text-decoration: none; color: var(--ink); }
+  .area strong { font-family: var(--serif); font-weight: 400; font-size: 1.5rem; color: var(--blue); }
+  .journey { background: var(--blue); color: #fff; padding: 56px 0; }
+  .journey h2 { color: #fff; }
+  .journey-inner { display: flex; justify-content: space-between; align-items: center; gap: 32px; flex-wrap: wrap; }
+  .journey p { max-width: 60ch; font-size: 1.1rem; margin: 0; }
+  .videos { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+  .video img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+  .sponsors { text-align: center; }
+  .sponsor-row { display: flex; justify-content: center; gap: 48px; flex-wrap: wrap; align-items: center; }
+  .sponsor-row img { max-height: 90px; width: auto; }
+  @media (max-width: 860px) { .split { grid-template-columns: 1fr; } }
+</style>

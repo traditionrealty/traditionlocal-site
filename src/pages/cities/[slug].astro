@@ -1,0 +1,88 @@
+---
+import Base from '../../layouts/Base.astro';
+import PostCard from '../../components/PostCard.astro';
+import areas from '../../data/areas.json';
+import businesses from '../../data/businesses.json';
+import posts from '../../data/posts.json';
+import { url, img } from '../../lib/util';
+
+export function getStaticPaths() {
+  return areas.map((a) => ({ params: { slug: a.slug }, props: { a } }));
+}
+const { a } = Astro.props;
+const eats = businesses.filter((b) => b.area === a.slug).sort((x, y) => Number(y.saraPick) - Number(x.saraPick));
+const stories = posts.filter((p) => p.title.toLowerCase().includes(a.name.toLowerCase())).slice(0, 3);
+const parent = a.parent ? areas.find((x) => x.slug === a.parent) : null;
+const children = areas.filter((x) => x.parent === a.slug);
+const sameRegion = areas.filter((x) => x.region === a.region && x.slug !== a.slug).slice(0, 8);
+---
+<Base title={a.seoTitle.replace(/\s*\|\s*Tradition Local$/, '')} description={a.metaDescription} image={a.hero}>
+  <section class="band area-hero" style={a.hero ? `background-image: linear-gradient(rgba(31,75,168,.82), rgba(31,75,168,.82)), url(${img(a.hero)})` : undefined}>
+    <div class="wrap">
+      <p class="kicker"><a href={url('/cities')}>Neighborhoods</a> / {a.region}{parent && <> / <a href={url(`/cities/${parent.slug}`)}>{parent.name}</a></>}</p>
+      <h1>{a.name}</h1>
+      <p class="lede">{a.vibe}</p>
+    </div>
+  </section>
+  <section class="section">
+    <div class="wrap layout">
+      <div>
+        <div class="take">
+          <h2>Dillon's take</h2>
+          <p>{a.take}</p>
+        </div>
+        {eats.length > 0 && (
+          <>
+            <h2 class="eat-head">Where to eat in {a.name}</h2>
+            <ul class="eats">
+              {eats.map((b) => (
+                <li><a href={url(`/eat/${b.slug}`)}>
+                  <strong>{b.name}</strong>{b.saraPick && <span class="badge">Sara's pick</span>}
+                  <span class="cats">{b.categories.slice(0, 2).join(', ')}</span>
+                  <span class="desc">{b.description}</span>
+                </a></li>
+              ))}
+            </ul>
+          </>
+        )}
+      </div>
+      <aside>
+        <dl>
+          <dt>Type</dt><dd>{a.type}</dd>
+          <dt>Best for</dt><dd>{a.bestFor}</dd>
+          <dt>Typical homes</dt><dd>{a.homes}</dd>
+          {a.schools && (<><dt>Schools</dt><dd>{a.schools}</dd></>)}
+        </dl>
+        <a class="btn gold" href={url('/neighborhood-info-request')}>Ask about homes here</a>
+        {children.length > 0 && (<div class="rel"><p><strong>Inside {a.name}</strong></p><ul>{children.map((c) => <li><a href={url(`/cities/${c.slug}`)}>{c.name}</a></li>)}</ul></div>)}
+        <div class="rel"><p><strong>More in {a.region}</strong></p><ul>{sameRegion.map((c) => <li><a href={url(`/cities/${c.slug}`)}>{c.name}</a></li>)}</ul></div>
+      </aside>
+    </div>
+  </section>
+  {stories.length > 0 && (
+    <section class="section tint">
+      <div class="wrap">
+        <div class="section-head"><h2>Stories from {a.name}</h2></div>
+        <div class="grid">{stories.map((p) => <PostCard post={p} />)}</div>
+      </div>
+    </section>
+  )}
+</Base>
+<style>
+  .area-hero { background-size: cover; background-position: center; }
+  .kicker a { color: var(--gold); }
+  .layout { display: grid; grid-template-columns: 1fr 340px; gap: 56px; }
+  .take { background: var(--cream); border-left: 6px solid var(--gold); padding: 28px 32px; }
+  .take p { font-family: var(--serif); font-size: 1.35rem; line-height: 1.5; color: var(--navy); margin: 0; }
+  .eat-head { margin-top: 48px; }
+  .eats { list-style: none; padding: 0; display: grid; gap: 0; border-top: 1px solid var(--line); }
+  .eats a { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; padding: 16px 4px; border-bottom: 1px solid var(--line); text-decoration: none; color: var(--ink); }
+  .eats a:hover { background: var(--cream); }
+  .eats strong { font-family: var(--serif); font-weight: 400; font-size: 1.2rem; color: var(--blue); }
+  .cats { grid-column: 1 / -1; font-size: 13px; color: var(--brown); }
+  .desc { grid-column: 1 / -1; font-size: 15px; color: var(--muted); }
+  aside { align-self: start; border: 1px solid var(--line); padding: 24px; }
+  dl { margin: 0 0 22px; } dt { font-size: 13px; color: var(--brown); margin-top: 14px; } dd { margin: 2px 0 0; }
+  .rel { margin-top: 24px; } .rel ul { padding-left: 18px; margin: 0; }
+  @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } }
+</style>

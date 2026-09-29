@@ -1,0 +1,69 @@
+---
+import Base from '../layouts/Base.astro';
+import areas from '../data/areas.json';
+import hoods from '../data/neighborhoods.json';
+import { url } from '../lib/util';
+const regions = ['Central', 'West', 'North', 'South', 'East', 'Suburbs', 'Coast', 'Countryside'].filter((r) => areas.some((a) => a.region === r));
+---
+<Base title="Neighborhoods" description="Every Tradition Local neighborhood guide covers where to eat, how to spend a Saturday, and what it is really like to live there.">
+  <section class="band">
+    <div class="wrap">
+      <p class="kicker">Eat, do, and live like a local</p>
+      <h1>Neighborhoods</h1>
+      <p class="lede">Every neighborhood guide covers where to eat, how to spend a Saturday, and what it is really like to live there.</p>
+      <a class="btn gold" href={url('/neighborhood-info-request')}>Not sure? Ask Dillon</a>
+    </div>
+  </section>
+  <section class="section">
+    <div class="wrap">
+      <div class="chips" role="group" aria-label="Filter by region">
+        <button class="chip" data-region="" aria-pressed="true">All regions</button>
+        {regions.map((r) => <button class="chip" data-region={r} aria-pressed="false">{r}</button>)}
+      </div>
+      <p class="muted" id="count" aria-live="polite">{areas.length} guides</p>
+      <ul class="areas" id="areas">
+        {areas.map((a) => (
+          <li data-region={a.region}>
+            <a href={url(`/cities/${a.slug}`)}>
+              <span class="type">{a.type} in {a.region}</span>
+              <strong>{a.name}</strong>
+              <span class="vibe">{a.vibe}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+  <section class="section tint">
+    <div class="wrap">
+      <div class="section-head"><h2>Subdivision profiles</h2><span class="muted">{hoods.length} communities</span></div>
+      <p>Price ranges, price per square foot, HOAs, and school districts for individual subdivisions.</p>
+      <ul class="hood-index">{hoods.map((h) => <li><a href={url(h.path)}>{h.name}</a></li>)}</ul>
+    </div>
+  </section>
+</Base>
+<script>
+  const chips = [...document.querySelectorAll<HTMLButtonElement>('[data-region]')].filter((el) => el.tagName === 'BUTTON');
+  const items = [...document.querySelectorAll<HTMLLIElement>('#areas li')];
+  const count = document.getElementById('count')!;
+  chips.forEach((c) => c.addEventListener('click', () => {
+    const r = c.dataset.region;
+    chips.forEach((x) => x.setAttribute('aria-pressed', String(x === c)));
+    let n = 0;
+    items.forEach((li) => { const ok = !r || li.dataset.region === r; li.hidden = !ok; if (ok) n++; });
+    count.textContent = `${n} guides`;
+  }));
+</script>
+<style>
+  #count { margin: 18px 0; }
+  .areas { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+  .areas li[hidden] { display: none; }
+  .areas a { display: flex; flex-direction: column; gap: 6px; height: 100%; padding: 22px; border: 1px solid var(--line); border-top: 4px solid var(--gold); text-decoration: none; color: var(--ink); }
+  .areas a:hover { background: var(--cream); }
+  .type { font-size: 13px; color: var(--brown); }
+  .areas strong { font-family: var(--serif); font-weight: 400; font-size: 1.5rem; color: var(--blue); }
+  .vibe { color: var(--muted); font-size: 15px; }
+  .hood-index { columns: 4 200px; padding: 0; list-style: none; margin-top: 20px; }
+  .hood-index li { break-inside: avoid; padding: 3px 0; }
+  .hood-index a { text-decoration: none; }
+</style>

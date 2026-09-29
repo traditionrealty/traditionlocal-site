@@ -1,0 +1,197 @@
+---
+import site from '../data/site.json';
+import events from '../data/events.json';
+import { url, img, fmtDate } from '../lib/util';
+import { config } from '../config';
+
+interface Props { title?: string; description?: string | null; image?: string | null; type?: string; }
+const { title, description, image, type = 'website' } = Astro.props;
+const fullTitle = title ? `${title} | Tradition Local` : site.title;
+const desc = description || site.description;
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const today = new Date().toISOString().slice(0, 10);
+const next = events.find((e) => e.date && e.date >= today);
+const path = Astro.url.pathname.replace(import.meta.env.BASE_URL.replace(/\/$/, ''), '') || '/';
+const nav = [
+  { label: 'Eat', href: '/food', match: ['/food', '/eat'] },
+  { label: 'Neighborhoods', href: '/cities', match: ['/cities', '/copy-of-neighborhoods-1', '/traditionneighborhoods'] },
+  { label: 'Living', href: '/living', match: ['/living', '/event-details'] },
+  { label: 'Articles', href: '/all-articles', match: ['/all-articles', '/post'] },
+];
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{fullTitle}</title>
+  <meta name="description" content={desc} />
+  <link rel="canonical" href={canonical} />
+  <meta property="og:title" content={fullTitle} />
+  <meta property="og:description" content={desc} />
+  <meta property="og:type" content={type} />
+  <meta property="og:url" content={canonical} />
+  {image && <meta property="og:image" content={img(image)} />}
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="icon" type="image/png" href={img(site.logo)} />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&display=swap" rel="stylesheet" />
+  <slot name="head" />
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  {next && (
+    <div class="eventbar">
+      <div class="wrap">
+        <strong>Upcoming events</strong>
+        <span class="eventbar-title">{next.title.replace(/\s*\[.*?\]\s*/g, ' ').trim()}, {fmtDate(next.date, { weekday: 'short', month: 'short', day: 'numeric' })}</span>
+        <a class="rsvp" href={url(next.path)}>RSVP</a>
+        <a class="all" href={url('/living')}>See all events</a>
+      </div>
+    </div>
+  )}
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href={url('/')}>
+        <img src={img(site.logo)} alt="" width="56" height="56" />
+        <span>Tradition Local</span>
+      </a>
+      <nav aria-label="Main">
+        {nav.map((n) => (
+          <a href={url(n.href)} aria-current={n.match.some((m) => path.startsWith(m)) ? 'page' : undefined}>{n.label}</a>
+        ))}
+      </nav>
+    </div>
+  </header>
+  <main id="main"><slot /></main>
+  <footer class="site-footer">
+    <div class="wrap footer-grid">
+      <div>
+        <p class="footer-brand">Tradition Local</p>
+        <p>Become a local insider. Join for monthly stories, events, and what's trending near you.</p>
+        {config.newsletterAction ? (
+          <form class="signup" action={config.newsletterAction} method="post">
+            <label for="nl-email">Email</label>
+            <div><input id="nl-email" name="email" type="email" required placeholder="you@example.com" /><button type="submit">Subscribe</button></div>
+          </form>
+        ) : (
+          <a class="btn gold" href={`mailto:${config.contactEmail}?subject=Subscribe%20me%20to%20Tradition%20Local`}>Join the newsletter</a>
+        )}
+      </div>
+      <div>
+        <p class="footer-head">Explore</p>
+        <ul>
+          <li><a href={url('/food')}>Where to eat</a></li>
+          <li><a href={url('/cities')}>Neighborhood guides</a></li>
+          <li><a href={url('/living')}>Events</a></li>
+          <li><a href={url('/all-articles')}>All articles</a></li>
+          <li><a href={url('/about-me')}>About us</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="footer-head">Follow</p>
+        <ul>
+          <li><a href={site.social.instagram}>Instagram</a></li>
+          <li><a href={site.social.youtube}>YouTube</a></li>
+          <li><a href={site.social.facebook}>Facebook group</a></li>
+          <li><a href={`mailto:${config.contactEmail}`}>{config.contactEmail}</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="wrap legal">
+      <span>© {new Date().getFullYear()} Tradition Local. All rights reserved.</span>
+      <span>Real estate services by <a href={config.brokerage.url}>{config.brokerage.name}</a></span>
+    </div>
+  </footer>
+</body>
+</html>
+
+<style is:global>
+  :root {
+    --blue: #004aad; --blue-deep: #1f4ba8; --navy: #20455e; --slate: #35465c;
+    --gold: #d8bb53; --gold-soft: #f3e9c4; --brown: #9d693f; --cream: #f9f5f4;
+    --ink: #1c1c1c; --muted: #5b6573; --line: #e4e0da; --paper: #ffffff;
+    --serif: 'Fraunces', Georgia, serif;
+    --sans: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    --wrap: 1180px;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; font-family: var(--sans); color: var(--ink); background: var(--paper); line-height: 1.55; font-size: 17px; }
+  img { max-width: 100%; height: auto; display: block; }
+  a { color: var(--blue); }
+  a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+  h1, h2, h3, h4 { font-family: var(--serif); font-weight: 400; color: var(--blue); line-height: 1.15; margin: 0 0 .5em; }
+  h1 { font-size: clamp(2.2rem, 5vw, 3.6rem); letter-spacing: -0.01em; }
+  h2 { font-size: clamp(1.6rem, 3vw, 2.2rem); }
+  h3 { font-size: 1.3rem; }
+  .wrap { max-width: var(--wrap); margin: 0 auto; padding: 0 24px; }
+  .skip { position: absolute; left: -999px; top: 0; background: var(--gold); padding: 8px 12px; z-index: 10; }
+  .skip:focus { left: 8px; }
+
+  .eventbar { background: var(--gold); color: var(--navy); font-size: 15px; }
+  .eventbar .wrap { display: flex; gap: 18px; align-items: center; justify-content: center; padding-top: 8px; padding-bottom: 8px; flex-wrap: wrap; }
+  .eventbar strong { color: #1d2d7a; letter-spacing: .04em; }
+  .eventbar a { color: var(--navy); }
+  .eventbar .rsvp { font-weight: 700; letter-spacing: .15em; }
+  .eventbar .all { border-left: 1px solid var(--navy); padding-left: 18px; text-decoration: none; }
+
+  .site-header { background: var(--cream); border-bottom: 1px solid var(--line); }
+  .header-inner { display: flex; align-items: center; justify-content: space-between; min-height: 104px; gap: 24px; flex-wrap: wrap; }
+  .brand { display: flex; align-items: center; gap: 22px; text-decoration: none; }
+  .brand span { font-family: var(--serif); font-size: clamp(1.4rem, 2.6vw, 2rem); color: var(--blue); letter-spacing: .06em; text-transform: uppercase; }
+  .site-header nav { display: flex; gap: 28px; flex-wrap: wrap; }
+  .site-header nav a { text-decoration: none; font-weight: 600; font-size: 16px; padding: 6px 0; border-bottom: 2px solid transparent; }
+  .site-header nav a:hover, .site-header nav a[aria-current] { border-color: var(--gold); }
+
+  .band { background: var(--blue-deep); color: #fff; padding: 72px 0 64px; }
+  .band h1, .band h2 { color: #fff; }
+  .band .kicker { color: var(--gold); font-size: 15px; margin: 0 0 12px; }
+  .band p.lede { font-size: 1.25rem; max-width: 40ch; margin: 0 0 28px; }
+  .section { padding: 56px 0; }
+  .section.tint { background: var(--cream); }
+  .section-head { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; margin-bottom: 24px; border-bottom: 2px solid var(--blue); padding-bottom: 8px; }
+  .section-head h2 { margin: 0; }
+  .section-head a { font-weight: 600; text-decoration: none; }
+
+  .btn { display: inline-block; padding: 12px 26px; border-radius: 999px; font-family: var(--serif); font-weight: 600; text-decoration: none; border: 0; cursor: pointer; font-size: 16px; }
+  .btn.gold { background: var(--gold); color: var(--blue); }
+  .btn.blue { background: var(--blue); color: #fff; }
+  .btn.ghost { border: 2px solid var(--blue); color: var(--blue); background: transparent; }
+
+  .grid { display: grid; gap: 28px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+  .chip { display: inline-block; border: 1.5px solid var(--blue); border-radius: 999px; padding: 4px 14px; font-size: 14px; color: var(--blue); text-decoration: none; background: #fff; cursor: pointer; font-family: var(--sans); }
+  .chip[aria-pressed="true"] { background: var(--blue); color: #fff; }
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .muted { color: var(--muted); }
+  .badge { display: inline-block; font-size: 13px; padding: 2px 10px; border-radius: 4px; background: var(--gold-soft); color: var(--brown); font-weight: 600; }
+
+  .prose { max-width: 70ch; font-size: 18px; line-height: 1.7; }
+  .prose h2 { margin-top: 1.6em; font-size: 1.7rem; }
+  .prose h3, .prose h4, .prose h5 { margin-top: 1.4em; font-family: var(--serif); color: var(--navy); }
+  .prose figure { margin: 1.6em 0; }
+  .prose figure img { border-radius: 6px; width: 100%; }
+  .prose blockquote { border-left: 4px solid var(--gold); margin: 1.4em 0; padding: .2em 0 .2em 1.2em; font-family: var(--serif); font-size: 1.2rem; color: var(--navy); }
+  .prose .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; margin-top: 2em; }
+  .prose .gallery figure { margin: 0; }
+
+  .site-footer { background: var(--navy); color: #e8edf2; margin-top: 64px; padding: 56px 0 24px; }
+  .site-footer a { color: #fff; }
+  .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 40px; }
+  .footer-brand { font-family: var(--serif); font-size: 1.8rem; color: #fff; margin: 0 0 8px; }
+  .footer-head { font-weight: 700; color: var(--gold); margin: 0 0 10px; }
+  .site-footer ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+  .signup label { display: block; font-size: 14px; margin-bottom: 6px; }
+  .signup div { display: flex; gap: 8px; }
+  .signup input { flex: 1; padding: 12px; border-radius: 999px; border: 0; font-size: 16px; }
+  .signup button { background: var(--gold); color: var(--blue); border: 0; border-radius: 999px; padding: 0 22px; font-weight: 700; cursor: pointer; }
+  .legal { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; border-top: 1px solid rgba(255,255,255,.2); margin-top: 40px; padding-top: 18px; font-size: 14px; }
+  @media (max-width: 760px) {
+    .footer-grid { grid-template-columns: 1fr; }
+    .header-inner { padding-top: 14px; padding-bottom: 14px; }
+    .site-header nav { gap: 18px; }
+    .band { padding: 48px 0; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; transition: none !important; } }
+</style>

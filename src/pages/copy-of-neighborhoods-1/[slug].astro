@@ -1,0 +1,54 @@
+---
+import Base from '../../layouts/Base.astro';
+import hoods from '../../data/neighborhoods.json';
+import { url, tidy } from '../../lib/util';
+
+export function getStaticPaths() {
+  return hoods.map((h) => ({ params: { slug: h.slug }, props: { h } }));
+}
+const { h } = Astro.props;
+const stats = [
+  ['Price range', h.priceRange], ['Price per sq ft', h.pricePerSqft], ['Year built', h.yearBuilt],
+  ['School district', h.schools.join(', ')], ['ZIP code', h.zips.join(', ')],
+].filter(([, v]) => v);
+const sameZip = hoods.filter((x) => x.slug !== h.slug && x.zips.some((z) => h.zips.includes(z))).slice(0, 10);
+---
+<Base title={`${h.name} homes and neighborhood guide`} description={tidy(h.summary)}>
+  <section class="band">
+    <div class="wrap">
+      <p class="kicker"><a href={url('/cities')}>Neighborhoods</a> / Subdivision profile</p>
+      <h1>{h.name}</h1>
+      {h.summary && <p class="lede">{tidy(h.summary)}</p>}
+    </div>
+  </section>
+  <section class="stats"><div class="wrap"><dl>{stats.map(([k, v]) => <div><dt>{k}</dt><dd>{v}</dd></div>)}</dl></div></section>
+  <section class="section">
+    <div class="wrap layout">
+      <div class="prose">
+        {h.highlights.length > 0 && (<><h2>Highlights</h2><ul>{h.highlights.map((x) => <li>{tidy(x)}</li>)}</ul></>)}
+        {h.location && (<><h2>Location</h2><p>{tidy(h.location)}</p></>)}
+        {h.amenities && (<><h2>Amenities</h2><p>{tidy(h.amenities)}</p></>)}
+        {h.hoa && (<><h2>HOA</h2><p>{tidy(h.hoa)}</p></>)}
+      </div>
+      <aside>
+        <p><strong>Thinking about {h.name}?</strong></p>
+        <p>Get current listings, recent sales, and a local read on the street by street differences.</p>
+        <a class="btn gold" href={url('/neighborhood-info-request')}>Request neighborhood info</a>
+        {sameZip.length > 0 && (<div class="rel"><p><strong>Nearby subdivisions</strong></p><ul>{sameZip.map((x) => <li><a href={url(x.path)}>{x.name}</a></li>)}</ul></div>)}
+      </aside>
+    </div>
+  </section>
+</Base>
+<style>
+  .kicker a { color: var(--gold); }
+  .stats { background: var(--cream); border-bottom: 1px solid var(--line); }
+  .stats dl { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 0; margin: 0; }
+  .stats div { padding: 22px 16px; border-right: 1px solid var(--line); }
+  .stats dt { font-size: 13px; color: var(--brown); }
+  .stats dd { margin: 4px 0 0; font-family: var(--serif); font-size: 1.35rem; color: var(--blue); }
+  .layout { display: grid; grid-template-columns: 1fr 320px; gap: 56px; }
+  .prose h2:first-child { margin-top: 0; }
+  aside { align-self: start; background: var(--cream); padding: 24px; }
+  .rel { margin-top: 24px; } .rel ul { padding-left: 18px; }
+  @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } }
+</style>

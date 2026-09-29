@@ -1,0 +1,17 @@
+---
+// Every other page from the Wix site, rebuilt from its scraped content at the same URL.
+import Base from '../layouts/Base.astro';
+import Blocks from '../components/Blocks.astro';
+import pages from '../data/pages.json';
+
+export function getStaticPaths() {
+  return pages.map((p) => ({ params: { path: p.path.replace(/^\//, '') }, props: { p } }));
+}
+const { p } = Astro.props;
+const heading = p.h1 || p.title;
+---
+<Base title={p.title} description={p.description}>
+  <section class="band slim"><div class="wrap"><h1>{heading}</h1></div></section>
+  <section class="section"><div class="wrap"><Blocks blocks={p.blocks} /></div></section>
+</Base>
+<style>.band.slim { padding: 56px 0 44px; } .band.slim h1 { margin: 0; }</style>

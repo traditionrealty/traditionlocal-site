@@ -1,0 +1,11 @@
+---
+import Base from '../layouts/Base.astro';
+import { url } from '../lib/util';
+---
+<Base title="Page not found">
+  <section class="band"><div class="wrap">
+    <h1>That page moved or no longer exists</h1>
+    <p class="lede">Try one of these instead.</p>
+    <p><a class="btn gold" href={url('/food')}>Where to eat</a> <a class="btn gold" href={url('/cities')}>Neighborhood guides</a> <a class="btn gold" href={url('/all-articles')}>All articles</a></p>
+  </div></section>
+</Base>

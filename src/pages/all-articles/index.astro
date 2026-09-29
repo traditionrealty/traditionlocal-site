@@ -1,0 +1,7 @@
+---
+import Base from '../../layouts/Base.astro';
+import ArticleList from '../../components/ArticleList.astro';
+import posts from '../../data/posts.json';
+const desc = 'A Houston city community using local guides and videos to connect Houstonians and those relocating with food, neighborhoods, and culture where they live.';
+---
+<Base title="All articles" description={desc}><ArticleList posts={posts} title="Explore" intro={desc} /></Base>

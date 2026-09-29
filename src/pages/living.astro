@@ -1,0 +1,51 @@
+---
+import Base from '../layouts/Base.astro';
+import events from '../data/events.json';
+import { url, img, fmtDate } from '../lib/util';
+const today = new Date().toISOString().slice(0, 10);
+const upcoming = events.filter((e) => e.date && e.date >= today);
+const past = events.filter((e) => !e.date || e.date < today).reverse();
+const featured = upcoming[0];
+---
+<Base title="Living" description="Coffee & Conversations meetups, community events, and things to do across Greater Houston.">
+  <section class="band">
+    <div class="wrap feature">
+      <div>
+        <p class="kicker">Featured event</p>
+        {featured ? (
+          <>
+            <h1>{featured.title}</h1>
+            <p class="lede">{featured.when}<br />{featured.location}</p>
+            <a class="btn gold" href={url(featured.path)}>Event details and RSVP</a>
+          </>
+        ) : (<><h1>Things to do</h1><p class="lede">New events are announced every month. Check back soon.</p></>)}
+      </div>
+      {featured?.image && <img src={img(featured.image, 700)} alt="" />}
+    </div>
+  </section>
+  {upcoming.length > 1 && (
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head"><h2>Upcoming events</h2></div>
+        <ul class="events">{upcoming.slice(1).map((e) => <li><a href={url(e.path)}><span class="d">{fmtDate(e.date, { weekday: 'short', month: 'short', day: 'numeric' })}</span><strong>{e.title}</strong><span class="muted">{e.venue}</span></a></li>)}</ul>
+      </div>
+    </section>
+  )}
+  <section class="section tint">
+    <div class="wrap">
+      <div class="section-head"><h2>Past events</h2></div>
+      <ul class="events">{past.map((e) => <li><a href={url(e.path)}><span class="d">{e.date && e.when?.includes(',') ? fmtDate(e.date) : e.when}</span><strong>{e.title}</strong><span class="muted">{e.venue}</span></a></li>)}</ul>
+    </div>
+  </section>
+</Base>
+<style>
+  .feature { display: grid; grid-template-columns: 1.2fr 1fr; gap: 48px; align-items: center; }
+  .feature img { border-radius: 6px; }
+  .feature h1 { font-size: clamp(1.9rem, 4vw, 3rem); }
+  .events { list-style: none; padding: 0; margin: 0; }
+  .events a { display: grid; grid-template-columns: 170px 1fr auto; gap: 16px; padding: 16px 4px; border-bottom: 1px solid var(--line); text-decoration: none; color: var(--ink); align-items: baseline; }
+  .events a:hover { background: #fff; }
+  .d { font-weight: 700; color: var(--navy); font-size: 15px; }
+  .events strong { font-family: var(--serif); font-weight: 400; font-size: 1.2rem; color: var(--blue); }
+  @media (max-width: 760px) { .feature { grid-template-columns: 1fr; } .events a { grid-template-columns: 1fr; gap: 2px; } }
+</style>

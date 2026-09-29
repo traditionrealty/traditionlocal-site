@@ -1,0 +1,57 @@
+---
+import Base from '../../layouts/Base.astro';
+import events from '../../data/events.json';
+import { url, img, fmtDate } from '../../lib/util';
+
+export function getStaticPaths() {
+  const paths: any[] = events.map((e) => ({ params: { slug: e.slug }, props: { e } }));
+  // Old Wix registration URL for the July event now points to the event page
+  paths.push({ params: { slug: 'jos-coffee-for-coffee-conversations-july/form' }, props: { e: events.find((x) => x.slug === 'jos-coffee-for-coffee-conversations-july'), redirect: true } });
+  return paths;
+}
+const { e, redirect } = Astro.props;
+const today = new Date().toISOString().slice(0, 10);
+const isPast = !e.date || e.date < today;
+const exact = e.when?.includes(',');
+const ld = { '@context': 'https://schema.org', '@type': 'Event', name: e.title, startDate: e.date,
+  location: { '@type': 'Place', name: e.venue, address: e.location }, image: e.image, description: e.about.join(' ') };
+---
+{redirect ? (
+  <html><head><meta http-equiv="refresh" content={`0; url=${url(e.path)}`} /><link rel="canonical" href={url(e.path)} /></head><body><a href={url(e.path)}>Continue to the event</a></body></html>
+) : (
+<Base title={e.title} description={e.about[0] || `${e.title} with Tradition Local.`} image={e.image}>
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify(ld)} />
+  <section class="band">
+    <div class="wrap">
+      <p class="kicker"><a href={url('/living')}>Events</a> / {isPast ? 'Past event' : 'Upcoming'}</p>
+      <h1>{e.title}</h1>
+      <p class="lede">{exact ? e.when : e.when || 'Date to be announced'}</p>
+    </div>
+  </section>
+  <section class="section">
+    <div class="wrap layout">
+      <div class="prose">
+        {e.image && <img src={img(e.image)} alt="" />}
+        <h2>About the event</h2>
+        {e.about.length ? e.about.map((p) => <p>{p}</p>) : <p>Relaxed talks, cheery friendly faces, and a good time. Join us for Coffee & Conversations.</p>}
+      </div>
+      <aside>
+        <h3>Time and location</h3>
+        {e.when && <p>{e.when}</p>}
+        {e.location && <p>{e.location}</p>}
+        {e.location && <a class="btn blue" href={`https://www.google.com/maps/search/${encodeURIComponent(e.location)}`}>Get directions</a>}
+        {!isPast && <p class="rsvp">To RSVP, email <a href={`mailto:traditionlocal@gmail.com?subject=${encodeURIComponent('RSVP: ' + e.title)}`}>traditionlocal@gmail.com</a>.</p>}
+        {isPast && <p class="muted">This event has ended. <a href={url('/living')}>See upcoming events</a>.</p>}
+      </aside>
+    </div>
+  </section>
+</Base>
+)}
+<style>
+  .kicker a { color: var(--gold); }
+  .layout { display: grid; grid-template-columns: 1fr 320px; gap: 56px; }
+  .prose img { border-radius: 6px; margin-bottom: 24px; }
+  aside { align-self: start; background: var(--cream); padding: 24px; }
+  .rsvp { margin-top: 20px; }
+  @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } }
+</style>

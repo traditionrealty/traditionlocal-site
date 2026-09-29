@@ -1,0 +1,19 @@
+---
+import PostCard from './PostCard.astro';
+import categories from '../data/categories.json';
+import { url } from '../lib/util';
+interface Props { posts: any[]; title: string; intro?: string | null; active?: string }
+const { posts, title, intro, active } = Astro.props;
+---
+<section class="band"><div class="wrap"><p class="kicker">Tradition Local articles</p><h1>{title}</h1>{intro && <p class="lede">{intro}</p>}</div></section>
+<section class="section">
+  <div class="wrap">
+    <nav class="chips" aria-label="Categories">
+      <a class="chip" href={url('/all-articles')} aria-pressed={!active ? 'true' : 'false'}>All</a>
+      {categories.map((c) => <a class="chip" href={url(`/all-articles/categories/${c.slug}`)} aria-pressed={active === c.slug ? 'true' : 'false'}>{c.name}</a>)}
+    </nav>
+    <p class="muted count">{posts.length} {posts.length === 1 ? 'article' : 'articles'}</p>
+    {posts.length ? <div class="grid">{posts.map((p) => <PostCard post={p} />)}</div> : <p>No articles in this category yet. <a href={url('/all-articles')}>Browse all articles</a>.</p>}
+  </div>
+</section>
+<style>.count { margin: 18px 0 24px; }</style>

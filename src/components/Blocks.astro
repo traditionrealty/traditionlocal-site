@@ -1,0 +1,44 @@
+---
+// Renders the ordered content blocks scraped from a Wix static page.
+import { url, img } from '../lib/util';
+interface Props { blocks: any[]; skipFirstH1?: boolean }
+const { blocks, skipFirstH1 = true } = Astro.props;
+
+// group consecutive list items and consecutive images
+const groups: any[] = [];
+let h1Skipped = !skipFirstH1;
+for (const b of blocks) {
+  if (b.t === 'h1' && !h1Skipped) { h1Skipped = true; continue; }
+  const last = groups[groups.length - 1];
+  if (b.t === 'li') { if (last?.t === 'ul') last.items.push(b); else groups.push({ t: 'ul', items: [b] }); continue; }
+  if (b.t === 'img') { if (last?.t === 'imgs') last.items.push(b); else groups.push({ t: 'imgs', items: [b] }); continue; }
+  groups.push(b);
+}
+const heading = (t: string) => (['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(t) ? (t === 'h1' ? 'h2' : t) : null);
+const linkFor = (b: any) => b.links?.length === 1 && b.links[0].text && b.v.includes(b.links[0].text) ? b.links[0] : null;
+---
+<div class="blocks prose">
+  {groups.map((g) => {
+    const H = heading(g.t);
+    if (H) { const Tag = H as any; return <Tag>{g.v}</Tag>; }
+    if (g.t === 'ul') return <ul>{g.items.map((i: any) => <li>{i.links?.[0] ? <a href={url(i.links[0].href)}>{i.v}</a> : i.v}</li>)}</ul>;
+    if (g.t === 'imgs') return (
+      <div class:list={['imgs', { many: g.items.length > 1 }]}>
+        {g.items.map((i: any) => <img src={img(i.src)} alt={i.alt || ''} loading="lazy" />)}
+      </div>
+    );
+    if (g.t === 'link') return <p><a class="btn ghost" href={url(g.href)}>{g.v}</a></p>;
+    if (g.t === 'embed') return <div class="embed"><iframe src={g.src} loading="lazy" title="Embedded content"></iframe></div>;
+    if (g.t === 'blockquote') return <blockquote>{g.v}</blockquote>;
+    const l = linkFor(g);
+    if (l) { const [a, b] = g.v.split(l.text); return <p>{a}<a href={url(l.href)}>{l.text}</a>{b}</p>; }
+    return <p>{g.v}</p>;
+  })}
+</div>
+<style>
+  .imgs { margin: 1.4em 0; }
+  .imgs img { border-radius: 6px; }
+  .imgs.many { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+  .imgs.many img { aspect-ratio: 4 / 3; object-fit: cover; width: 100%; }
+  .embed iframe { width: 100%; aspect-ratio: 16 / 9; border: 0; }
+</style>

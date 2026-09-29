@@ -1,0 +1,12 @@
+---
+import Base from '../../../layouts/Base.astro';
+import ArticleList from '../../../components/ArticleList.astro';
+import posts from '../../../data/posts.json';
+import categories from '../../../data/categories.json';
+export function getStaticPaths() {
+  return categories.map((c) => ({ params: { cat: c.slug }, props: { c } }));
+}
+const { c } = Astro.props;
+const list = posts.filter((p) => p.categories.includes(c.slug));
+---
+<Base title={c.name} description={c.description}><ArticleList posts={list} title={c.name} intro={c.description} active={c.slug} /></Base>
