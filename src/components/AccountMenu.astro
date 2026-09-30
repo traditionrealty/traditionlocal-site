@@ -1,0 +1,113 @@
+---
+// Profile icon in the top right corner. Signed out: Sign in and Join.
+// Signed in: the member's photo or initials, with account links and Sign out.
+import { url } from '../lib/util';
+---
+<div class="account" data-account>
+  <button class="avatar-btn" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="account-menu" aria-label="Account menu">
+    <span class="avatar" data-avatar>
+      <svg class="avatar-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <circle cx="12" cy="8.5" r="4" fill="currentColor" />
+        <path d="M4 20.5c0-4.2 3.6-7 8-7s8 2.8 8 7" fill="currentColor" />
+      </svg>
+      <img data-avatar-img alt="" hidden />
+      <span data-avatar-initials hidden></span>
+    </span>
+  </button>
+  <div class="account-menu" id="account-menu" hidden>
+    <div data-acct="out">
+      <p class="menu-note">Get member perks and hear about local events first.</p>
+      <a class="btn blue small" href={url('/sign-in')}>Sign in</a>
+      <a class="btn ghost small" href={url('/join')}>Join free</a>
+    </div>
+    <div data-acct="in" hidden>
+      <p class="menu-who"><strong data-acct-name>Member</strong><span data-acct-email></span></p>
+      <a class="menu-link" href={url('/members')}>My account</a>
+      <a class="menu-link" href={url('/members#details')}>Profile and settings</a>
+      <a class="menu-link" href={url('/reset-password')}>Change password</a>
+      <button class="menu-link signout" type="button" data-ms-action="logout">Sign out</button>
+    </div>
+  </div>
+</div>
+
+<script is:inline>
+  (function () {
+    var root = document.querySelector('[data-account]');
+    if (!root) return;
+    var btn = root.querySelector('.avatar-btn');
+    var menu = root.querySelector('.account-menu');
+    function setOpen(open) {
+      menu.hidden = !open;
+      btn.setAttribute('aria-expanded', String(open));
+    }
+    btn.addEventListener('click', function (e) { e.stopPropagation(); setOpen(menu.hidden); });
+    document.addEventListener('click', function (e) { if (!root.contains(e.target)) setOpen(false); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !menu.hidden) { setOpen(false); btn.focus(); } });
+
+    function show(member) {
+      var f = (member && member.customFields) || {};
+      var first = (f['first-name'] || '').trim();
+      var last = (f['last-name'] || '').trim();
+      var email = (member && member.auth && member.auth.email) || '';
+      root.querySelector('[data-acct="out"]').hidden = !!member;
+      root.querySelector('[data-acct="in"]').hidden = !member;
+      var img = root.querySelector('[data-avatar-img]');
+      var ini = root.querySelector('[data-avatar-initials]');
+      var icon = root.querySelector('.avatar-icon');
+      var photo = member && (member.profileImage || f['profile-image']);
+      img.hidden = true; ini.hidden = true; icon.style.display = '';
+      root.classList.toggle('signed-in', !!member);
+      if (member) {
+        var name = (first + ' ' + last).trim();
+        root.querySelector('[data-acct-name]').textContent = name || 'Member';
+        root.querySelector('[data-acct-email]').textContent = email;
+        btn.setAttribute('aria-label', 'Account menu for ' + (name || email || 'member'));
+        if (photo) { img.src = photo; img.hidden = false; icon.style.display = 'none'; }
+        else if (first || last || email) {
+          ini.textContent = ((first[0] || '') + (last[0] || '') || email[0] || '').toUpperCase();
+          ini.hidden = false; icon.style.display = 'none';
+        }
+      } else {
+        btn.setAttribute('aria-label', 'Account menu');
+      }
+    }
+    var tries = 0;
+    (function wait() {
+      var ms = window.$memberstackDom;
+      if (ms && ms.getCurrentMember) {
+        ms.getCurrentMember().then(function (r) { show(r && r.data); }).catch(function () { show(null); });
+        if (ms.onAuthChange) ms.onAuthChange(function (m) { show(m); });
+      } else if (tries++ < 100) { setTimeout(wait, 100); }
+    })();
+  })();
+</script>
+
+<style is:global>
+  .account { position: relative; order: 3; }
+  .avatar-btn { background: none; border: 0; padding: 0; cursor: pointer; border-radius: 50%; }
+  .avatar { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; overflow: hidden; background: var(--blue); color: #fff; border: 2px solid var(--gold); }
+  .avatar > * { grid-area: 1 / 1; }
+  .avatar [hidden] { display: none !important; }
+  .avatar-icon { width: 28px; height: 28px; align-self: end; }
+  .avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .avatar [data-avatar-initials] { font-family: var(--serif); font-weight: 600; font-size: 17px; letter-spacing: .03em; }
+  .account.signed-in .avatar { background: var(--navy); }
+  .account-menu { position: absolute; right: 0; top: calc(100% + 10px); width: 260px; background: #fff; border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 12px 32px rgba(32, 69, 94, .16); padding: 16px; z-index: 20; }
+  .account-menu [data-acct="out"] { display: grid; gap: 10px; }
+  .account-menu [data-acct="out"] .btn { text-align: center; }
+  .account-menu [hidden] { display: none !important; }
+  .menu-note { margin: 0 0 4px; font-size: 14px; color: var(--muted); }
+  .menu-who { margin: 0 0 10px; padding-bottom: 10px; border-bottom: 1px solid var(--line); display: grid; gap: 2px; }
+  .menu-who strong { color: var(--navy); }
+  .menu-who span { font-size: 14px; color: var(--muted); overflow-wrap: anywhere; }
+  .menu-link { display: block; width: 100%; text-align: left; padding: 9px 4px; font: inherit; font-size: 15px; font-weight: 600; color: var(--blue); text-decoration: none; background: none; border: 0; border-radius: 6px; cursor: pointer; }
+  .menu-link:hover { background: var(--cream); }
+  .menu-link.signout { color: var(--brown); border-top: 1px solid var(--line); border-radius: 0; margin-top: 6px; padding-top: 12px; }
+  @media (max-width: 760px) {
+    .site-header .brand { flex: 1 1 auto; min-width: 0; gap: 12px; }
+    .site-header .brand img { width: 48px; height: 48px; }
+    .site-header .brand span { font-size: 1.15rem; }
+    .account { order: 2; margin-left: auto; }
+    .site-header nav { order: 3; width: 100%; }
+  }
+</style>
