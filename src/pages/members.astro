@@ -1,0 +1,56 @@
+---
+import Base from '../layouts/Base.astro';
+import MemberForm from '../components/MemberForm.astro';
+import { config } from '../config';
+import { url } from '../lib/util';
+---
+<Base title="Members" description="Your Tradition Local member account.">
+  <MemberForm title="Members" wide>
+    <div data-state="out" hidden>
+      <p class="intro">Sign in to see your account, or create a free membership in under a minute.</p>
+      <p><a class="btn blue" href={url('/sign-in')}>Sign in</a> <a class="btn ghost" href={url('/join')}>Join free</a></p>
+    </div>
+
+    <div data-state="in" hidden>
+      <p class="welcome">Welcome, <span data-ms-member="first-name">neighbor</span>.</p>
+
+      <div class="member-section">
+        <h2>What's new for members</h2>
+        <ul class="perks">
+          <li><a href={url('/living')}>Upcoming events and meetups</a></li>
+          <li><a href={url('/all-articles')}>The latest food finds and guides</a></li>
+          <li><a href={url('/cities')}>Neighborhood guides across Greater Houston</a></li>
+        </ul>
+      </div>
+
+      <div class="member-section">
+        <h2>Your details</h2>
+        <form class="mform" data-ms-form="profile">
+          <div class="row">
+            <label>First name
+              <input type="text" name="first-name" data-ms-member="first-name" autocomplete="given-name" required />
+            </label>
+            <label>Last name
+              <input type="text" name="last-name" data-ms-member="last-name" autocomplete="family-name" required />
+            </label>
+          </div>
+          <label><span>Phone <span class="opt">(optional)</span></span>
+            <input type="tel" name="phone" data-ms-member="phone" autocomplete="tel" />
+          </label>
+          <label><span>Area of interest <span class="opt">(optional)</span></span>
+            <select name="area-of-interest" data-ms-member="area-of-interest">
+              <option value="">Choose one</option>
+              {config.interests.map((i) => <option value={i}>{i}</option>)}
+            </select>
+          </label>
+          <button class="btn blue" type="submit">Save changes</button>
+        </form>
+      </div>
+
+      <div class="member-section">
+        <p><a href={url('/reset-password')}>Change your password</a></p>
+        <button class="btn ghost" type="button" data-ms-action="logout">Sign out</button>
+      </div>
+    </div>
+  </MemberForm>
+</Base>
