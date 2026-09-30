@@ -28,6 +28,19 @@ Every URL from the old Wix sitemap exists here, so search rankings and shared li
 2. At your domain registrar, point DNS at GitHub: a `CNAME` record for `www` to `traditionrealty.github.io`, and `A` records for the bare domain to `185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153`.
 3. Once the check passes, tick **Enforce HTTPS**. The next deploy builds for the custom domain automatically.
 
+## Publishing posts with Pages CMS
+
+Write and edit posts at https://app.pagescms.org (sign in with GitHub, open traditionrealty/traditionlocal-site).
+
+1. Posts and reviews, then Add an entry.
+2. Fill in the title, summary, main photo, photo description, categories, and the post itself.
+3. Save while Draft is on to keep working. Turn Draft off and save to publish.
+4. The site rebuilds automatically and the post is live in about two minutes.
+
+Posts are saved as Markdown in content/posts. Photos go to public/media/uploads.
+A post whose URL matches an old Wix post replaces it, which is how old posts get edited.
+The editor setup lives in .pages.yml.
+
 ## Updating content
 
 - **Businesses or area guides:** edit the spreadsheet in `data/raw/`, upload it with the same file name, and the site rebuilds itself.
