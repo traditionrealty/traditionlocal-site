@@ -98,8 +98,58 @@ for p in (x for x in pages if x["type"] == "blog-posts"):
         "readMin": max(1, round(len(text.split()) / 230)),
         "closed": bool(re.search(r"closed", title, re.I)),
     })
+print(f"posts from Wix {len(posts)}  (inline images placed exactly in {matched}/{total})")
+
+# ---------- posts written in Pages CMS (content/posts/*.md) ----------
+# A file here with the same slug as a Wix post replaces it, so old posts can be edited too.
+import yaml, markdown
+from datetime import date, datetime
+
+def slugify(s):
+    s = re.sub(r"[^\w\s-]", "", str(s).lower()).strip()
+    return re.sub(r"[\s_-]+", "-", s)
+
+def iso(v):
+    if isinstance(v, (date, datetime)):
+        return v.isoformat()
+    return str(v) if v else None
+
+CMS_DIR = ROOT / "content" / "posts"
+cms_posts, drafts = [], 0
+for f in (sorted(x for x in CMS_DIR.glob("*.md") if x.name != "README.md") if CMS_DIR.exists() else []):
+    raw = f.read_text(encoding="utf-8")
+    m = re.match(r"^---\s*\n(.*?)\n---\s*\n?(.*)$", raw, flags=re.S)
+    if not m:
+        print("skipped (no front matter):", f.name); continue
+    fm = yaml.safe_load(m.group(1)) or {}
+    if fm.get("draft"):
+        drafts += 1; continue
+    if not fm.get("title"):
+        print("skipped (no title):", f.name); continue
+    slug = slugify(fm.get("slug") or fm["title"])
+    body = fm.get("body") or m.group(2)
+    body_html = markdown.markdown(body or "", extensions=["extra", "sane_lists"])
+    body_html = re.sub(r"<img (?![^>]*loading=)", '<img loading="lazy" ', body_html)
+    text = re.sub(r"<[^>]+>", " ", body_html)
+    cats = fm.get("categories") or []
+    cats = [cats] if isinstance(cats, str) else cats
+    cms_posts.append({
+        "slug": slug, "path": f"/post/{slug}", "title": fm["title"],
+        "description": fm.get("description") or " ".join(text.split())[:155],
+        "date": iso(fm.get("date")), "updated": iso(fm.get("updated") or fm.get("date")),
+        "author": fm.get("author") or "Sara Loren",
+        "image": fm.get("image") or None, "imageAlt": fm.get("imageAlt") or fm["title"],
+        "html": body_html, "categories": [str(c).lower() for c in cats],
+        "readMin": max(1, round(len(text.split()) / 230)),
+        "closed": bool(fm.get("closed")) or bool(re.search(r"closed", fm["title"], re.I)),
+        "source": "cms",
+    })
+cms_slugs = {p["slug"] for p in cms_posts}
+posts = [p for p in posts if p["slug"] not in cms_slugs] + cms_posts
+print(f"posts from Pages CMS {len(cms_posts)} (drafts skipped {drafts})")
+
 posts.sort(key=lambda x: x["date"] or "", reverse=True)
-print(f"posts {len(posts)}  (inline images placed exactly in {matched}/{total})")
+print(f"posts total {len(posts)}")
 
 categories = [{"slug": path.rsplit("/", 1)[1], "name": path.rsplit("/", 1)[1].capitalize(),
                "description": cp["description"]}
