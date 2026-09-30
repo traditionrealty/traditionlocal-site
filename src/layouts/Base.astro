@@ -3,6 +3,7 @@ import site from '../data/site.json';
 import events from '../data/events.json';
 import { url, img, fmtDate } from '../lib/util';
 import { config } from '../config';
+import AccountMenu from '../components/AccountMenu.astro';
 
 interface Props { title?: string; description?: string | null; image?: string | null; type?: string; }
 const { title, description, image, type = 'website' } = Astro.props;
@@ -65,12 +66,7 @@ const nav = [
           <a href={url(n.href)} aria-current={n.match.some((m) => path.startsWith(m)) ? 'page' : undefined}>{n.label}</a>
         ))}
       </nav>
-      {config.memberstackAppId && (
-        <div class="account-links">
-          <a href={url('/sign-in')} aria-current={path.startsWith('/sign-in') ? 'page' : undefined}>Sign in</a>
-          <a class="btn gold small" href={url('/join')}>Join</a>
-        </div>
-      )}
+      {config.memberstackAppId && <AccountMenu />}
     </div>
   </header>
   <main id="main"><slot /></main>
@@ -169,8 +165,6 @@ const nav = [
   .btn.gold { background: var(--gold); color: var(--blue); }
   .btn.blue { background: var(--blue); color: #fff; }
   .btn.small { padding: 8px 18px; font-size: 15px; }
-  .account-links { display: flex; align-items: center; gap: 18px; }
-  .account-links a:not(.btn) { text-decoration: none; font-weight: 600; font-size: 16px; }
   .btn.ghost { border: 2px solid var(--blue); color: var(--blue); background: transparent; }
 
   .grid { display: grid; gap: 28px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
