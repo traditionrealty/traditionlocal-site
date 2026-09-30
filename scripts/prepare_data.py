@@ -126,7 +126,7 @@ for f in (sorted(x for x in CMS_DIR.glob("*.md") if x.name != "README.md") if CM
         drafts += 1; continue
     if not fm.get("title"):
         print("skipped (no title):", f.name); continue
-    slug = slugify(fm.get("slug") or fm["title"])
+    slug = str(fm["slug"]).strip() if fm.get("slug") else slugify(fm["title"])
     body = fm.get("body") or m.group(2)
     body_html = markdown.markdown(body or "", extensions=["extra", "sane_lists"])
     body_html = re.sub(r"<img (?![^>]*loading=)", '<img loading="lazy" ', body_html)
@@ -145,6 +145,8 @@ for f in (sorted(x for x in CMS_DIR.glob("*.md") if x.name != "README.md") if CM
         "source": "cms",
     })
 cms_slugs = {p["slug"] for p in cms_posts}
+if (CMS_DIR / ".migrated").exists():
+    posts = []  # every Wix post now lives in content/posts
 posts = [p for p in posts if p["slug"] not in cms_slugs] + cms_posts
 print(f"posts from Pages CMS {len(cms_posts)} (drafts skipped {drafts})")
 
