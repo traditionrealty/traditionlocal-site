@@ -1,0 +1,76 @@
+# Pages CMS configuration (https://app.pagescms.org)
+# Saving in the editor commits to main, which runs the "Deploy to GitHub Pages" action.
+
+media:
+  input: public/media/uploads
+  output: /media/uploads
+  rename: safe
+  categories: [image]
+
+content:
+  - name: posts
+    label: Posts and reviews
+    type: collection
+    path: content/posts
+    format: yaml-frontmatter
+    exclude: [README.md]
+    filename: "{year}-{month}-{day}-{primary}.md"
+    view:
+      fields: [title, date, author, draft]
+      primary: title
+      sort: [date, title]
+      default:
+        sort: date
+        order: desc
+    fields:
+      - name: title
+        label: Title
+        type: string
+        required: true
+        description: "Business name, then what it is and where, e.g. Tree House, Frozen Yogurt and Coffee in the Energy Corridor"
+      - name: draft
+        label: Draft (hidden from the site)
+        type: boolean
+        default: true
+        description: Turn this off when the post is ready to go live.
+      - name: date
+        label: Publish date
+        type: date
+        options:
+          format: yyyy-MM-dd
+      - name: author
+        label: Author
+        type: select
+        default: Sara Loren
+        options:
+          values: [Sara Loren, Dillon Loren, Tradition Realty Group]
+      - name: categories
+        label: Categories
+        type: select
+        options:
+          multiple: true
+          values:
+            - { name: food, label: Food }
+            - { name: neighborhoods, label: Neighborhoods }
+            - { name: travel, label: Travel }
+            - { name: spotlight, label: Spotlight }
+            - { name: announcement, label: Announcement }
+            - { name: newsletter, label: Newsletter }
+      - name: description
+        label: Summary (search results and previews)
+        type: text
+        description: One or two sentences, about 150 characters. Lead with the direct answer.
+      - name: image
+        label: Main photo
+        type: image
+      - name: imageAlt
+        label: Photo description
+        type: string
+        description: "e.g. Iced latte at Tree House in the Energy Corridor, Houston"
+      - name: slug
+        label: URL (optional)
+        type: string
+        description: Leave blank to build it from the title. Don't change it after the post is live.
+      - name: body
+        label: Post
+        type: rich-text
