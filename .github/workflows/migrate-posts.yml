@@ -1,0 +1,35 @@
+name: Move Wix posts into Pages CMS
+
+# Run once from the Actions tab. Converts every Wix blog post into a Markdown file in
+# content/posts so it can be edited in Pages CMS, commits them, then redeploys the site.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - name: Convert posts
+        run: |
+          if [ -f content/posts/.migrated ]; then echo "Already migrated, nothing to do"; exit 0; fi
+          pip install pandas openpyxl pyyaml markdown markdownify==0.13.1
+          python scripts/prepare_data.py
+          python scripts/migrate_wix_posts.py
+      - name: Commit posts
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add content/posts
+          git commit -m "Move Wix posts into content/posts for Pages CMS" || echo "Nothing new to commit"
+          git push
+      - name: Redeploy the site
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run deploy.yml --ref main
