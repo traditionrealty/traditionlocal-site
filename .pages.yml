@@ -2,8 +2,8 @@
 # Saving in the editor commits to main, which runs the "Deploy to GitHub Pages" action.
 
 media:
-  input: public/media/uploads
-  output: /media/uploads
+  input: public/media
+  output: /media
   rename: safe
   categories: [image]
 
@@ -38,12 +38,19 @@ content:
         type: date
         options:
           format: yyyy-MM-dd
+      - name: updated
+        label: Last updated (optional)
+        type: date
+        default: ""
+        description: Set this when you make a real update to an older post.
+        options:
+          format: yyyy-MM-dd
       - name: author
         label: Author
         type: select
         default: Sara Loren
         options:
-          values: [Sara Loren, Dillon Loren, Tradition Realty Group]
+          values: [Sara Loren, Dillon Loren, Mark Wang, Tradition Realty Group]
       - name: categories
         label: Categories
         type: select
