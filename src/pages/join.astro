@@ -1,0 +1,39 @@
+---
+import Base from '../layouts/Base.astro';
+import MemberForm from '../components/MemberForm.astro';
+import { config } from '../config';
+import { url } from '../lib/util';
+---
+<Base title="Join Tradition Local" description="Become a Tradition Local member for local food finds, neighborhood guides, events, and member perks across Greater Houston.">
+  <MemberForm title="Join Tradition Local" intro="Create your free member account for local finds, events, and member perks across Greater Houston.">
+    <div data-redirect-if-member={url('/members')}></div>
+    <form class="mform" data-ms-form="signup">
+      <div class="row">
+        <label>First name
+          <input type="text" name="first-name" data-ms-member="first-name" autocomplete="given-name" required />
+        </label>
+        <label>Last name
+          <input type="text" name="last-name" data-ms-member="last-name" autocomplete="family-name" required />
+        </label>
+      </div>
+      <label>Email
+        <input type="email" name="email" data-ms-member="email" autocomplete="email" required />
+      </label>
+      <label>Password
+        <input type="password" name="password" data-ms-member="password" autocomplete="new-password" minlength="8" required />
+      </label>
+      <label><span>Phone <span class="opt">(optional)</span></span>
+        <input type="tel" name="phone" data-ms-member="phone" autocomplete="tel" />
+      </label>
+      <label><span>Area of interest <span class="opt">(optional)</span></span>
+        <select name="area-of-interest" data-ms-member="area-of-interest">
+          <option value="">Choose one</option>
+          {config.interests.map((i) => <option value={i}>{i}</option>)}
+        </select>
+      </label>
+      <p class="fine">By joining, you agree to receive emails from Tradition Local. You can unsubscribe anytime. We only call or text if you ask us to.</p>
+      <button class="btn blue" type="submit">Create my account</button>
+    </form>
+    <p class="alt">Already a member? <a href={url('/sign-in')}>Sign in</a></p>
+  </MemberForm>
+</Base>
