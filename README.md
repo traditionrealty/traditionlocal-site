@@ -37,8 +37,8 @@ Write and edit posts at https://app.pagescms.org (sign in with GitHub, open trad
 3. Save while Draft is on to keep working. Turn Draft off and save to publish.
 4. The site rebuilds automatically and the post is live in about two minutes.
 
-Posts are saved as Markdown in content/posts. Photos go to public/media/uploads.
-A post whose URL matches an old Wix post replaces it, which is how old posts get edited.
+Every post, including the 186 moved over from Wix, is a Markdown file in content/posts.
+Photos live in public/media.
 The editor setup lives in .pages.yml.
 
 ## Updating content
