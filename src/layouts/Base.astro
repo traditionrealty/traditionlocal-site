@@ -9,7 +9,10 @@ interface Props { title?: string; description?: string | null; image?: string | 
 const { title, description, image, type = 'website' } = Astro.props;
 const fullTitle = title ? `${title} | Tradition Local` : site.title;
 const desc = description || site.description;
-const canonical = new URL(Astro.url.pathname, Astro.site).href;
+// Search engines should credit the real domain, not the github.io preview copy.
+const PRODUCTION = 'https://www.traditionlocal.com';
+const isPreview = !String(Astro.site).includes('traditionlocal.com');
+const canonical = new URL((Astro.url.pathname.replace(import.meta.env.BASE_URL.replace(/\/$/, ''), '') || '/').replace(/(.)\/$/, '$1'), PRODUCTION).href;
 const today = new Date().toISOString().slice(0, 10);
 const next = events.find((e) => e.date && e.date >= today);
 const path = Astro.url.pathname.replace(import.meta.env.BASE_URL.replace(/\/$/, ''), '') || '/';
@@ -28,6 +31,7 @@ const nav = [
   <title>{fullTitle}</title>
   <meta name="description" content={desc} />
   <link rel="canonical" href={canonical} />
+  {isPreview && <meta name="robots" content="noindex, follow" />}
   <meta property="og:title" content={fullTitle} />
   <meta property="og:description" content={desc} />
   <meta property="og:type" content={type} />
@@ -106,7 +110,7 @@ const nav = [
       </div>
     </div>
     <div class="wrap legal">
-      <span>© {new Date().getFullYear()} Tradition Local. All rights reserved.</span>
+      <span>© {new Date().getFullYear()} Tradition Local. All rights reserved. <a href={url('/privacy-policy')}>Privacy policy</a></span>
       <span>Real estate services by <a href={config.brokerage.url}>{config.brokerage.name}</a></span>
     </div>
   </footer>
