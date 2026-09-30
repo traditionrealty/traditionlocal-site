@@ -24,7 +24,7 @@ const ld = {
       <h1>{post.title}</h1>
       <p class="meta">By {post.author}, {fmtDate(post.date, { month: 'long', day: 'numeric', year: 'numeric' })}. {post.readMin} min read.</p>
     </header>
-    {post.image && <img class="hero-img" src={img(post.image)} alt="" />}
+    {post.image && <img class="hero-img" src={img(post.image)} alt={post.imageAlt || post.title} />}
     <div class="prose" set:html={fixHtml(post.html)} />
   </article>
   <section class="section tint">
