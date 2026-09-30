@@ -13,6 +13,8 @@ export function img(src?: string | null, width?: number) {
   if (!src) return undefined;
   const local = (imageMap as Record<string, string>)[src];
   if (local) return url(local);
+  // Images uploaded through Pages CMS are site paths like /media/uploads/photo.jpg
+  if (src.startsWith('/') && !src.startsWith('//')) return url(src);
   if (width && src.includes('static.wixstatic.com/media/')) {
     const file = src.split('/').pop();
     return `${src}/v1/fill/w_${width},h_${Math.round(width * 0.66)},al_c,q_80,enc_auto/${file}`;
@@ -24,6 +26,7 @@ export function img(src?: string | null, width?: number) {
 export function fixHtml(html = '') {
   return html
     .replace(/href="\/(?!\/)/g, `href="${BASE}/`)
+    .replace(/src="\/(?!\/)/g, `src="${BASE}/`)
     .replace(/src="(https:\/\/static\.wixstatic\.com\/media\/[^"]+)"/g, (_, s) => `src="${img(s)}"`);
 }
 
