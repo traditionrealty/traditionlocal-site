@@ -2,7 +2,7 @@
 export const config = {
   contactEmail: 'traditionlocal@gmail.com',
   // Paste a Beehiiv / Mailchimp / Formspree form URL here to turn on the newsletter signup box.
-  newsletterAction: '',
+  newsletterAction: 'https://tl-newsletter-signup.bold-bush-f938.workers.dev',
   // Paste a Formspree (or similar) endpoint here to turn on the contact form.
   contactFormAction: '',
   // Supabase project for member accounts (Supabase dashboard: Project Settings, then API).
