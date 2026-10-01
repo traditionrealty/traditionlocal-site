@@ -8,8 +8,8 @@ export const config = {
   // Supabase project for member accounts (Supabase dashboard: Project Settings, then API).
   // Both values are public by design and safe to commit. Fill both in to turn on Join, Sign in and Members.
   // Never paste the service_role key here.
-  supabaseUrl: '',
-  supabaseAnonKey: '',
+  supabaseUrl: 'https://fwjjfwnpdberayqtrkaa.supabase.co',
+supabaseAnonKey: 'PASTE_THE_KEY_YOU_COPIED_HERE',
   // Choices for "Area of interest" on the join and account forms.
   interests: [
     'Food and dining',
