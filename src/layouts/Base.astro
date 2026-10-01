@@ -80,7 +80,7 @@ const nav = [
         {config.newsletterAction ? (
           <form class="signup" action={config.newsletterAction} method="post">
             <label for="nl-email">Email</label>
-            <div><input id="nl-email" name="email" type="email" required placeholder="you@example.com" /><button type="submit">Subscribe</button></div>
+            <div><input id="nl-email" name="email" type="email" required placeholder="you@example.com" /><button type="submit">Subscribe</button></div><input type="text" name="company" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px" /><p id="nl-msg" role="status" hidden></p><script is:inline>var q=new URLSearchParams(location.search).get('newsletter');var m=document.getElementById('nl-msg');if(q&&m){m.hidden=false;m.textContent=q==='ok'?'Thanks, you are subscribed. Welcome to Tradition Local.':q==='invalid'?'That email address does not look right. Please try again.':'Something went wrong. Please try again, or email us.';}</script>
           </form>
         ) : (
           <a class="btn gold" href={`mailto:${config.contactEmail}?subject=Subscribe%20me%20to%20Tradition%20Local`}>Join the newsletter</a>
