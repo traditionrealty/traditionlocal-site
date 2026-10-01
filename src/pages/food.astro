@@ -43,8 +43,8 @@ const foodPosts = posts.filter((p) => p.categories.includes('food')).slice(0, 3)
               data-cats={b.categories.join('|')} data-where={b.neighborhood || b.city} data-pick={b.saraPick ? '1' : '0'}>
             <a href={url(`/eat/${b.slug}`)}>
               <span class="top">
-                <strong>{b.name}</strong>
                 {b.saraPick && <span class="badge">Sara's pick</span>}
+                <strong>{b.name}</strong>
               </span>
               <span class="where">{b.neighborhood ? `${b.neighborhood}, ${b.city}` : b.city}</span>
               <span class="cats">{b.categories.slice(0, 3).join(', ')}</span>
@@ -108,8 +108,9 @@ const foodPosts = posts.filter((p) => p.categories.includes('food')).slice(0, 3)
   .biz-list li[hidden] { display: none; }
   .biz-list a { display: flex; flex-direction: column; gap: 4px; padding: 20px 18px; text-decoration: none; color: var(--ink); border-bottom: 1px solid var(--line); height: 100%; }
   .biz-list a:hover { background: var(--cream); }
-  .top { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
-  .top strong { font-family: var(--serif); font-weight: 400; font-size: 1.3rem; color: var(--blue); }
+  .top { display: block; overflow: hidden; }
+  .top .badge { float: right; margin: 3px 0 6px 12px; }
+  .top strong { display: block; font-family: var(--serif); font-weight: 400; font-size: 1.3rem; color: var(--blue); }
   .where { font-size: 14px; color: var(--navy); font-weight: 600; }
   .cats { font-size: 13px; color: var(--brown); }
   .desc { font-size: 15px; color: var(--muted); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; margin-top: 4px; }
