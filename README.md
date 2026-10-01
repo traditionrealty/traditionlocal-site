@@ -55,9 +55,24 @@ npm run data     # rebuild src/data from data/raw (needs python3 with pandas + o
 npm run dev      # http://localhost:4321
 ```
 
-## Wix features that need a replacement
+## Newsletter signup and event RSVPs
 
-- **Newsletter signup:** paste a Beehiiv, Mailchimp, or Formspree form URL into `newsletterAction` in `src/config.ts`.
-- **Contact and info request forms:** the pages exist; add a Formspree endpoint to `contactFormAction`.
-- **Event RSVPs:** currently RSVP by email; can point to Luma or Eventbrite per event.
-- **Member logins and groups:** not available on a static site; the Facebook group is linked instead.
+Both run through one Cloudflare Worker named tl-newsletter-signup. Its workers.dev address is set as newsletterAction in src/config.ts. It does not depend on the traditionlocal.com domain, so moving the domain does not break it. The Worker code lives in Cloudflare (Workers and Pages, tl-newsletter-signup, Edit code).
+
+Newsletter signup: the footer form posts the email to the Worker. The Worker adds it to the Newsletter subscribers segment in Resend, then sends the visitor back to the same page with a thank you message.
+
+Event RSVPs: the form on each upcoming event page posts to the Worker at /rsvp. The Worker saves the RSVP in the rsvps table in Supabase and sends a confirmation email through Resend. Anyone can add an RSVP, but nobody can read them from the website. View and export them in the Supabase dashboard (Table Editor, rsvps). Signed in members see a one tap RSVP button. Events are free with no guest limit for now. The table has a status column so ticketing can be added later.
+
+Worker settings (Cloudflare, the Worker, Settings, Variables and Secrets): RESEND_API_KEY is a secret and is never stored in this repo. SEGMENT_ID is the Newsletter subscribers segment in Resend. ALLOWED_ORIGINS lists the sites allowed to post, so add the new domain here when it moves. SUPABASE_URL and SUPABASE_KEY hold the same public values as in src/config.ts.
+
+Email sending: messages come from noreply@mail.traditionlocals.com, which is verified in Resend. When traditionlocal.com moves off Wix, verify mail.traditionlocal.com in Resend and change the from address in the Worker.
+
+## Publishing and member accounts
+
+Publishing posts uses Pages CMS, described above. Member sign in works through Supabase (see supabase/schema.sql for the members table and the rsvps table, which are run once in the Supabase SQL editor).
+
+## Still to replace from Wix
+
+Contact and info request forms: the pages exist. Add an endpoint to contactFormAction in src/config.ts.
+
+Member groups: not built. The Facebook group is linked instead.
