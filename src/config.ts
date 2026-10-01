@@ -9,7 +9,7 @@ export const config = {
   // Both values are public by design and safe to commit. Fill both in to turn on Join, Sign in and Members.
   // Never paste the service_role key here.
   supabaseUrl: 'https://fwjjfwnpdberayqtrkaa.supabase.co',
-supabaseAnonKey: sb_publishable_Fe0lWzuNVeB62KHS14z10w_XwpWKhxd,
+supabaseAnonKey: 'sb_publishable_Fe0lWzuNVeB62KHS14z10w_XwpWKhxd',
   // Choices for "Area of interest" on the join and account forms.
   interests: [
     'Food and dining',
