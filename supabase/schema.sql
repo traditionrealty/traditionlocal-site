@@ -82,3 +82,11 @@ drop trigger if exists profiles_touch_updated_at on public.profiles;
 create trigger profiles_touch_updated_at
   before update on public.profiles
   for each row execute function public.touch_updated_at();
+
+-- 5. Event RSVPs. Anyone can add one; nobody can read them from the website.
+-- View and export them in the Supabase Table Editor.
+create table if not exists public.rsvps (id uuid primary key default gen_random_uuid(), event_slug text not null, event_title text, first_name text not null, last_name text not null default '', email text not null, phone text, party_size int not null default 1 check (party_size between 1 and 20), status text not null default 'confirmed', created_at timestamptz not null default now());
+create unique index if not exists rsvps_event_email_key on public.rsvps (event_slug, lower(email));
+alter table public.rsvps enable row level security;
+create policy "Anyone can RSVP" on public.rsvps for insert to anon, authenticated with check (true);
+grant insert on public.rsvps to anon, authenticated;
