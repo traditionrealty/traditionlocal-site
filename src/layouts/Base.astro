@@ -18,9 +18,9 @@ const today = new Date().toISOString().slice(0, 10);
 const next = events.find((e) => e.date && e.date >= today);
 const path = Astro.url.pathname.replace(import.meta.env.BASE_URL.replace(/\/$/, ''), '') || '/';
 const nav = [
-  { label: 'Eat', href: '/food', match: ['/food', '/eat'] },
+  { label: 'Food', href: '/food', match: ['/food', '/eat'] },
   { label: 'Neighborhoods', href: '/cities', match: ['/cities', '/copy-of-neighborhoods-1', '/traditionneighborhoods'] },
-  { label: 'Living', href: '/living', match: ['/living', '/event-details'] },
+  { label: 'Things To Do', href: '/living', match: ['/living', '/event-details'] },
 ];
 const moreNav = [
   { label: 'Articles', href: '/all-articles', match: ['/all-articles', '/post'] },
