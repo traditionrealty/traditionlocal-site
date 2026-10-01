@@ -13,6 +13,7 @@ const desc = description || site.description;
 const PRODUCTION = 'https://www.traditionlocal.com';
 const isPreview = !String(Astro.site).includes('traditionlocal.com');
 const canonical = new URL((Astro.url.pathname.replace(import.meta.env.BASE_URL.replace(/\/$/, ''), '') || '/').replace(/(.)\/$/, '$1'), PRODUCTION).href;
+const membersOn = Boolean(config.supabaseUrl && config.supabaseAnonKey);
 const today = new Date().toISOString().slice(0, 10);
 const next = events.find((e) => e.date && e.date >= today);
 const path = Astro.url.pathname.replace(import.meta.env.BASE_URL.replace(/\/$/, ''), '') || '/';
@@ -42,9 +43,6 @@ const nav = [
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&display=swap" rel="stylesheet" />
-  {config.memberstackAppId && (
-    <script is:inline data-memberstack-app={config.memberstackAppId} src="https://static.memberstack.com/scripts/v1/memberstack.js" type="text/javascript"></script>
-  )}
   <slot name="head" />
 </head>
 <body>
@@ -70,7 +68,7 @@ const nav = [
           <a href={url(n.href)} aria-current={n.match.some((m) => path.startsWith(m)) ? 'page' : undefined}>{n.label}</a>
         ))}
       </nav>
-      {config.memberstackAppId && <AccountMenu />}
+      {membersOn && <AccountMenu />}
     </div>
   </header>
   <main id="main"><slot /></main>
@@ -96,7 +94,7 @@ const nav = [
           <li><a href={url('/living')}>Events</a></li>
           <li><a href={url('/all-articles')}>All articles</a></li>
           <li><a href={url('/about-me')}>About us</a></li>
-          {config.memberstackAppId && <li><a href={url('/members')}>Members</a></li>}
+          {membersOn && <li><a href={url('/members')}>Members</a></li>}
         </ul>
       </div>
       <div>
