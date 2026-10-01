@@ -21,8 +21,11 @@ const nav = [
   { label: 'Eat', href: '/food', match: ['/food', '/eat'] },
   { label: 'Neighborhoods', href: '/cities', match: ['/cities', '/copy-of-neighborhoods-1', '/traditionneighborhoods'] },
   { label: 'Living', href: '/living', match: ['/living', '/event-details'] },
+];
+const moreNav = [
   { label: 'Articles', href: '/all-articles', match: ['/all-articles', '/post'] },
 ];
+const moreActive = moreNav.some((n) => n.match.some((m) => path.startsWith(m)));
 ---
 <!doctype html>
 <html lang="en">
@@ -67,10 +70,32 @@ const nav = [
         {nav.map((n) => (
           <a href={url(n.href)} aria-current={n.match.some((m) => path.startsWith(m)) ? 'page' : undefined}>{n.label}</a>
         ))}
+        <div class="nav-more" data-nav-more>
+          <button type="button" class="nav-more-btn" aria-haspopup="true" aria-expanded="false" aria-current={moreActive ? 'page' : undefined}>
+            More
+            <svg aria-hidden="true" viewBox="0 0 12 8" width="10" height="7"><path d="M1 1l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" /></svg>
+          </button>
+          <div class="nav-more-menu" hidden>
+            {moreNav.map((n) => (
+              <a href={url(n.href)} aria-current={n.match.some((m) => path.startsWith(m)) ? 'page' : undefined}>{n.label}</a>
+            ))}
+          </div>
+        </div>
       </nav>
       {membersOn && <AccountMenu />}
     </div>
   </header>
+  <script>
+    // "More" dropdown in the main nav.
+    document.querySelectorAll<HTMLElement>('[data-nav-more]').forEach((root) => {
+      const btn = root.querySelector<HTMLButtonElement>('.nav-more-btn')!;
+      const menu = root.querySelector<HTMLElement>('.nav-more-menu')!;
+      const setOpen = (open: boolean) => { menu.hidden = !open; btn.setAttribute('aria-expanded', String(open)); };
+      btn.addEventListener('click', (e) => { e.stopPropagation(); setOpen(menu.hidden); });
+      document.addEventListener('click', (e) => { if (!root.contains(e.target as Node)) setOpen(false); });
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !menu.hidden) { setOpen(false); btn.focus(); } });
+    });
+  </script>
   <main id="main"><slot /></main>
   <footer class="site-footer">
     <div class="wrap footer-grid">
@@ -149,9 +174,16 @@ const nav = [
   .header-inner { display: flex; align-items: center; justify-content: space-between; min-height: 104px; gap: 24px; flex-wrap: wrap; }
   .brand { display: flex; align-items: center; gap: 22px; text-decoration: none; }
   .brand span { font-family: var(--serif); font-size: clamp(1.4rem, 2.6vw, 2rem); color: var(--blue); letter-spacing: .06em; text-transform: uppercase; }
-  .site-header nav { display: flex; gap: 28px; flex-wrap: wrap; }
+  .site-header nav { display: flex; gap: 28px; flex-wrap: wrap; align-items: center; }
   .site-header nav a { text-decoration: none; font-weight: 600; font-size: 16px; padding: 6px 0; border-bottom: 2px solid transparent; }
   .site-header nav a:hover, .site-header nav a[aria-current] { border-color: var(--gold); }
+  .nav-more { position: relative; }
+  .nav-more-btn { display: flex; align-items: center; gap: 6px; background: none; border: none; cursor: pointer; color: var(--blue); font-family: var(--sans); font-weight: 600; font-size: 16px; padding: 6px 0; border-bottom: 2px solid transparent; }
+  .nav-more-btn:hover, .nav-more-btn[aria-current], .nav-more-btn[aria-expanded="true"] { border-color: var(--gold); }
+  .nav-more-menu { position: absolute; top: calc(100% + 10px); left: 0; min-width: 180px; background: #fff; border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 12px 32px rgba(32, 69, 94, .16); padding: 8px; z-index: 20; }
+  .nav-more-menu a { display: block; padding: 9px 10px; border-radius: 6px; font-weight: 600; font-size: 15px; text-decoration: none; color: var(--blue); border-bottom: none; }
+  .nav-more-menu a:hover, .nav-more-menu a[aria-current] { background: var(--cream); }
+  .nav-more-menu[hidden] { display: none; }
 
   .band { background: var(--blue-deep); color: #fff; padding: 72px 0 64px; }
   .band h1, .band h2 { color: #fff; }
