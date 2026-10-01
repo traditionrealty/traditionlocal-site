@@ -13,6 +13,14 @@ OUT.mkdir(parents=True, exist_ok=True)
 exp = json.load(open(RAW / "traditionlocal-export.json"))
 pages = exp["pages"]
 ORIGIN = re.compile(r"https?://(www\.)?traditionlocal\.com", re.I)
+# A business is marked closed in the title/description itself, e.g. "Name [CLOSED]" or
+# "Name [Permanently Closed]". We detect that from the raw text, then strip the bracket
+# off so it never shows in a heading; closed status instead renders as a styled badge.
+CLOSED_TAG = re.compile(r"[\xa0\s]*[\[\(]\s*(?:permanently\s+)?closed\s*[\]\)]\s*$", re.I)
+
+
+def strip_closed_tag(s):
+    return CLOSED_TAG.sub("", s).strip() if s else s
 
 
 def clean_img(u):
@@ -88,15 +96,18 @@ for p in (x for x in pages if x["type"] == "blog-posts"):
             out.append("</ul>")
         body = "".join(out)
     text = re.sub(r"<[^>]+>", " ", body)
+    is_closed = bool(re.search(r"closed", title, re.I))
+    description = ld.get("description") or p["description"]
     posts.append({
-        "slug": p["path"].split("/post/", 1)[1], "path": p["path"], "title": title,
-        "description": ld.get("description") or p["description"],
+        "slug": p["path"].split("/post/", 1)[1], "path": p["path"],
+        "title": strip_closed_tag(title) if is_closed else title,
+        "description": strip_closed_tag(description) if is_closed else description,
         "date": ld.get("datePublished"), "updated": ld.get("dateModified"),
         "author": (ld.get("author") or {}).get("name", "Sara Loren"),
         "image": hero, "html": body,
         "categories": [c for c, pre in CATS.items() if any(slug_of(p).startswith(x) for x in pre)],
         "readMin": max(1, round(len(text.split()) / 230)),
-        "closed": bool(re.search(r"closed", title, re.I)),
+        "closed": is_closed,
     })
 print(f"posts from Wix {len(posts)}  (inline images placed exactly in {matched}/{total})")
 
@@ -133,15 +144,21 @@ for f in (sorted(x for x in CMS_DIR.glob("*.md") if x.name != "README.md") if CM
     text = re.sub(r"<[^>]+>", " ", body_html)
     cats = fm.get("categories") or []
     cats = [cats] if isinstance(cats, str) else cats
+    is_closed = bool(fm.get("closed")) or bool(re.search(r"closed", fm["title"], re.I))
+    cms_title = strip_closed_tag(fm["title"]) if is_closed else fm["title"]
+    cms_description = fm.get("description") or " ".join(text.split())[:155]
+    if is_closed:
+        cms_description = strip_closed_tag(cms_description)
     cms_posts.append({
-        "slug": slug, "path": f"/post/{slug}", "title": fm["title"],
-        "description": fm.get("description") or " ".join(text.split())[:155],
+        "slug": slug, "path": f"/post/{slug}", "title": cms_title,
+        "description": cms_description,
         "date": iso(fm.get("date")), "updated": iso(fm.get("updated") or fm.get("date")),
         "author": fm.get("author") or "Sara Loren",
-        "image": fm.get("image") or None, "imageAlt": fm.get("imageAlt") or fm["title"],
+        "image": fm.get("image") or None,
+        "imageAlt": strip_closed_tag(fm.get("imageAlt") or fm["title"]) if is_closed else (fm.get("imageAlt") or fm["title"]),
         "html": body_html, "categories": [str(c).lower() for c in cats],
         "readMin": max(1, round(len(text.split()) / 230)),
-        "closed": bool(fm.get("closed")) or bool(re.search(r"closed", fm["title"], re.I)),
+        "closed": is_closed,
         "source": "cms",
     })
 cms_slugs = {p["slug"] for p in cms_posts}
