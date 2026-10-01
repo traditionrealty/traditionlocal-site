@@ -11,6 +11,7 @@
     "mirror-images": "node scripts/mirror-images.mjs"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.117.2",
     "astro": "^5.13.0"
   }
 }
