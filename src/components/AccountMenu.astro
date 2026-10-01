@@ -25,61 +25,58 @@ import { url } from '../lib/util';
       <a class="menu-link" href={url('/members')}>My account</a>
       <a class="menu-link" href={url('/members#details')}>Profile and settings</a>
       <a class="menu-link" href={url('/reset-password')}>Change password</a>
-      <button class="menu-link signout" type="button" data-ms-action="logout">Sign out</button>
+      <button class="menu-link signout" type="button" data-signout>Sign out</button>
     </div>
   </div>
 </div>
 
-<script is:inline>
-  (function () {
-    var root = document.querySelector('[data-account]');
-    if (!root) return;
-    var btn = root.querySelector('.avatar-btn');
-    var menu = root.querySelector('.account-menu');
-    function setOpen(open) {
-      menu.hidden = !open;
-      btn.setAttribute('aria-expanded', String(open));
-    }
-    btn.addEventListener('click', function (e) { e.stopPropagation(); setOpen(menu.hidden); });
-    document.addEventListener('click', function (e) { if (!root.contains(e.target)) setOpen(false); });
-    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !menu.hidden) { setOpen(false); btn.focus(); } });
+<script>
+  import type { User } from '@supabase/supabase-js';
+  import { membersReady, supabase, getProfile, siteUrl } from '../lib/members';
+  const root = document.querySelector<HTMLElement>('[data-account]');
+  if (root) {
+    const btn = root.querySelector<HTMLButtonElement>('.avatar-btn')!;
+    const menu = root.querySelector<HTMLElement>('.account-menu')!;
+    const setOpen = (open: boolean) => { menu.hidden = !open; btn.setAttribute('aria-expanded', String(open)); };
+    btn.addEventListener('click', (e) => { e.stopPropagation(); setOpen(menu.hidden); });
+    document.addEventListener('click', (e) => { if (!root.contains(e.target as Node)) setOpen(false); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !menu.hidden) { setOpen(false); btn.focus(); } });
 
-    function show(member) {
-      var f = (member && member.customFields) || {};
-      var first = (f['first-name'] || '').trim();
-      var last = (f['last-name'] || '').trim();
-      var email = (member && member.auth && member.auth.email) || '';
-      root.querySelector('[data-acct="out"]').hidden = !!member;
-      root.querySelector('[data-acct="in"]').hidden = !member;
-      var img = root.querySelector('[data-avatar-img]');
-      var ini = root.querySelector('[data-avatar-initials]');
-      var icon = root.querySelector('.avatar-icon');
-      var photo = member && (member.profileImage || f['profile-image']);
+    const img = root.querySelector<HTMLImageElement>('[data-avatar-img]')!;
+    const ini = root.querySelector<HTMLElement>('[data-avatar-initials]')!;
+    const icon = root.querySelector<SVGElement>('.avatar-icon')!;
+    async function show(user: User | null) {
+      root!.querySelector<HTMLElement>('[data-acct="out"]')!.hidden = !!user;
+      root!.querySelector<HTMLElement>('[data-acct="in"]')!.hidden = !user;
+      root!.classList.toggle('signed-in', !!user);
       img.hidden = true; ini.hidden = true; icon.style.display = '';
-      root.classList.toggle('signed-in', !!member);
-      if (member) {
-        var name = (first + ' ' + last).trim();
-        root.querySelector('[data-acct-name]').textContent = name || 'Member';
-        root.querySelector('[data-acct-email]').textContent = email;
-        btn.setAttribute('aria-label', 'Account menu for ' + (name || email || 'member'));
-        if (photo) { img.src = photo; img.hidden = false; icon.style.display = 'none'; }
-        else if (first || last || email) {
-          ini.textContent = ((first[0] || '') + (last[0] || '') || email[0] || '').toUpperCase();
-          ini.hidden = false; icon.style.display = 'none';
-        }
-      } else {
-        btn.setAttribute('aria-label', 'Account menu');
+      if (!user) { btn.setAttribute('aria-label', 'Account menu'); return; }
+      const p = await getProfile(user);
+      const first = (p.first_name || '').trim(); const last = (p.last_name || '').trim();
+      const email = user.email || ''; const name = `${first} ${last}`.trim();
+      root!.querySelector('[data-acct-name]')!.textContent = name || 'Member';
+      root!.querySelector('[data-acct-email]')!.textContent = email;
+      btn.setAttribute('aria-label', `Account menu for ${name || email || 'member'}`);
+      const photo = user.user_metadata?.avatar_url;
+      if (photo) { img.src = photo; img.hidden = false; icon.style.display = 'none'; }
+      else if (first || last || email) {
+        ini.textContent = ((first[0] || '') + (last[0] || '') || email[0] || '').toUpperCase();
+        ini.hidden = false; icon.style.display = 'none';
       }
     }
-    var tries = 0;
-    (function wait() {
-      var ms = window.$memberstackDom;
-      if (ms && ms.getCurrentMember) {
-        ms.getCurrentMember().then(function (r) { show(r && r.data); }).catch(function () { show(null); });
-        if (ms.onAuthChange) ms.onAuthChange(function (m) { show(m); });
-      } else if (tries++ < 100) { setTimeout(wait, 100); }
-    })();
-  })();
+    if (membersReady) {
+      const sb = supabase();
+      sb.auth.getSession().then(({ data }) => show(data.session?.user ?? null));
+      sb.auth.onAuthStateChange((_e, session) => { show(session?.user ?? null); });
+    }
+  }
+  // Every "Sign out" button on the page, in the menu or on the members page
+  if (membersReady) {
+    document.querySelectorAll<HTMLButtonElement>('[data-signout]').forEach((b) => b.addEventListener('click', async () => {
+      await supabase().auth.signOut();
+      window.location.href = siteUrl('/');
+    }));
+  }
 </script>
 
 <style is:global>

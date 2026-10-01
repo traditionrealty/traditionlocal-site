@@ -4,7 +4,7 @@ import { config } from '../config';
 import { url } from '../lib/util';
 interface Props { title: string; intro?: string; wide?: boolean }
 const { title, intro, wide = false } = Astro.props;
-const ready = Boolean(config.memberstackAppId);
+const ready = Boolean(config.supabaseUrl && config.supabaseAnonKey);
 ---
 <section class:list={['member-page', { wide }]}>
   <div class="member-card">
@@ -20,32 +20,26 @@ const ready = Boolean(config.memberstackAppId);
   </div>
 </section>
 
-<script is:inline>
-  // Shows the block that matches the visitor's state once Memberstack loads.
+<script>
+  // Shows the block that matches the visitor's state.
   // Elements marked data-state="in" show for signed in members, "out" for everyone else.
-  (function () {
-    var tries = 0;
-    function apply(member) {
-      document.querySelectorAll('[data-state]').forEach(function (el) {
-        var want = el.getAttribute('data-state') === 'in';
-        el.hidden = want !== Boolean(member);
-      });
-      var go = document.querySelector('[data-redirect-if-member]');
-      if (member && go) window.location.replace(go.getAttribute('data-redirect-if-member'));
-    }
-    function wait() {
-      var ms = window.$memberstackDom;
-      if (ms && ms.getCurrentMember) {
-        ms.getCurrentMember().then(function (r) { apply(r && r.data); }).catch(function () { apply(null); });
-        if (ms.onAuthChange) ms.onAuthChange(function (m) { apply(m); });
-      } else if (tries++ < 100) {
-        setTimeout(wait, 100);
-      } else {
-        apply(null);
-      }
-    }
-    wait();
-  })();
+  import { membersReady, supabase } from '../lib/members';
+  function apply(signedIn: boolean) {
+    document.querySelectorAll<HTMLElement>('[data-state]').forEach((el) => {
+      el.hidden = (el.dataset.state === 'in') !== signedIn;
+    });
+    const go = document.querySelector<HTMLElement>('[data-redirect-if-member]');
+    if (signedIn && go) window.location.replace(go.dataset.redirectIfMember!);
+  }
+  if (membersReady) {
+    const sb = supabase();
+    sb.auth.getSession().then(({ data }) => apply(Boolean(data.session)));
+    sb.auth.onAuthStateChange((event, session) => {
+      // A password recovery link signs the visitor in; let the reset page handle it instead of redirecting.
+      if (event === 'PASSWORD_RECOVERY') return;
+      apply(Boolean(session));
+    });
+  }
 </script>
 
 <style is:global>
@@ -63,6 +57,10 @@ const ready = Boolean(config.memberstackAppId);
   .mform .fine { font-size: 14px; color: var(--muted); margin: 0; }
   .member-card .alt { margin: 22px 0 0; font-size: 15px; }
   .member-card .small { font-size: 15px; }
+  .msg { margin: 0; padding: 12px 14px; border-radius: 6px; font-size: 15px; }
+  .msg.error { background: #fbeaea; color: #8a1f1f; border: 1px solid #efc4c4; }
+  .msg.ok { background: #eaf4ec; color: #1e5a2b; border: 1px solid #c3e0c9; }
+  .mform button[disabled] { opacity: .65; cursor: wait; }
   .soon { display: grid; gap: 12px; justify-items: start; }
   .welcome { font-family: var(--serif); font-size: 1.3rem; color: var(--navy); margin: 0 0 20px; }
   .member-section { border-top: 1px solid var(--line); padding-top: 24px; margin-top: 28px; }
