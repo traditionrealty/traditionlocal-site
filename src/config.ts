@@ -5,8 +5,11 @@ export const config = {
   newsletterAction: '',
   // Paste a Formspree (or similar) endpoint here to turn on the contact form.
   contactFormAction: '',
-  // Memberstack public app ID (starts with app_). Paste it here to turn on Join, Sign in and Members.
-  memberstackAppId: '',
+  // Supabase project for member accounts (Supabase dashboard: Project Settings, then API).
+  // Both values are public by design and safe to commit. Fill both in to turn on Join, Sign in and Members.
+  // Never paste the service_role key here.
+  supabaseUrl: '',
+  supabaseAnonKey: '',
   // Choices for "Area of interest" on the join and account forms.
   interests: [
     'Food and dining',
