@@ -1,0 +1,172 @@
+---
+import Base from '../layouts/Base.astro';
+import { url, img } from '../lib/util';
+import { config } from '../config';
+import businesses from '../data/businesses.json';
+import posts from '../data/posts.json';
+
+const membersOn = Boolean(config.supabaseUrl && config.supabaseAnonKey);
+
+// Real "Business Spotlight: ..." posts Dillon or Sara have written, pulled in automatically.
+// To add the next one, just write a post titled "Business Spotlight: <Business name>".
+const spotlightPosts = posts.filter((p) => /^business spotlight:/i.test(p.title));
+const spotlights = spotlightPosts.map((p) => {
+  const m = p.title.match(/^business spotlight:\s*(.*?)(?:\s+in\s+(.+?)(?:\s+neighborhood)?)?$/i);
+  const name = (m && m[1]) || p.title;
+  const area = m && m[2];
+  const firstSentence = p.description.split(/(?<=[.!?])\s/).slice(0, 2).join(' ');
+  return { name, area, path: p.path, image: p.image, blurb: firstSentence };
+});
+
+const catCounts: Record<string, number> = {};
+businesses.forEach((b) => b.categories.forEach((c) => (catCounts[c] = (catCounts[c] || 0) + 1)));
+const topCats = Object.entries(catCounts).sort((a, b) => b[1] - a[1]).slice(0, 10).map(([c]) => c);
+const directoryData = businesses.map((b) => ({
+  slug: b.slug, name: b.name, cats: b.categories, where: b.neighborhood || b.city, pick: !!b.saraPick,
+}));
+const basePath = url('/').replace(/\/$/, '');
+---
+<Base title="Local Directory" description="Restaurants, cafes, shops, and services across Greater Houston, with member perks and partner spotlights, in one place.">
+  <section class="band dir-hero">
+    <div class="wrap">
+      <p class="crumbs"><a href={url('/')}>Home</a> <span aria-hidden="true">&rsaquo;</span> Local Directory</p>
+      <p class="kicker">Every local spot, in one place</p>
+      <h1>Local Directory</h1>
+      <p class="lede">Restaurants, cafes, shops, and services across Greater Houston, with our reviews, partner spotlights, and member perks in one place.</p>
+      <div class="dir-search">
+        <label for="dir-q">Search the directory</label>
+        <input type="search" id="dir-q" placeholder="Try coffee or Bellaire" />
+      </div>
+    </div>
+  </section>
+
+  <div data-state="out" hidden>
+    <section class="section">
+      <div class="wrap gate">
+        <h2>This directory is for members</h2>
+        <p>Sign in or join free to browse the full directory, partner spotlights, and member perks.</p>
+        <p><a class="btn blue" href={url('/sign-in')}>Sign in</a> <a class="btn ghost" href={url('/join')}>Join free</a></p>
+      </div>
+    </section>
+  </div>
+
+  <div data-state="in" hidden>
+    {spotlights.length > 0 && (
+      <section class="section tint">
+        <div class="wrap">
+          <p class="kicker dark">Business spotlights</p>
+          <div class="section-head"><h2>Local owners worth knowing</h2><p class="muted small">Partner spotlights are paid features, always labeled. Our reviews are never for sale.</p></div>
+          <div class="spotlight-grid">
+            {spotlights.map((s) => (
+              <a class="spotlight-card" href={url(s.path)}>
+                <div class="spotlight-img">
+                  {s.image ? <img src={img(s.image, 400)} alt="" /> : <div class="ph"></div>}
+                </div>
+                <div class="spotlight-body">
+                  <span class="spotlight-tag">Partner spotlight</span>
+                  <strong>{s.name}</strong>
+                  {s.area && <span class="muted small">{s.area}</span>}
+                  <p>{s.blurb}</p>
+                  <span class="read-more">Read the spotlight &rarr;</span>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+    )}
+
+    <section class="section">
+      <div class="wrap">
+        <p class="kicker dark">A to Z</p>
+        <h2>The directory</h2>
+        <div class="chips" role="group" aria-label="Categories" id="dir-chips">
+          <button class="chip" data-cat="" aria-pressed="true">All</button>
+          {topCats.map((c) => <button class="chip" data-cat={c} aria-pressed="false">{c}</button>)}
+        </div>
+        <p class="muted" id="dir-count" aria-live="polite">{businesses.length} businesses</p>
+        <div class="dir-list" id="dir-list"></div>
+        <p id="dir-empty" hidden>No businesses match that search. Try a different term or category.</p>
+      </div>
+    </section>
+  </div>
+</Base>
+
+<script define:vars={{ directoryData, basePath }}>
+  function apply() {
+    const q = document.getElementById('dir-q').value.trim().toLowerCase();
+    const cat = document.querySelector('#dir-chips [aria-pressed="true"]')?.dataset.cat || '';
+    const list = document.getElementById('dir-list');
+    const countEl = document.getElementById('dir-count');
+    const emptyEl = document.getElementById('dir-empty');
+    const matches = directoryData.filter((b) =>
+      (!q || b.name.toLowerCase().includes(q) || b.where.toLowerCase().includes(q) || b.cats.some((c) => c.toLowerCase().includes(q))) &&
+      (!cat || b.cats.includes(cat))
+    );
+    list.innerHTML = matches.map((b) =>
+      `<a class="dir-item" href="${basePath}/eat/${b.slug}/">` +
+        (b.pick ? '<span class="badge">Sara\'s pick</span>' : '') +
+        `<strong>${b.name}</strong><span class="muted small">${b.cats[0] || ''} &middot; ${b.where}</span></a>`
+    ).join('');
+    countEl.textContent = `${matches.length} ${matches.length === 1 ? 'business' : 'businesses'}`;
+    emptyEl.hidden = matches.length > 0;
+  }
+  document.getElementById('dir-q').addEventListener('input', apply);
+  document.querySelectorAll('#dir-chips [data-cat]').forEach((btn) => btn.addEventListener('click', () => {
+    document.querySelectorAll('#dir-chips [data-cat]').forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
+    apply();
+  }));
+  apply();
+</script>
+
+<script>
+  // Shows the directory to signed-in members only; everyone else sees the sign-in gate.
+  import { membersReady, supabase } from '../lib/members';
+  function setState(signedIn: boolean) {
+    document.querySelectorAll<HTMLElement>('[data-state]').forEach((el) => {
+      el.hidden = (el.dataset.state === 'in') !== signedIn;
+    });
+  }
+  if (membersReady) {
+    const sb = supabase();
+    sb.auth.getSession().then(({ data }) => setState(Boolean(data.session)));
+    sb.auth.onAuthStateChange((_event, session) => setState(Boolean(session)));
+  } else {
+    setState(false);
+  }
+</script>
+
+<style>
+  .dir-hero { padding: 64px 0 48px; }
+  .crumbs { font-size: 13px; color: rgba(255,255,255,.75); margin: 0 0 14px; }
+  .crumbs a { color: rgba(255,255,255,.85); text-decoration: none; }
+  .kicker.dark { color: var(--brown); }
+  .dir-search { margin-top: 8px; max-width: 420px; }
+  .dir-search label { display: block; font-size: 14px; font-weight: 600; color: #fff; margin-bottom: 8px; }
+  .dir-search input { width: 100%; padding: 13px 18px; border-radius: 999px; border: none; font-size: 16px; }
+  .gate { max-width: 560px; text-align: center; margin: 0 auto; padding: 40px 24px; }
+  .gate .btn { margin-top: 8px; }
+  .section-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap; margin-bottom: 24px; }
+  .section-head p.small { max-width: 32ch; margin: 0; }
+  .muted.small { font-size: 14px; }
+  .spotlight-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; }
+  .spotlight-card { display: flex; gap: 18px; background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 20px; text-decoration: none; color: var(--ink); }
+  .spotlight-img { flex-shrink: 0; width: 120px; height: 120px; border-radius: 6px; overflow: hidden; }
+  .spotlight-img img { width: 100%; height: 100%; object-fit: cover; }
+  .spotlight-img .ph { width: 100%; height: 100%; background: linear-gradient(135deg, var(--cream), var(--gold-soft)); }
+  .spotlight-body { display: flex; flex-direction: column; gap: 4px; }
+  .spotlight-tag { display: inline-block; align-self: flex-start; background: var(--gold); color: var(--navy); font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 10px; border-radius: 999px; margin-bottom: 4px; }
+  .spotlight-body strong { font-family: var(--serif); font-weight: 400; font-size: 1.25rem; color: var(--blue); }
+  .spotlight-body p { font-size: 14px; color: var(--muted); margin: 4px 0 0; }
+  .read-more { font-weight: 600; font-size: 14px; margin-top: 6px; }
+  .dir-list { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border-top: 1px solid var(--line); margin-top: 20px; }
+  .dir-list :global(.dir-item) { position: relative; display: flex; flex-direction: column; gap: 2px; padding: 16px 18px; text-decoration: none; color: var(--ink); border-bottom: 1px solid var(--line); }
+  .dir-list :global(.dir-item:nth-child(odd)) { border-right: 1px solid var(--line); }
+  .dir-list :global(.dir-item:hover) { background: var(--cream); }
+  .dir-list :global(.dir-item strong) { font-family: var(--serif); font-weight: 400; font-size: 1.1rem; color: var(--blue); }
+  .dir-list :global(.badge) { float: right; margin-left: 10px; }
+  @media (max-width: 700px) {
+    .dir-list { grid-template-columns: 1fr; }
+    .dir-list :global(.dir-item:nth-child(odd)) { border-right: none; }
+  }
+</style>
