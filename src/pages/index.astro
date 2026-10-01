@@ -198,28 +198,28 @@ const basePath = url('/').replace(/\/$/, '');
 </Base>
 
 <style>
-  .finder { padding: 88px 0 96px; }
+  .finder { padding: 64px 0 72px; }
   .finder-intro { margin-bottom: 44px; }
   .finder-intro h1 { max-width: 16ch; margin-bottom: 14px; }
   .finder-lede { font-size: clamp(1.05rem, 1.6vw, 1.25rem); color: var(--gold-soft); margin: 0; max-width: 40ch; }
-  .finder-grid { display: grid; grid-template-columns: 1.5fr 0.85fr; gap: 56px; align-items: center; }
-  .finder-panel { max-width: 360px; justify-self: end; }
+  .finder-grid { display: grid; grid-template-columns: 1fr 1.05fr; gap: 48px; align-items: center; }
+  .finder-panel { max-width: 460px; justify-self: end; width: 100%; }
   .finder-sentence { font-family: var(--serif); font-size: clamp(1.15rem, 2vw, 1.5rem); line-height: 1.65; margin: 0 0 28px; color: #fff; }
   .finder-sentence select { appearance: none; -webkit-appearance: none; background: transparent; border: none; border-bottom: 2px solid var(--gold); color: var(--gold); font: inherit; font-weight: 700; padding: 0 22px 2px 2px; cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23D8BB53' stroke-width='2'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right center; background-size: 11px; }
   .finder-sentence select option { color: var(--ink); background: #fff; font-weight: 400; }
   .finder-sentence select:focus { outline: 2px solid var(--gold); outline-offset: 3px; }
   .surprise { display: inline-flex; align-items: center; gap: 8px; background: none; border: none; color: var(--gold); font-family: var(--serif); font-size: 1.05rem; font-weight: 600; cursor: pointer; padding: 0; }
   .surprise:hover { text-decoration: underline; }
-  .finder-panel { background: #fff; border-radius: 14px; padding: 24px; box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18); }
-  .panel-head { font-size: 15px; color: var(--muted); margin: 0 0 4px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+  .finder-panel { background: #fff; border-radius: 14px; padding: 18px 22px; box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18); }
+  .panel-head { font-size: 15px; color: var(--muted); margin: 0 0 2px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
   #f-list { list-style: none; margin: 0; padding: 0; }
   #f-list :global(li) { border-bottom: 1px solid var(--line); }
   #f-list :global(li:last-child) { border-bottom: none; }
-  #f-list :global(a) { display: flex; flex-direction: column; gap: 6px; padding: 18px 2px; text-decoration: none; color: var(--ink); }
+  #f-list :global(a) { display: flex; flex-direction: column; gap: 3px; padding: 10px 2px; text-decoration: none; color: var(--ink); }
   #f-list :global(a:hover) { color: var(--blue); }
   #f-list :global(strong) { font-family: var(--serif); font-weight: 400; font-size: 1.15rem; color: var(--blue); }
   #f-list :global(span) { font-size: 14px; color: var(--muted); }
-  .panel-all { display: block; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); font-weight: 600; text-decoration: none; }
+  .panel-all { display: block; margin-top: 6px; padding-top: 8px; border-top: 1px solid var(--line); font-weight: 600; text-decoration: none; }
   @media (max-width: 860px) { .finder-grid { grid-template-columns: 1fr; } }
   .btn.ghost.light { border-color: #fff; color: #fff; }
   .grid.three { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); margin-top: 28px; }
