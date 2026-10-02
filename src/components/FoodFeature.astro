@@ -1,0 +1,90 @@
+---
+// "Food Feature" — the two-card section on /food.
+// Left: the latest post tagged "worth-the-drive" in Pages CMS. Until Sara or Dillon tags one,
+// this shows an honest, clearly-marked placeholder instead of inventing a pick.
+// Right: "Opened this month," a short hand-edited list at data/new-and-notable.json. Ships with
+// placeholder entries (each flagged placeholder: true) since there's no real opening data yet.
+import posts from '../data/posts.json';
+import openings from '../data/new-and-notable.json';
+import { url, img, fmtDate } from '../lib/util';
+
+const drivePost = posts.find((p) => p.categories.includes('worth-the-drive'));
+const list = (openings as any[]).slice(0, 4);
+---
+<section class="section food-feature">
+  <div class="wrap">
+    <h2 class="ff-title">Food Feature</h2>
+    <div class="ff-grid">
+      <div class="ff-drive">
+        <p class="ff-kicker">Worth the Drive{drivePost ? ` · ${fmtDate(drivePost.date, { month: 'short', day: 'numeric' })}` : ' · This week'}</p>
+        {drivePost ? (
+          <Fragment>
+            <a href={url(drivePost.path)} class="ff-img">
+              {drivePost.image ? <img src={img(drivePost.image, 700)} alt="" /> : <div class="ff-ph"></div>}
+            </a>
+            <h3><a href={url(drivePost.path)}>{drivePost.title}</a></h3>
+            {drivePost.description && <p>{drivePost.description}</p>}
+            <a class="ff-link" href={url(drivePost.path)}>Read {drivePost.author === 'Dillon Loren' ? "Dillon's" : "Sara's"} review &rarr;</a>
+          </Fragment>
+        ) : (
+          <Fragment>
+            <div class="ff-img"><div class="ff-ph"></div></div>
+            <h3 class="ph-text">[Featured spot]</h3>
+            <p class="ph-text">[One line on why it's worth the drive this week.]</p>
+            <span class="ff-link ph-text">Read the review &rarr;</span>
+            <p class="ff-note">Placeholder. Tag a post "Worth the Drive" in Pages CMS and it replaces this automatically.</p>
+          </Fragment>
+        )}
+      </div>
+
+      <div class="ff-new">
+        <p class="ff-kicker green">New and notable</p>
+        <h3 class="ff-new-title">Opened this month</h3>
+        {list.length > 0 ? (
+          <ul class="ff-list">
+            {list.map((o: any) => (
+              <li>
+                <span>
+                  <strong class:list={{ 'ph-text': o.placeholder }}>{o.name}</strong>
+                  <span class="muted small">{o.category} &middot; {o.area}</span>
+                </span>
+                <span class="ff-new-tag">New</span>
+              </li>
+            ))}
+          </ul>
+        ) : <p class="muted">No new openings logged yet.</p>}
+        <a class="ff-link" href={url('/food')}>See every opening &rarr;</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .food-feature { padding: 48px 0; }
+  .ff-title { margin: 0 0 24px; }
+  .ff-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: stretch; }
+  .ff-drive, .ff-new { border-radius: 10px; padding: 28px; }
+  .ff-drive { background: #f6d98a; }
+  .ff-new { background: #fff; border: 1px solid var(--line); }
+  .ff-kicker { font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--navy); margin: 0 0 14px; }
+  .ff-kicker.green { color: #1e7a43; }
+  .ff-img { display: block; aspect-ratio: 16 / 10; border-radius: 6px; overflow: hidden; background: var(--gold-soft); margin-bottom: 18px; }
+  .ff-img img { width: 100%; height: 100%; object-fit: cover; }
+  .ff-ph { width: 100%; height: 100%; background: var(--gold-soft); }
+  .ff-drive h3 { margin: 0 0 8px; font-size: 1.6rem; }
+  .ff-drive h3 a { color: var(--navy); text-decoration: none; }
+  .ff-drive p { margin: 0 0 14px; color: var(--ink); }
+  .ff-link { font-weight: 700; color: var(--navy); text-decoration: none; }
+  .ff-note { font-size: 13px; color: var(--brown); margin-top: 10px !important; }
+  .ph-text { color: var(--muted); font-style: italic; }
+
+  .ff-new-title { margin: 0 0 14px; font-size: 1.7rem; color: var(--navy); }
+  .ff-list { list-style: none; margin: 0 0 18px; padding: 0; }
+  .ff-list li { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 14px 0; border-top: 1px solid var(--line); }
+  .ff-list li:first-child { border-top: none; }
+  .ff-list strong { display: block; font-family: var(--serif); font-weight: 400; font-size: 1.1rem; color: var(--navy); }
+  .ff-list .muted.small { font-size: 13px; }
+  .ff-new-tag { flex: none; font-size: 12px; font-weight: 700; color: #1e7a43; letter-spacing: .03em; }
+
+  @media (max-width: 800px) { .ff-grid { grid-template-columns: 1fr; } }
+</style>
