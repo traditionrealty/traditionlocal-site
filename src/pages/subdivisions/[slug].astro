@@ -17,6 +17,7 @@ const siblings = subdivisions.filter((x) => x.area === s.area && x.slug !== s.sl
       <p class="kicker">
         <a href={url('/cities')}>Neighborhoods</a>
         {area && <> / <a href={url(`/cities/${area.slug}`)}>{area.name}</a></>}
+        {' '}/ {s.city}, {s.state}
       </p>
       <h1>{s.name}</h1>
       <p class="lede">{s.city}, {s.state}{s.zipCodes ? ` ${s.zipCodes}` : ''}</p>
