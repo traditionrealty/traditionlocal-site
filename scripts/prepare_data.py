@@ -303,6 +303,34 @@ if MASTER_CMS.exists():
                 contact_n += 1
     print("master CMS merge: verified closed", closed_n, ", contact fields added", contact_n)
 
+# ---------- subdivisions (master CMS, linked to an existing neighborhood guide) ----------
+# Subdivisions sit a level under a neighborhood (e.g. Cinco Ranch is inside Katy). We only keep
+# the ones whose parent neighborhood matches a real area guide on the site, so every subdivision
+# page can link back to a real "Living in <Area>" page, and vice versa.
+subdivisions = []
+if MASTER_CMS.exists():
+    nb_sheet = pd.read_excel(MASTER_CMS, sheet_name="Neighborhoods")
+    subs_sheet = pd.read_excel(MASTER_CMS, sheet_name="Subdivisions")
+    loc_to_name = dict(zip(nb_sheet["location_id"], nb_sheet["name"]))
+    area_by_name = {a["name"].strip().lower(): a for a in areas}
+    SUB_SYNONYMS = {"downtown": "downtown houston", "galleria/uptown": "galleria", "midtown": "midtown houston"}
+    skipped = 0
+    for _, s in subs_sheet.iterrows():
+        loc_name = loc_to_name.get(s["parent_location_id"])
+        key = SUB_SYNONYMS.get(str(loc_name).strip().lower(), str(loc_name).strip().lower()) if loc_name else None
+        area = area_by_name.get(key) if key else None
+        if not area:
+            skipped += 1
+            continue
+        subdivisions.append({
+            "slug": s["slug"], "name": s["subdivision_name"], "city": s["city"], "state": s["state"],
+            "zipCodes": nan(s["zip_codes"]), "description": s["short_description"],
+            "seoTitle": nan(s["seo_title"]), "metaDescription": nan(s["meta_description"]),
+            "area": area["slug"],
+        })
+    subdivisions.sort(key=lambda x: x["name"].lower())
+    print("subdivisions", len(subdivisions), "linked to a neighborhood guide, skipped (no matching area):", skipped)
+
 # ---------- generic pages ----------
 CUSTOM = {"/", "/food", "/living", "/cities", "/all-articles"}
 generic = []
@@ -348,7 +376,7 @@ new_and_notable = (json.load(open(nn_file)).get("items", []) if nn_file.exists()
 
 for name, obj in [("posts", posts), ("categories", categories), ("events", events), ("neighborhoods", hoods),
                   ("areas", areas), ("businesses", biz), ("pages", generic), ("site", site), ("images", images),
-                  ("new-and-notable", new_and_notable)]:
+                  ("new-and-notable", new_and_notable), ("subdivisions", subdivisions)]:
     json.dump(obj, open(OUT / f"{name}.json", "w"), ensure_ascii=False)
 if not (OUT / "image-map.json").exists():
     json.dump({}, open(OUT / "image-map.json", "w"))
