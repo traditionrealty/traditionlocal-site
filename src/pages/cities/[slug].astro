@@ -21,7 +21,7 @@ const sameRegion = areas.filter((x) => x.region === a.region && x.slug !== a.slu
 <Base title={a.seoTitle.replace(/\s*\|\s*Tradition Local$/, '')} description={a.metaDescription} image={a.hero}>
   <section class="band area-hero" style={a.hero ? `background-image: linear-gradient(rgba(31,75,168,.82), rgba(31,75,168,.82)), url(${img(a.hero)})` : undefined}>
     <div class="wrap">
-      <p class="kicker"><a href={url('/cities')}>Neighborhoods</a> / {a.region}{parent && <> / <a href={url(`/cities/${parent.slug}`)}>{parent.name}</a></>}</p>
+      <p class="kicker"><a href={url('/cities')}>Neighborhoods</a> / {a.region}{parent && <> / <a href={url(`/cities/${parent.slug}`)}>{parent.name}</a></>}{areaSubdivisions.length > 0 && <> / <a href="#subdivisions">{areaSubdivisions.length} subdivisions</a></>}</p>
       <h1>{a.name}</h1>
       <p class="lede">{a.vibe}</p>
     </div>
@@ -57,7 +57,7 @@ const sameRegion = areas.filter((x) => x.region === a.region && x.slug !== a.slu
         </dl>
         <a class="btn gold" href={url('/neighborhood-info-request')}>Ask about homes here</a>
         {children.length > 0 && (<div class="rel"><p><strong>Inside {a.name}</strong></p><ul>{children.map((c) => <li><a href={url(`/cities/${c.slug}`)}>{c.name}</a></li>)}</ul></div>)}
-        {areaSubdivisions.length > 0 && (<div class="rel"><p><strong>Subdivisions in {a.name}</strong></p><ul>{areaSubdivisions.map((s) => <li><a href={url(`/subdivisions/${s.slug}`)}>{s.name}</a></li>)}</ul></div>)}
+        {areaSubdivisions.length > 0 && (<div class="rel" id="subdivisions"><p><strong>Subdivisions in {a.name}</strong></p><ul>{areaSubdivisions.map((s) => <li><a href={url(`/subdivisions/${s.slug}`)}>{s.name}</a></li>)}</ul></div>)}
         <div class="rel"><p><strong>More in {a.region}</strong></p><ul>{sameRegion.map((c) => <li><a href={url(`/cities/${c.slug}`)}>{c.name}</a></li>)}</ul></div>
       </aside>
     </div>
