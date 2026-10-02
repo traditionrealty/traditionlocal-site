@@ -1,14 +1,19 @@
 ---
 // "Food Feature" — the two-card section on /food.
-// Left: the latest post tagged "worth-the-drive" in Pages CMS. Until Sara or Dillon tags one,
+// Left: whichever rated business (Worth a Stop / Worth the Drive / Worth the Trip, set via
+// data/ratings.json) was reviewed most recently, whatever its tier — the label always matches
+// the actual rating, it's never hardcoded to "Worth the Drive". Until any business has a rating,
 // this shows an honest, clearly-marked placeholder instead of inventing a pick.
 // Right: "Opened this month," a short hand-edited list at data/new-and-notable.json. Ships with
 // placeholder entries (each flagged placeholder: true) since there's no real opening data yet.
-import posts from '../data/posts.json';
+import businesses from '../data/businesses.json';
 import openings from '../data/new-and-notable.json';
-import { url, img, fmtDate } from '../lib/util';
+import { url, img } from '../lib/util';
 
-const drivePost = posts.find((p) => p.categories.includes('worth-the-drive'));
+const RATING_LABEL: Record<string, string> = { stop: 'Worth a Stop', drive: 'Worth the Drive', trip: 'Worth the Trip' };
+const rated = (businesses as any[]).filter((b) => b.rating).sort((a, b) => b.reviewYear - a.reviewYear);
+const pick = rated[0];
+const pickLabel = pick ? RATING_LABEL[pick.rating] : null;
 const list = (openings as any[]).slice(0, 4);
 ---
 <section class="section food-feature">
@@ -16,23 +21,23 @@ const list = (openings as any[]).slice(0, 4);
     <h2 class="ff-title">Food Feature</h2>
     <div class="ff-grid">
       <div class="ff-drive">
-        <p class="ff-kicker">Worth the Drive{drivePost ? ` · ${fmtDate(drivePost.date, { month: 'short', day: 'numeric' })}` : ' · This week'}</p>
-        {drivePost ? (
+        <p class="ff-kicker">{pickLabel ?? 'Worth a Look'}{pick ? ` · Reviewed ${pick.reviewYear}` : ' · This week'}</p>
+        {pick ? (
           <Fragment>
-            <a href={url(drivePost.path)} class="ff-img">
-              {drivePost.image ? <img src={img(drivePost.image, 700)} alt="" /> : <div class="ff-ph"></div>}
+            <a href={url(`/eat/${pick.slug}`)} class="ff-img">
+              {pick.heroImage ? <img src={img(pick.heroImage, 700)} alt="" /> : <div class="ff-ph"></div>}
             </a>
-            <h3><a href={url(drivePost.path)}>{drivePost.title}</a></h3>
-            {drivePost.description && <p>{drivePost.description}</p>}
-            <a class="ff-link" href={url(drivePost.path)}>Read {drivePost.author === 'Dillon Loren' ? "Dillon's" : "Sara's"} review &rarr;</a>
+            <h3><a href={url(`/eat/${pick.slug}`)}>{pick.name}</a></h3>
+            {pick.description && <p>{pick.description}</p>}
+            <a class="ff-link" href={url(`/eat/${pick.slug}`)}>Read {pick.reviewAuthor === 'Dillon Loren' ? "Dillon's" : "Sara's"} review &rarr;</a>
           </Fragment>
         ) : (
           <Fragment>
             <div class="ff-img"><div class="ff-ph"></div></div>
             <h3 class="ph-text">[Featured spot]</h3>
-            <p class="ph-text">[One line on why it's worth the drive this week.]</p>
+            <p class="ph-text">[One line on why it's worth the trip this week.]</p>
             <span class="ff-link ph-text">Read the review &rarr;</span>
-            <p class="ff-note">Placeholder. Tag a post "Worth the Drive" in Pages CMS and it replaces this automatically.</p>
+            <p class="ff-note">Placeholder. Rate a business in data/ratings.json (stop, drive, or trip) and it replaces this automatically.</p>
           </Fragment>
         )}
       </div>
