@@ -1,0 +1,9 @@
+{
+  "_readme": "The Food Feature section on /food shows these as \"Opened this month.\" Edit this list by hand, or ask Claude to. Each entry needs name, category, and area. Leave \"placeholder\": true on an entry until it's a real opening, that flag is what gives it the dashed, grayed-out look so nobody mistakes it for a real listing. Delete entries once they're no longer new, there's no automatic expiry.",
+  "items": [
+    { "name": "[New restaurant]", "category": "[Cuisine]", "area": "[Area]", "placeholder": true },
+    { "name": "[New coffee shop]", "category": "Coffee", "area": "[Area]", "placeholder": true },
+    { "name": "[New bakery]", "category": "Bakery", "area": "[Area]", "placeholder": true },
+    { "name": "[New shop]", "category": "[Type]", "area": "[Area]", "placeholder": true }
+  ]
+}
