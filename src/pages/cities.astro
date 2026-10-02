@@ -3,6 +3,7 @@ import Base from '../layouts/Base.astro';
 import areas from '../data/areas.json';
 import businesses from '../data/businesses.json';
 import hoods from '../data/neighborhoods.json';
+import subdivisions from '../data/subdivisions.json';
 import { url } from '../lib/util';
 const regions = ['Central', 'West', 'North', 'South', 'East', 'Suburbs', 'Coast', 'Countryside'].filter((r) => areas.some((a) => a.region === r));
 // "Trending" proxy for a neighborhood: the most recent reviewYear among businesses located there.
@@ -11,6 +12,28 @@ const latestYearByArea: Record<string, number> = {};
 businesses.forEach((b) => {
   if (b.area && b.reviewYear) latestYearByArea[b.area] = Math.max(latestYearByArea[b.area] || 0, b.reviewYear);
 });
+
+// Group the 270 subdivision profiles by the neighborhood they're actually in, instead of one
+// flat A-Z list. Resolved by matching each profile's name against our subdivisions dataset
+// (which already carries a clean area link); a handful are themselves area-level names and
+// resolve directly against areas.json.
+const subAreaByName: Record<string, string> = {};
+subdivisions.forEach((s) => (subAreaByName[s.name.trim().toLowerCase()] = s.area));
+const areaByName: Record<string, (typeof areas)[number]> = {};
+areas.forEach((a) => (areaByName[a.name.trim().toLowerCase()] = a));
+const hoodGroups: Record<string, { area: (typeof areas)[number]; items: typeof hoods }> = {};
+const otherHoods: typeof hoods = [];
+hoods.forEach((h) => {
+  const key = h.name.trim().toLowerCase();
+  const areaSlug = subAreaByName[key] || areaByName[key]?.slug;
+  const area = areaSlug ? areas.find((a) => a.slug === areaSlug) : null;
+  if (area) {
+    (hoodGroups[area.slug] ||= { area, items: [] }).items.push(h);
+  } else {
+    otherHoods.push(h);
+  }
+});
+const sortedHoodGroups = Object.values(hoodGroups).sort((x, y) => x.area.name.localeCompare(y.area.name));
 ---
 <Base title="Around Town" description="Every Tradition Local neighborhood guide covers where to eat, how to spend a Saturday, and what it is really like to live there.">
   <section class="band">
@@ -52,8 +75,19 @@ businesses.forEach((b) => {
   <section class="section tint">
     <div class="wrap">
       <div class="section-head"><h2>Subdivision profiles</h2><span class="muted">{hoods.length} communities</span></div>
-      <p>Price ranges, price per square foot, HOAs, and school districts for individual subdivisions.</p>
-      <ul class="hood-index">{hoods.map((h) => <li><a href={url(h.path)}>{h.name}</a></li>)}</ul>
+      <p>Price ranges, price per square foot, HOAs, and school districts for individual subdivisions, grouped by neighborhood.</p>
+      {sortedHoodGroups.map((g) => (
+        <div class="hood-group">
+          <h3><a href={url(`/cities/${g.area.slug}`)}>{g.area.name}</a> <span class="muted small">{g.items.length}</span></h3>
+          <ul class="hood-index">{g.items.map((h) => <li><a href={url(h.path)}>{h.name}</a></li>)}</ul>
+        </div>
+      ))}
+      {otherHoods.length > 0 && (
+        <div class="hood-group">
+          <h3>Other communities <span class="muted small">{otherHoods.length}</span></h3>
+          <ul class="hood-index">{otherHoods.map((h) => <li><a href={url(h.path)}>{h.name}</a></li>)}</ul>
+        </div>
+      )}
     </div>
   </section>
 </Base>
@@ -104,7 +138,12 @@ businesses.forEach((b) => {
   .type { font-size: 13px; color: var(--brown); }
   .areas strong { font-family: var(--serif); font-weight: 400; font-size: 1.5rem; color: var(--blue); }
   .vibe { color: var(--muted); font-size: 15px; }
-  .hood-index { columns: 4 200px; padding: 0; list-style: none; margin-top: 20px; }
+  .hood-group { margin-top: 36px; }
+  .hood-group h3 { font-family: var(--serif); font-weight: 400; font-size: 1.3rem; color: var(--blue); margin: 0 0 4px; }
+  .hood-group h3 a { color: inherit; text-decoration: none; }
+  .hood-group h3 a:hover { text-decoration: underline; }
+  .muted.small { font-size: 14px; font-weight: 400; font-family: var(--sans); }
+  .hood-index { columns: 4 200px; padding: 0; list-style: none; margin-top: 12px; }
   .hood-index li { break-inside: avoid; padding: 3px 0; }
   .hood-index a { text-decoration: none; }
 </style>
