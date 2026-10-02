@@ -1,0 +1,3 @@
+{
+  "_readme": "Optional overrides. Add a slug (from the business's URL) with a rating of stop, drive, or trip, and a reviewAuthor if Dillon wrote it instead of Sara. Example: \"blendin-coffee-club\": { \"rating\": \"drive\", \"reviewAuthor\": \"Dillon Loren\" }"
+}
