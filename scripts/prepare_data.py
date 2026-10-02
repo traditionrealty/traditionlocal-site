@@ -314,6 +314,12 @@ if MASTER_CMS.exists():
     loc_to_name = dict(zip(nb_sheet["location_id"], nb_sheet["name"]))
     area_by_name = {a["name"].strip().lower(): a for a in areas}
     SUB_SYNONYMS = {"downtown": "downtown houston", "galleria/uptown": "galleria", "midtown": "midtown houston"}
+    # The older subdivision-profile dataset (neighborhoods.json, 270 entries) has real price range,
+    # price/sqft, year built, HOA, schools, and zips that the master CMS research doesn't carry.
+    # Same real places in most cases (matched by name) -- merge that structured data in rather than
+    # losing it, so this page ends up with everything both sources have.
+    hood_by_name = {h["name"].strip().lower(): h for h in hoods}
+    enriched = 0
     skipped = 0
     for _, s in subs_sheet.iterrows():
         loc_name = loc_to_name.get(s["parent_location_id"])
@@ -322,12 +328,23 @@ if MASTER_CMS.exists():
         if not area:
             skipped += 1
             continue
-        subdivisions.append({
+        entry = {
             "slug": s["slug"], "name": s["subdivision_name"], "city": s["city"], "state": s["state"],
             "zipCodes": nan(s["zip_codes"]), "description": s["short_description"],
             "seoTitle": nan(s["seo_title"]), "metaDescription": nan(s["meta_description"]),
             "area": area["slug"],
-        })
+        }
+        h = hood_by_name.get(s["subdivision_name"].strip().lower())
+        if h:
+            for field in ["priceRange", "pricePerSqft", "yearBuilt", "hoa"]:
+                if h.get(field):
+                    entry[field] = h[field]
+            if h.get("schools"):
+                entry["schools"] = h["schools"]
+            if h.get("zips") and not entry["zipCodes"]:
+                entry["zipCodes"] = ", ".join(h["zips"])
+            enriched += 1
+        subdivisions.append(entry)
     # A handful of subdivisions got classified under two overlapping neighborhood areas in the
     # research (e.g. Spring Branch / Memorial Villages boundaries aren't crisp). Same name + same
     # zip code is treated as the same real place; keep one, drop the rest. Same name but a
@@ -346,7 +363,7 @@ if MASTER_CMS.exists():
     subdivisions = deduped
     subdivisions.sort(key=lambda x: x["name"].lower())
     print("subdivisions", len(subdivisions), "linked to a neighborhood guide, skipped (no matching area):", skipped,
-          ", duplicate (same name + zip) dropped:", dupes_dropped)
+          ", duplicate (same name + zip) dropped:", dupes_dropped, ", enriched with price/HOA/schools data:", enriched)
 
 # ---------- generic pages ----------
 CUSTOM = {"/", "/food", "/living", "/cities", "/all-articles"}
