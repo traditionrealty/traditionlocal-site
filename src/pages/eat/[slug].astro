@@ -26,11 +26,13 @@ const ld = { '@context': 'https://schema.org', '@type': 'LocalBusiness', name: b
       <h1>{b.name}</h1>
       <p class="lede">{place}</p>
       {b.saraPick && <span class="badge">Sara's pick</span>}
+      {b.closed && <span class="badge closed-badge">Closed</span>}
     </div>
   </section>
   <section class="section">
     <div class="wrap layout">
       <div class="prose">
+        {b.closed && <p class="closed-note">This business is no longer operating. The review below is kept for reference.</p>}
         <p class="intro">{b.description}</p>
         <h2>Sara's review</h2>
         <blockquote>{b.review}<footer>Visited {b.reviewYear}</footer></blockquote>
@@ -41,6 +43,9 @@ const ld = { '@context': 'https://schema.org', '@type': 'LocalBusiness', name: b
           <dt>Category</dt><dd>{b.categories.join(', ')}</dd>
           <dt>Location</dt><dd>{place}</dd>
           {b.harMarket && (<><dt>Area</dt><dd>{b.harMarket}</dd></>)}
+          {b.address && (<><dt>Address</dt><dd>{b.address}</dd></>)}
+          {b.phone && (<><dt>Phone</dt><dd><a href={`tel:${b.phone}`}>{b.phone}</a></dd></>)}
+          {b.website && (<><dt>Website</dt><dd><a href={b.website} target="_blank" rel="noopener">{b.website.replace(/^https?:\/\//, '').replace(/\/$/, '')}</a></dd></>)}
           {area && (<><dt>Neighborhood guide</dt><dd><a href={url(`/cities/${area.slug}`)}>Living in {area.name}</a></dd></>)}
         </dl>
         <a class="btn blue" href={`https://www.google.com/maps/search/${encodeURIComponent(`${b.name} ${b.city} TX`)}`}>Get directions</a>
@@ -61,6 +66,9 @@ const ld = { '@context': 'https://schema.org', '@type': 'LocalBusiness', name: b
 </Base>
 <style>
   .kicker a { color: var(--gold); }
+  .closed-badge { margin-left: 10px; background: #fff; color: var(--brown); border: 1px solid var(--brown); }
+  .closed-note { background: var(--cream); border: 1px solid var(--line); border-radius: 6px; padding: 10px 14px; margin: 0 0 20px; font-size: 14px; color: var(--muted); }
+  dd a { color: var(--blue); }
   .layout { display: grid; grid-template-columns: 1fr 320px; gap: 56px; }
   .intro { font-size: 1.3rem; font-family: var(--serif); color: var(--navy); }
   blockquote footer { font-family: var(--sans); font-size: 14px; color: var(--muted); margin-top: 10px; }
