@@ -69,16 +69,16 @@ businesses.forEach((b) => {
   let trending = true;
   function apply() {
     const term = q.value.trim().toLowerCase();
+    const order = trending
+      ? [...items].sort((a, b) => Number(b.dataset.year) - Number(a.dataset.year))
+      : originalOrder;
     let n = 0;
-    for (const li of items) {
-      const ok = (!term || li.dataset.name!.includes(term)) && (!region || li.dataset.region === region);
+    for (const li of order) {
+      const ok = (!term || li.dataset.name!.includes(term)) && (!region || li.dataset.region === region) && (!trending || n < 12);
       li.hidden = !ok; if (ok) n++;
     }
     count.textContent = `${n} ${n === 1 ? 'guide' : 'guides'}`;
     empty.hidden = n > 0;
-    const order = trending
-      ? [...items].sort((a, b) => Number(b.dataset.year) - Number(a.dataset.year))
-      : originalOrder;
     order.forEach((li) => list.appendChild(li));
   }
   chips.forEach((c) => c.addEventListener('click', () => {
