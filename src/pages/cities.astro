@@ -1,29 +1,43 @@
 ---
 import Base from '../layouts/Base.astro';
 import areas from '../data/areas.json';
+import businesses from '../data/businesses.json';
 import hoods from '../data/neighborhoods.json';
 import { url } from '../lib/util';
 const regions = ['Central', 'West', 'North', 'South', 'East', 'Suburbs', 'Coast', 'Countryside'].filter((r) => areas.some((a) => a.region === r));
+// "Trending" proxy for a neighborhood: the most recent reviewYear among businesses located there.
+// Areas with no linked businesses sort last.
+const latestYearByArea: Record<string, number> = {};
+businesses.forEach((b) => {
+  if (b.area && b.reviewYear) latestYearByArea[b.area] = Math.max(latestYearByArea[b.area] || 0, b.reviewYear);
+});
 ---
-<Base title="Neighborhoods" description="Every Tradition Local neighborhood guide covers where to eat, how to spend a Saturday, and what it is really like to live there.">
+<Base title="Around Town" description="Every Tradition Local neighborhood guide covers where to eat, how to spend a Saturday, and what it is really like to live there.">
   <section class="band">
     <div class="wrap">
       <p class="kicker">Eat, do, and live like a local</p>
-      <h1>Neighborhoods</h1>
+      <h1>Around Town</h1>
       <p class="lede">Every neighborhood guide covers where to eat, how to spend a Saturday, and what it is really like to live there.</p>
       <a class="btn gold" href={url('/neighborhood-info-request')}>Not sure? Ask Dillon</a>
     </div>
   </section>
   <section class="section">
     <div class="wrap">
+      <h2 class="filters-head">Browse neighborhoods</h2>
+      <div class="filters" id="filters">
+        <label class="search"><span class="sr">Search neighborhoods</span>
+          <input type="search" id="q" placeholder="Search by name" />
+        </label>
+      </div>
       <div class="chips" role="group" aria-label="Filter by region">
-        <button class="chip" data-region="" aria-pressed="true">All regions</button>
+        <button class="chip" data-region="" data-trending="1" aria-pressed="true">Trending</button>
+        <button class="chip" data-region="" aria-pressed="false">All regions</button>
         {regions.map((r) => <button class="chip" data-region={r} aria-pressed="false">{r}</button>)}
       </div>
       <p class="muted" id="count" aria-live="polite">{areas.length} guides</p>
       <ul class="areas" id="areas">
         {areas.map((a) => (
-          <li data-region={a.region}>
+          <li data-region={a.region} data-name={a.name.toLowerCase()} data-year={latestYearByArea[a.slug] || 0}>
             <a href={url(`/cities/${a.slug}`)}>
               <span class="type">{a.type} in {a.region}</span>
               <strong>{a.name}</strong>
@@ -32,6 +46,7 @@ const regions = ['Central', 'West', 'North', 'South', 'East', 'Suburbs', 'Coast'
           </li>
         ))}
       </ul>
+      <p id="empty" hidden>No neighborhoods match that search.</p>
     </div>
   </section>
   <section class="section tint">
@@ -43,18 +58,43 @@ const regions = ['Central', 'West', 'North', 'South', 'East', 'Suburbs', 'Coast'
   </section>
 </Base>
 <script>
+  const q = document.getElementById('q') as HTMLInputElement;
   const chips = [...document.querySelectorAll<HTMLButtonElement>('[data-region]')].filter((el) => el.tagName === 'BUTTON');
-  const items = [...document.querySelectorAll<HTMLLIElement>('#areas li')];
+  const list = document.getElementById('areas')!;
+  const originalOrder = [...document.querySelectorAll<HTMLLIElement>('#areas li')];
+  const items = originalOrder;
   const count = document.getElementById('count')!;
-  chips.forEach((c) => c.addEventListener('click', () => {
-    const r = c.dataset.region;
-    chips.forEach((x) => x.setAttribute('aria-pressed', String(x === c)));
+  const empty = document.getElementById('empty')!;
+  let region = '';
+  let trending = true;
+  function apply() {
+    const term = q.value.trim().toLowerCase();
     let n = 0;
-    items.forEach((li) => { const ok = !r || li.dataset.region === r; li.hidden = !ok; if (ok) n++; });
-    count.textContent = `${n} guides`;
+    for (const li of items) {
+      const ok = (!term || li.dataset.name!.includes(term)) && (!region || li.dataset.region === region);
+      li.hidden = !ok; if (ok) n++;
+    }
+    count.textContent = `${n} ${n === 1 ? 'guide' : 'guides'}`;
+    empty.hidden = n > 0;
+    const order = trending
+      ? [...items].sort((a, b) => Number(b.dataset.year) - Number(a.dataset.year))
+      : originalOrder;
+    order.forEach((li) => list.appendChild(li));
+  }
+  chips.forEach((c) => c.addEventListener('click', () => {
+    region = c.dataset.region || '';
+    trending = c.dataset.trending === '1';
+    chips.forEach((x) => x.setAttribute('aria-pressed', String(x === c)));
+    apply();
   }));
+  q.addEventListener('input', apply);
+  apply();
 </script>
 <style>
+  .filters-head { margin: 0 0 16px; }
+  .filters { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
+  .filters input[type=search] { padding: 12px 16px; border: 1.5px solid var(--line); border-radius: 999px; font-size: 16px; background: #fff; }
+  .search { flex: 1 1 320px; } .search input { width: 100%; }
   #count { margin: 18px 0; }
   .areas { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
   .areas li[hidden] { display: none; }
