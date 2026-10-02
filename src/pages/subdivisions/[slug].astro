@@ -2,7 +2,7 @@
 import Base from '../../layouts/Base.astro';
 import subdivisions from '../../data/subdivisions.json';
 import areas from '../../data/areas.json';
-import { url } from '../../lib/util';
+import { url, tidy } from '../../lib/util';
 
 export function getStaticPaths() {
   return subdivisions.map((s) => ({ params: { slug: s.slug }, props: { s } }));
@@ -10,6 +10,10 @@ export function getStaticPaths() {
 const { s } = Astro.props;
 const area = areas.find((a) => a.slug === s.area);
 const siblings = subdivisions.filter((x) => x.area === s.area && x.slug !== s.slug);
+const stats = [
+  ['Price range', s.priceRange], ['Price per sq ft', s.pricePerSqft], ['Year built', s.yearBuilt],
+  ['School district', s.schools?.join(', ')], ['ZIP code', s.zipCodes],
+].filter(([, v]) => v);
 ---
 <Base title={(s.seoTitle || s.name).replace(/\s*\|\s*Tradition Local$/, '')} description={s.metaDescription || s.description}>
   <section class="band sub-hero">
@@ -23,10 +27,14 @@ const siblings = subdivisions.filter((x) => x.area === s.area && x.slug !== s.sl
       <p class="lede">{s.city}, {s.state}{s.zipCodes ? ` ${s.zipCodes}` : ''}</p>
     </div>
   </section>
+  {stats.length > 0 && (
+    <section class="stats"><div class="wrap"><dl>{stats.map(([k, v]) => <div><dt>{k}</dt><dd>{v}</dd></div>)}</dl></div></section>
+  )}
   <section class="section">
     <div class="wrap layout">
       <div>
         <p class="desc">{s.description}</p>
+        {s.hoa && (<><h2>HOA</h2><p>{tidy(s.hoa)}</p></>)}
       </div>
       <aside>
         <dl>
@@ -57,6 +65,11 @@ const siblings = subdivisions.filter((x) => x.area === s.area && x.slug !== s.sl
 </Base>
 <style>
   .kicker a { color: var(--gold); }
+  .stats { background: var(--cream); border-bottom: 1px solid var(--line); }
+  .stats dl { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 0; margin: 0; }
+  .stats div { padding: 22px 16px; border-right: 1px solid var(--line); }
+  .stats dt { font-size: 13px; color: var(--brown); }
+  .stats dd { margin: 4px 0 0; font-family: var(--serif); font-size: 1.35rem; color: var(--blue); }
   .layout { display: grid; grid-template-columns: 1fr 340px; gap: 56px; }
   .desc { font-size: 1.15rem; line-height: 1.6; color: var(--ink); }
   aside { align-self: start; border: 1px solid var(--line); padding: 24px; }
