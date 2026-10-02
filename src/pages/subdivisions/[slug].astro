@@ -9,7 +9,7 @@ export function getStaticPaths() {
 }
 const { s } = Astro.props;
 const area = areas.find((a) => a.slug === s.area);
-const siblings = subdivisions.filter((x) => x.area === s.area && x.slug !== s.slug).slice(0, 8);
+const siblings = subdivisions.filter((x) => x.area === s.area && x.slug !== s.slug);
 ---
 <Base title={(s.seoTitle || s.name).replace(/\s*\|\s*Tradition Local$/, '')} description={s.metaDescription || s.description}>
   <section class="band sub-hero">
@@ -42,7 +42,13 @@ const siblings = subdivisions.filter((x) => x.area === s.area && x.slug !== s.sl
         {siblings.length > 0 && area && (
           <div class="rel">
             <p><strong>Other subdivisions in {area.name}</strong></p>
-            <ul>{siblings.map((x) => <li><a href={url(`/subdivisions/${x.slug}`)}>{x.name}</a></li>)}</ul>
+            <ul>{siblings.slice(0, 5).map((x) => <li><a href={url(`/subdivisions/${x.slug}`)}>{x.name}</a></li>)}</ul>
+            {siblings.length > 5 && (
+              <details class="more">
+                <summary>See all {siblings.length + 1} subdivisions</summary>
+                <ul>{siblings.slice(5).map((x) => <li><a href={url(`/subdivisions/${x.slug}`)}>{x.name}</a></li>)}</ul>
+              </details>
+            )}
           </div>
         )}
       </aside>
@@ -56,5 +62,10 @@ const siblings = subdivisions.filter((x) => x.area === s.area && x.slug !== s.sl
   aside { align-self: start; border: 1px solid var(--line); padding: 24px; }
   dl { margin: 0 0 22px; } dt { font-size: 13px; color: var(--brown); margin-top: 14px; } dd { margin: 2px 0 0; }
   .rel { margin-top: 24px; } .rel ul { padding-left: 18px; margin: 0; }
+  .rel .more { margin-top: 8px; }
+  .rel .more summary { cursor: pointer; color: var(--blue); font-weight: 600; font-size: 15px; list-style: none; }
+  .rel .more summary::-webkit-details-marker { display: none; }
+  .rel .more[open] summary { margin-bottom: 8px; }
+  .rel .more ul { padding-left: 18px; margin: 0; }
   @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } }
 </style>
