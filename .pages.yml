@@ -63,6 +63,7 @@ content:
             - { name: spotlight, label: Spotlight }
             - { name: announcement, label: Announcement }
             - { name: newsletter, label: Newsletter }
+            - { name: worth-the-drive, label: "Worth the Drive (weekly Food Feature pick)" }
       - name: description
         label: Summary (search results and previews)
         type: text
