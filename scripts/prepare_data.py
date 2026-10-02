@@ -328,8 +328,25 @@ if MASTER_CMS.exists():
             "seoTitle": nan(s["seo_title"]), "metaDescription": nan(s["meta_description"]),
             "area": area["slug"],
         })
+    # A handful of subdivisions got classified under two overlapping neighborhood areas in the
+    # research (e.g. Spring Branch / Memorial Villages boundaries aren't crisp). Same name + same
+    # zip code is treated as the same real place; keep one, drop the rest. Same name but a
+    # different zip (e.g. two different "Ashford Forest"s) are genuinely different places and both
+    # stay.
+    seen_key = set()
+    deduped = []
+    dupes_dropped = 0
+    for x in subdivisions:
+        key = (x["name"].strip().lower(), x["zipCodes"])
+        if key in seen_key:
+            dupes_dropped += 1
+            continue
+        seen_key.add(key)
+        deduped.append(x)
+    subdivisions = deduped
     subdivisions.sort(key=lambda x: x["name"].lower())
-    print("subdivisions", len(subdivisions), "linked to a neighborhood guide, skipped (no matching area):", skipped)
+    print("subdivisions", len(subdivisions), "linked to a neighborhood guide, skipped (no matching area):", skipped,
+          ", duplicate (same name + zip) dropped:", dupes_dropped)
 
 # ---------- generic pages ----------
 CUSTOM = {"/", "/food", "/living", "/cities", "/all-articles"}
