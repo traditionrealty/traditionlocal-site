@@ -11,17 +11,18 @@ const topCats = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 14).
 const places = [...new Set(businesses.map((b) => b.neighborhood || b.city))].sort();
 const foodPosts = posts.filter((p) => p.categories.includes('food')).slice(0, 3);
 ---
-<Base title="Eat" description="Houston restaurants, coffee shops, bakeries, and dessert spots reviewed by Sara Loren and the Tradition Local team.">
+<Base title="Food" description="Houston restaurants, coffee shops, bakeries, and dessert spots reviewed by Sara Loren and the Tradition Local team.">
   <section class="band">
     <div class="wrap">
-      <p class="kicker">Where to eat</p>
+      <p class="kicker">Food</p>
       <h1>Eat like a local</h1>
-      <p class="lede">{businesses.length} spots across Greater Houston, from boba to biryani, each one visited and reviewed.</p>
+      <p class="lede">Every spot we have reviewed, rated simply: Worth a Stop, Worth the Drive, or Worth the Trip.</p>
     </div>
   </section>
 
   <section class="section">
     <div class="wrap">
+      <h2 class="filters-head">Where to eat</h2>
       <div class="filters" id="filters">
         <label class="search"><span class="sr">Search places</span>
           <input type="search" id="q" placeholder="Search by name, dish, or neighborhood" />
@@ -35,12 +36,18 @@ const foodPosts = posts.filter((p) => p.categories.includes('food')).slice(0, 3)
         <button class="chip" data-cat="" aria-pressed="true">All</button>
         {topCats.map((c) => <button class="chip" data-cat={c} aria-pressed="false">{c}</button>)}
       </div>
+      <div class="rating-tags" role="group" aria-label="Filter by rating">
+        <button class="rchip" data-rating="" aria-pressed="true">All ratings</button>
+        <button class="rchip" data-rating="stop" aria-pressed="false"><span class="dot stop"></span>Worth a Stop</button>
+        <button class="rchip" data-rating="drive" aria-pressed="false"><span class="dot drive"></span>Worth the Drive</button>
+        <button class="rchip" data-rating="trip" aria-pressed="false"><span class="dot trip"></span>Worth the Trip</button>
+      </div>
       <p class="muted" id="count" aria-live="polite">{businesses.length} places</p>
 
       <ul class="biz-list" id="list">
         {businesses.map((b) => (
           <li data-name={`${b.name} ${b.description} ${b.categories.join(' ')} ${b.neighborhood || ''} ${b.city}`.toLowerCase()}
-              data-cats={b.categories.join('|')} data-where={b.neighborhood || b.city} data-pick={b.saraPick ? '1' : '0'}>
+              data-cats={b.categories.join('|')} data-where={b.neighborhood || b.city} data-pick={b.saraPick ? '1' : '0'} data-rating={b.rating || ''}>
             <a href={url(`/eat/${b.slug}`)}>
               <span class="top">
                 {b.saraPick && <span class="badge">Sara's pick</span>}
@@ -72,16 +79,19 @@ const foodPosts = posts.filter((p) => p.categories.includes('food')).slice(0, 3)
   const where = document.getElementById('where') as HTMLSelectElement;
   const picks = document.getElementById('picks') as HTMLInputElement;
   const chips = [...document.querySelectorAll<HTMLButtonElement>('[data-cat]')];
+  const rchips = [...document.querySelectorAll<HTMLButtonElement>('[data-rating]')];
   const items = [...document.querySelectorAll<HTMLLIElement>('#list li')];
   const count = document.getElementById('count')!;
   const empty = document.getElementById('empty')!;
   let cat = '';
+  let rating = '';
   function apply() {
     const term = q.value.trim().toLowerCase();
     let n = 0;
     for (const li of items) {
       const ok = (!term || li.dataset.name!.includes(term))
         && (!cat || li.dataset.cats!.split('|').includes(cat))
+        && (!rating || li.dataset.rating === rating)
         && (!where.value || li.dataset.where === where.value)
         && (!picks.checked || li.dataset.pick === '1');
       li.hidden = !ok; if (ok) n++;
@@ -94,15 +104,29 @@ const foodPosts = posts.filter((p) => p.categories.includes('food')).slice(0, 3)
     chips.forEach((x) => x.setAttribute('aria-pressed', String(x === c)));
     apply();
   }));
+  rchips.forEach((c) => c.addEventListener('click', () => {
+    rating = c.dataset.rating || '';
+    rchips.forEach((x) => x.setAttribute('aria-pressed', String(x === c)));
+    apply();
+  }));
   [q, where, picks].forEach((el) => el.addEventListener('input', apply));
 </script>
 
 <style>
+  .filters-head { margin: 0 0 16px; }
   .filters { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
   .filters input[type=search], .filters select { padding: 12px 16px; border: 1.5px solid var(--line); border-radius: 999px; font-size: 16px; background: #fff; }
   .search { flex: 1 1 320px; } .search input { width: 100%; }
   .toggle { display: flex; gap: 8px; align-items: center; font-size: 15px; }
   .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .rating-tags { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+  .rchip { display: flex; align-items: center; gap: 7px; padding: 8px 16px; border: 1.5px solid var(--line); border-radius: 999px; background: #fff; font-size: 14px; font-weight: 600; color: var(--navy); cursor: pointer; }
+  .rchip[aria-pressed="true"] { background: var(--navy); color: #fff; border-color: var(--navy); }
+  .rchip[aria-pressed="true"] .dot { outline: 2px solid rgba(255,255,255,.6); outline-offset: 1px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+  .dot.stop { background: #1e7a43; }
+  .dot.drive { background: #e7bc52; }
+  .dot.trip { background: #004aad; }
   #count { margin: 18px 0; }
   .biz-list { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 0; border-top: 1px solid var(--line); }
   .biz-list li[hidden] { display: none; }
