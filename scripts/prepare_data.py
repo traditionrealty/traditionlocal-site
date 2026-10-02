@@ -320,8 +320,13 @@ for x in events:
     images.add(x["image"])
 images = sorted(i for i in images if i and "wixstatic" in i)
 
+# The Food Feature section's "Opened this month" list, hand-edited at data/new-and-notable.json.
+nn_file = ROOT / "data" / "new-and-notable.json"
+new_and_notable = (json.load(open(nn_file)).get("items", []) if nn_file.exists() else [])
+
 for name, obj in [("posts", posts), ("categories", categories), ("events", events), ("neighborhoods", hoods),
-                  ("areas", areas), ("businesses", biz), ("pages", generic), ("site", site), ("images", images)]:
+                  ("areas", areas), ("businesses", biz), ("pages", generic), ("site", site), ("images", images),
+                  ("new-and-notable", new_and_notable)]:
     json.dump(obj, open(OUT / f"{name}.json", "w"), ensure_ascii=False)
 if not (OUT / "image-map.json").exists():
     json.dump({}, open(OUT / "image-map.json", "w"))
