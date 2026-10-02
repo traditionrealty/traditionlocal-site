@@ -281,6 +281,28 @@ for x in biz:
 print("businesses", len(biz), "linked to an area guide:", sum(1 for x in biz if x["area"]),
       "rating overrides applied:", len(overrides))
 
+# Master CMS research pass (Oct 2026): verified closures, and real website/phone/address
+# where the research turned them up. Only ever adds fields; never removes or overrides
+# the spreadsheet's own content.
+MASTER_CMS = RAW / "tradition-local-master-cms-2026-COMPLETE-v.10.3.26.xlsx"
+if MASTER_CMS.exists():
+    mb = pd.read_excel(MASTER_CMS, sheet_name="Local Businesses")
+    cms_by_slug = {r["slug"]: r for _, r in mb.iterrows() if nan(r["slug"])}
+    closed_n = contact_n = 0
+    for x in biz:
+        r = cms_by_slug.get(x["slug"])
+        if r is None:
+            continue
+        if r.get("review_status") == "closed_verified":
+            x["closed"] = True
+            closed_n += 1
+        for field, key in [("website", "website"), ("phone", "phone"), ("address", "address")]:
+            v = nan(r.get(key))
+            if v:
+                x[field] = v
+                contact_n += 1
+    print("master CMS merge: verified closed", closed_n, ", contact fields added", contact_n)
+
 # ---------- generic pages ----------
 CUSTOM = {"/", "/food", "/living", "/cities", "/all-articles"}
 generic = []
