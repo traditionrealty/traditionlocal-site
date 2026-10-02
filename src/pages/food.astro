@@ -50,7 +50,7 @@ const foodPosts = posts.filter((p) => p.categories.includes('food')).slice(0, 3)
           <li data-name={`${b.name} ${b.description} ${b.categories.join(' ')} ${b.neighborhood || ''} ${b.city}`.toLowerCase()}
               data-cats={b.categories.join('|')} data-where={b.neighborhood || b.city} data-pick={b.saraPick ? '1' : '0'} data-rating={b.rating || ''}>
             <a href={url(`/eat/${b.slug}`)}>
-              {b.saraPick && <span class="top"><span class="badge">Sara's pick</span></span>}
+              {(b.saraPick || b.closed) && <span class="top">{b.saraPick && <span class="badge">Sara's pick</span>}{b.closed && <span class="badge closed-badge">Closed</span>}</span>}
               <strong>{b.name}</strong>
               <span class="where">{b.neighborhood ? `${b.neighborhood}, ${b.city}` : b.city}</span>
               <span class="cats">{b.categories.slice(0, 3).join(', ')}</span>
@@ -133,7 +133,8 @@ const foodPosts = posts.filter((p) => p.categories.includes('food')).slice(0, 3)
   .biz-list li[hidden] { display: none; }
   .biz-list a { display: flex; flex-direction: column; gap: 4px; padding: 20px 18px; text-decoration: none; color: var(--ink); border-bottom: 1px solid var(--line); height: 100%; }
   .biz-list a:hover { background: var(--cream); }
-  .top { display: flex; justify-content: flex-end; margin-bottom: 4px; }
+  .top { display: flex; justify-content: flex-end; gap: 6px; margin-bottom: 4px; }
+  .closed-badge { background: #fff; color: var(--brown); border: 1px solid var(--brown); }
   .biz-list strong { display: block; font-family: var(--serif); font-weight: 400; font-size: 1.3rem; color: var(--blue); }
   .where { font-size: 14px; color: var(--navy); font-weight: 600; }
   .cats { font-size: 13px; color: var(--brown); }
