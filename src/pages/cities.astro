@@ -34,6 +34,21 @@ hoods.forEach((h) => {
   }
 });
 const sortedHoodGroups = Object.values(hoodGroups).sort((x, y) => x.area.name.localeCompare(y.area.name));
+
+// Rotating neighborhood guide preview, shown above "Browse neighborhoods". Rotates by calendar
+// day (changes whenever the site next rebuilds on a new day) through areas that actually have
+// enough real content to look complete: at least 2 Sara's-pick businesses, a vibe line, Dillon's
+// take, and school info. Two fields we don't have anywhere (median home price, commute time) and
+// the "Perfect Saturday" itinerary beyond the coffee stop are shown as honest bracketed
+// placeholders, same convention used for "Opened this month" and the Food Feature card.
+const RATING_LABEL: Record<string, string> = { stop: 'Worth a Stop', drive: 'Worth the Drive', trip: 'Worth the Trip' };
+const picksByArea: Record<string, typeof businesses> = {};
+businesses.forEach((b) => { if (b.area && b.saraPick) (picksByArea[b.area] ||= []).push(b); });
+const rotationPool = areas.filter((a) => (picksByArea[a.slug]?.length || 0) >= 2 && a.take && a.vibe && a.schools);
+const dayIndex = Math.floor(Date.now() / 86400000);
+const featured = rotationPool.length > 0 ? rotationPool[dayIndex % rotationPool.length] : null;
+const featuredPicks = featured ? (picksByArea[featured.slug] || []).slice(0, 3) : [];
+const coffeePick = featuredPicks.find((b) => b.categories.includes('Coffee & Tea'));
 ---
 <Base title="Around Town" description="Every Tradition Local neighborhood guide covers where to eat, how to spend a Saturday, and what it is really like to live there.">
   <section class="band">
@@ -44,6 +59,59 @@ const sortedHoodGroups = Object.values(hoodGroups).sort((x, y) => x.area.name.lo
       <a class="btn gold" href={url('/neighborhood-info-request')}>Not sure? Ask Dillon</a>
     </div>
   </section>
+  {featured && (
+    <section class="section preview-section">
+      <div class="wrap">
+        <div class="preview-head">
+          <div>
+            <p class="preview-kicker">Neighborhood guide preview</p>
+            <h2>{featured.name}</h2>
+            <p class="preview-vibe">{featured.vibe}</p>
+          </div>
+          <a class="preview-open" href={url(`/cities/${featured.slug}`)}>Open the full {featured.name} guide &rarr;</a>
+        </div>
+        <div class="preview-grid">
+          <div class="preview-card">
+            <p class="col-kicker">Where to eat</p>
+            {featuredPicks.length > 0 ? (
+              <ul class="preview-eats">
+                {featuredPicks.map((b) => (
+                  <li>
+                    <div class="ph"></div>
+                    <div>
+                      <strong><a href={url(`/eat/${b.slug}`)}>{b.name}</a></strong>
+                      <span class="muted small">{RATING_LABEL[b.rating] || "Sara's pick"} &middot; {b.categories[0]}</span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : <p class="muted small">No spots listed here yet.</p>}
+            <a class="more-link" href={url(`/cities/${featured.slug}`)}>All places to eat &rarr;</a>
+          </div>
+          <div class="preview-card">
+            <p class="col-kicker">The perfect Saturday</p>
+            <ul class="sat-list">
+              <li><span class="time">9 AM</span><div><strong>Coffee</strong><span class="muted small">{coffeePick ? coffeePick.name : <span class="ph-text">[Coffee shop]</span>}</span></div></li>
+              <li><span class="time">11 AM</span><div><strong>Park or trail</strong><span class="muted small ph-text">[Park name]</span></div></li>
+              <li><span class="time">2 PM</span><div><strong>Local shops</strong><span class="muted small ph-text">[Shop or market]</span></div></li>
+              <li><span class="time">7 PM</span><div><strong>Dinner</strong><span class="muted small ph-text">[Restaurant]</span></div></li>
+            </ul>
+            <a class="more-link" href={url(`/cities/${featured.slug}`)}>What's on this weekend &rarr;</a>
+          </div>
+          <div class="preview-card dark">
+            <p class="col-kicker gold">Living here</p>
+            <dl>
+              <div><dt>Median home price</dt><dd class="ph-text">[$000K]</dd></div>
+              <div><dt>Commute to Galleria</dt><dd class="ph-text">[00 min]</dd></div>
+              <div><dt>School district</dt><dd>{featured.schools}</dd></div>
+            </dl>
+            <p class="quote">&ldquo;{featured.take}&rdquo;</p>
+            <a class="btn gold" href={url(`/cities/${featured.slug}`)}>Living in {featured.name} &rarr;</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  )}
   <section class="section">
     <div class="wrap">
       <h2 class="filters-head">Browse neighborhoods</h2>
@@ -130,6 +198,40 @@ const sortedHoodGroups = Object.values(hoodGroups).sort((x, y) => x.area.name.lo
   .filters input[type=search] { padding: 12px 16px; border: 1.5px solid var(--line); border-radius: 999px; font-size: 16px; background: #fff; }
   .search { flex: 1 1 320px; } .search input { width: 100%; }
   .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .preview-section { background: var(--cream); }
+  .preview-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; flex-wrap: wrap; margin-bottom: 24px; }
+  .preview-kicker { font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--brown); margin: 0; }
+  .preview-head h2 { margin: 4px 0 6px; }
+  .preview-vibe { color: var(--muted); margin: 0; }
+  .preview-open { font-weight: 600; white-space: nowrap; }
+  .preview-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; align-items: stretch; }
+  .preview-card { background: #fff; border-radius: 10px; padding: 24px; display: flex; flex-direction: column; }
+  .preview-card.dark { background: var(--navy); color: #fff; }
+  .col-kicker { font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--brown); margin: 0 0 16px; }
+  .col-kicker.gold { color: var(--gold); }
+  .preview-eats { list-style: none; margin: 0 0 12px; padding: 0; }
+  .preview-eats li { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+  .preview-eats li:last-child { border-bottom: none; }
+  .preview-eats .ph { flex-shrink: 0; width: 48px; height: 48px; border-radius: 6px; background: linear-gradient(135deg, var(--cream), var(--gold-soft)); }
+  .preview-eats strong { font-family: var(--serif); font-weight: 400; font-size: 1.05rem; }
+  .preview-eats strong a { color: var(--blue); text-decoration: none; }
+  .preview-eats span.muted { display: block; font-size: 13px; }
+  .sat-list { list-style: none; margin: 0 0 12px; padding: 0; }
+  .sat-list li { display: flex; gap: 14px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .sat-list li:last-child { border-bottom: none; }
+  .sat-list .time { flex-shrink: 0; width: 46px; font-size: 12px; font-weight: 700; color: var(--brown); padding-top: 2px; }
+  .sat-list strong { display: block; font-size: 15px; }
+  .sat-list span.muted { display: block; font-size: 13px; }
+  .more-link { margin-top: auto; font-weight: 600; font-size: 14px; }
+  .preview-card.dark dl { margin: 0 0 20px; }
+  .preview-card.dark dl > div { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,.2); font-size: 14px; }
+  .preview-card.dark dt { color: rgba(255,255,255,.75); }
+  .preview-card.dark dd { font-weight: 700; }
+  .preview-card.dark .quote { font-family: var(--serif); font-size: 1.1rem; line-height: 1.4; margin: 0 0 20px; }
+  .preview-card.dark .btn.gold { margin-top: auto; text-align: center; }
+  .ph-text { color: var(--muted); font-style: italic; }
+  .preview-card.dark .ph-text { color: rgba(255,255,255,.6); }
+  @media (max-width: 900px) { .preview-grid { grid-template-columns: 1fr; } }
   #count { margin: 18px 0; }
   .areas { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
   .areas li[hidden] { display: none; }
