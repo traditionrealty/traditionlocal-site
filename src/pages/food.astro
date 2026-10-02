@@ -92,20 +92,21 @@ const foodPosts = posts.filter((p) => p.categories.includes('food')).slice(0, 3)
   let trending = true;
   function apply() {
     const term = q.value.trim().toLowerCase();
+    const order = trending
+      ? [...items].sort((a, b) => Number(b.dataset.year) - Number(a.dataset.year))
+      : originalOrder;
     let n = 0;
-    for (const li of items) {
+    for (const li of order) {
       const ok = (!term || li.dataset.name!.includes(term))
         && (!cat || li.dataset.cats!.split('|').includes(cat))
         && (!rating || li.dataset.rating === rating)
         && (!where.value || li.dataset.where === where.value)
-        && (!picks.checked || li.dataset.pick === '1');
+        && (!picks.checked || li.dataset.pick === '1')
+        && (!trending || n < 12);
       li.hidden = !ok; if (ok) n++;
     }
     count.textContent = `${n} ${n === 1 ? 'place' : 'places'}`;
     empty.hidden = n > 0;
-    const order = trending
-      ? [...items].sort((a, b) => Number(b.dataset.year) - Number(a.dataset.year))
-      : originalOrder;
     order.forEach((li) => list.appendChild(li));
   }
   chips.forEach((c) => c.addEventListener('click', () => {
