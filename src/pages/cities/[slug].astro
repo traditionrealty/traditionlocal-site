@@ -57,7 +57,18 @@ const sameRegion = areas.filter((x) => x.region === a.region && x.slug !== a.slu
         </dl>
         <a class="btn gold" href={url('/neighborhood-info-request')}>Ask about homes here</a>
         {children.length > 0 && (<div class="rel"><p><strong>Inside {a.name}</strong></p><ul>{children.map((c) => <li><a href={url(`/cities/${c.slug}`)}>{c.name}</a></li>)}</ul></div>)}
-        {areaSubdivisions.length > 0 && (<div class="rel" id="subdivisions"><p><strong>Subdivisions in {a.name}</strong></p><ul>{areaSubdivisions.map((s) => <li><a href={url(`/subdivisions/${s.slug}`)}>{s.name}</a></li>)}</ul></div>)}
+        {areaSubdivisions.length > 0 && (
+          <div class="rel" id="subdivisions">
+            <p><strong>Subdivisions in {a.name}</strong></p>
+            <ul>{areaSubdivisions.slice(0, 5).map((s) => <li><a href={url(`/subdivisions/${s.slug}`)}>{s.name}</a></li>)}</ul>
+            {areaSubdivisions.length > 5 && (
+              <details class="more">
+                <summary>See all {areaSubdivisions.length} subdivisions</summary>
+                <ul>{areaSubdivisions.slice(5).map((s) => <li><a href={url(`/subdivisions/${s.slug}`)}>{s.name}</a></li>)}</ul>
+              </details>
+            )}
+          </div>
+        )}
         <div class="rel"><p><strong>More in {a.region}</strong></p><ul>{sameRegion.map((c) => <li><a href={url(`/cities/${c.slug}`)}>{c.name}</a></li>)}</ul></div>
       </aside>
     </div>
@@ -87,5 +98,10 @@ const sameRegion = areas.filter((x) => x.region === a.region && x.slug !== a.slu
   aside { align-self: start; border: 1px solid var(--line); padding: 24px; }
   dl { margin: 0 0 22px; } dt { font-size: 13px; color: var(--brown); margin-top: 14px; } dd { margin: 2px 0 0; }
   .rel { margin-top: 24px; } .rel ul { padding-left: 18px; margin: 0; }
+  .rel .more { margin-top: 8px; }
+  .rel .more summary { cursor: pointer; color: var(--blue); font-weight: 600; font-size: 15px; list-style: none; }
+  .rel .more summary::-webkit-details-marker { display: none; }
+  .rel .more[open] summary { margin-bottom: 8px; }
+  .rel .more ul { padding-left: 18px; margin: 0; }
   @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } }
 </style>
