@@ -164,7 +164,7 @@ const basePath = url('/').replace(/\/$/, '');
   .dir-list :global(.dir-item:nth-child(odd)) { border-right: 1px solid var(--line); }
   .dir-list :global(.dir-item:hover) { background: var(--cream); }
   .dir-list :global(.dir-item strong) { font-family: var(--serif); font-weight: 400; font-size: 1.1rem; color: var(--blue); }
-  .dir-list :global(.badge) { float: right; margin-left: 10px; }
+  .dir-list :global(.badge) { align-self: flex-end; margin-left: 10px; }
   @media (max-width: 700px) {
     .dir-list { grid-template-columns: 1fr; }
     .dir-list :global(.dir-item:nth-child(odd)) { border-right: none; }
