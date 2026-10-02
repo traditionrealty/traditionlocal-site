@@ -1,0 +1,59 @@
+---
+import Base from '../../layouts/Base.astro';
+import subdivisions from '../../data/subdivisions.json';
+import areas from '../../data/areas.json';
+import { url } from '../../lib/util';
+
+export function getStaticPaths() {
+  return subdivisions.map((s) => ({ params: { slug: s.slug }, props: { s } }));
+}
+const { s } = Astro.props;
+const area = areas.find((a) => a.slug === s.area);
+const siblings = subdivisions.filter((x) => x.area === s.area && x.slug !== s.slug).slice(0, 8);
+---
+<Base title={(s.seoTitle || s.name).replace(/\s*\|\s*Tradition Local$/, '')} description={s.metaDescription || s.description}>
+  <section class="band sub-hero">
+    <div class="wrap">
+      <p class="kicker">
+        <a href={url('/cities')}>Neighborhoods</a>
+        {area && <> / <a href={url(`/cities/${area.slug}`)}>{area.name}</a></>}
+      </p>
+      <h1>{s.name}</h1>
+      <p class="lede">{s.city}, {s.state}{s.zipCodes ? ` ${s.zipCodes}` : ''}</p>
+    </div>
+  </section>
+  <section class="section">
+    <div class="wrap layout">
+      <div>
+        <p class="desc">{s.description}</p>
+      </div>
+      <aside>
+        <dl>
+          <dt>City</dt><dd>{s.city}, {s.state}</dd>
+          {s.zipCodes && (<><dt>Zip</dt><dd>{s.zipCodes}</dd></>)}
+        </dl>
+        {area && (
+          <div class="rel">
+            <p><strong>Part of {area.name}</strong></p>
+            <p><a href={url(`/cities/${area.slug}`)}>Living in {area.name} &rarr;</a></p>
+          </div>
+        )}
+        {siblings.length > 0 && area && (
+          <div class="rel">
+            <p><strong>Other subdivisions in {area.name}</strong></p>
+            <ul>{siblings.map((x) => <li><a href={url(`/subdivisions/${x.slug}`)}>{x.name}</a></li>)}</ul>
+          </div>
+        )}
+      </aside>
+    </div>
+  </section>
+</Base>
+<style>
+  .kicker a { color: var(--gold); }
+  .layout { display: grid; grid-template-columns: 1fr 340px; gap: 56px; }
+  .desc { font-size: 1.15rem; line-height: 1.6; color: var(--ink); }
+  aside { align-self: start; border: 1px solid var(--line); padding: 24px; }
+  dl { margin: 0 0 22px; } dt { font-size: 13px; color: var(--brown); margin-top: 14px; } dd { margin: 2px 0 0; }
+  .rel { margin-top: 24px; } .rel ul { padding-left: 18px; margin: 0; }
+  @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } }
+</style>
