@@ -34,7 +34,8 @@ const foodPosts = posts.filter((p) => p.categories.includes('food')).slice(0, 3)
         <label class="toggle"><input type="checkbox" id="picks" /> Sara's picks only</label>
       </div>
       <div class="chips" role="group" aria-label="Categories">
-        <button class="chip" data-cat="" aria-pressed="true">All</button>
+        <button class="chip" data-cat="" data-trending="1" aria-pressed="true">Trending</button>
+        <button class="chip" data-cat="" aria-pressed="false">All</button>
         {topCats.map((c) => <button class="chip" data-cat={c} aria-pressed="false">{c}</button>)}
       </div>
       <div class="rating-tags" role="group" aria-label="Filter by rating">
@@ -48,7 +49,7 @@ const foodPosts = posts.filter((p) => p.categories.includes('food')).slice(0, 3)
       <ul class="biz-list" id="list">
         {businesses.map((b) => (
           <li data-name={`${b.name} ${b.description} ${b.categories.join(' ')} ${b.neighborhood || ''} ${b.city}`.toLowerCase()}
-              data-cats={b.categories.join('|')} data-where={b.neighborhood || b.city} data-pick={b.saraPick ? '1' : '0'} data-rating={b.rating || ''}>
+              data-cats={b.categories.join('|')} data-where={b.neighborhood || b.city} data-pick={b.saraPick ? '1' : '0'} data-rating={b.rating || ''} data-year={b.reviewYear || 0}>
             <a href={url(`/eat/${b.slug}`)}>
               {(b.saraPick || b.closed) && <span class="top">{b.saraPick && <span class="badge">Sara's pick</span>}{b.closed && <span class="badge closed-badge">Closed</span>}</span>}
               <strong>{b.name}</strong>
@@ -81,11 +82,14 @@ const foodPosts = posts.filter((p) => p.categories.includes('food')).slice(0, 3)
   const picks = document.getElementById('picks') as HTMLInputElement;
   const chips = [...document.querySelectorAll<HTMLButtonElement>('[data-cat]')];
   const rchips = [...document.querySelectorAll<HTMLButtonElement>('[data-rating]')];
-  const items = [...document.querySelectorAll<HTMLLIElement>('#list li')];
+  const list = document.getElementById('list')!;
+  const originalOrder = [...document.querySelectorAll<HTMLLIElement>('#list li')];
+  const items = originalOrder;
   const count = document.getElementById('count')!;
   const empty = document.getElementById('empty')!;
   let cat = '';
   let rating = '';
+  let trending = true;
   function apply() {
     const term = q.value.trim().toLowerCase();
     let n = 0;
@@ -99,9 +103,14 @@ const foodPosts = posts.filter((p) => p.categories.includes('food')).slice(0, 3)
     }
     count.textContent = `${n} ${n === 1 ? 'place' : 'places'}`;
     empty.hidden = n > 0;
+    const order = trending
+      ? [...items].sort((a, b) => Number(b.dataset.year) - Number(a.dataset.year))
+      : originalOrder;
+    order.forEach((li) => list.appendChild(li));
   }
   chips.forEach((c) => c.addEventListener('click', () => {
     cat = c.dataset.cat || '';
+    trending = c.dataset.trending === '1';
     chips.forEach((x) => x.setAttribute('aria-pressed', String(x === c)));
     apply();
   }));
@@ -111,6 +120,7 @@ const foodPosts = posts.filter((p) => p.categories.includes('food')).slice(0, 3)
     apply();
   }));
   [q, where, picks].forEach((el) => el.addEventListener('input', apply));
+  apply();
 </script>
 
 <style>
