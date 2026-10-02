@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import PostCard from '../components/PostCard.astro';
+import FoodFeature from '../components/FoodFeature.astro';
 import businesses from '../data/businesses.json';
 import posts from '../data/posts.json';
 import { url } from '../lib/util';
@@ -61,6 +62,8 @@ const foodPosts = posts.filter((p) => p.categories.includes('food')).slice(0, 3)
       <p id="empty" hidden>No places match those filters. Try clearing the search or picking All.</p>
     </div>
   </section>
+
+  <FoodFeature />
 
   {foodPosts.length > 0 && (
     <section class="section tint">
