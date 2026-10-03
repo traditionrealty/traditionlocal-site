@@ -57,6 +57,7 @@ const coffeePick = featuredPicks.find((b) => b.categories.includes('Coffee & Tea
       <h1>Around Town</h1>
       <p class="lede">Every neighborhood guide covers where to eat, how to spend a Saturday, and what it is really like to live there.</p>
       <a class="btn gold" href={url('/neighborhood-info-request')}>Not sure? Ask Dillon</a>
+      <p class="mih-link"><a href={url('/make-it-home')}>Compare neighborhoods side by side &rarr;</a></p>
     </div>
   </section>
   {featured && (
@@ -198,6 +199,8 @@ const coffeePick = featuredPicks.find((b) => b.categories.includes('Coffee & Tea
   .filters input[type=search] { padding: 12px 16px; border: 1.5px solid var(--line); border-radius: 999px; font-size: 16px; background: #fff; }
   .search { flex: 1 1 320px; } .search input { width: 100%; }
   .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .mih-link { margin-top: 14px; }
+  .mih-link a { color: var(--gold); font-weight: 600; text-decoration: underline; }
   .preview-section { background: var(--cream); }
   .preview-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; flex-wrap: wrap; margin-bottom: 24px; }
   .preview-kicker { font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--brown); margin: 0; }
