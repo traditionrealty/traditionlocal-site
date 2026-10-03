@@ -268,15 +268,16 @@ for _, r in b.iterrows():
                 "harMarket": nan(r["HAR Geo Market"]), "area": area})
 biz.sort(key=lambda x: x["name"].lower())
 
-# Sara and Dillon's rating tier (Worth a Stop / Worth the Drive / Worth the Trip) and who wrote the
-# review aren't in the spreadsheet yet. ratings.json lets either of them set these per business by slug,
-# e.g. {"blendin-coffee-club": {"rating": "drive", "reviewAuthor": "Dillon Loren"}}.
+# Sara and Dillon's rating tier (Try at Least Once / Worth a Visit / Would Go Again / Highly
+# Recommend / Local Favorite / Sara's Pick) and who wrote the review aren't in the spreadsheet yet.
+# ratings.json lets either of them set these per business by slug,
+# e.g. {"blendin-coffee-club": {"rating": "recommend", "reviewAuthor": "Dillon Loren"}}.
 # Until a spot has an override, every Sara's pick defaults to "stop", the lowest, safest claim to make.
 RATINGS_FILE = ROOT / "data" / "ratings.json"
 overrides = json.load(open(RATINGS_FILE)) if RATINGS_FILE.exists() else {}
 for x in biz:
     o = overrides.get(x["slug"], {})
-    x["rating"] = o.get("rating") or ("stop" if x["saraPick"] else None)
+    x["rating"] = o.get("rating") or ("try-once" if x["saraPick"] else None)
     x["reviewAuthor"] = o.get("reviewAuthor") or "Sara Loren"
 print("businesses", len(biz), "linked to an area guide:", sum(1 for x in biz if x["area"]),
       "rating overrides applied:", len(overrides))
