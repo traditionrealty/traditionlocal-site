@@ -42,6 +42,7 @@ const nav = [
 ];
 const moreNav = [
   { label: 'Articles', href: '/all-articles', match: ['/all-articles', '/post'] },
+  { label: 'About Us', href: '/about', match: ['/about'] },
   ...(membersOn ? [{ label: 'Local Directory', href: '/local-directory', match: ['/local-directory'] }] : []),
 ];
 const moreActive = moreNav.some((n) => n.match.some((m) => path.startsWith(m)));
