@@ -1,0 +1,114 @@
+---
+import Base from '../../layouts/Base.astro';
+import MemberShell from '../../components/MemberShell.astro';
+import { config } from '../../config';
+import { url } from '../../lib/util';
+---
+<Base title="Settings" description="Communication and account controls for your Tradition Local membership.">
+  <MemberShell active="settings">
+    <p class="eyebrow">Communication & account controls</p>
+    <h1>Settings</h1>
+    <p class="lede">Choose what you receive and manage your account.</p>
+
+    <div class="mcard">
+      <h2>Email preferences</h2>
+      <form id="prefs-form">
+        <label class="mcheck">
+          <input type="checkbox" name="weekly-guide" />
+          <span><strong>Weekly local guide</strong><p>Food finds, neighborhood discoveries, and weekend ideas.</p></span>
+        </label>
+        <label class="mcheck">
+          <input type="checkbox" name="monthly-letter" />
+          <span><strong>Monthly letter</strong><p>Stories, community updates, and a monthly perspective.</p></span>
+        </label>
+        <label class="mcheck">
+          <input type="checkbox" name="neighborhood-updates" />
+          <span><strong>Neighborhood updates</strong><p>New guides and discoveries in your selected area.</p></span>
+        </label>
+        <label class="mcheck">
+          <input type="checkbox" name="partner-offers" />
+          <span><strong>Partner offers</strong><p>Clearly labeled local deals and sponsored opportunities.</p></span>
+        </label>
+        <label class="mcheck">
+          <input type="checkbox" name="real-estate-insights" />
+          <span><strong>Real estate insights</strong><p>Optional market updates and buying, selling, or leasing resources.</p></span>
+        </label>
+        <p class="mform-note">Account security messages and requested transaction updates are separate from promotional subscriptions. These preferences are saved to this browser; we don't have an email preference center yet, so they won't follow you to another device.</p>
+        <button class="btn gold" type="submit">Save preferences</button>
+        <p class="msg" data-prefs-msg hidden></p>
+      </form>
+    </div>
+
+    <div class="mcard">
+      <h2>Security</h2>
+      <div class="mrow-item">
+        <div>
+          <strong>Sign-in email</strong>
+          <p data-settings-email>&nbsp;</p>
+        </div>
+      </div>
+      <div class="mrow-item">
+        <div>
+          <strong>Password & sign-in</strong>
+          <p>Manage your login credentials.</p>
+        </div>
+        <a class="btn-outline-dark" href={url('/reset-password')}>Manage sign-in</a>
+      </div>
+    </div>
+
+    <div class="mcard">
+      <h2>Privacy & account</h2>
+      <div class="mrow-item">
+        <div>
+          <strong>Your information</strong>
+          <p>Request a copy of your stored account data.</p>
+        </div>
+        <a class="btn-outline-dark" href={`mailto:${config.contactEmail}?subject=Request%20my%20account%20data`}>Request my data</a>
+      </div>
+      <div class="mrow-item">
+        <div>
+          <strong>Close your member account</strong>
+          <p>Contact us and we'll close your account for you.</p>
+        </div>
+        <a class="mlink" href={`mailto:${config.contactEmail}?subject=Close%20my%20member%20account`}>Request account closure &rarr;</a>
+      </div>
+    </div>
+  </MemberShell>
+</Base>
+
+<script>
+  import { membersReady, supabase, currentUser } from '../../lib/members';
+  const KEY = 'tl-email-prefs';
+  const form = document.getElementById('prefs-form') as HTMLFormElement | null;
+  async function load() {
+    const user = await currentUser();
+    const emailEl = document.querySelector('[data-settings-email]');
+    if (emailEl) emailEl.textContent = user?.email || '';
+    if (!form) return;
+    try {
+      const saved = JSON.parse(localStorage.getItem(KEY) || '{}');
+      for (const name of ['weekly-guide', 'monthly-letter', 'neighborhood-updates', 'partner-offers', 'real-estate-insights']) {
+        const input = form.elements.namedItem(name) as HTMLInputElement | null;
+        if (input) input.checked = name in saved ? Boolean(saved[name]) : name === 'weekly-guide' || name === 'neighborhood-updates';
+      }
+    } catch {}
+  }
+  if (membersReady) {
+    load();
+    supabase().auth.onAuthStateChange((event) => { if (event === 'SIGNED_IN') load(); });
+  }
+  form?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const data: Record<string, boolean> = {};
+    for (const name of ['weekly-guide', 'monthly-letter', 'neighborhood-updates', 'partner-offers', 'real-estate-insights']) {
+      data[name] = (form!.elements.namedItem(name) as HTMLInputElement).checked;
+    }
+    localStorage.setItem(KEY, JSON.stringify(data));
+    const msg = document.querySelector('[data-prefs-msg]') as HTMLElement;
+    msg.textContent = 'Saved to this browser.';
+    msg.hidden = false;
+  });
+</script>
+<style>
+  .msg { color: #8fd19e; font-size: 14px; margin-top: 10px; }
+</style>
