@@ -42,10 +42,10 @@ const nav = [
 ];
 const moreNav = [
   { label: 'Stories', href: '/all-articles', match: ['/all-articles', '/post'] },
-  { label: 'Newsletters', href: '/newsletters', match: ['/newsletters'] },
-  { label: 'About Us', href: '/about', match: ['/about'] },
   { label: 'Reviews', href: '/about-our-reviews', match: ['/about-our-reviews'] },
+  { label: 'Newsletters', href: '/newsletters', match: ['/newsletters'] },
   ...(membersOn ? [{ label: 'Local Directory', href: '/local-directory', match: ['/local-directory'] }] : []),
+  { label: 'About Us', href: '/about', match: ['/about'] },
 ];
 const moreActive = moreNav.some((n) => n.match.some((m) => path.startsWith(m)));
 ---
