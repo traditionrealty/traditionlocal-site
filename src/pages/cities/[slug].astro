@@ -11,68 +11,244 @@ export function getStaticPaths() {
   return areas.map((a) => ({ params: { slug: a.slug }, props: { a } }));
 }
 const { a } = Astro.props;
+const RATING_LABEL: Record<string, string> = { stop: 'Worth a Stop', drive: 'Worth the Drive', trip: 'Worth the Trip' };
 const eats = businesses.filter((b) => b.area === a.slug).sort((x, y) => Number(y.saraPick) - Number(x.saraPick));
+const topEats = eats.slice(0, 3);
+const coffeePick = eats.find((b) => b.categories.includes('Coffee & Tea'));
 const stories = posts.filter((p) => p.title.toLowerCase().includes(a.name.toLowerCase())).slice(0, 3);
 const parent = a.parent ? areas.find((x) => x.slug === a.parent) : null;
 const children = areas.filter((x) => x.parent === a.slug);
 const areaSubdivisions = subdivisions.filter((s) => s.area === a.slug);
 const sameRegion = areas.filter((x) => x.region === a.region && x.slug !== a.slug).slice(0, 8);
+
+// Real data we have: vibe, bestFor, homes (typical home type), schools, take, subdivisions with
+// price range/HOA/schools, reviewed businesses with ratings. Everything the mockup shows that we
+// don't have anywhere (residents count, commute minutes, price range, property tax, flood notes,
+// market snapshot numbers, FAQ content, a community channel) stays an honest bracketed
+// placeholder, same convention used across the rest of the site.
 ---
 <Base title={a.seoTitle.replace(/\s*\|\s*Tradition Local$/, '')} description={a.metaDescription} image={a.hero}>
   <section class="band area-hero" style={a.hero ? `background-image: linear-gradient(rgba(31,75,168,.82), rgba(31,75,168,.82)), url(${img(a.hero)})` : undefined}>
     <div class="wrap">
-      <p class="kicker"><a href={url('/cities')}>Neighborhoods</a> / {a.region}{parent && <> / <a href={url(`/cities/${parent.slug}`)}>{parent.name}</a></>}{areaSubdivisions.length > 0 && <> / <a href="#subdivisions">{areaSubdivisions.length} subdivisions</a></>}</p>
+      <p class="crumb"><a href={url('/cities')}>Home</a> <span aria-hidden="true">&rsaquo;</span> <a href={url('/cities')}>Neighborhoods</a> <span aria-hidden="true">&rsaquo;</span> {a.name}</p>
+      <p class="type-badge">{a.type} &middot; {a.region}</p>
       <h1>{a.name}</h1>
       <p class="lede">{a.vibe}</p>
+      <div class="hero-stats">
+        <div><strong class="ph-text">[~$000K]</strong><span>Typical home value</span></div>
+        <div><strong class="ph-text">[00 to 00 min]</strong><span>To the Galleria</span></div>
+        <div><strong>{a.schools || '[District]'}</strong><span>School district</span></div>
+        <div><strong class="ph-text">[~000,000]</strong><span>Residents</span></div>
+      </div>
+      <div class="hero-actions">
+        <a class="btn gold" href={url('/neighborhood-info-request')}>Talk with Dillon about {a.name}</a>
+        <a class="btn on-dark" href="https://traditionrealtygroup.com" target="_blank" rel="noopener">Search homes</a>
+      </div>
     </div>
   </section>
-  <section class="section">
+
+  <nav class="subnav">
+    <div class="wrap subnav-inner">
+      <div class="tabs">
+        <a href="#eat" class="tab active">Eat</a>
+        <a href="#do" class="tab">Do</a>
+        <a href="#live" class="tab">Live</a>
+        <a href="#market" class="tab">Market</a>
+        <a href="#neighborhoods" class="tab">Neighborhoods</a>
+        <a href="#faq" class="tab">FAQ</a>
+      </div>
+      <p class="best-for muted small">Best for: {a.bestFor}</p>
+    </div>
+  </nav>
+
+  <section class="section" id="eat">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Eat</p>
+          <h2>Where to eat in {a.name}</h2>
+        </div>
+        <a href={url(`/cities/${a.slug}#eat`)}>All places in {a.name} &rarr;</a>
+      </div>
+      <div class="eat-grid">
+        {topEats.length > 0 ? topEats.map((b) => (
+          <a class="eat-card" href={url(`/eat/${b.slug}`)}>
+            <div class="eat-img"></div>
+            <div class="eat-body">
+              <p class="eat-cat">{b.categories[0]}</p>
+              <strong>{b.name}</strong>
+              <span class="rating-dot"><span class={`dot ${b.rating || 'stop'}`}></span>{RATING_LABEL[b.rating || ''] || "Sara's pick"}</span>
+            </div>
+          </a>
+        )) : null}
+        {Array.from({ length: Math.max(0, 3 - topEats.length) }).map(() => (
+          <div class="eat-card ph">
+            <div class="eat-img"></div>
+            <div class="eat-body">
+              <p class="eat-cat ph-text">[Cuisine]</p>
+              <strong class="ph-text">[Your next {a.name} review]</strong>
+              <span class="rating-dot ph-text"><span class="dot ph-dot"></span>[Rating]</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section tint" id="do">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Do</p>
+          <h2>The Perfect Saturday in {a.name}</h2>
+        </div>
+        <a href={url('/living')}>This weekend in Houston &rarr;</a>
+      </div>
+      <div class="sat-grid">
+        <div class="sat-card">
+          <div class="sat-img blue"></div>
+          <p class="time">9 AM</p>
+          {coffeePick ? (<><strong>Coffee</strong><span class="muted small">{coffeePick.name}</span></>) : (<><strong class="ph-text">[Coffee]</strong><span class="muted small ph-text">[Coffee shop]</span></>)}
+        </div>
+        <div class="sat-card">
+          <div class="sat-img blue"></div>
+          <p class="time">10:30 AM</p>
+          <strong class="ph-text">[Trails or outdoor activity]</strong>
+          <span class="muted small ph-text">[Park or trail, area]</span>
+        </div>
+        <div class="sat-card">
+          <div class="sat-img blue"></div>
+          <p class="time">1 PM</p>
+          <strong class="ph-text">[Lunch and a stroll]</strong>
+          <span class="muted small ph-text">[Shopping area]</span>
+        </div>
+        <div class="sat-card">
+          <div class="sat-img blue"></div>
+          <p class="time">6 PM</p>
+          <strong class="ph-text">[A game or a show]</strong>
+          <span class="muted small ph-text">[Venue, area]</span>
+        </div>
+      </div>
+      <div class="upcoming-bar">
+        <span class="upcoming-date ph-text">[MON]<br/>[00]</span>
+        <div>
+          <p class="eyebrow small">Upcoming in {a.name}</p>
+          <strong class="ph-text">[Next local event]</strong>
+        </div>
+        <a href={url('/living')}>Details &rarr;</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="live">
     <div class="wrap layout">
       <div>
-        <div class="take">
-          <h2>Dillon's take</h2>
-          <p>{a.take}</p>
-        </div>
-        {eats.length > 0 && (
-          <>
-            <h2 class="eat-head">Where to eat in {a.name}</h2>
-            <ul class="eats">
-              {eats.map((b) => (
-                <li><a href={url(`/eat/${b.slug}`)}>
-                  <strong>{b.name}</strong>{b.saraPick && <span class="badge">Sara's pick</span>}
-                  <span class="cats">{b.categories.slice(0, 2).join(', ')}</span>
-                  <span class="desc">{b.description}</span>
-                </a></li>
-              ))}
-            </ul>
-          </>
-        )}
-      </div>
-      <aside>
-        <dl>
-          <dt>Type</dt><dd>{a.type}</dd>
-          <dt>Best for</dt><dd>{a.bestFor}</dd>
-          <dt>Typical homes</dt><dd>{a.homes}</dd>
-          {a.schools && (<><dt>Schools</dt><dd>{a.schools}</dd></>)}
+        <p class="eyebrow">Live</p>
+        <h2>What it's like to live here</h2>
+        <dl class="live-stats">
+          <div><dt>Typical homes</dt><dd>{a.homes || <span class="ph-text">[Home type]</span>}</dd></div>
+          <div><dt>Price range</dt><dd class="ph-text">[About $000K to $0.0M+]</dd></div>
+          <div><dt>School district</dt><dd>{a.schools || <span class="ph-text">[District]</span>}</dd></div>
+          <div><dt>To the Galleria</dt><dd class="ph-text">[00 to 00 min]</dd></div>
+          <div><dt>To the Medical Center</dt><dd class="ph-text">[00 to 00 min]</dd></div>
+          <div><dt>To Downtown</dt><dd class="ph-text">[00 to 00 min, about 00 miles]</dd></div>
+          <div><dt>Flood notes</dt><dd class="ph-text">[Flood zone and drainage notes. Verify by address.]</dd></div>
+          <div><dt>Property tax</dt><dd class="ph-text">[About 0.00% to 0.00%]</dd></div>
         </dl>
-        <a class="btn gold" href={url('/neighborhood-info-request')}>Ask about homes here</a>
-        {children.length > 0 && (<div class="rel"><p><strong>Inside {a.name}</strong></p><ul>{children.map((c) => <li><a href={url(`/cities/${c.slug}`)}>{c.name}</a></li>)}</ul></div>)}
-        {areaSubdivisions.length > 0 && (
-          <div class="rel" id="subdivisions">
-            <p><strong>Subdivisions in {a.name}</strong></p>
-            <ul>{areaSubdivisions.slice(0, 5).map((s) => <li><a href={url(`/subdivisions/${s.slug}`)}>{s.name}</a></li>)}</ul>
-            {areaSubdivisions.length > 5 && (
-              <details class="more">
-                <summary>See all {areaSubdivisions.length} subdivisions</summary>
-                <ul>{areaSubdivisions.slice(5).map((s) => <li><a href={url(`/subdivisions/${s.slug}`)}>{s.name}</a></li>)}</ul>
-              </details>
-            )}
-          </div>
-        )}
-        <div class="rel"><p><strong>More in {a.region}</strong></p><ul>{sameRegion.map((c) => <li><a href={url(`/cities/${c.slug}`)}>{c.name}</a></li>)}</ul></div>
-      </aside>
+      </div>
+      <div class="take-card">
+        <p class="badge gold">Dillon's take</p>
+        <p class="quote">{a.take}</p>
+        <p class="byline"><strong>Dillon Loren</strong><br /><span class="muted small on-dark">Tradition Realty Group</span></p>
+        <a class="btn gold" href={url('/make-it-home')}>Compare {a.name} to another area</a>
+      </div>
     </div>
   </section>
+
+  <section class="section tint" id="market">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Market</p>
+          <h2>{a.name} this month</h2>
+        </div>
+        <p class="muted small source-note">Sample figures, not live data. Replace with HAR MLS monthly.</p>
+      </div>
+      <div class="market-grid">
+        <div class="market-card"><strong class="ph-text">[$000,000]</strong><span>Median sale price, last 30 days</span><span class="trend ph-text">[Down/Up 0.0% from last year]</span></div>
+        <div class="market-card"><strong class="ph-text">[00]</strong><span>Median days on market</span><span class="trend ph-text">[Down/Up 00 from last year]</span></div>
+        <div class="market-card"><strong class="ph-text">[000]</strong><span>Homes for sale</span><span class="trend ph-text">[Down/Up 0.0% from last year]</span></div>
+        <div class="market-card"><strong class="ph-text">[$000K]</strong><span>Typical home value</span><span class="trend ph-text">[Down/Up 0.0% from last year]</span></div>
+      </div>
+      <div class="market-banner">
+        <p>Get the {a.name} market report every month</p>
+        <a class="btn blue" href={url('/neighborhood-info-request')}>Send it to me</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="neighborhoods">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Neighborhoods</p>
+          <h2>Neighborhoods within {a.name}</h2>
+        </div>
+        <span class="muted small">{areaSubdivisions.length} subdivisions</span>
+      </div>
+      {areaSubdivisions.length > 0 ? (
+        <div class="sub-grid">
+          {areaSubdivisions.slice(0, 6).map((s) => (
+            <div class="sub-card">
+              <div class="sub-img"></div>
+              <div>
+                <strong><a href={url(`/subdivisions/${s.slug}`)}>{s.name}</a></strong>
+                <span class="muted small">{s.priceRange || '[One-line vibe]'}</span>
+                <a class="view-link" href={url(`/subdivisions/${s.slug}`)}>View guide &rarr;</a>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p class="muted">No subdivision profiles yet for {a.name}.</p>
+      )}
+      {children.length > 0 && (<div class="rel"><p><strong>Inside {a.name}</strong></p><ul>{children.map((c) => <li><a href={url(`/cities/${c.slug}`)}>{c.name}</a></li>)}</ul></div>)}
+      <div class="rel"><p><strong>More in {a.region}</strong></p><ul>{sameRegion.map((c) => <li><a href={url(`/cities/${c.slug}`)}>{c.name}</a></li>)}</ul></div>
+    </div>
+  </section>
+
+  <section class="section tint" id="faq">
+    <div class="wrap">
+      <p class="eyebrow">FAQ</p>
+      <h2>Common questions about {a.name}</h2>
+      <div class="faq-list">
+        <details class="faq-item" open>
+          <summary>Is {a.name} a good place to live?</summary>
+          <p>{a.vibe} {a.bestFor ? `It fits ${a.bestFor.toLowerCase()}.` : ''}</p>
+        </details>
+        <details class="faq-item">
+          <summary>How far is {a.name} from downtown Houston?</summary>
+          <p class="ph-text">[00 to 00 min, about 00 miles]</p>
+        </details>
+        <details class="faq-item">
+          <summary>What school district serves {a.name}?</summary>
+          <p>{a.schools || <span class="ph-text">[District]</span>}</p>
+        </details>
+        <details class="faq-item">
+          <summary>Does {a.name} flood?</summary>
+          <p class="ph-text">[Flood zone and drainage notes. Verify by address.]</p>
+        </details>
+      </div>
+      <div class="community-bar">
+        <div>
+          <p class="eyebrow small">{a.name} channel &middot; Community</p>
+          <strong>Ask neighbors who actually live here</strong>
+        </div>
+        <a class="btn ghost" href={url('/neighborhood-info-request')}>Join the conversation</a>
+      </div>
+    </div>
+  </section>
+
   {stories.length > 0 && (
     <section class="section tint">
       <div class="wrap">
@@ -84,24 +260,88 @@ const sameRegion = areas.filter((x) => x.region === a.region && x.slug !== a.slu
 </Base>
 <style>
   .area-hero { background-size: cover; background-position: center; }
-  .kicker a { color: var(--gold); }
-  .layout { display: grid; grid-template-columns: 1fr 340px; gap: 56px; }
-  .take { background: var(--cream); border-left: 6px solid var(--gold); padding: 28px 32px; }
-  .take p { font-family: var(--serif); font-size: 1.35rem; line-height: 1.5; color: var(--navy); margin: 0; }
-  .eat-head { margin-top: 48px; }
-  .eats { list-style: none; padding: 0; display: grid; gap: 0; border-top: 1px solid var(--line); }
-  .eats a { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; padding: 16px 4px; border-bottom: 1px solid var(--line); text-decoration: none; color: var(--ink); }
-  .eats a:hover { background: var(--cream); }
-  .eats strong { font-family: var(--serif); font-weight: 400; font-size: 1.2rem; color: var(--blue); }
-  .cats { grid-column: 1 / -1; font-size: 13px; color: var(--brown); }
-  .desc { grid-column: 1 / -1; font-size: 15px; color: var(--muted); }
-  aside { align-self: start; border: 1px solid var(--line); padding: 24px; }
-  dl { margin: 0 0 22px; } dt { font-size: 13px; color: var(--brown); margin-top: 14px; } dd { margin: 2px 0 0; }
+  .crumb { font-size: 13px; color: rgba(255,255,255,.65); margin: 0 0 14px; }
+  .crumb a { color: rgba(255,255,255,.65); }
+  .type-badge { display: inline-block; background: rgba(255,255,255,.15); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 4px 14px; border-radius: 999px; margin: 0 0 14px; }
+  .hero-stats { display: flex; gap: 36px; flex-wrap: wrap; margin: 24px 0; }
+  .hero-stats strong { display: block; font-family: var(--serif); font-size: 1.3rem; color: #fff; }
+  .hero-stats span { font-size: 13px; color: rgba(255,255,255,.7); }
+  .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; }
+  .btn.on-dark { background: #fff; color: var(--navy); }
+
+  .subnav { background: #fff; border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 10; }
+  .subnav-inner { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; padding: 14px 0; }
+  .tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tab { padding: 8px 16px; border-radius: 999px; font-size: 14px; font-weight: 600; color: var(--navy); text-decoration: none; }
+  .tab.active { background: var(--navy); color: #fff; }
+  .best-for { margin: 0; }
+
+  .eyebrow { color: var(--green, #1e7a43); font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; margin: 0 0 6px; }
+  .eyebrow.small { font-size: 11px; margin: 0 0 4px; }
+
+  .eat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .eat-card { display: block; text-decoration: none; color: inherit; }
+  .eat-img { aspect-ratio: 16 / 10; border-radius: 8px; background: linear-gradient(135deg, var(--cream), var(--gold-soft)); margin-bottom: 10px; }
+  .eat-cat { font-size: 12px; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; color: var(--brown); margin: 0 0 2px; }
+  .eat-card strong { display: block; font-family: var(--serif); font-size: 1.2rem; color: var(--navy); margin-bottom: 4px; }
+  .rating-dot { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
+  .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+  .dot.stop { background: #1e7a43; } .dot.drive { background: var(--gold); } .dot.trip { background: var(--blue); } .dot.ph-dot { background: var(--line); }
+
+  .sat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 20px; }
+  .sat-card { background: #fff; border-radius: 8px; padding: 16px; }
+  .sat-img { aspect-ratio: 16 / 10; border-radius: 6px; margin-bottom: 10px; }
+  .sat-img.blue { background: #e6eef8; }
+  .sat-card .time { font-size: 12px; font-weight: 700; color: var(--blue); margin: 0 0 4px; }
+  .sat-card strong { display: block; font-family: var(--serif); font-size: 1.1rem; color: var(--navy); }
+  .upcoming-bar { background: #fff; border-radius: 8px; padding: 16px 20px; display: flex; align-items: center; gap: 18px; }
+  .upcoming-date { background: var(--blue); color: #fff; font-size: 12px; font-weight: 700; text-align: center; line-height: 1.3; padding: 6px 12px; border-radius: 6px; }
+  .upcoming-bar > div { flex: 1; }
+
+  .layout { display: grid; grid-template-columns: 1fr 360px; gap: 56px; }
+  .live-stats { display: grid; gap: 0; margin-top: 16px; }
+  .live-stats > div { display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+  .live-stats dt { font-size: 14px; color: var(--muted); }
+  .live-stats dd { margin: 0; font-weight: 600; text-align: right; }
+  .take-card { background: var(--navy); color: #fff; border-radius: 10px; padding: 28px; align-self: start; }
+  .badge.gold { display: inline-block; background: var(--gold); color: var(--navy); font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 999px; margin: 0 0 14px; }
+  .quote { font-family: var(--serif); font-size: 1.15rem; line-height: 1.5; margin: 0 0 16px; }
+  .byline strong { display: block; }
+  .on-dark { color: rgba(255,255,255,.7); }
+  .take-card .btn.gold { margin-top: 18px; width: 100%; text-align: center; }
+
+  .market-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin: 20px 0; }
+  .market-card { background: #fff; border-radius: 8px; padding: 18px; display: flex; flex-direction: column; gap: 4px; }
+  .market-card strong { font-family: var(--serif); font-size: 1.6rem; color: var(--navy); }
+  .market-card span { font-size: 13px; color: var(--muted); }
+  .market-card .trend { font-size: 12px; }
+  .source-note { font-style: italic; }
+  .market-banner { background: var(--gold-soft); border-radius: 8px; padding: 18px 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+  .market-banner p { margin: 0; font-weight: 600; }
+  .btn.blue { background: var(--blue); color: #fff; }
+
+  .sub-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 24px; }
+  .sub-card { display: flex; gap: 14px; background: var(--cream); border-radius: 8px; padding: 16px; }
+  .sub-img { flex-shrink: 0; width: 64px; height: 64px; border-radius: 6px; background: linear-gradient(135deg, #fff, var(--gold-soft)); }
+  .sub-card strong a { font-family: var(--serif); font-size: 1.05rem; color: var(--blue); text-decoration: none; display: block; }
+  .sub-card .view-link { display: inline-block; margin-top: 4px; font-size: 13px; font-weight: 600; }
   .rel { margin-top: 24px; } .rel ul { padding-left: 18px; margin: 0; }
-  .rel .more { margin-top: 8px; }
-  .rel .more summary { cursor: pointer; color: var(--blue); font-weight: 600; font-size: 15px; list-style: none; }
-  .rel .more summary::-webkit-details-marker { display: none; }
-  .rel .more[open] summary { margin-bottom: 8px; }
-  .rel .more ul { padding-left: 18px; margin: 0; }
-  @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } }
+
+  .faq-list { margin: 20px 0; border-top: 1px solid var(--line); }
+  .faq-item { border-bottom: 1px solid var(--line); padding: 16px 0; }
+  .faq-item summary { cursor: pointer; font-weight: 600; color: var(--navy); font-size: 1.05rem; list-style: none; }
+  .faq-item summary::-webkit-details-marker { display: none; }
+  .faq-item p { margin: 12px 0 0; color: var(--muted); }
+  .community-bar { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 18px 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+  .community-bar strong { font-size: 1.05rem; color: var(--navy); }
+  .btn.ghost { border: 2px solid var(--blue); color: var(--blue); background: transparent; }
+
+  .ph-text { color: var(--muted); font-style: italic; }
+  .take-card .ph-text { color: rgba(255,255,255,.65); }
+
+  @media (max-width: 860px) {
+    .layout { grid-template-columns: 1fr; }
+    .eat-grid, .sat-grid, .market-grid, .sub-grid { grid-template-columns: 1fr; }
+    .subnav-inner { flex-direction: column; align-items: flex-start; }
+  }
 </style>
