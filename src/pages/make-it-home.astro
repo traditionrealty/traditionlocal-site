@@ -1,0 +1,188 @@
+---
+import Base from '../layouts/Base.astro';
+import areas from '../data/areas.json';
+import businesses from '../data/businesses.json';
+import { url } from '../lib/util';
+
+// "Food scene" is the one comparison stat we can back with real data: count of businesses
+// we've actually reviewed in that area. Everything else in the compare table that we don't
+// have real data for (median home price, commute time, flood risk) stays an honest bracketed
+// placeholder, same convention used elsewhere on the site (Food Feature, neighborhood preview).
+const reviewedCountByArea: Record<string, number> = {};
+businesses.forEach((b) => { if (b.area) reviewedCountByArea[b.area] = (reviewedCountByArea[b.area] || 0) + 1; });
+
+const compareData = areas.map((a) => ({
+  slug: a.slug,
+  name: a.name,
+  homeType: a.homes || '[Home type]',
+  schools: a.schools || '[District]',
+  bestFor: a.bestFor || '[Who this fits]',
+  foodCount: reviewedCountByArea[a.slug] || 0,
+}));
+
+const defaultA = areas.find((a) => a.slug === 'sugar-land') || areas[0];
+const defaultB = areas.find((a) => a.slug === 'the-heights') || areas[1];
+---
+<Base title="Make It Home" description="Honest answers about Houston neighborhoods: prices, schools, commutes, flood risk, and who each place fits best.">
+  <section class="band">
+    <div class="wrap">
+      <p class="crumb"><a href={url('/')}>Home</a> <span aria-hidden="true">&rsaquo;</span> Make It Home</p>
+      <p class="kicker">Love where you eat? Live there.</p>
+      <h1>Make It Home</h1>
+      <p class="lede">Honest answers about Houston neighborhoods: prices, schools, commutes, flood risk, and who each place fits best.</p>
+      <div class="actions">
+        <a class="btn gold" href="https://traditionrealtygroup.com" target="_blank" rel="noopener">Search homes</a>
+        <a class="btn outline" href={url('/neighborhood-info-request')}>Talk with Dillon</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <p class="section-kicker">Compare neighborhoods</p>
+      <h2>Side by side, in plain English</h2>
+      <div class="pickers">
+        <label><span>Neighborhood 1</span>
+          <select id="pick-a">{compareData.map((a) => <option value={a.slug} selected={a.slug === defaultA.slug}>{a.name}</option>)}</select>
+        </label>
+        <label><span>Neighborhood 2</span>
+          <select id="pick-b">{compareData.map((a) => <option value={a.slug} selected={a.slug === defaultB.slug}>{a.name}</option>)}</select>
+        </label>
+      </div>
+      <table class="compare">
+        <thead><tr><th></th><th id="head-a"></th><th id="head-b"></th></tr></thead>
+        <tbody>
+          <tr><th>Median home price</th><td class="ph-text">[$000K]</td><td class="ph-text">[$000K]</td></tr>
+          <tr><th>Typical home</th><td id="row-homeType-a"></td><td id="row-homeType-b"></td></tr>
+          <tr><th>School district</th><td id="row-schools-a"></td><td id="row-schools-b"></td></tr>
+          <tr><th>Commute to Galleria</th><td class="ph-text">[00 min]</td><td class="ph-text">[00 min]</td></tr>
+          <tr><th>Flood risk</th><td class="ph-text">[Low / Moderate / High]</td><td class="ph-text">[Low / Moderate / High]</td></tr>
+          <tr><th>Food scene</th><td id="row-food-a"></td><td id="row-food-b"></td></tr>
+          <tr><th>Best for</th><td id="row-bestFor-a"></td><td id="row-bestFor-b"></td></tr>
+        </tbody>
+      </table>
+      <div class="compare-links">
+        <p><a id="link-eat-a" href="#">Where to eat &rarr;</a> <a id="link-guide-a" href="#">Full guide &rarr;</a></p>
+        <p><a id="link-eat-b" href="#">Where to eat &rarr;</a> <a id="link-guide-b" href="#">Full guide &rarr;</a></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section tint">
+    <div class="wrap grid2">
+      <div class="card gold">
+        <p class="card-kicker">Market snapshot &middot; <span class="ph-text">[Month] 2026</span></p>
+        <h3>Greater Houston this month</h3>
+        <div class="stats">
+          <div><strong class="ph-text">[$000K]</strong><span>Median sale price</span></div>
+          <div><strong class="ph-text">[00]</strong><span>Days on market</span></div>
+          <div><strong class="ph-text">[Type]</strong><span>Market</span></div>
+        </div>
+        <a href={url('/neighborhood-info-request')}>Read the full market report &rarr;</a>
+      </div>
+      <div class="card">
+        <p class="badge">Dillon's take</p>
+        <p class="quote ph-text">[Two or three sentences with Dillon's honest read on the market this month, and who it's a good time for.]</p>
+        <p class="byline"><strong>Dillon Loren</strong><br /><span class="muted small">Tradition Realty Group</span></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap grid3">
+      <div class="card light">
+        <p class="card-kicker">Moving to Houston?</p>
+        <h3>The relocation guide</h3>
+        <p>Where to start, what to expect, and how Houston neighborhoods really compare.</p>
+        <a href={url('/neighborhood-info-request')}>Read the guide &rarr;</a>
+      </div>
+      <div class="card">
+        <p class="badge">Free guide</p>
+        <h3>Compare every neighborhood</h3>
+        <form class="email-form" onsubmit="return false;">
+          <label><span class="sr">Email address</span>
+            <input type="email" placeholder="you@email.com" />
+          </label>
+          <button class="btn gold" type="submit">Send me the guide</button>
+        </form>
+      </div>
+      <div class="card dark">
+        <p class="badge gold">Ready to look?</p>
+        <h3>Talk with Dillon</h3>
+        <p>A no-pressure conversation about what you want and where you'd fit.</p>
+        <a class="btn gold" href={url('/neighborhood-info-request')}>Book a call</a>
+        <a class="link-light" href="https://traditionrealtygroup.com" target="_blank" rel="noopener">Search homes on TRG &rarr;</a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<script define:vars={{ compareData, baseUrl: url('/') }}>
+  const data = Object.fromEntries(compareData.map((a) => [a.slug, a]));
+  const pickA = document.getElementById('pick-a');
+  const pickB = document.getElementById('pick-b');
+
+  function render() {
+    for (const [suffix, select] of [['a', pickA], ['b', pickB]]) {
+      const a = data[select.value];
+      document.getElementById(`head-${suffix}`).textContent = a.name;
+      document.getElementById(`row-homeType-${suffix}`).textContent = a.homeType;
+      document.getElementById(`row-schools-${suffix}`).textContent = a.schools;
+      document.getElementById(`row-bestFor-${suffix}`).textContent = a.bestFor;
+      document.getElementById(`row-food-${suffix}`).textContent = a.foodCount > 0 ? `${a.foodCount} spots reviewed` : 'Not reviewed yet';
+      document.getElementById(`link-eat-${suffix}`).href = `${baseUrl}cities/${a.slug}`;
+      document.getElementById(`link-guide-${suffix}`).href = `${baseUrl}cities/${a.slug}`;
+    }
+  }
+  pickA.addEventListener('change', render);
+  pickB.addEventListener('change', render);
+  render();
+</script>
+
+<style>
+  .band { background: var(--navy); color: #fff; }
+  .crumb { font-size: 13px; color: rgba(255,255,255,.65); margin: 0 0 14px; }
+  .crumb a { color: rgba(255,255,255,.65); }
+  .kicker { color: var(--gold); font-size: 13px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; margin: 0 0 8px; }
+  .lede { max-width: 640px; color: rgba(255,255,255,.85); }
+  .actions { display: flex; gap: 14px; margin-top: 24px; flex-wrap: wrap; }
+  .btn.outline { border: 1.5px solid #fff; color: #fff; background: transparent; }
+
+  .section-kicker { font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--brown); margin: 0 0 6px; }
+  .pickers { display: flex; gap: 20px; flex-wrap: wrap; margin: 20px 0; }
+  .pickers label { display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--muted); flex: 1 1 260px; }
+  .pickers select { padding: 10px 14px; border: 1.5px solid var(--line); border-radius: 6px; font-size: 15px; background: #fff; }
+  table.compare { width: 100%; border-collapse: collapse; margin-top: 8px; }
+  table.compare th, table.compare td { padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--line); }
+  table.compare thead th { background: var(--navy); color: #fff; font-weight: 600; }
+  table.compare thead th:first-child { background: var(--navy); }
+  table.compare tbody th { font-weight: 600; color: var(--ink); width: 180px; }
+  table.compare tbody tr:nth-child(even) { background: var(--cream); }
+  .compare-links { display: flex; justify-content: space-between; margin-top: 16px; }
+  .compare-links a { font-weight: 600; margin-right: 16px; font-size: 14px; }
+
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .card { background: #fff; border-radius: 10px; padding: 28px; }
+  .card.gold { background: var(--gold-soft); }
+  .card.light { background: #eef2fb; }
+  .card.dark { background: var(--navy); color: #fff; display: flex; flex-direction: column; gap: 14px; }
+  .card-kicker { font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--brown); margin: 0 0 10px; }
+  .badge { display: inline-block; background: var(--gold-soft); color: var(--brown); font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 999px; margin: 0 0 14px; }
+  .badge.gold { background: var(--gold); color: var(--navy); }
+  .stats { display: flex; gap: 28px; margin: 18px 0; flex-wrap: wrap; }
+  .stats strong { display: block; font-family: var(--serif); font-size: 1.5rem; color: var(--navy); }
+  .stats span { font-size: 13px; color: var(--muted); }
+  .quote { font-family: var(--serif); font-size: 1.1rem; line-height: 1.5; margin: 0 0 16px; }
+  .byline strong { display: block; }
+  .email-form { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+  .email-form input { padding: 10px 14px; border: 1.5px solid var(--line); border-radius: 6px; font-size: 15px; }
+  .card.dark a.link-light { color: #fff; text-decoration: underline; font-weight: 600; font-size: 14px; }
+  .ph-text { color: var(--muted); font-style: italic; }
+  .card.dark .ph-text, .card.gold .ph-text { color: inherit; opacity: .75; }
+
+  @media (max-width: 860px) {
+    .grid2, .grid3 { grid-template-columns: 1fr; }
+    table.compare tbody th { width: auto; }
+  }
+</style>
