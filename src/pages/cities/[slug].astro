@@ -192,7 +192,7 @@ const sameRegion = areas.filter((x) => x.region === a.region && x.slug !== a.slu
       <div class="section-head">
         <div>
           <p class="eyebrow">Neighborhoods</p>
-          <h2>Neighborhoods within {a.name}</h2>
+          <h2>Subdivisions within {a.name}</h2>
         </div>
         <span class="muted small">{areaSubdivisions.length} subdivisions</span>
       </div>
@@ -213,7 +213,23 @@ const sameRegion = areas.filter((x) => x.region === a.region && x.slug !== a.slu
         <p class="muted">No subdivision profiles yet for {a.name}.</p>
       )}
       {children.length > 0 && (<div class="rel"><p><strong>Inside {a.name}</strong></p><ul>{children.map((c) => <li><a href={url(`/cities/${c.slug}`)}>{c.name}</a></li>)}</ul></div>)}
-      <div class="rel"><p><strong>More in {a.region}</strong></p><ul>{sameRegion.map((c) => <li><a href={url(`/cities/${c.slug}`)}>{c.name}</a></li>)}</ul></div>
+      {sameRegion.length > 0 && (
+        <div class="more-region">
+          <p class="more-region-head"><strong>More in {a.region}</strong></p>
+          <div class="sub-grid">
+            {sameRegion.map((c) => (
+              <div class="sub-card">
+                <div class="sub-img"></div>
+                <div>
+                  <strong><a href={url(`/cities/${c.slug}`)}>{c.name}</a></strong>
+                  <span class="muted small">{c.vibe}</span>
+                  <a class="view-link" href={url(`/cities/${c.slug}`)}>View guide &rarr;</a>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   </section>
 
@@ -326,6 +342,8 @@ const sameRegion = areas.filter((x) => x.region === a.region && x.slug !== a.slu
   .sub-card strong a { font-family: var(--serif); font-size: 1.05rem; color: var(--blue); text-decoration: none; display: block; }
   .sub-card .view-link { display: inline-block; margin-top: 4px; font-size: 13px; font-weight: 600; }
   .rel { margin-top: 24px; } .rel ul { padding-left: 18px; margin: 0; }
+  .more-region { margin-top: 32px; }
+  .more-region-head { margin: 0 0 16px; font-size: 1.05rem; }
 
   .faq-list { margin: 20px 0; border-top: 1px solid var(--line); }
   .faq-item { border-bottom: 1px solid var(--line); padding: 16px 0; }
