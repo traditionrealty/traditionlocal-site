@@ -1,0 +1,90 @@
+---
+import Base from '../../layouts/Base.astro';
+import MemberShell from '../../components/MemberShell.astro';
+import { config } from '../../config';
+---
+<Base title="My Profile" description="Your Tradition Local profile.">
+  <MemberShell active="profile">
+    <p class="eyebrow">Your details & interests</p>
+    <h1>My profile</h1>
+    <p class="lede">Help us make your local experience more relevant.</p>
+
+    <form class="mform" id="profile-form" novalidate>
+      <div class="mcard">
+        <h2>Personal information</h2>
+        <p class="msg" data-msg role="alert" tabindex="-1" hidden></p>
+        <div class="mgrid2">
+          <div class="mform-field">
+            <label for="first-name">First name</label>
+            <input type="text" id="first-name" name="first-name" autocomplete="given-name" required />
+          </div>
+          <div class="mform-field">
+            <label for="last-name">Last name</label>
+            <input type="text" id="last-name" name="last-name" autocomplete="family-name" required />
+          </div>
+        </div>
+        <div class="mgrid2">
+          <div class="mform-field">
+            <label for="email">Email address</label>
+            <input type="email" id="email" name="email" readonly />
+            <p class="mform-note">An email change requires contacting us.</p>
+          </div>
+          <div class="mform-field">
+            <label for="phone">Phone number &middot; optional</label>
+            <input type="tel" id="phone" name="phone" autocomplete="tel" />
+            <p class="mform-note">Adding a phone number does not subscribe you to text marketing.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="mcard">
+        <h2>Your local interests</h2>
+        <div class="mform-field">
+          <label for="area-of-interest">Primary area of interest</label>
+          <select id="area-of-interest" name="area-of-interest">
+            <option value="">Choose one</option>
+            {config.interests.map((i) => <option value={i}>{i}</option>)}
+          </select>
+        </div>
+        <button class="btn gold" type="submit">Save profile</button>
+      </div>
+    </form>
+  </MemberShell>
+</Base>
+
+<script>
+  import { membersReady, supabase, currentUser, getProfile, friendly, say, busy, field } from '../../lib/members';
+  const form = document.getElementById('profile-form') as HTMLFormElement | null;
+  async function load() {
+    const user = await currentUser();
+    if (!user || !form) return;
+    const p = await getProfile(user);
+    const set = (name: string, v: string | null) => { (form.elements.namedItem(name) as HTMLInputElement).value = v || ''; };
+    set('email', user.email || ''); set('first-name', p.first_name); set('last-name', p.last_name);
+    set('phone', p.phone); set('area-of-interest', p.area_of_interest);
+  }
+  if (membersReady && form) {
+    load();
+    supabase().auth.onAuthStateChange((event) => { if (event === 'SIGNED_IN') load(); });
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!form.reportValidity()) return;
+      say(form, '');
+      const user = await currentUser();
+      if (!user) return say(form, 'Your session ended. Please sign in again.');
+      const row = {
+        first_name: field(form, 'first-name'), last_name: field(form, 'last-name'),
+        phone: field(form, 'phone') || null, area_of_interest: field(form, 'area-of-interest') || null,
+      };
+      const { error } = await busy(form, 'Saving…', async () => {
+        const sb = supabase();
+        let res = await sb.from('profiles').update(row).eq('id', user.id).select('id');
+        if (!res.error && !res.data?.length) res = await sb.from('profiles').insert({ id: user.id, email: user.email, ...row }).select('id');
+        if (!res.error) await sb.auth.updateUser({ data: { first_name: row.first_name, last_name: row.last_name } });
+        return res;
+      });
+      if (error) return say(form, friendly(error.message));
+      say(form, 'Your details are saved.', 'ok');
+    });
+  }
+</script>
