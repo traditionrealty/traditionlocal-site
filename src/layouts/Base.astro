@@ -18,9 +18,27 @@ const today = new Date().toISOString().slice(0, 10);
 const next = events.find((e) => e.date && e.date >= today);
 const path = Astro.url.pathname.replace(import.meta.env.BASE_URL.replace(/\/$/, ''), '') || '/';
 const nav = [
-  { label: 'Food', href: '/food', match: ['/food', '/eat'] },
-  { label: 'Neighborhoods', href: '/cities', match: ['/cities', '/copy-of-neighborhoods-1', '/traditionneighborhoods'] },
-  { label: 'Things To Do', href: '/living', match: ['/living', '/event-details'] },
+  {
+    label: 'Food', href: '/food', match: ['/food', '/eat'],
+    sub: [
+      { label: 'All Places', href: '/food' },
+      { label: 'Trending', href: '/food#trending' },
+    ],
+  },
+  {
+    label: 'Neighborhoods', href: '/cities', match: ['/cities', '/copy-of-neighborhoods-1', '/traditionneighborhoods', '/subdivisions', '/make-it-home'],
+    sub: [
+      { label: 'Around Town', href: '/cities' },
+      { label: 'Compare Neighborhoods', href: '/make-it-home' },
+    ],
+  },
+  {
+    label: 'Things To Do', href: '/living', match: ['/living', '/event-details'],
+    sub: [
+      { label: 'This Weekend', href: '/living#weekend' },
+      { label: 'Upcoming Events', href: '/living#events' },
+    ],
+  },
 ];
 const moreNav = [
   { label: 'Articles', href: '/all-articles', match: ['/all-articles', '/post'] },
@@ -68,9 +86,20 @@ const moreActive = moreNav.some((n) => n.match.some((m) => path.startsWith(m)));
         <span>Tradition Local</span>
       </a>
       <nav aria-label="Main">
-        {nav.map((n) => (
-          <a href={url(n.href)} aria-current={n.match.some((m) => path.startsWith(m)) ? 'page' : undefined}>{n.label}</a>
-        ))}
+        {nav.map((n) => {
+          const active = n.match.some((m) => path.startsWith(m));
+          return (
+            <div class="nav-more" data-nav-more>
+              <button type="button" class="nav-more-btn" aria-haspopup="true" aria-expanded="false" aria-current={active ? 'page' : undefined}>
+                {n.label}
+                <svg aria-hidden="true" viewBox="0 0 12 8" width="10" height="7"><path d="M1 1l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" /></svg>
+              </button>
+              <div class="nav-more-menu" hidden>
+                {n.sub.map((s) => <a href={url(s.href)}>{s.label}</a>)}
+              </div>
+            </div>
+          );
+        })}
         <div class="nav-more" data-nav-more>
           <button type="button" class="nav-more-btn" aria-haspopup="true" aria-expanded="false" aria-current={moreActive ? 'page' : undefined}>
             More
