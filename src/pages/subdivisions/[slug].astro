@@ -220,12 +220,35 @@ const stats = [
   {siblings.length > 0 && area && (
     <section class="section tint">
       <div class="wrap">
-        <p><strong>Other subdivisions in {area.name}</strong></p>
-        <ul class="sib-list">{siblings.slice(0, 5).map((x) => <li><a href={url(`/subdivisions/${x.slug}`)}>{x.name}</a></li>)}</ul>
-        {siblings.length > 5 && (
+        <p class="eyebrow">Neighborhoods</p>
+        <h2 class="sib-head">Other subdivisions in {area.name}</h2>
+        <div class="sub-grid">
+          {siblings.slice(0, 6).map((x) => (
+            <div class="sub-card">
+              <div class="sub-img"></div>
+              <div>
+                <strong><a href={url(`/subdivisions/${x.slug}`)}>{x.name}</a></strong>
+                <span class="muted small">{x.priceRange || '[One-line vibe]'}</span>
+                <a class="view-link" href={url(`/subdivisions/${x.slug}`)}>View guide &rarr;</a>
+              </div>
+            </div>
+          ))}
+        </div>
+        {siblings.length > 6 && (
           <details class="more">
             <summary>See all {siblings.length + 1} subdivisions</summary>
-            <ul class="sib-list">{siblings.slice(5).map((x) => <li><a href={url(`/subdivisions/${x.slug}`)}>{x.name}</a></li>)}</ul>
+            <div class="sub-grid">
+              {siblings.slice(6).map((x) => (
+                <div class="sub-card">
+                  <div class="sub-img"></div>
+                  <div>
+                    <strong><a href={url(`/subdivisions/${x.slug}`)}>{x.name}</a></strong>
+                    <span class="muted small">{x.priceRange || '[One-line vibe]'}</span>
+                    <a class="view-link" href={url(`/subdivisions/${x.slug}`)}>View guide &rarr;</a>
+                  </div>
+                </div>
+              ))}
+            </div>
           </details>
         )}
       </div>
@@ -303,8 +326,13 @@ const stats = [
   .cta-banner p { margin: 0; font-weight: 600; font-size: 1.05rem; color: var(--navy); }
   .btn.blue { background: var(--blue); color: #fff; }
 
-  .sib-list { list-style: none; padding: 0; display: flex; gap: 20px; flex-wrap: wrap; margin: 12px 0 0; }
-  .more { margin-top: 10px; }
+  .sib-head { margin: 0 0 16px; }
+  .sub-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .sub-card { display: flex; gap: 14px; background: #fff; border-radius: 8px; padding: 16px; }
+  .sub-img { flex-shrink: 0; width: 64px; height: 64px; border-radius: 6px; background: linear-gradient(135deg, var(--cream), var(--gold-soft)); }
+  .sub-card strong a { font-family: var(--serif); font-size: 1.05rem; color: var(--blue); text-decoration: none; display: block; }
+  .sub-card .view-link { display: inline-block; margin-top: 4px; font-size: 13px; font-weight: 600; }
+  .more { margin-top: 16px; }
   .more summary { cursor: pointer; color: var(--blue); font-weight: 600; font-size: 15px; list-style: none; }
   .more summary::-webkit-details-marker { display: none; }
   .more ul { margin-top: 10px; }
@@ -314,7 +342,7 @@ const stats = [
 
   @media (max-width: 860px) {
     .layout, .layout2 { grid-template-columns: 1fr; }
-    .school-grid, .nearby-grid, .img-row { grid-template-columns: 1fr; }
+    .school-grid, .nearby-grid, .img-row, .sub-grid { grid-template-columns: 1fr; }
     .subnav-inner { flex-direction: column; align-items: flex-start; }
   }
 </style>
