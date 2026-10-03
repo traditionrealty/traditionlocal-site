@@ -1,16 +1,20 @@
 ---
 // "Food Feature" — the two-card section on /food.
-// Left: whichever rated business (Worth a Stop / Worth the Drive / Worth the Trip, set via
-// data/ratings.json) was reviewed most recently, whatever its tier — the label always matches
-// the actual rating, it's never hardcoded to "Worth the Drive". Until any business has a rating,
-// this shows an honest, clearly-marked placeholder instead of inventing a pick.
+// Left: whichever rated business (Try at Least Once / Worth a Visit / Would Go Again / Highly
+// Recommend / Local Favorite / Sara's Pick, set via data/ratings.json) was reviewed most recently,
+// whatever its tier — the label always matches the actual rating, it's never hardcoded to one tier.
+// Until any business has a rating, this shows an honest, clearly-marked placeholder instead of
+// inventing a pick.
 // Right: "Opened this month," a short hand-edited list at data/new-and-notable.json. Ships with
 // placeholder entries (each flagged placeholder: true) since there's no real opening data yet.
 import businesses from '../data/businesses.json';
 import openings from '../data/new-and-notable.json';
 import { url, img } from '../lib/util';
 
-const RATING_LABEL: Record<string, string> = { stop: 'Worth a Stop', drive: 'Worth the Drive', trip: 'Worth the Trip' };
+const RATING_LABEL: Record<string, string> = {
+  'try-once': 'Try at Least Once', visit: 'Worth a Visit', return: 'Would Go Again',
+  recommend: 'Highly Recommend', favorite: 'Local Favorite', picks: "Sara's Pick",
+};
 const rated = (businesses as any[]).filter((b) => b.rating).sort((a, b) => b.reviewYear - a.reviewYear);
 const pick = rated[0];
 const pickLabel = pick ? RATING_LABEL[pick.rating] : null;
@@ -37,7 +41,7 @@ const list = (openings as any[]).slice(0, 4);
             <h3 class="ph-text">[Featured spot]</h3>
             <p class="ph-text">[One line on why it's worth the trip this week.]</p>
             <span class="ff-link ph-text">Read the review &rarr;</span>
-            <p class="ff-note">Placeholder. Rate a business in data/ratings.json (stop, drive, or trip) and it replaces this automatically.</p>
+            <p class="ff-note">Placeholder. Rate a business in data/ratings.json (try-once, visit, return, recommend, favorite, or picks) and it replaces this automatically.</p>
           </Fragment>
         )}
       </div>
