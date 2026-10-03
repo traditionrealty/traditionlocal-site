@@ -215,7 +215,8 @@ const sameRegion = areas.filter((x) => x.region === a.region && x.slug !== a.slu
       {children.length > 0 && (<div class="rel"><p><strong>Inside {a.name}</strong></p><ul>{children.map((c) => <li><a href={url(`/cities/${c.slug}`)}>{c.name}</a></li>)}</ul></div>)}
       {sameRegion.length > 0 && (
         <div class="more-region">
-          <p class="more-region-head"><strong>More in {a.region}</strong></p>
+          <p class="eyebrow">Neighborhoods</p>
+          <h2 class="more-region-head">More in {a.region}</h2>
           <div class="sub-grid">
             {sameRegion.map((c) => (
               <div class="sub-card">
@@ -343,7 +344,7 @@ const sameRegion = areas.filter((x) => x.region === a.region && x.slug !== a.slu
   .sub-card .view-link { display: inline-block; margin-top: 4px; font-size: 13px; font-weight: 600; }
   .rel { margin-top: 24px; } .rel ul { padding-left: 18px; margin: 0; }
   .more-region { margin-top: 32px; }
-  .more-region-head { margin: 0 0 16px; font-size: 1.05rem; }
+  .more-region-head { margin: 0 0 16px; }
 
   .faq-list { margin: 20px 0; border-top: 1px solid var(--line); }
   .faq-item { border-bottom: 1px solid var(--line); padding: 16px 0; }
