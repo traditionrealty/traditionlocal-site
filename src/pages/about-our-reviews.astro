@@ -1,0 +1,270 @@
+---
+import Base from '../layouts/Base.astro';
+import businesses from '../data/businesses.json';
+import { url } from '../lib/util';
+
+const levels = [
+  { tier: 'try-once', n: 1, label: 'Try at Least Once', desc: "Worth experiencing to see if it's your thing.", icon: 'compass' },
+  { tier: 'visit', n: 2, label: 'Worth a Visit', desc: "A good option when you're nearby or curious.", icon: 'pin' },
+  { tier: 'return', n: 3, label: 'Would Go Again', desc: "An enjoyable experience we'd return for.", icon: 'refresh' },
+  { tier: 'recommend', n: 4, label: 'Highly Recommend', desc: "A standout we'd recommend to friends.", icon: 'thumb' },
+  { tier: 'favorite', n: 5, label: 'Local Favorite', desc: "A go-to spot that keeps us coming back.", icon: 'heart' },
+  { tier: 'picks', n: 6, label: "Sara's Pick", desc: "Sara's personal top choice, deserving a special trip.", icon: 'ribbon' },
+];
+const TIER_ORDER = ['picks', 'favorite', 'recommend', 'return', 'visit', 'try-once'];
+const LABEL_BY_TIER = Object.fromEntries(levels.map((l) => [l.tier, l.label]));
+const rated = (businesses as any[]).filter((b) => b.rating);
+const byTier = TIER_ORDER.map((tier) => ({
+  tier, label: LABEL_BY_TIER[tier],
+  items: rated.filter((b) => b.rating === tier).sort((a, b) => a.name.localeCompare(b.name)),
+})).filter((g) => g.items.length > 0);
+const ICONS: Record<string, string> = {
+  compass: '<circle cx="12" cy="12" r="9"/><path d="M15 9l-2 6-6 2 2-6 6-2z"/>',
+  pin: '<path d="M12 21s7-6.5 7-11.5A7 7 0 0 0 5 9.5C5 14.5 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',
+  refresh: '<path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/>',
+  thumb: '<path d="M7 11v9H4a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h3zm0 0l4-8a2 2 0 0 1 2 2v4h5a2 2 0 0 1 2 2.2l-1.2 7A2 2 0 0 1 17 20H9a2 2 0 0 1-2-2z"/>',
+  heart: '<path d="M12 21s-7-4.6-9.5-8.8C.8 9 2 5.5 5.3 4.6 7.6 4 9.9 5 12 7.5 14.1 5 16.4 4 18.7 4.6 22 5.5 23.2 9 21.5 12.2 19 16.4 12 21 12 21z"/>',
+  ribbon: '<circle cx="12" cy="8" r="5"/><path d="M9 12.5L7 21l5-3 5 3-2-8.5"/>',
+};
+---
+<Base title="About Our Reviews" description="A personal perspective and a useful guide to your next discovery: how Tradition Local reviews places and what the recommendation scale means.">
+  <section class="band">
+    <div class="wrap">
+      <p class="kicker">How we review</p>
+      <h1>A personal perspective. A useful guide to your next discovery.</h1>
+      <p class="lede">Our reviews help you decide what to try, what to expect, and whether an experience fits you. We share what we tried, what stood out, and what's worth considering.</p>
+      <p class="lede">Our recommendation scale expresses our experience. The details behind the recommendation matter just as much as the badge.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <p class="eyebrow">The Tradition Local recommendation scale</p>
+      <h2>From a first try to a personal favorite.</h2>
+      <p class="muted">Select a level to see how it would appear in a review.</p>
+      <div class="levels" id="levels">
+        {levels.map((l) => (
+          <button type="button" class:list={['level-card', l.tier]} data-tier={l.tier} data-label={l.label} data-desc={l.desc} aria-pressed={l.tier === 'picks' ? 'true' : 'false'}>
+            <span class="level-icon" set:html={`<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${ICONS[l.icon]}</svg>`}></span>
+            <span class="level-text">
+              <strong>{l.label}</strong>
+              <span class="muted small">{l.desc}</span>
+            </span>
+            <span class="level-n">Level {l.n}</span>
+          </button>
+        ))}
+      </div>
+      <div class="example-card">
+        <p class="eyebrow small">On a review card &middot; example</p>
+        <h3 id="ex-label">Sara's Pick</h3>
+        <p id="ex-desc">Sara's personal top choice, deserving a special trip.</p>
+      </div>
+      <p class="muted small disclaimer">These are editorial recommendation levels, separate from any membership tiers or community achievement badges.</p>
+    </div>
+  </section>
+
+  <section class="section tint">
+    <div class="wrap">
+      <p class="eyebrow">What goes into the recommendation</p>
+      <h2>The experience behind the badge.</h2>
+      <div class="three-col">
+        <div>
+          <h3>What we actually tried</h3>
+          <p>Specific dishes, drinks, services, or activities, supported by firsthand observations and original photos or video.</p>
+        </div>
+        <div>
+          <h3>The full experience</h3>
+          <p>Quality, hospitality, atmosphere, practical details, and value in the context of the visit.</p>
+        </div>
+        <div>
+          <h3>Who might enjoy it</h3>
+          <p>Explain the occasion, preferences, and considerations that make the recommendation useful to you.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <p class="eyebrow">Clear about our point of view</p>
+      <h2>Know whose experience you're reading.</h2>
+      <div class="two-col">
+        <div>
+          <h3>Reviews by Sara</h3>
+          <p>Food, hospitality, and local experiences through Sara's personal perspective. Sara's Pick is her highest personal endorsement.</p>
+        </div>
+        <div>
+          <h3>Reviews by Dillon</h3>
+          <p>Local discoveries and experiences through Dillon's perspective, clearly attributed to him. A review by Dillon doesn't automatically carry Sara's endorsement.</p>
+        </div>
+      </div>
+      <p class="muted small">Each review identifies the author, visit date, relevant location, and any commercial connection.</p>
+    </div>
+  </section>
+
+  <section class="section tint">
+    <div class="wrap">
+      <p class="eyebrow">Our editorial approach</p>
+      <h2>Helpful detail. Honest context.</h2>
+      <div class="four-grid">
+        <div>
+          <h3>Recommendations are earned</h3>
+          <p>We explain why we recommend something and include meaningful limitations. A partnership does not buy a rating or a Sara's Pick badge.</p>
+        </div>
+        <div>
+          <h3>One visit has limits</h3>
+          <p>We distinguish a first impression from repeat visits, and a specific item from an entire business. A drink recommendation is not a verdict on every item on the menu.</p>
+        </div>
+        <div>
+          <h3>Relationships are visible</h3>
+          <p>Paid partnerships, complimentary items, invitations, and affiliate relationships are disclosed with the relevant coverage.</p>
+        </div>
+        <div>
+          <h3>Useful facts stay connected</h3>
+          <p>Reviews link to the business profile for location and practical details, and to neighborhood guides for nearby discoveries.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap narrow">
+      <h2>A few questions about the scale</h2>
+      <div class="faq-list">
+        <details class="faq-item">
+          <summary>Why does the scale start at "Try at least once"?</summary>
+          <p>Every business we feature has earned a baseline recommendation. "Try at Least Once" means it's worth experiencing firsthand, even before we've been back enough times to rate it higher.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Is Sara's Pick the same as a numeric score?</summary>
+          <p>No. It's the top of a six-level editorial scale, not a star rating or percentage. It reflects Sara's personal, considered endorsement.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Can a recommendation change?</summary>
+          <p>Yes. A rating reflects our most recent visit. If a place changes, up or down, we update the rating and note what changed.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Can members share a different opinion?</summary>
+          <p>Yes. Our rating is our own editorial take. Members are welcome to share their own experience, and we welcome hearing where it differs from ours.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <p class="eyebrow">Browse by rating</p>
+      <h2>All our reviews</h2>
+      <p class="muted">{rated.length} places reviewed so far, grouped by recommendation level.</p>
+      <div class="all-reviews">
+        {byTier.map((g) => (
+          <div class="tier-group">
+            <h3 class={`tier-head ${g.tier}`}>{g.label} <span class="muted small">({g.items.length})</span></h3>
+            <ul class="tier-list">
+              {g.items.map((b: any) => (
+                <li><a href={url(`/eat/${b.slug}`)}>{b.name}</a><span class="muted small">{b.neighborhood || b.city}</span></li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+      <a class="btn blue" href={url('/food')}>See every place we've reviewed &rarr;</a>
+    </div>
+  </section>
+
+  <section class="section tint">
+    <div class="wrap cta-row">
+      <div>
+        <p class="eyebrow">Find your next local discovery</p>
+        <h2>Read the experience. Choose your next stop.</h2>
+      </div>
+      <div class="cta-actions">
+        <a class="btn gold" href={url('/food')}>Explore our reviews &rarr;</a>
+        <a class="mlink" href={url('/neighborhood-info-request')}>Recommend a place &rarr;</a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<script>
+  const levels = document.querySelectorAll<HTMLButtonElement>('#levels .level-card');
+  const exLabel = document.getElementById('ex-label')!;
+  const exDesc = document.getElementById('ex-desc')!;
+  const exCard = document.querySelector('.example-card')!;
+  levels.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      levels.forEach((b) => b.setAttribute('aria-pressed', 'false'));
+      btn.setAttribute('aria-pressed', 'true');
+      exLabel.textContent = btn.dataset.label || '';
+      exDesc.textContent = btn.dataset.desc || '';
+      exCard.className = `example-card ${btn.dataset.tier}`;
+    });
+  });
+</script>
+
+<style>
+  .kicker { color: var(--gold); font-weight: 700; text-transform: uppercase; letter-spacing: .04em; font-size: 12px; margin: 0 0 12px; }
+  .lede { max-width: 62ch; }
+  .eyebrow { color: var(--green, #1e7a43); font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; margin: 0 0 8px; }
+  .eyebrow.small { font-size: 11px; margin: 0 0 6px; }
+  .narrow { max-width: 760px; }
+
+  .levels { display: flex; flex-direction: column; gap: 10px; margin: 24px 0; }
+  .level-card { display: flex; align-items: center; gap: 16px; background: #fff; border: 1.5px solid var(--line); border-radius: 10px; padding: 16px 20px; text-align: left; cursor: pointer; width: 100%; }
+  .level-card[aria-pressed="true"] { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold); }
+  .level-icon { flex-shrink: 0; width: 44px; height: 44px; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: var(--cream); color: var(--brown); }
+  .level-card.try-once .level-icon { color: #8a8470; background: #f1efe9; }
+  .level-card.visit .level-icon { color: var(--blue); background: #e6eef8; }
+  .level-card.return .level-icon { color: #1e7a43; background: #e8f5ec; }
+  .level-card.recommend .level-icon { color: var(--brown); background: var(--gold-soft); }
+  .level-card.favorite .level-icon { color: #fff; background: var(--brown); }
+  .level-card.picks .level-icon { color: #fff; background: var(--navy); }
+  .level-text { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+  .level-text strong { font-family: var(--serif); font-size: 1.15rem; color: var(--navy); }
+  .level-n { font-size: 12px; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; color: var(--brown); flex-shrink: 0; }
+
+  .example-card { background: var(--cream); border-radius: 10px; padding: 24px; margin-top: 8px; }
+  .example-card h3 { margin: 4px 0 6px; }
+  .example-card.try-once { border-left: 4px solid #b9b2a0; }
+  .example-card.visit { border-left: 4px solid var(--blue); }
+  .example-card.return { border-left: 4px solid #1e7a43; }
+  .example-card.recommend { border-left: 4px solid var(--gold); }
+  .example-card.favorite { border-left: 4px solid var(--brown); }
+  .example-card.picks { border-left: 4px solid var(--navy); }
+  .disclaimer { font-style: italic; margin-top: 10px; }
+
+  .three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; margin-top: 24px; }
+  .three-col h3 { margin: 0 0 8px; font-size: 1.1rem; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin: 24px 0; }
+  .two-col h3 { margin: 0 0 8px; font-size: 1.3rem; }
+  .four-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 32px 40px; margin-top: 24px; }
+  .four-grid h3 { margin: 0 0 8px; font-size: 1.15rem; }
+
+  .faq-list { margin: 20px 0 0; border-top: 1px solid var(--line); }
+  .faq-item { border-bottom: 1px solid var(--line); padding: 16px 0; }
+  .faq-item summary { cursor: pointer; font-weight: 600; color: var(--navy); font-size: 1.05rem; list-style: none; }
+  .faq-item summary::-webkit-details-marker { display: none; }
+  .faq-item p { margin: 10px 0 0; color: var(--muted); }
+
+  .all-reviews { display: grid; grid-template-columns: repeat(2, 1fr); gap: 32px; margin: 24px 0 28px; }
+  .tier-group { break-inside: avoid; }
+  .tier-head { font-size: 1.05rem; margin: 0 0 10px; padding-bottom: 8px; border-bottom: 2px solid var(--line); }
+  .tier-head.try-once { color: #8a8470; } .tier-head.visit { color: var(--blue); } .tier-head.return { color: #1e7a43; }
+  .tier-head.recommend { color: var(--brown); } .tier-head.favorite { color: var(--brown); } .tier-head.picks { color: var(--navy); }
+  .tier-list { list-style: none; padding: 0; margin: 0; }
+  .tier-list li { display: flex; justify-content: space-between; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+  .tier-list li:last-child { border-bottom: none; }
+  .tier-list a { color: var(--blue); font-weight: 600; }
+  .btn.blue { background: var(--blue); color: #fff; }
+
+  .cta-row { display: flex; justify-content: space-between; align-items: center; gap: 24px; flex-wrap: wrap; }
+  .cta-actions { display: flex; flex-direction: column; gap: 10px; align-items: flex-end; }
+  .mlink { color: var(--blue); font-weight: 600; text-decoration: none; }
+
+  @media (max-width: 860px) {
+    .three-col, .two-col, .four-grid, .all-reviews { grid-template-columns: 1fr; }
+    .level-card { flex-wrap: wrap; }
+    .cta-row { flex-direction: column; align-items: flex-start; }
+    .cta-actions { align-items: flex-start; }
+  }
+</style>
