@@ -23,7 +23,7 @@ const ccDay = ccEvent ? fmtDate(ccEvent.date, { weekday: 'long' }) : null;
       <p class="lede">Events, weekend plans, and easy ideas for families, couples, and anyone who wants to get out and explore.</p>
     </div>
   </section>
-  <section class="section">
+  <section class="section" id="weekend">
     <div class="wrap">
       <div class="section-head">
         <div>
@@ -63,7 +63,7 @@ const ccDay = ccEvent ? fmtDate(ccEvent.date, { weekday: 'long' }) : null;
     </div>
   </section>
   {upcoming.length > 1 && (
-    <section class="section">
+    <section class="section" id="events">
       <div class="wrap">
         <div class="section-head"><h2>Upcoming events</h2></div>
         <ul class="events">{upcoming.slice(1).map((e) => <li><a href={url(e.path)}><span class="d">{fmtDate(e.date, { weekday: 'short', month: 'short', day: 'numeric' })}</span><strong>{e.title}</strong><span class="muted">{e.venue}</span></a></li>)}</ul>
