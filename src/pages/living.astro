@@ -6,21 +6,60 @@ const today = new Date().toISOString().slice(0, 10);
 const upcoming = events.filter((e) => e.date && e.date >= today);
 const past = events.filter((e) => !e.date || e.date < today).reverse();
 const featured = upcoming[0];
+
+// "This weekend" spotlight: our only real, dated recurring content is Coffee & Conversations.
+// We show it under its own real weekday rather than forcing it into a Saturday slot it may not
+// fall on. The other three slots (live music, farmers market, park/trail) have no curated data
+// yet, so they stay honest bracketed placeholders, same convention used across the site.
+const ccEvent = upcoming.find((e) => e.title.includes('Coffee & Conversations'));
+const ccDay = ccEvent ? fmtDate(ccEvent.date, { weekday: 'long' }) : null;
 ---
-<Base title="Living" description="Coffee & Conversations meetups, community events, and things to do across Greater Houston.">
+<Base title="Things to Do" description="Events, weekend plans, and easy ideas for families, couples, and anyone who wants to get out and explore.">
   <section class="band">
-    <div class="wrap feature">
-      <div>
-        <p class="kicker">Featured event</p>
-        {featured ? (
-          <>
-            <h1>{featured.title}</h1>
-            <p class="lede">{featured.when}<br />{featured.location}</p>
-            <a class="btn gold" href={url(featured.path)}>Event details and RSVP</a>
-          </>
-        ) : (<><h1>Things to do</h1><p class="lede">New events are announced every month. Check back soon.</p></>)}
+    <div class="wrap">
+      <p class="crumb"><a href={url('/')}>Home</a> <span aria-hidden="true">&rsaquo;</span> Things to Do</p>
+      <p class="kicker">What to do in Greater Houston</p>
+      <h1>Things to Do</h1>
+      <p class="lede">Events, weekend plans, and easy ideas for families, couples, and anyone who wants to get out and explore.</p>
+    </div>
+  </section>
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="weekend-kicker">Updated every Thursday</p>
+          <h2>This weekend in Houston</h2>
+        </div>
+        <a href={url('/living')}>Plan your weekend &rarr;</a>
       </div>
-      {featured?.image && <img src={img(featured.image, 700)} alt="" />}
+      <div class="weekend-grid">
+        <div class="weekend-card">
+          <p class="day">Friday</p>
+          <strong class="ph-text">[Live music night]</strong>
+          <span class="muted small ph-text">[Venue, area]</span>
+        </div>
+        <div class="weekend-card">
+          <p class="day">{ccDay || 'Saturday'}</p>
+          {ccEvent ? (
+            <>
+              <strong><a href={url(ccEvent.path)}>Coffee &amp; Conversations</a></strong>
+              <span class="muted small">{ccEvent.venue}</span>
+            </>
+          ) : (
+            <><strong class="ph-text">[Coffee shop meetup]</strong><span class="muted small ph-text">[Venue, area]</span></>
+          )}
+        </div>
+        <div class="weekend-card">
+          <p class="day">Saturday</p>
+          <strong class="ph-text">[Farmers market]</strong>
+          <span class="muted small ph-text">[Market, area]</span>
+        </div>
+        <div class="weekend-card">
+          <p class="day">Sunday</p>
+          <strong class="ph-text">[Park event or trail day]</strong>
+          <span class="muted small ph-text">[Park, area]</span>
+        </div>
+      </div>
     </div>
   </section>
   {upcoming.length > 1 && (
@@ -39,6 +78,18 @@ const featured = upcoming[0];
   </section>
 </Base>
 <style>
+  .crumb { font-size: 13px; color: rgba(255,255,255,.65); margin: 0 0 14px; }
+  .crumb a { color: rgba(255,255,255,.65); }
+  .weekend-kicker { color: var(--green, #1e7a43); font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; margin: 0 0 6px; }
+  .weekend-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+  .weekend-card { background: var(--cream); border-radius: 10px; padding: 20px; display: flex; flex-direction: column; gap: 6px; }
+  .weekend-card .day { font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--blue); margin: 0; }
+  .weekend-card strong { font-family: var(--serif); font-weight: 400; font-size: 1.15rem; color: var(--navy); }
+  .weekend-card strong a { color: var(--blue); text-decoration: none; }
+  .ph-text { color: var(--muted); font-style: italic; }
+  @media (max-width: 860px) { .weekend-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px) { .weekend-grid { grid-template-columns: 1fr; } }
+
   .feature { display: grid; grid-template-columns: 1.2fr 1fr; gap: 48px; align-items: center; }
   .feature img { border-radius: 6px; }
   .feature h1 { font-size: clamp(1.9rem, 4vw, 3rem); }
