@@ -6,22 +6,22 @@ import { url } from '../lib/util';
 const infoUrl = url('/neighborhood-info-request');
 ---
 <Base title="New Builds" description="Browse new construction communities across Greater Houston by area, builder, and price.">
-  <section class="band">
+  <section class="nb-hero">
     <div class="wrap">
-      <p class="crumb"><a href={url('/')}>Home</a> › Neighborhoods › New Builds</p>
-      <p class="kicker">New construction across Greater Houston</p>
+      <p class="nb-crumb"><a href={url('/')}>Home</a> › Neighborhoods › New Builds</p>
+      <p class="nb-kicker">New construction across Greater Houston</p>
       <h1>New Builds</h1>
-      <p class="lede">Browse new construction communities by area, builder, and price. Then send an info request and we will help you narrow the list.</p>
-      <div class="actions">
+      <p class="nb-lede">Browse new construction communities by area, builder, and price. Then send an info request and we will help you narrow the list.</p>
+      <div class="nb-actions">
         <a class="btn gold" href="#nb-tool">Search new builds</a>
-        <a class="btn outline" href={infoUrl}>Send an info request</a>
+        <a class="btn nb-outline" href={infoUrl}>Send an info request</a>
       </div>
     </div>
   </section>
 
   <section class="section" id="nb-tool">
     <div class="wrap">
-      <p class="section-kicker">Find a community</p>
+      <p class="nb-eyebrow">Find a community</p>
       <h2>Search by what matters to you</h2>
       <p class="nb-sub">Starting prices, bedrooms, builders, and ZIP codes in one place. Prices and availability change often, so always confirm with the builder.</p>
 
@@ -66,7 +66,7 @@ const infoUrl = url('/neighborhood-info-request');
 
       <div class="nb-cta">
         <div>
-          <p class="section-kicker">Skip the guesswork</p>
+          <p class="nb-eyebrow">Skip the guesswork</p>
           <h2>Not sure which builder fits?</h2>
           <p>Share your budget, commute, and school needs in an info request. We will point you to the communities that make sense and the ones to skip.</p>
         </div>
@@ -147,6 +147,15 @@ const infoUrl = url('/neighborhood-info-request');
 </Base>
 
 <style is:global>
+  .nb-hero { background: var(--navy); color: #fff; padding: 48px 0 56px; }
+  .nb-hero h1 { color: #fff; margin: 0 0 12px; }
+  .nb-crumb { font-size: 13px; color: rgba(255,255,255,.7); margin: 0 0 14px; }
+  .nb-crumb a { color: rgba(255,255,255,.85); }
+  .nb-kicker { color: var(--gold); font-size: 13px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; margin: 0 0 8px; }
+  .nb-lede { max-width: 640px; color: rgba(255,255,255,.88); }
+  .nb-actions { display: flex; gap: 14px; margin-top: 24px; flex-wrap: wrap; }
+  .btn.nb-outline { border: 1.5px solid #fff; color: #fff; background: transparent; }
+  .nb-eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--brown); margin: 0 0 6px; }
   .nb-sub { color: var(--muted); margin: 0 0 20px; max-width: 64ch; }
   .nb-filters { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
   .nb-filters label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--muted); }
@@ -180,6 +189,6 @@ const infoUrl = url('/neighborhood-info-request');
   .nb-cta { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 26px; margin: 36px 0; display: flex; gap: 18px; justify-content: space-between; align-items: center; flex-wrap: wrap; }
   .nb-cta h2 { margin: 0 0 4px; }
   .nb-cta p { margin: 0; color: var(--muted); max-width: 56ch; }
-  .nb-cta .section-kicker { margin-bottom: 4px; }
+  .nb-cta .nb-eyebrow { margin-bottom: 4px; }
   .nb-fine { font-size: 13px; color: var(--muted); max-width: 80ch; }
 </style>
