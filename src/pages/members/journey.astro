@@ -1,0 +1,45 @@
+---
+import Base from '../../layouts/Base.astro';
+import MemberShell from '../../components/MemberShell.astro';
+import { config } from '../../config';
+import { url } from '../../lib/util';
+---
+<Base title="Real Estate Journey" description="A dedicated space for the transaction you're working on with Dillon.">
+  <MemberShell active="journey">
+    <p class="eyebrow">{config.brokerage.name}</p>
+    <h1>Your real estate journey</h1>
+    <p class="lede">A dedicated space for the transaction you're working on with Dillon.</p>
+
+    <div class="mcard">
+      <h2>Connect your client journey</h2>
+      <p class="ph-text">[Your member interests: not collected yet]</p>
+      <p>When your team links an active transaction, you'll see your milestones, next steps, appointments, and authorized documents here.</p>
+      <a class="btn gold" href={`mailto:${config.contactEmail}?subject=Ask%20Dillon%20about%20next%20steps`}>Ask Dillon about next steps &rarr;</a>
+    </div>
+
+    <div class="mcard">
+      <div class="mgrid2">
+        <div>
+          <h3>Clear progress</h3>
+          <p>Know your current stage and what comes next.</p>
+        </div>
+        <div>
+          <h3>One place for records</h3>
+          <p>Find documents shared with you by your team.</p>
+        </div>
+        <div>
+          <h3>Your responsibilities</h3>
+          <p>See the tasks that need your attention.</p>
+        </div>
+        <div>
+          <h3>Personal support</h3>
+          <p>Stay connected with your real estate concierge.</p>
+        </div>
+      </div>
+    </div>
+  </MemberShell>
+</Base>
+
+<style>
+  .ph-text { color: #6d7482; font-style: italic; }
+</style>
