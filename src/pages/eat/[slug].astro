@@ -14,47 +14,109 @@ const brand = b.name.toLowerCase().replace(/[’']/g, '').split(/[\s–-]+/).sli
 const story = posts.find((p) => p.title.toLowerCase().replace(/[’']/g, '').startsWith(brand));
 const otherLocations = businesses.filter((x) => x.name === b.name && x.slug !== b.slug);
 const nearby = businesses.filter((x) => x.slug !== b.slug && x.area && x.area === b.area).slice(0, 6);
-const place = b.neighborhood ? `${b.neighborhood}, ${b.city}` : b.city;
-const ld = { '@context': 'https://schema.org', '@type': 'LocalBusiness', name: b.name, description: b.description,
-  address: { '@type': 'PostalAddress', addressLocality: b.city, addressRegion: 'TX' } };
+const place = b.neighborhood || area?.name || b.city;
+const ld = { '@context': 'https://schema.org', '@type': 'Review', itemReviewed: { '@type': 'LocalBusiness', name: b.name },
+  author: { '@type': 'Person', name: b.reviewAuthor || 'Sara Loren' } };
+
+// Real data we have: the actual visit writeup (b.review), who wrote it and when (reviewAuthor,
+// reviewYear), category, location, contact info. That real writeup goes in "What we tried" below,
+// unedited. The structured breakdown this layout adds (a short quick-take verdict, what stood out,
+// what to consider, whether we'd return, FAQ) isn't something we have written per business yet, so
+// those stay honest bracketed placeholders, same convention used across the rest of the site.
 ---
-<Base title={`${b.name}, ${place}`} description={b.description}>
+<Base title={`${b.name} review, ${place}`} description={b.description}>
   <script type="application/ld+json" slot="head" set:html={JSON.stringify(ld)} />
   <section class="band">
     <div class="wrap">
-      <p class="kicker"><a href={url('/food')}>Eat</a> / {b.categories.join(', ')}</p>
-      <h1>{b.name}</h1>
-      <p class="lede">{place}</p>
+      <p class="crumb">
+        <a href={url('/food')}>Home</a> <span aria-hidden="true">&rsaquo;</span>
+        <a href={url('/food')}>Eat</a> <span aria-hidden="true">&rsaquo;</span>
+        <a href={url(`/eat/${b.slug}`)}>{b.name}</a> <span aria-hidden="true">&rsaquo;</span> Review
+      </p>
+      <p class="kicker">Firsthand review &middot; {place} &middot; {b.city}</p>
+      <h1>{b.name} review</h1>
+      <p class="lede">{b.description}</p>
+      <p class="byline">By {b.reviewAuthor || 'Sara Loren'} &middot; Visited {b.reviewYear}</p>
       {b.saraPick && <span class="badge">Sara's pick</span>}
       {b.closed && <span class="badge closed-badge">Closed</span>}
     </div>
   </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="hero-photo">
+        <svg aria-hidden="true" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="6" width="18" height="14" rx="2"/><circle cx="12" cy="13" r="3.5"/><path d="M9 6l1-2h4l1 2"/></svg>
+        <span>Hero: your own {b.categories[0].toLowerCase()} photograph</span>
+      </div>
+      <p class="muted small photo-caption">Original visit photography &middot; specific order identified in caption</p>
+    </div>
+  </section>
+
   <section class="section">
     <div class="wrap layout">
       <div class="prose">
         {b.closed && <p class="closed-note">This business is no longer operating. The review below is kept for reference.</p>}
-        <p class="intro">{b.description}</p>
-        <h2>Sara's review</h2>
+        <div class="quick-take">
+          <p class="eyebrow">Our quick take</p>
+          <p class="ph-text">[A short verdict: who this fits and when we'd choose it again.]</p>
+        </div>
+
+        <h2>What we tried</h2>
         <blockquote>{b.review}<footer>Visited {b.reviewYear}</footer></blockquote>
         {story && <p>Read the full story: <a href={url(story.path)}>{story.title}</a></p>}
+
+        <h2>What worked, and what to consider</h2>
+        <div class="worked-grid">
+          <div>
+            <h3>What stood out</h3>
+            <p class="ph-text">[Specific observation about flavor, texture, presentation, or value.]</p>
+          </div>
+          <div>
+            <h3>Before you go</h3>
+            <p class="ph-text">[A practical consideration: seating, parking, wait times, or similar.]</p>
+          </div>
+        </div>
+
+        <h2>Would we return?</h2>
+        <p class="ph-text">[A short, personal conclusion on who would enjoy this and when we'd choose it again.]</p>
+
+        <h2>Before your visit</h2>
+        <div class="faq-list">
+          <details class="faq-item">
+            <summary>Is this a good place to work?</summary>
+            <p class="ph-text">[Seating, noise, wifi, and outlet notes.]</p>
+          </details>
+          <details class="faq-item">
+            <summary>What should I budget?</summary>
+            <p class="ph-text">[Typical spend for one or two people.]</p>
+          </details>
+        </div>
       </div>
       <aside>
+        <p class="eyebrow">Plan your visit</p>
+        <h2 class="side-name">{b.name}</h2>
         <dl>
-          <dt>Category</dt><dd>{b.categories.join(', ')}</dd>
-          <dt>Location</dt><dd>{place}</dd>
-          {b.harMarket && (<><dt>Area</dt><dd>{b.harMarket}</dd></>)}
+          <dt>Area</dt><dd>{place}, {b.city}</dd>
+          <dt>Known for</dt><dd>{b.categories.join(', ')}</dd>
+          <dt>What we ordered</dt><dd class="ph-text">[What we ordered]</dd>
+          <dt>Sample spend</dt><dd class="ph-text">[$00 before tax and tip]</dd>
+          {b.harMarket && (<><dt>HAR market</dt><dd>{b.harMarket}</dd></>)}
           {b.address && (<><dt>Address</dt><dd>{b.address}</dd></>)}
           {b.phone && (<><dt>Phone</dt><dd><a href={`tel:${b.phone}`}>{b.phone}</a></dd></>)}
           {b.website && (<><dt>Website</dt><dd><a href={b.website} target="_blank" rel="noopener">{b.website.replace(/^https?:\/\//, '').replace(/\/$/, '')}</a></dd></>)}
-          {area && (<><dt>Neighborhood guide</dt><dd><a href={url(`/cities/${area.slug}`)}>Living in {area.name}</a></dd></>)}
         </dl>
         <a class="btn blue" href={`https://www.google.com/maps/search/${encodeURIComponent(`${b.name} ${b.city} TX`)}`}>Get directions</a>
+        <div class="side-links">
+          <a href={url(`/eat/${b.slug}`)}>Full business profile &rarr;</a>
+          {area && <a href={url(`/cities/${area.slug}`)}>Explore the {area.name} guide &rarr;</a>}
+        </div>
         {otherLocations.length > 0 && (
           <div class="also"><p><strong>Other locations</strong></p><ul>{otherLocations.map((o) => <li><a href={url(`/eat/${o.slug}`)}>{o.neighborhood || o.city}</a></li>)}</ul></div>
         )}
       </aside>
     </div>
   </section>
+
   {nearby.length > 0 && (
     <section class="section tint">
       <div class="wrap">
@@ -65,19 +127,43 @@ const ld = { '@context': 'https://schema.org', '@type': 'LocalBusiness', name: b
   )}
 </Base>
 <style>
-  .kicker a { color: var(--gold); }
+  .crumb { font-size: 13px; color: var(--muted); margin: 0 0 14px; }
+  .kicker { color: var(--gold); font-weight: 700; text-transform: uppercase; letter-spacing: .04em; font-size: 12px; margin: 0 0 10px; }
+  .byline { color: var(--muted); font-size: 14px; margin: 10px 0 0; }
   .closed-badge { margin-left: 10px; background: #fff; color: var(--brown); border: 1px solid var(--brown); }
   .closed-note { background: var(--cream); border: 1px solid var(--line); border-radius: 6px; padding: 10px 14px; margin: 0 0 20px; font-size: 14px; color: var(--muted); }
+
+  .hero-photo { aspect-ratio: 16 / 7; background: var(--cream); border: 1.5px dashed var(--line); border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: var(--muted); }
+  .photo-caption { margin: 10px 0 0; font-style: italic; }
+
+  .eyebrow { color: var(--green, #1e7a43); font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; margin: 0 0 6px; }
+  .quick-take { background: var(--cream); border-radius: 8px; padding: 20px 24px; margin-bottom: 8px; }
+  .quick-take p.ph-text { margin: 0; font-size: 1.05rem; }
+
   dd a { color: var(--blue); }
-  .layout { display: grid; grid-template-columns: 1fr 320px; gap: 56px; }
-  .intro { font-size: 1.3rem; font-family: var(--serif); color: var(--navy); }
+  .layout { display: grid; grid-template-columns: 1fr 320px; gap: 56px; align-items: start; }
   blockquote footer { font-family: var(--sans); font-size: 14px; color: var(--muted); margin-top: 10px; }
-  aside { background: var(--cream); padding: 24px; align-self: start; }
+  .worked-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+  .worked-grid h3 { margin: 0 0 8px; font-size: 1.1rem; }
+  .faq-list { border-top: 1px solid var(--line); }
+  .faq-item { border-bottom: 1px solid var(--line); padding: 14px 0; }
+  .faq-item summary { cursor: pointer; font-weight: 600; color: var(--navy); list-style: none; }
+  .faq-item summary::-webkit-details-marker { display: none; }
+  .faq-item p { margin: 10px 0 0; }
+
+  aside { background: var(--cream); padding: 24px; align-self: start; border-radius: 8px; }
+  .side-name { margin: 0 0 14px; }
   dl { margin: 0 0 20px; } dt { font-size: 13px; color: var(--brown); margin-top: 12px; } dd { margin: 2px 0 0; }
-  .also ul { padding-left: 18px; }
+  .side-links { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
+  .side-links a { font-weight: 600; font-size: 14px; }
+  .also { margin-top: 20px; } .also ul { padding-left: 18px; }
   .nearby { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
   .nearby a { display: flex; flex-direction: column; background: #fff; padding: 16px; text-decoration: none; border-left: 4px solid var(--gold); }
   .nearby strong { font-family: var(--serif); font-weight: 400; font-size: 1.15rem; }
-  .nearby span { font-size: 13px; color: var(--brown); }
-  @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } }
+  .ph-text { color: var(--muted); font-style: italic; }
+
+  @media (max-width: 860px) {
+    .layout { grid-template-columns: 1fr; }
+    .worked-grid { grid-template-columns: 1fr; }
+  }
 </style>
