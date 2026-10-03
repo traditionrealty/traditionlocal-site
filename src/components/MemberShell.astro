@@ -1,0 +1,142 @@
+---
+// Shared dark sidebar shell for the signed-in member area (My Account, Profile, Settings,
+// Real Estate Journey). Gated the same way MemberForm.astro gates the old single-page layout:
+// shows [data-state="out"] to signed-out visitors and [data-state="in"] to members.
+import { config } from '../config';
+import { url } from '../lib/util';
+interface Props { active: 'account' | 'profile' | 'settings' | 'journey' }
+const { active } = Astro.props;
+const ready = Boolean(config.supabaseUrl && config.supabaseAnonKey);
+const items = [
+  { key: 'account', label: 'My Account', href: '/members', icon: 'grid' },
+  { key: 'profile', label: 'Profile', href: '/members/profile', icon: 'user' },
+  { key: 'settings', label: 'Settings', href: '/members/settings', icon: 'gear' },
+  { key: 'journey', label: 'Real Estate Journey', href: '/members/journey', icon: 'home' },
+];
+---
+<section class="mshell">
+  {!ready ? (
+    <div class="wrap">
+      <div class="soon">
+        <h1>Member accounts are almost ready</h1>
+        <p>In the meantime, join the newsletter for monthly stories, events, and what's trending near you.</p>
+        <a class="btn gold" href={`mailto:${config.contactEmail}?subject=Subscribe%20me%20to%20Tradition%20Local`}>Join the newsletter</a>
+      </div>
+    </div>
+  ) : (
+    <div class="wrap mshell-inner">
+      <div data-state="out" hidden class="signed-out">
+        <h1>Sign in to continue</h1>
+        <p>Sign in to see your account, or create a free membership in under a minute.</p>
+        <p><a class="btn blue" href={url('/sign-in')}>Sign in</a> <a class="btn ghost light" href={url('/join')}>Join free</a></p>
+      </div>
+      <div data-state="in" hidden class="mshell-grid">
+        <aside class="msidebar">
+          <div class="who">
+            <span class="avatar" data-ms-initials>&nbsp;</span>
+            <div>
+              <strong data-ms-name>Member</strong>
+              <span class="muted small">Tradition member</span>
+            </div>
+          </div>
+          <nav>
+            {items.map((i) => (
+              <a href={url(i.href)} class:list={[{ active: active === i.key }]}>{i.label}</a>
+            ))}
+          </nav>
+          <div class="msidebar-foot">
+            <span>Tradition Local</span>
+            <span>{config.brokerage.name}</span>
+            <span>Your Loren Concierge</span>
+          </div>
+        </aside>
+        <div class="mcontent">
+          <slot />
+        </div>
+      </div>
+    </div>
+  )}
+</section>
+
+<script>
+  import { membersReady, supabase, getProfile } from '../lib/members';
+  function apply(signedIn: boolean) {
+    document.querySelectorAll<HTMLElement>('[data-state]').forEach((el) => {
+      el.hidden = (el.dataset.state === 'in') !== signedIn;
+    });
+  }
+  if (membersReady) {
+    const sb = supabase();
+    async function onSession(hasSession: boolean) {
+      apply(hasSession);
+      if (!hasSession) return;
+      const { data } = await sb.auth.getSession();
+      const user = data.session?.user;
+      if (!user) return;
+      const p = await getProfile(user);
+      const first = (p.first_name || '').trim();
+      const last = (p.last_name || '').trim();
+      const name = `${first} ${last}`.trim() || user.email || 'Member';
+      const nameEl = document.querySelector('[data-ms-name]');
+      if (nameEl) nameEl.textContent = name;
+      const initEl = document.querySelector('[data-ms-initials]');
+      if (initEl) initEl.textContent = ((first[0] || '') + (last[0] || '')).toUpperCase() || (user.email || '?')[0].toUpperCase();
+    }
+    sb.auth.getSession().then(({ data }) => onSession(Boolean(data.session)));
+    sb.auth.onAuthStateChange((event, session) => {
+      if (event === 'PASSWORD_RECOVERY') return;
+      onSession(Boolean(session));
+    });
+  }
+</script>
+
+<style is:global>
+  .mshell { background: #171f2b; color: #e8e9ec; min-height: 70vh; padding: 48px 24px 72px; }
+  .mshell a { color: inherit; }
+  .mshell .btn.gold { color: var(--navy); }
+  .mshell .btn.blue { background: var(--blue); color: #fff; }
+  .mshell .btn.ghost.light { border: 1.5px solid #e8e9ec; color: #e8e9ec; background: transparent; }
+  .soon { max-width: 560px; margin: 0 auto; text-align: center; display: grid; gap: 14px; justify-items: center; }
+  .signed-out { max-width: 560px; margin: 0 auto; }
+  .signed-out p { color: #aab0bb; }
+
+  .mshell-grid { display: grid; grid-template-columns: 280px 1fr; gap: 48px; align-items: start; }
+  .msidebar { background: #1d2635; border: 1px solid #2c3647; border-radius: 10px; padding: 24px; }
+  .who { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+  .avatar { width: 48px; height: 48px; border-radius: 50%; background: #3a4a3a; color: var(--gold); display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-size: 1.1rem; flex-shrink: 0; }
+  .who strong { display: block; font-size: 1rem; }
+  .who .muted.small { color: #8f96a3; font-size: 13px; }
+  .msidebar nav { display: flex; flex-direction: column; gap: 4px; }
+  .msidebar nav a { padding: 10px 14px; border-radius: 6px; text-decoration: none; font-size: 15px; color: #cfd3da; }
+  .msidebar nav a.active { background: #30402f; color: #fff; font-weight: 600; }
+  .msidebar-foot { border-top: 1px solid #2c3647; margin-top: 20px; padding-top: 16px; display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #8f96a3; }
+
+  .mcontent .eyebrow { color: var(--gold); font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; margin: 0 0 8px; }
+  .mcontent h1 { color: #fff; font-size: clamp(1.8rem, 3vw, 2.4rem); margin: 0 0 10px; }
+  .mcontent > .lede { color: #aab0bb; margin: 0 0 28px; max-width: 60ch; }
+  .mcard { background: #1d2635; border: 1px solid #2c3647; border-radius: 10px; padding: 28px 32px; margin-bottom: 24px; }
+  .mcard h2 { color: #fff; font-size: 1.5rem; margin: 0 0 14px; }
+  .mcard h3 { color: #fff; font-size: 1.1rem; margin: 0 0 8px; }
+  .mcard p { color: #aab0bb; }
+  .mgrid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .mform-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+  .mform-field label, .mform-field > span:first-child { font-size: 14px; color: #cfd3da; font-weight: 600; }
+  .mform-field input, .mform-field select { background: #161d29; border: 1px solid #2c3647; border-radius: 6px; padding: 11px 14px; color: #fff; font: inherit; }
+  .mform-note { font-size: 13px; color: #8f96a3; margin: 6px 0 0; }
+  .mrow-item { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; padding: 16px 0; border-top: 1px solid #2c3647; }
+  .mrow-item:first-of-type { border-top: none; padding-top: 0; }
+  .mrow-item strong { display: block; color: #fff; font-size: 1rem; }
+  .mrow-item p { margin: 4px 0 0; font-size: 14px; }
+  .mcheck { display: flex; gap: 12px; align-items: flex-start; padding: 16px 0; border-top: 1px solid #2c3647; }
+  .mcheck:first-of-type { border-top: none; padding-top: 0; }
+  .mcheck input { margin-top: 3px; accent-color: #e8e3d5; width: 16px; height: 16px; flex-shrink: 0; }
+  .mcheck strong { display: block; color: #fff; }
+  .mcheck p { margin: 2px 0 0; font-size: 14px; }
+  .mlink { color: var(--gold); font-weight: 600; text-decoration: none; }
+  .btn-outline-dark { border: 1.5px solid #2c3647; color: #e8e9ec; background: transparent; padding: 10px 18px; border-radius: 6px; font-weight: 600; font-size: 14px; display: inline-block; text-decoration: none; }
+
+  @media (max-width: 860px) {
+    .mshell-grid { grid-template-columns: 1fr; }
+    .mgrid2 { grid-template-columns: 1fr; }
+  }
+</style>
