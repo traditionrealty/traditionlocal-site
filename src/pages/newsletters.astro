@@ -1,0 +1,214 @@
+---
+import Base from '../layouts/Base.astro';
+import { config } from '../config';
+import { url } from '../lib/util';
+
+const neighborhoods = [
+  { label: 'Bellaire', slug: 'bellaire' },
+  { label: 'Cypress', slug: 'cypress' },
+  { label: 'Katy', slug: 'katy' },
+  { label: 'Memorial', slug: 'memorial-villages' },
+  { label: 'Meyerland', slug: 'meyerland' },
+  { label: 'Oak Forest', slug: 'oak-forest' },
+  { label: 'Pearland', slug: 'pearland' },
+  { label: 'River Oaks', slug: 'river-oaks' },
+  { label: 'Spring Branch', slug: 'spring-branch' },
+  { label: 'Sugar Land', slug: 'sugar-land' },
+  { label: 'Tanglewood', slug: 'tanglewood' },
+  { label: 'The Heights', slug: 'the-heights' },
+  { label: 'The Woodlands', slug: 'the-woodlands' },
+];
+---
+<Base title="Newsletters" description="In the Loop, our weekly note, and Locally, your own neighborhood's edition. Both free.">
+  <section class="band">
+    <div class="wrap">
+      <p class="crumb"><a href={url('/')}>Home</a> <span aria-hidden="true">&rsaquo;</span> Newsletters</p>
+      <p class="kicker">In your inbox</p>
+      <h1>Our newsletters</h1>
+      <p class="lede">Two ways to keep up with Greater Houston: a quick weekly note from Dillon and Sara, and Locally, your own neighborhood's edition. Both are free.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="subscribe-bar">
+        <div>
+          <p class="sub-kicker">You are signing up for</p>
+          <h2>In the Loop and Locally</h2>
+        </div>
+        {config.newsletterAction ? (
+          <form class="signup-form" action={config.newsletterAction} method="post">
+            <label for="nl-email-2"><span class="sr">Email address</span>
+              <input id="nl-email-2" name="email" type="email" required placeholder="you@email.com" />
+            </label>
+            <input type="text" name="company" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px" />
+            <input type="hidden" name="return" id="nl-return-2" />
+            <input type="hidden" name="neighborhood" id="nl-neighborhood-value" />
+            <button class="btn gold" type="submit">Subscribe free</button>
+            <p id="nl-msg-2" role="status" hidden></p>
+          </form>
+        ) : (
+          <a class="btn gold" href={`mailto:${config.contactEmail}?subject=Subscribe%20me%20to%20Tradition%20Local`}>Subscribe free</a>
+        )}
+      </div>
+    </div>
+  </section>
+
+  <section class="section tint">
+    <div class="wrap two-cards">
+      <div class="nl-card white">
+        <p class="nl-kicker green">Weekly &middot; Every Thursday</p>
+        <h2>In the Loop</h2>
+        <p class="nl-sub">From Dillon and Sara, in their own voice</p>
+        <p>Three local finds, every week. Short enough to read with your coffee.</p>
+        <ol class="nl-list green">
+          <li>The weekend list</li>
+          <li>One Worth the Drive pick</li>
+          <li>What's new near you</li>
+        </ol>
+        <span class="included green">Included</span>
+      </div>
+      <div class="nl-card navy">
+        <p class="nl-kicker gold">Neighborhood &middot; Pick yours</p>
+        <h2>Locally</h2>
+        <p class="nl-sub">Your neighborhood, in your inbox</p>
+        <p>A closer look at where you live, written for your specific neighborhood.</p>
+        <label class="nl-select-label" for="nl-neighborhood"><span>Select your neighborhood</span>
+          <select id="nl-neighborhood">
+            <option value="">Choose one</option>
+            {neighborhoods.map((n) => <option value={n.slug}>Locally {n.label}</option>)}
+          </select>
+        </label>
+        <p class="muted small more-soon">More neighborhoods coming soon.</p>
+        <span class="included gold">Included</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap two-col">
+      <div>
+        <p class="eyebrow">Last week's issue</p>
+        <h2>See what you will get</h2>
+        <div class="issue-card">
+          <div class="issue-head">
+            <span class="muted small">From: Tradition Local</span>
+            <span class="muted small ph-text">[Date]</span>
+          </div>
+          <h3 class="ph-text">In the Loop: coffee, a Saturday meetup, and [new opening]</h3>
+          <p class="ph-text">[One or two lines of first person intro from Dillon or Sara.]</p>
+          <div class="issue-items">
+            <div class="issue-item blue">
+              <p class="eyebrow small">This weekend</p>
+              <strong>Coffee &amp; Conversations</strong>
+              <span class="muted small">Sun, Oct 18 &middot; La Placita Cafe</span>
+            </div>
+            <div class="issue-item gold">
+              <p class="eyebrow small">Worth the drive</p>
+              <strong class="ph-text">[Featured spot]</strong>
+              <span class="muted small ph-text">[Area] &middot; Review by [Sara or Dillon]</span>
+            </div>
+            <div class="issue-item green">
+              <p class="eyebrow small">New near you</p>
+              <strong class="ph-text">[New opening]</strong>
+              <span class="muted small ph-text">[Cuisine] &middot; [Area]</span>
+            </div>
+          </div>
+          <a class="mlink" href={url('/living')}>Read the full issue &rarr;</a>
+        </div>
+      </div>
+      <div>
+        <p class="eyebrow">Free or member</p>
+        <h2>Two ways to stay close</h2>
+        <p class="muted">Every new reader gets a short welcome series over their first eight weeks, with a separate track for members.</p>
+        <div class="tier-grid">
+          <div class="tier-card">
+            <h3>Free subscriber</h3>
+            <p>In the Loop, Locally, and the weekly planner download.</p>
+          </div>
+          <div class="tier-card gold">
+            <h3>LCL+ member</h3>
+            <p>Everything free, plus early RSVPs, member perks, and The Local Table. <span class="ph-text">[$ price]</span></p>
+          </div>
+        </div>
+        <a class="mlink" href={url('/join')}>Explore LCL+ &rarr;</a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<script is:inline>
+  var nSel = document.getElementById('nl-neighborhood');
+  var nVal = document.getElementById('nl-neighborhood-value');
+  if (nSel && nVal) { nSel.addEventListener('change', function () { nVal.value = nSel.value; }); }
+  var q = new URLSearchParams(location.search).get('newsletter');
+  var m = document.getElementById('nl-msg-2');
+  var r = document.getElementById('nl-return-2');
+  if (r) { r.value = location.origin + location.pathname; }
+  if (q && m) {
+    m.hidden = false;
+    m.textContent = q === 'ok' ? 'Thanks, you are subscribed. Welcome to Tradition Local.' : q === 'invalid' ? 'That email address does not look right. Please try again.' : 'Something went wrong. Please try again, or email us.';
+  }
+</script>
+
+<style>
+  .crumb { font-size: 13px; color: rgba(255,255,255,.65); margin: 0 0 14px; }
+  .crumb a { color: rgba(255,255,255,.65); }
+  .kicker { color: var(--gold); font-weight: 700; text-transform: uppercase; letter-spacing: .04em; font-size: 12px; margin: 0 0 12px; }
+  .lede { max-width: 62ch; }
+
+  .subscribe-bar { background: var(--blue); color: #fff; border-radius: 14px; padding: 32px 36px; display: flex; justify-content: space-between; align-items: center; gap: 24px; flex-wrap: wrap; }
+  .subscribe-bar h2 { color: #fff; margin: 4px 0 0; font-size: 1.6rem; }
+  .sub-kicker { color: var(--gold); font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; margin: 0; }
+  .signup-form { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .signup-form label span:first-child { display: block; font-size: 13px; margin-bottom: 4px; }
+  .signup-form input[type=email] { padding: 12px 16px; border-radius: 999px; border: 0; font-size: 15px; min-width: 240px; }
+  #nl-msg-2 { width: 100%; margin: 8px 0 0; font-size: 14px; color: var(--gold); }
+
+  .two-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+  .nl-card { border-radius: 14px; padding: 32px; }
+  .nl-card.white { background: #fff; }
+  .nl-card.navy { background: var(--navy); color: #fff; }
+  .nl-card.navy h2 { color: #fff; }
+  .nl-kicker { font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; margin: 0 0 6px; }
+  .nl-kicker.green { color: #1e7a43; }
+  .nl-kicker.gold { color: var(--gold); }
+  .nl-sub { font-weight: 700; color: var(--navy); margin: 0 0 10px; }
+  .nl-card.navy .nl-sub { color: #fff; }
+  .nl-list { margin: 18px 0; padding: 0; list-style: none; }
+  .nl-list li { counter-increment: item; padding: 10px 0; border-top: 1px solid var(--line); font-weight: 600; color: var(--navy); }
+  .nl-list li:first-child { border-top: none; }
+  .nl-list li::before { content: counter(item) '  '; color: #1e7a43; font-weight: 700; }
+  .nl-select-label { display: block; margin: 18px 0 4px; }
+  .nl-select-label span { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+  .nl-select-label select { width: 100%; padding: 12px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,.3); background: rgba(255,255,255,.08); color: #fff; font-size: 15px; }
+  .more-soon { margin: 6px 0 14px; font-style: italic; }
+  .included { display: block; text-align: center; border-radius: 999px; padding: 12px; font-weight: 700; margin-top: 18px; }
+  .included.green { background: #1e7a43; color: #fff; }
+  .included.gold { background: var(--gold); color: var(--navy); }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; }
+  .eyebrow { color: #1e7a43; font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; margin: 0 0 8px; }
+  .eyebrow.small { font-size: 11px; margin: 0 0 4px; }
+  .issue-card { background: #fff; border-radius: 10px; padding: 24px; margin-top: 16px; box-shadow: 0 8px 24px rgba(32,69,94,.08); }
+  .issue-head { display: flex; justify-content: space-between; margin-bottom: 10px; }
+  .issue-card h3 { margin: 0 0 10px; font-size: 1.3rem; }
+  .issue-items { display: flex; flex-direction: column; gap: 10px; margin: 16px 0; }
+  .issue-item { border-radius: 8px; padding: 14px 16px; }
+  .issue-item.blue { background: #e6eef8; }
+  .issue-item.gold { background: var(--gold-soft); }
+  .issue-item.green { background: #e8f5ec; }
+  .issue-item strong { display: block; font-family: var(--serif); font-size: 1.1rem; color: var(--navy); margin: 2px 0; }
+  .mlink { color: var(--blue); font-weight: 600; text-decoration: none; }
+
+  .tier-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0; }
+  .tier-card { background: #fff; border-radius: 10px; padding: 22px; border: 1px solid var(--line); }
+  .tier-card.gold { background: var(--gold-soft); border-color: var(--gold); }
+  .tier-card h3 { margin: 0 0 8px; font-size: 1.2rem; }
+  .ph-text { color: var(--muted); font-style: italic; }
+  .nl-card.navy .ph-text { color: rgba(255,255,255,.65); }
+
+  @media (max-width: 860px) {
+    .two-cards, .two-col, .tier-grid { grid-template-columns: 1fr; }
+  }
+</style>
