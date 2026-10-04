@@ -1,0 +1,179 @@
+---
+import Base from '../layouts/Base.astro';
+import { url } from '../lib/util';
+
+const popular = ['coffee', 'brunch', 'Sugar Land', 'new builds', 'events'];
+---
+<Base title="Search" description="Search Tradition Local for places to eat, neighborhood guides, events, and stories.">
+  <section class="band search-hero">
+    <div class="wrap search-hero-inner">
+      <h1>Search Tradition Local</h1>
+      <form class="search-form" action={url('/search')} method="get" role="search">
+        <label class="sr-only" for="sp-q">Search Tradition Local</label>
+        <svg aria-hidden="true" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="6.5" /><path d="M15.5 15.5L21 21" /></svg>
+        <input id="sp-q" name="q" type="search" autocomplete="off" placeholder="Search places, neighborhoods, events, stories" />
+      </form>
+      <p class="search-pop-light"><span>Popular searches</span>{popular.map((t) => <a href={url('/search') + '?q=' + encodeURIComponent(t)}>{t}</a>)}</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap search-results-wrap">
+      <div class="chips" id="sp-filters" role="group" aria-label="Filter results" hidden></div>
+      <div class="section-head"><h2 id="sp-count" role="status">Search results</h2></div>
+      <div id="sp-results"></div>
+      <p><button type="button" class="btn ghost" id="sp-more" hidden>Show more results</button></p>
+      <noscript><p>Search needs JavaScript. You can also browse the <a href={url('/food')}>Food</a>, <a href={url('/cities')}>Neighborhood</a>, and <a href={url('/living')}>Things To Do</a> sections.</p></noscript>
+    </div>
+  </section>
+<script is:inline>
+  (function () {
+    var form = document.querySelector('.search-form');
+    var input = document.getElementById('sp-q');
+    var filtersEl = document.getElementById('sp-filters');
+    var countEl = document.getElementById('sp-count');
+    var resultsEl = document.getElementById('sp-results');
+    var moreBtn = document.getElementById('sp-more');
+    var ORDER = ['Food', 'Neighborhoods', 'Things To Do', 'Stories', 'Pages'];
+    var PAGE = 10;
+    var state = { q: '', type: 'All', list: [], shown: 0 };
+
+    function badge(type) {
+      var s = document.createElement('span');
+      s.className = 'badge';
+      s.textContent = type;
+      return s;
+    }
+
+    function renderItems(items) {
+      items.forEach(function (d) {
+        var a = document.createElement('a');
+        a.className = 'sr-item';
+        a.href = d.url;
+        var top = document.createElement('span');
+        top.appendChild(badge((d.filters && d.filters.type && d.filters.type[0]) || 'Pages'));
+        var title = document.createElement('span');
+        title.className = 'sr-title';
+        title.textContent = ((d.meta && d.meta.title) || d.url).replace(/\s*\|\s*Tradition Local$/, '');
+        var ex = document.createElement('span');
+        ex.className = 'sr-excerpt';
+        ex.innerHTML = d.excerpt || ''; // Pagefind returns escaped text with <mark> tags only
+        a.appendChild(top); a.appendChild(title); a.appendChild(ex);
+        resultsEl.appendChild(a);
+      });
+    }
+
+    function showMore() {
+      var next = state.list.slice(state.shown, state.shown + PAGE);
+      Promise.all(next.map(function (r) { return r.data(); })).then(function (items) {
+        renderItems(items);
+        state.shown += next.length;
+        moreBtn.hidden = state.shown >= state.list.length;
+      });
+    }
+
+    function renderFilters(counts, total) {
+      filtersEl.textContent = '';
+      var types = ['All'].concat(ORDER.filter(function (t) { return counts[t]; }));
+      types.forEach(function (t) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'chip';
+        b.setAttribute('aria-pressed', String(state.type === t));
+        b.textContent = t + ' ' + (t === 'All' ? total : counts[t]);
+        b.addEventListener('click', function () { state.type = t; run(); });
+        filtersEl.appendChild(b);
+      });
+      filtersEl.hidden = types.length <= 2;
+    }
+
+    var counts = {};
+    function run() {
+      var q = state.q;
+      resultsEl.textContent = '';
+      moreBtn.hidden = true;
+      if (!q) {
+        filtersEl.hidden = true;
+        countEl.textContent = 'Search results';
+        var p = document.createElement('p');
+        p.className = 'muted';
+        p.textContent = 'Type a place, a neighborhood, an event, or a story title.';
+        resultsEl.appendChild(p);
+        return;
+      }
+      window.tlPagefind().then(function (pf) {
+        if (!pf) {
+          countEl.textContent = 'Search is not available right now';
+          var m = document.createElement('p');
+          m.className = 'muted';
+          m.textContent = 'The search index loads after the site is published. Try again in a moment.';
+          resultsEl.appendChild(m);
+          return;
+        }
+        var opts = state.type === 'All' ? {} : { filters: { type: state.type } };
+        return Promise.all([pf.search(q), state.type === 'All' ? null : pf.search(q, opts)]).then(function (both) {
+          var all = both[0];
+          if (state.type === 'All') {
+            counts = (all.filters && all.filters.type) || {};
+            renderFilters(counts, all.results.length);
+          } else {
+            renderFilters(counts, Object.keys(counts).reduce(function (n, k) { return n + counts[k]; }, 0));
+          }
+          var res = state.type === 'All' ? all : both[1];
+          state.list = res.results;
+          state.shown = 0;
+          var n = res.results.length;
+          countEl.textContent = n + (n === 1 ? ' result' : ' results') + ' for \u201c' + q + '\u201d';
+          if (!n) {
+            var e = document.createElement('div');
+            e.className = 'sr-empty';
+            e.innerHTML = '<strong>Nothing found yet.</strong><p>Try a different spelling, a neighborhood name, or one of the popular searches above.</p>';
+            resultsEl.appendChild(e);
+            return;
+          }
+          showMore();
+        });
+      });
+    }
+
+    function start() {
+      var q = (new URLSearchParams(location.search).get('q') || '').trim();
+      state.q = q;
+      input.value = q;
+      run();
+    }
+    form.addEventListener('submit', function (e) {
+      // Stay on the page and update the address so results can be shared.
+      e.preventDefault();
+      var q = input.value.trim();
+      state.q = q; state.type = 'All';
+      history.replaceState(null, '', location.pathname + (q ? '?q=' + encodeURIComponent(q) : ''));
+      run();
+    });
+    moreBtn.addEventListener('click', showMore);
+    start();
+  })();
+</script>
+</Base>
+
+<style is:global>
+  .search-hero { padding: 56px 0 60px; }
+  .search-hero-inner { max-width: 880px; }
+  .search-form { position: relative; display: flex; align-items: center; }
+  .search-form svg { position: absolute; left: 20px; color: var(--muted); pointer-events: none; }
+  .search-form input { width: 100%; height: 60px; padding: 0 22px 0 54px; border-radius: 999px; border: 1.5px solid var(--muted); font-size: 18px; font-family: var(--sans); color: var(--ink); background: #fff; }
+  .search-pop-light { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 16px 0 0; font-size: 14px; color: var(--gold-soft); }
+  .search-pop-light a { display: inline-flex; align-items: center; min-height: 36px; padding: 0 14px; border: 1.5px solid #fff; border-radius: 999px; color: #fff; text-decoration: none; font-size: 14px; }
+  .search-pop-light a:hover { background: #fff; color: var(--blue); }
+  .search-results-wrap { max-width: 880px; }
+  .search-results-wrap .chips { margin-bottom: 24px; }
+  .search-results-wrap .chips[hidden] { display: none; }
+  .sr-item { display: flex; flex-direction: column; gap: 6px; padding: 18px 4px; border-bottom: 1px solid var(--line); text-decoration: none; color: var(--ink); }
+  .sr-item:hover .sr-title { text-decoration: underline; }
+  .sr-title { font-family: var(--serif); font-size: 1.35rem; line-height: 1.25; color: var(--blue); }
+  .sr-excerpt { font-size: 15px; color: var(--muted); max-width: 64ch; }
+  .sr-excerpt mark { background: var(--gold-soft); color: inherit; padding: 0 2px; border-radius: 3px; }
+  .sr-empty { padding: 28px 32px; background: var(--cream); border-top: 4px solid var(--gold); }
+  .sr-empty strong { font-family: var(--serif); font-weight: 400; font-size: 1.5rem; color: var(--blue); }
+  .sr-empty p { margin: 8px 0 0; color: var(--muted); }
+</style>
