@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "astro build && npx --yes pagefind@1.4.0 --site dist",
     "preview": "astro preview",
     "data": "python3 scripts/prepare_data.py",
     "mirror-images": "node scripts/mirror-images.mjs"
