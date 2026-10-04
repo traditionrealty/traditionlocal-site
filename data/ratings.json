@@ -1,3 +1,24 @@
 {
-  "_readme": "Optional overrides. Add a slug (from the business's URL) with a rating of try-once, visit, return, recommend, favorite, or picks, and a reviewAuthor if Dillon wrote it instead of Sara. Example: \"blendin-coffee-club\": { \"rating\": \"recommend\", \"reviewAuthor\": \"Dillon Loren\" }"
+ "_readme": "Two independent things live here, per business slug. \"picks\": true marks it as one of Sara's Pick, a small, hand-curated list, separate from its rating tier below; a business can be both Highly Recommend and Sara's Pick at once. \"rating\" overrides the automatic tier. The tiers Worth a Visit, Would Go Again, and Highly Recommend are set automatically from Sara's own Yelp star rating (see data/yelp-stars.json, internal only, never shown): 3 stars = visit, 4 = return, 5 = recommend. \"try-once\" (Try At Least Once) is never assigned automatically, it is fully curated, set it here by hand when Sara or Dillon picks one. \"favorite\" (Local Favorite) is not in use yet; it is reserved for a future feature where members and contributors can each mark a place recommend. Example: \"blendin-coffee-club\": { \"rating\": \"try-once\", \"picks\": true, \"reviewAuthor\": \"Dillon Loren\" }",
+ "berings": {
+  "picks": true
+ },
+ "phoenicia-specialty-foods": {
+  "picks": true
+ },
+ "abdallahs-bakery": {
+  "picks": true
+ },
+ "java-pura-coffee-roasters": {
+  "picks": true
+ },
+ "bouch-e-patisserie": {
+  "picks": true
+ },
+ "carters": {
+  "picks": true
+ },
+ "whit-n-wingo": {
+  "picks": true
+ }
 }
