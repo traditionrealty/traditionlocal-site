@@ -49,6 +49,15 @@ const moreNav = [
   { label: 'About Us', href: '/about', match: ['/about'] },
 ];
 const moreActive = moreNav.some((n) => n.match.some((m) => path.startsWith(m)));
+// Site search (Pagefind). Account, sign in and utility pages stay out of the index; every other page is
+// tagged with a type so results can be filtered.
+const searchable = !/^\/(404|sign-in|join|reset-password|members|search)(\/|$)/.test(path);
+const searchType = /^\/(food|eat)(\/|$)/.test(path) ? 'Food'
+  : /^\/(cities|copy-of-neighborhoods-1|traditionneighborhoods|subdivisions|make-it-home|new-builds)(\/|$)/.test(path) ? 'Neighborhoods'
+  : /^\/(living|event-details)(\/|$)/.test(path) ? 'Things To Do'
+  : /^\/(post|all-articles)(\/|$)/.test(path) ? 'Stories'
+  : 'Pages';
+const popularSearches = ['coffee', 'brunch', 'Sugar Land', 'new builds', 'events'];
 ---
 <!doctype html>
 <html lang="en">
@@ -116,6 +125,21 @@ const moreActive = moreNav.some((n) => n.match.some((m) => path.startsWith(m)));
           </div>
         </div>
       </nav>
+      <div class="site-search" data-site-search data-base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
+        <button type="button" class="search-btn" aria-label="Search" aria-expanded="false" aria-controls="search-panel">
+          <svg aria-hidden="true" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="6.5" /><path d="M15.5 15.5L21 21" /></svg>
+        </button>
+        <div class="search-panel" id="search-panel" hidden>
+          <div class="search-panel-inner">
+            <form action={url('/search')} method="get" role="search">
+              <label class="sr-only" for="hs-q">Search Tradition Local</label>
+              <input id="hs-q" name="q" type="search" autocomplete="off" placeholder="Search places, neighborhoods, events, stories" />
+            </form>
+            <ul class="search-sugg" id="hs-sugg" hidden></ul>
+            <p class="search-pop"><span>Popular searches</span>{popularSearches.map((t) => <a href={url('/search') + '?q=' + encodeURIComponent(t)}>{t}</a>)}</p>
+          </div>
+        </div>
+      </div>
       {membersOn && <AccountMenu />}
     </div>
   </header>
@@ -131,7 +155,78 @@ const moreActive = moreNav.some((n) => n.match.some((m) => path.startsWith(m)));
       document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !menu.hidden) { setOpen(false); btn.focus(); } });
     });
   </script>
-  <main id="main"><slot /></main>
+  <script is:inline>
+    // Header search: opens a panel, suggests matches from the Pagefind index as you type.
+    window.tlPagefind = window.tlPagefind || (function () {
+      var p;
+      return function () {
+        if (p) return p;
+        var root = document.querySelector('[data-site-search]');
+        var base = (root && root.getAttribute('data-base')) || '';
+        p = import(base + '/pagefind/pagefind.js').then(function (pf) {
+          return pf.options({ baseUrl: base + '/' }).then(function () { return pf; });
+        }).catch(function () { return null; });
+        return p;
+      };
+    })();
+    (function () {
+      var root = document.querySelector('[data-site-search]');
+      if (!root) return;
+      var btn = root.querySelector('.search-btn');
+      var panel = root.querySelector('.search-panel');
+      var input = root.querySelector('input[name="q"]');
+      var list = root.querySelector('#hs-sugg');
+      var timer;
+      function setOpen(open) {
+        panel.hidden = !open;
+        btn.setAttribute('aria-expanded', String(open));
+        if (open) { input.focus(); window.tlPagefind(); }
+      }
+      btn.addEventListener('click', function (e) { e.stopPropagation(); setOpen(panel.hidden); });
+      document.addEventListener('click', function (e) { if (!root.contains(e.target)) setOpen(false); });
+      document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !panel.hidden) { setOpen(false); btn.focus(); } });
+      function render(items) {
+        list.textContent = '';
+        items.forEach(function (d) {
+          var li = document.createElement('li');
+          var a = document.createElement('a');
+          a.href = d.url;
+          var t = document.createElement('span');
+          t.className = 'sugg-type';
+          t.textContent = (d.filters && d.filters.type && d.filters.type[0]) || 'Pages';
+          var n = document.createElement('span');
+          n.className = 'sugg-title';
+          n.textContent = (d.meta && d.meta.title) || d.url;
+          a.appendChild(t); a.appendChild(n); li.appendChild(a); list.appendChild(li);
+        });
+        var all = document.createElement('li');
+        var link = document.createElement('a');
+        link.className = 'sugg-all';
+        link.href = root.querySelector('form').action + '?q=' + encodeURIComponent(input.value.trim());
+        link.textContent = 'See all results for \u201c' + input.value.trim() + '\u201d \u2192';
+        all.appendChild(link); list.appendChild(all);
+        list.hidden = false;
+      }
+      input.addEventListener('input', function () {
+        clearTimeout(timer);
+        var q = input.value.trim();
+        if (!q) { list.hidden = true; list.textContent = ''; return; }
+        timer = setTimeout(function () {
+          window.tlPagefind().then(function (pf) {
+            if (!pf) return;
+            return pf.search(q).then(function (res) {
+              return Promise.all(res.results.slice(0, 5).map(function (r) { return r.data(); }));
+            }).then(function (items) {
+              if (input.value.trim() !== q) return;
+              if (!items.length) { list.textContent = ''; list.hidden = true; return; }
+              render(items);
+            });
+          });
+        }, 150);
+      });
+    })();
+  </script>
+  <main id="main" data-pagefind-body={searchable ? '' : undefined} data-pagefind-filter={searchable ? 'type[data-type]' : undefined} data-type={searchType}><slot /></main>
   <footer class="site-footer">
     <div class="wrap footer-grid">
       <div>
@@ -197,6 +292,28 @@ const moreActive = moreNav.some((n) => n.match.some((m) => path.startsWith(m)));
   .wrap { max-width: var(--wrap); margin: 0 auto; padding: 0 24px; }
   .skip { position: absolute; left: -999px; top: 0; background: var(--gold); padding: 8px 12px; z-index: 10; }
   .skip:focus { left: 8px; }
+
+
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .site-header { position: relative; }
+  .site-search { order: 2; display: flex; align-items: center; }
+  .search-btn { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 50%; border: 0; background: transparent; color: var(--blue); cursor: pointer; }
+  .search-btn:hover, .search-btn[aria-expanded="true"] { background: var(--line); }
+  .search-panel { position: absolute; left: 0; right: 0; top: 100%; z-index: 30; background: #fff; border-bottom: 1px solid var(--line); box-shadow: 0 12px 32px rgba(32, 69, 94, .16); }
+  .search-panel[hidden] { display: none; }
+  .search-panel-inner { max-width: 760px; margin: 0 auto; padding: 24px 24px 28px; }
+  .search-panel input[type="search"] { width: 100%; height: 52px; padding: 0 22px; border-radius: 999px; border: 1.5px solid var(--muted); font-size: 17px; font-family: var(--sans); color: var(--ink); background: #fff; }
+  .search-sugg { list-style: none; margin: 12px 0 0; padding: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .search-sugg[hidden] { display: none; }
+  .search-sugg li + li { border-top: 1px solid var(--line); }
+  .search-sugg a { display: flex; align-items: center; gap: 14px; padding: 12px 16px; text-decoration: none; color: var(--ink); }
+  .search-sugg a:hover { background: var(--cream); }
+  .sugg-type { flex: none; min-width: 104px; text-align: center; font-size: 13px; padding: 2px 10px; border-radius: 4px; background: var(--gold-soft); color: var(--brown); font-weight: 600; }
+  .sugg-title { font-family: var(--serif); font-size: 1.1rem; color: var(--blue); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+  .search-sugg a.sugg-all { display: block; font-weight: 600; color: var(--blue); background: var(--cream); }
+  .search-pop { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 16px 0 0; font-size: 14px; color: var(--muted); }
+  .search-pop a { display: inline-flex; align-items: center; min-height: 36px; padding: 0 14px; border: 1.5px solid var(--blue); border-radius: 999px; text-decoration: none; font-size: 14px; background: #fff; }
+  .search-pop a:hover { background: var(--blue); color: #fff; }
 
   .eventbar { background: var(--gold); color: var(--navy); font-size: 15px; }
   .eventbar .wrap { display: flex; gap: 18px; align-items: center; justify-content: center; padding-top: 8px; padding-bottom: 8px; flex-wrap: wrap; }
@@ -272,6 +389,8 @@ const moreActive = moreNav.some((n) => n.match.some((m) => path.startsWith(m)));
     .footer-grid { grid-template-columns: 1fr; }
     .header-inner { padding-top: 14px; padding-bottom: 14px; }
     .site-header nav { gap: 18px; }
+    .site-search { order: 1; margin-left: auto; }
+    .site-search + .account { margin-left: 0; }
     .band { padding: 48px 0; }
   }
   @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; transition: none !important; } }
