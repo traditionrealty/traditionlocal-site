@@ -39,3 +39,13 @@ export function fmtDate(iso?: string | null, opts: Intl.DateTimeFormatOptions = 
 export function tidy(s?: string | null) {
   return (s || '').replace(/\s*\.\.\.$/, '…');
 }
+
+/** Sara and Dillon's rating tiers, from data/ratings.json. Sara's Pick is a separate flag
+ * (business.saraPick), not one of these, so it isn't listed here. */
+export const RATING_LABELS: Record<string, string> = {
+  'try-once': 'Try At Least Once',
+  visit: 'Worth a Visit',
+  return: 'Would Go Again',
+  recommend: 'Highly Recommend',
+  favorite: 'Local Favorite',
+};
