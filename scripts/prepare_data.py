@@ -269,18 +269,27 @@ for _, r in b.iterrows():
 biz.sort(key=lambda x: x["name"].lower())
 
 # Sara and Dillon's rating tier (Try at Least Once / Worth a Visit / Would Go Again / Highly
-# Recommend / Local Favorite / Sara's Pick) and who wrote the review aren't in the spreadsheet yet.
-# ratings.json lets either of them set these per business by slug,
-# e.g. {"blendin-coffee-club": {"rating": "recommend", "reviewAuthor": "Dillon Loren"}}.
-# Until a spot has an override, every Sara's pick defaults to "stop", the lowest, safest claim to make.
+# Recommend / Local Favorite) and Sara's Pick aren't in the spreadsheet; both live in data/ratings.json
+# and data/yelp-stars.json instead. See ratings.json's own _readme for exactly how these combine.
+#
+# "saraPick" here means Sara's Pick, the small hand-curated list from ratings.json. It is NOT the
+# spreadsheet's own "Sara Pick" column (that just means she's reviewed it at all, 265 businesses, far
+# too broad to use as a badge) and that column is intentionally not read into saraPick below.
 RATINGS_FILE = ROOT / "data" / "ratings.json"
+STARS_FILE = ROOT / "data" / "yelp-stars.json"
 overrides = json.load(open(RATINGS_FILE)) if RATINGS_FILE.exists() else {}
+yelp_stars = json.load(open(STARS_FILE)) if STARS_FILE.exists() else {}
+STAR_TIER = {5: "recommend", 4: "return", 3: "visit"}  # 1-2 star Yelp reviews get no public tier
 for x in biz:
     o = overrides.get(x["slug"], {})
-    x["rating"] = o.get("rating") or ("try-once" if x["saraPick"] else None)
+    stars = yelp_stars.get(x["slug"])  # internal only; never rendered on the site
+    x["stars"] = stars
+    x["rating"] = o.get("rating") or STAR_TIER.get(stars)
+    x["saraPick"] = bool(o.get("picks"))
     x["reviewAuthor"] = o.get("reviewAuthor") or "Sara Loren"
 print("businesses", len(biz), "linked to an area guide:", sum(1 for x in biz if x["area"]),
-      "rating overrides applied:", len(overrides))
+      "| Sara's Pick:", sum(1 for x in biz if x["saraPick"]),
+      "| rated from Yelp stars:", sum(1 for x in biz if x["rating"]))
 
 # Master CMS research pass (Oct 2026): verified closures, and real website/phone/address
 # where the research turned them up. Only ever adds fields; never removes or overrides
