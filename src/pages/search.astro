@@ -110,16 +110,13 @@ const popular = ['coffee', 'brunch', 'Sugar Land', 'new builds', 'events'];
           resultsEl.appendChild(m);
           return;
         }
-        var opts = state.type === 'All' ? {} : { filters: { type: state.type } };
-        return Promise.all([pf.search(q), state.type === 'All' ? null : pf.search(q, opts)]).then(function (both) {
-          var all = both[0];
-          if (state.type === 'All') {
-            counts = (all.filters && all.filters.type) || {};
-            renderFilters(counts, all.results.length);
-          } else {
-            renderFilters(counts, Object.keys(counts).reduce(function (n, k) { return n + counts[k]; }, 0));
-          }
-          var res = state.type === 'All' ? all : both[1];
+        var typeSearches = ORDER.map(function (t) { return pf.search(q, { filters: { type: t } }); });
+        return Promise.all([pf.search(q)].concat(typeSearches)).then(function (rs) {
+          var all = rs[0];
+          counts = {};
+          ORDER.forEach(function (t, i) { counts[t] = rs[i + 1].results.length; });
+          renderFilters(counts, all.results.length);
+          var res = state.type === 'All' ? all : rs[ORDER.indexOf(state.type) + 1];
           state.list = res.results;
           state.shown = 0;
           var n = res.results.length;
