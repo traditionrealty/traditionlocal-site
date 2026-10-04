@@ -5,7 +5,7 @@ import FoodFeature from '../components/FoodFeature.astro';
 import businesses from '../data/businesses.json';
 import posts from '../data/posts.json';
 import site from '../data/site.json';
-import { url } from '../lib/util';
+import { url, RATING_LABELS } from '../lib/util';
 
 const counts: Record<string, number> = {};
 businesses.forEach((b) => b.categories.forEach((c) => (counts[c] = (counts[c] || 0) + 1)));
@@ -18,7 +18,7 @@ const foodPosts = posts.filter((p) => p.categories.includes('food')).slice(0, 3)
     <div class="wrap">
       <p class="kicker">Food</p>
       <h1>Eat like a local</h1>
-      <p class="lede">Every spot we have reviewed, rated on a simple scale from Try at Least Once to Sara's Pick.</p>
+      <p class="lede">Every spot we have reviewed, rated from Try at Least Once to Highly Recommend, plus a short list Sara calls out as her own picks.</p>
     </div>
   </section>
 
@@ -46,7 +46,6 @@ const foodPosts = posts.filter((p) => p.categories.includes('food')).slice(0, 3)
         <button class="rchip" data-rating="return" aria-pressed="false"><span class="dot return"></span>Would Go Again</button>
         <button class="rchip" data-rating="recommend" aria-pressed="false"><span class="dot recommend"></span>Highly Recommend</button>
         <button class="rchip" data-rating="favorite" aria-pressed="false"><span class="dot favorite"></span>Local Favorite</button>
-        <button class="rchip" data-rating="picks" aria-pressed="false"><span class="dot picks"></span>Sara's Pick</button>
       </div>
       <p class="muted" id="count" aria-live="polite">{businesses.length} places</p>
 
@@ -55,7 +54,16 @@ const foodPosts = posts.filter((p) => p.categories.includes('food')).slice(0, 3)
           <li data-name={`${b.name} ${b.description} ${b.categories.join(' ')} ${b.neighborhood || ''} ${b.city}`.toLowerCase()}
               data-cats={b.categories.join('|')} data-where={b.neighborhood || b.city} data-pick={b.saraPick ? '1' : '0'} data-rating={b.rating || ''} data-year={b.reviewYear || 0}>
             <a href={url(`/eat/${b.slug}`)}>
-              {(b.saraPick || b.closed) && <span class="top">{b.saraPick && <span class="badge">Sara's pick</span>}{b.closed && <span class="badge closed-badge">Closed</span>}</span>}
+              {(b.saraPick || b.rating || b.closed) && (
+                <span class="top">
+                  {b.saraPick ? (
+                    <span class="badge">Sara's Pick</span>
+                  ) : b.rating ? (
+                    <span class="badge tier-badge"><span class:list={['dot', b.rating]}></span>{RATING_LABELS[b.rating]}</span>
+                  ) : null}
+                  {b.closed && <span class="badge closed-badge">Closed</span>}
+                </span>
+              )}
               <strong>{b.name}</strong>
               <span class="where">{b.neighborhood ? `${b.neighborhood}, ${b.city}` : b.city}</span>
               <span class="cats">{b.categories.slice(0, 3).join(', ')}</span>
@@ -166,8 +174,8 @@ const foodPosts = posts.filter((p) => p.categories.includes('food')).slice(0, 3)
   .dot.return { background: #1e7a43; }
   .dot.recommend { background: #e7bc52; }
   .dot.favorite { background: #9d693f; }
-  .dot.picks { background: #20455e; }
   #count { margin: 18px 0; }
+  .tier-badge { display: inline-flex; align-items: center; gap: 6px; }
   .biz-list { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 0; border-top: 1px solid var(--line); }
   .biz-list li[hidden] { display: none; }
   .biz-list a { display: flex; flex-direction: column; gap: 4px; padding: 20px 18px; text-decoration: none; color: var(--ink); border-bottom: 1px solid var(--line); height: 100%; }
