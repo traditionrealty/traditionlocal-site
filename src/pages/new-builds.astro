@@ -5,16 +5,16 @@ import { url } from '../lib/util';
 
 const infoUrl = url('/neighborhood-info-request');
 ---
-<Base title="New Builds" description="Browse new construction communities across Greater Houston by area, builder, and price.">
+<Base title="New Builds" description="Search new construction communities across Greater Houston, compare your options, and understand the new build journey.">
   <section class="nb-hero">
     <div class="wrap">
       <p class="nb-crumb"><a href={url('/')}>Home</a> › Neighborhoods › New Builds</p>
-      <p class="nb-kicker">New construction across Greater Houston</p>
+      <p class="nb-kicker">Make it home / New construction</p>
       <h1>New Builds</h1>
       <p class="nb-lede">Browse new construction communities by area, builder, and price. Then send an info request and we will help you narrow the list.</p>
       <div class="nb-actions">
         <a class="btn gold" href="#nb-tool">Search new builds</a>
-        <a class="btn nb-outline" href={infoUrl}>Send an info request</a>
+        <a class="btn nb-outline" href="#nb-journey">Understand the journey</a>
       </div>
     </div>
   </section>
@@ -27,7 +27,7 @@ const infoUrl = url('/neighborhood-info-request');
 
       <div class="nb-filters" role="search">
         <label class="nb-search">Search
-          <input id="nb-q" type="search" placeholder="Community, builder, city, or ZIP" />
+          <input id="nb-q" type="search" placeholder="Community, product line, builder, city, or ZIP" />
         </label>
         <label>City <select id="nb-city"></select></label>
         <label>Builder <select id="nb-builder"></select></label>
@@ -64,18 +64,84 @@ const infoUrl = url('/neighborhood-info-request');
       <div class="nb-empty" id="nb-empty" hidden>No communities match yet. Try a higher price or clear a filter.</div>
       <div class="nb-more"><button class="btn gold" id="nb-more" type="button" hidden>Show more</button></div>
 
-      <div class="nb-cta">
-        <div>
-          <p class="nb-eyebrow">Skip the guesswork</p>
-          <h2>Not sure which builder fits?</h2>
-          <p>Share your budget, commute, and school needs in an info request. We will point you to the communities that make sense and the ones to skip.</p>
-        </div>
-        <a class="btn gold" href={infoUrl}>Send an info request</a>
+      <div class="nb-short" id="nb-shortwrap" hidden>
+        <div><strong>Your comparison shortlist</strong><span id="nb-shortmsg"></span></div>
+        <button class="btn gold" id="nb-compare" type="button" disabled>Compare selected</button>
       </div>
 
       <p class="nb-fine">Listing details are gathered from public new home listings and may be out of date. Starting prices are not offers. Confirm pricing, incentives, and availability with the builder before making decisions. Tradition Local is not affiliated with these builders.</p>
     </div>
   </section>
+
+  <section class="nb-band nb-cream" id="nb-difference">
+    <div class="wrap nb-two">
+      <div>
+        <p class="nb-eyebrow">The Tradition Local difference</p>
+        <h2>See the life beyond the floor plan.</h2>
+        <p class="nb-sub">Connect every community to its neighborhood guide, nearby discoveries, and conversations with people who live there.</p>
+      </div>
+      <aside class="nb-know" aria-live="polite">
+        <h3 id="nb-know-title">Get to know Greater Houston</h3>
+        <p>What would a normal Saturday feel like here?</p>
+        <div class="nb-ln">
+          <a href="#nb-tool" id="nb-know-new">Explore new builds →</a>
+          <a href={url('/cities')}>Neighborhood guide →</a>
+          <a href={url('/food')}>Coffee, food and local finds →</a>
+          <a href={url('/neighborhood-info-request')}>Ask the community →</a>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="nb-band" id="nb-journey">
+    <div class="wrap">
+      <p class="nb-eyebrow">From discovery to your keys</p>
+      <h2>Your new build journey</h2>
+      <div class="nb-tabs" role="tablist" aria-label="New build journey steps" id="nb-tabs"></div>
+      <div class="nb-jpanel" id="nb-jpanel" role="tabpanel" aria-live="polite" tabindex="0"></div>
+    </div>
+  </section>
+
+  <section class="nb-band nb-cream" id="nb-library">
+    <div class="wrap nb-two">
+      <div>
+        <p class="nb-eyebrow">Buyer resource library</p>
+        <h2>Make a confident next move.</h2>
+        <p class="nb-sub">Plain language guides and practical worksheets for each decision.</p>
+        <button class="nb-ghostbtn" id="nb-checklist-btn" type="button">Preview the tour checklist</button>
+      </div>
+      <div id="nb-acc"></div>
+    </div>
+  </section>
+
+  <section class="nb-trg" id="nb-talk">
+    <div class="wrap nb-two">
+      <div>
+        <p class="nb-kicker">Tradition Realty Group</p>
+        <h2>A little guidance.<br />A clearer path home.</h2>
+        <p>Bring your shortlist and questions. Dillon can help you organize the next steps.</p>
+        <a class="btn gold" href={infoUrl}>Plan my new home search</a>
+      </div>
+      <div class="nb-locally">
+        <h3>Keep discovering with Locally</h3>
+        <p>Save communities and follow the neighborhoods you're considering, even before you're ready to move.</p>
+        <small>Your saved places, local newsletter, and home journey in one account.</small>
+      </div>
+    </div>
+  </section>
+
+  <dialog id="nb-dlg-compare" class="nb-dlg"><div class="nb-dlg-in"><h3>Compare your shortlist</h3><div class="nb-tablewrap" id="nb-cmp-body"></div><div class="nb-x"><button class="nb-ghostbtn" type="button" data-nb-close>Close</button></div></div></dialog>
+  <dialog id="nb-dlg-list" class="nb-dlg"><div class="nb-dlg-in"><h3>Tour checklist</h3>
+    <ul>
+      <li>Ask what is included in the base price and what costs extra.</li>
+      <li>Confirm the lot, its orientation, and what can be built nearby.</li>
+      <li>Ask about community charges, taxes, and any special districts.</li>
+      <li>Walk the street at different times of day to check noise and traffic.</li>
+      <li>Review the warranty and who to call after move in.</li>
+      <li>Ask how delays are communicated and how closing dates are set.</li>
+      <li>Take photos and write down every promise made during the visit.</li>
+    </ul>
+    <div class="nb-x"><button class="nb-ghostbtn" type="button" data-nb-close>Close</button></div></div></dialog>
 
   <script type="application/json" id="nb-data" set:html={JSON.stringify(builds)}></script>
   <script type="application/json" id="nb-cfg" set:html={JSON.stringify({ info: infoUrl })}></script>
@@ -85,7 +151,8 @@ const infoUrl = url('/neighborhood-info-request');
     var data = JSON.parse(document.getElementById('nb-data').textContent);
     var cfg = JSON.parse(document.getElementById('nb-cfg').textContent);
     var $ = function (i) { return document.getElementById(i); };
-    var SHOW = 12, limit = SHOW;
+    var SHOW = 12, limit = SHOW, PICK = [];
+    data.forEach(function (r, i) { r.idx = i; });
     function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
     function range(r) { return String(r).replace('-', ' to '); }
     function maxN(r) { var m = String(r).match(/\d+/g); return m ? Math.max.apply(null, m.map(Number)) : 0; }
@@ -122,25 +189,102 @@ const infoUrl = url('/neighborhood-info-request');
         var tags = (r.line ? '<span class="nb-tag line">' + esc(r.line) + '</span>' : '') + (r.hot ? '<span class="nb-tag">Hot deal</span>' : '') + (r.cut ? '<span class="nb-tag cut">Price reduced</span>' : '') + (r.s55 ? '<span class="nb-tag senior">55+</span>' : '');
         var sq = String(r.sqft).replace('-', ' to ').replace(/(\d)(?=(\d{3})+\b)/g, '$1,');
         var href = cfg.info + (cfg.info.indexOf('?') > -1 ? '&' : '?') + 'community=' + encodeURIComponent(r.name + (r.line ? ' ' + r.line : '')) + '&source=new-builds';
-        return '<article class="nb-card"><div class="nb-tags">' + tags + '</div><h3>' + esc(r.name) + '</h3>' +
+        var on = PICK.indexOf(r.idx) > -1;
+        return '<article class="nb-card' + (on ? ' sel' : '') + '"><div class="nb-tags">' + tags + '</div><h3>' + esc(r.name) + '</h3>' +
           '<div class="nb-line">' + esc(r.builder) + ' · ' + esc(r.city) + ' ' + esc(r.zip) + '</div>' +
           '<div class="nb-price">From ' + money(r.lo) + '</div>' +
           '<div class="nb-facts"><span><b>' + esc(range(r.beds)) + '</b> beds</span><span><b>' + esc(range(r.baths)) + '</b> baths</span><span><b>' + esc(sq) + '</b> sq ft</span></div>' +
+          '<label class="nb-cmp"><input type="checkbox" data-nb-pick="' + r.idx + '"' + (on ? ' checked' : '') + ' /> Add to comparison</label>' +
           '<div class="nb-ask"><a href="' + esc(href) + '" aria-label="Request info for ' + esc(r.name) + '">Request info<span class="nb-arrow" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></a></div></article>';
       }).join('');
       $('nb-empty').hidden = rows.length > 0;
       $('nb-more').hidden = rows.length <= limit;
     }
 
+    function renderShort() {
+      var n = PICK.length;
+      $('nb-shortwrap').hidden = n === 0;
+      $('nb-shortmsg').textContent = n === 1 ? '1 selected. Add one more to compare.' : n + ' selected. Ready to compare.';
+      $('nb-compare').disabled = n < 2;
+    }
+    function setSpot() {
+      var c = $('nb-city').value;
+      $('nb-know-title').textContent = 'Get to know ' + (c || 'Greater Houston');
+      $('nb-know-new').textContent = c ? 'Explore ' + c + ' new builds →' : 'Explore new builds →';
+    }
+
     ['nb-q', 'nb-city', 'nb-builder', 'nb-zip', 'nb-max', 'nb-beds', 'nb-hot', 'nb-cut', 'nb-no55', 'nb-sort'].forEach(function (i) {
       $(i).addEventListener('input', function () { limit = SHOW; render(); });
     });
+    $('nb-city').addEventListener('input', setSpot);
     $('nb-clear').onclick = function () {
       ['nb-q', 'nb-city', 'nb-builder', 'nb-zip', 'nb-max', 'nb-beds'].forEach(function (i) { $(i).value = ''; });
       ['nb-hot', 'nb-cut', 'nb-no55'].forEach(function (i) { $(i).checked = false; });
-      limit = SHOW; render();
+      limit = SHOW; render(); setSpot();
     };
     $('nb-more').onclick = function () { limit += SHOW; render(); };
+
+    $('nb-grid').addEventListener('change', function (e) {
+      var i = e.target.getAttribute('data-nb-pick');
+      if (i === null) return;
+      i = +i;
+      if (e.target.checked) {
+        if (PICK.length >= 3) { e.target.checked = false; $('nb-shortwrap').hidden = false; $('nb-shortmsg').textContent = 'You can compare up to three communities.'; return; }
+        PICK.push(i);
+      } else {
+        PICK = PICK.filter(function (x) { return x !== i; });
+      }
+      e.target.closest('.nb-card').classList.toggle('sel', e.target.checked);
+      if (PICK.length) renderShort(); else $('nb-shortwrap').hidden = true;
+    });
+
+    $('nb-compare').onclick = function () {
+      var rows = PICK.map(function (i) { return data[i]; });
+      var fields = [
+        ['Product line', function (r) { return r.line || 'None listed'; }],
+        ['Builder', function (r) { return r.builder; }],
+        ['Location', function (r) { return r.city + ' ' + r.zip; }],
+        ['Starting price', function (r) { return money(r.lo); }],
+        ['Bedrooms', function (r) { return range(r.beds); }],
+        ['Bathrooms', function (r) { return range(r.baths); }],
+        ['Square feet', function (r) { return String(r.sqft).replace('-', ' to '); }]
+      ];
+      var h = '<table><thead><tr><th></th>' + rows.map(function (r) { return '<th scope="col">' + esc(r.name) + '</th>'; }).join('') + '</tr></thead><tbody>';
+      fields.forEach(function (f) { h += '<tr><th scope="row">' + f[0] + '</th>' + rows.map(function (r) { return '<td>' + esc(f[1](r)) + '</td>'; }).join('') + '</tr>'; });
+      $('nb-cmp-body').innerHTML = h + '</tbody></table>';
+      $('nb-dlg-compare').showModal();
+    };
+
+    var STEPS = [
+      ['Discover', 'Find the place that fits', 'Explore areas, communities, home types, and daily life. Save a shortlist and note what matters to you.'],
+      ['Compare', 'Look past the price', 'Line up your shortlist side by side: monthly cost, lot, commute, schools, and community charges.'],
+      ['Prepare', 'Get ready before you tour', 'Review your budget with a lender, gather questions for the sales team, and decide what you will not compromise on.'],
+      ['Build', 'Stay close to the process', 'Learn the milestones from foundation to final walkthrough, and who to contact at each stage.'],
+      ['Move in', 'Cross the finish line', 'Complete your walkthrough, review your warranty, and start getting to know your new neighborhood.']
+    ];
+    var ACC = [
+      ['Compare the full cost of two homes', 'Use a worksheet for base price, lot premium, options, closing costs, taxes, insurance, community charges, and maintenance. Record where each figure came from.'],
+      ["Understand a builder's offer", 'Ask what is included in the base price, which incentives depend on a preferred lender or title company, and when the offer expires. Get every promise in writing.'],
+      ['Plan inspections and walkthroughs', 'Many buyers schedule an independent inspection at key stages and a final walkthrough before closing. Ask your builder what is allowed and when.'],
+      ['New construction or resale?', 'New homes bring modern systems and warranties, but may mean waiting and less mature surroundings. Resale offers established neighborhoods and faster move in. Weigh timing, budget, and location.'],
+      ['Meet the builder', 'Ask about floor plans, warranty coverage, how delays are handled, and what recent buyers say. Visit a finished community if you can.']
+    ];
+    $('nb-tabs').innerHTML = STEPS.map(function (s, i) { return '<button role="tab" type="button" id="nb-tab' + i + '" aria-selected="' + (i === 0) + '" aria-controls="nb-jpanel" data-i="' + i + '">' + (i + 1) + '. ' + s[0] + '</button>'; }).join('');
+    function showStep(i) {
+      document.querySelectorAll('#nb-tabs button').forEach(function (b, j) { b.setAttribute('aria-selected', String(j === i)); });
+      $('nb-jpanel').setAttribute('aria-labelledby', 'nb-tab' + i);
+      $('nb-jpanel').innerHTML = '<h3>' + esc(STEPS[i][1]) + '</h3><p>' + esc(STEPS[i][2]) + '</p>';
+    }
+    $('nb-tabs').addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) showStep(+b.dataset.i); });
+    $('nb-tabs').addEventListener('keydown', function (e) {
+      var cur = +document.querySelector('#nb-tabs [aria-selected="true"]').dataset.i, n = STEPS.length;
+      if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); var j = (cur + (e.key === 'ArrowRight' ? 1 : n - 1)) % n; showStep(j); $('nb-tab' + j).focus(); }
+    });
+    showStep(0);
+    $('nb-acc').innerHTML = ACC.map(function (a, i) { return '<details' + (i === 0 ? ' open' : '') + '><summary>' + esc(a[0]) + '</summary><p>' + esc(a[1]) + '</p></details>'; }).join('');
+    $('nb-checklist-btn').onclick = function () { $('nb-dlg-list').showModal(); };
+    document.querySelectorAll('[data-nb-close]').forEach(function (b) { b.onclick = function () { b.closest('dialog').close(); }; });
+
     render();
   })();
   </script>
@@ -170,6 +314,7 @@ const infoUrl = url('/neighborhood-info-request');
   .nb-count select { border: 1px solid var(--line); background: #fff; border-radius: 8px; padding: 6px 8px; font: inherit; }
   .nb-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
   .nb-card { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 18px; display: flex; flex-direction: column; gap: 8px; }
+  .nb-card.sel { border-color: var(--gold); box-shadow: 0 0 0 2px var(--gold); }
   .nb-card h3 { font: 600 20px/1.2 var(--serif); margin: 0; }
   .nb-line { color: var(--muted); font-size: 14px; }
   .nb-price { font: 600 22px var(--serif); color: var(--navy); }
@@ -179,6 +324,8 @@ const infoUrl = url('/neighborhood-info-request');
   .nb-tag.cut { background: #e6edfd; color: #1d4ed8; }
   .nb-tag.senior { background: #efe7fb; color: #6d28d9; }
   .nb-tag.line { background: var(--cream); border: 1px solid var(--line); color: var(--ink); }
+  .nb-cmp { display: flex; align-items: center; gap: 8px; font-size: 14px; cursor: pointer; }
+  .nb-cmp input { width: 17px; height: 17px; accent-color: var(--blue); }
   .nb-ask { margin-top: auto; padding-top: 12px; border-top: 1px solid var(--line); }
   .nb-ask a { display: flex; align-items: center; justify-content: space-between; text-decoration: none; font-weight: 700; font-size: 14px; color: var(--blue); }
   .nb-arrow { width: 30px; height: 30px; border-radius: 50%; background: var(--gold); color: #1c1c1c; display: inline-flex; align-items: center; justify-content: center; transition: transform .15s; }
@@ -186,9 +333,50 @@ const infoUrl = url('/neighborhood-info-request');
   @media (prefers-reduced-motion: reduce) { .nb-arrow { transition: none; } }
   .nb-empty { padding: 40px 16px; text-align: center; color: var(--muted); background: #fff; border: 1px dashed var(--line); border-radius: 12px; }
   .nb-more { display: flex; justify-content: center; margin: 22px 0; }
-  .nb-cta { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 26px; margin: 36px 0; display: flex; gap: 18px; justify-content: space-between; align-items: center; flex-wrap: wrap; }
-  .nb-cta h2 { margin: 0 0 4px; }
-  .nb-cta p { margin: 0; color: var(--muted); max-width: 56ch; }
-  .nb-cta .nb-eyebrow { margin-bottom: 4px; }
+  .nb-short { background: var(--cream); border: 1px solid var(--line); border-radius: 12px; padding: 16px 20px; margin: 18px 0; display: flex; justify-content: space-between; gap: 16px; align-items: center; flex-wrap: wrap; }
+  .nb-short strong { display: block; font: 600 18px var(--serif); color: var(--navy); }
+  .nb-short span { font-size: 14px; color: var(--muted); }
+  .nb-short .btn[disabled] { opacity: .45; cursor: not-allowed; }
   .nb-fine { font-size: 13px; color: var(--muted); max-width: 80ch; }
+  .nb-band { padding: 48px 0; background: #fff; }
+  .nb-band.nb-cream { background: var(--cream); }
+  .nb-two { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; }
+  @media (max-width: 900px) { .nb-two { grid-template-columns: 1fr; gap: 26px; } }
+  .nb-ghostbtn { background: #fff; border: 1px solid var(--line); border-radius: 999px; padding: 10px 22px; cursor: pointer; font: 700 14px var(--serif); color: var(--blue); }
+  .nb-ghostbtn:hover { border-color: var(--blue); }
+  .nb-know { background: #fff; border: 1px solid var(--line); border-top: 4px solid var(--gold); border-radius: 14px; padding: 26px 28px; }
+  .nb-know h3 { font: 600 28px var(--serif); color: var(--navy); margin: 0 0 10px; }
+  .nb-know p { font-size: 17px; color: var(--muted); margin: 0 0 14px; }
+  .nb-ln { display: flex; flex-wrap: wrap; gap: 8px 22px; font-size: 16px; font-weight: 600; line-height: 1.9; }
+  .nb-tabs { display: flex; flex-wrap: wrap; gap: 10px; margin: 22px 0 20px; }
+  .nb-tabs button { background: #fff; border: 1px solid var(--line); border-radius: 999px; padding: 10px 20px; cursor: pointer; font: 600 15px var(--sans); color: var(--blue); }
+  .nb-tabs button:hover { border-color: var(--blue); }
+  .nb-tabs button[aria-selected="true"] { background: var(--navy); color: #fff; border-color: var(--navy); }
+  .nb-jpanel { border-left: 4px solid var(--gold); background: var(--cream); border-radius: 0 12px 12px 0; padding: 26px 30px; min-height: 120px; }
+  .nb-jpanel h3 { font: 600 26px var(--serif); color: var(--navy); margin: 0 0 10px; }
+  .nb-jpanel p { margin: 0; font-size: 17px; color: var(--muted); max-width: 44em; }
+  #nb-acc details { border-bottom: 1px solid var(--line); padding: 16px 0; }
+  #nb-acc details:first-of-type { padding-top: 0; }
+  #nb-acc summary { cursor: pointer; font-size: 18px; font-weight: 600; color: var(--navy); }
+  #nb-acc details p { color: var(--muted); font-size: 16px; margin: 12px 0 0; }
+  .nb-trg { background: var(--navy); color: #fff; padding: 52px 0; }
+  .nb-trg h2 { color: #fff; font-size: clamp(32px, 4.2vw, 44px); line-height: 1.15; margin: 0 0 16px; }
+  .nb-trg p { color: rgba(255,255,255,.88); font-size: 18px; margin: 0 0 22px; max-width: 28em; }
+  .nb-locally { border-left: 1px solid rgba(255,255,255,.25); padding-left: 36px; }
+  @media (max-width: 900px) { .nb-locally { border-left: 0; padding-left: 0; border-top: 1px solid rgba(255,255,255,.25); padding-top: 22px; } }
+  .nb-locally h3 { font: 600 26px var(--serif); color: #fff; margin: 0 0 12px; }
+  .nb-locally p { font-size: 17px; margin: 0 0 12px; }
+  .nb-locally small { font-size: 14px; color: rgba(255,255,255,.75); display: block; max-width: 24em; }
+  .nb-dlg { background: #fff; color: var(--ink); border: 1px solid var(--line); border-radius: 14px; padding: 0; width: min(720px, 94vw); }
+  .nb-dlg::backdrop { background: rgba(20,40,55,.55); }
+  .nb-dlg-in { padding: 26px 28px; }
+  .nb-dlg-in h3 { font: 600 26px var(--serif); color: var(--navy); margin: 0 0 14px; }
+  .nb-dlg-in table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  .nb-dlg-in th, .nb-dlg-in td { text-align: left; padding: 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .nb-dlg-in thead th { background: var(--navy); color: #fff; border-bottom: 0; }
+  .nb-dlg-in tbody th { color: var(--muted); font-weight: 600; width: 26%; }
+  .nb-dlg-in ul { margin: 0; padding-left: 20px; color: var(--muted); }
+  .nb-dlg-in li { margin: 8px 0; }
+  .nb-x { margin-top: 20px; text-align: right; }
+  .nb-tablewrap { overflow-x: auto; }
 </style>
