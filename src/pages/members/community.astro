@@ -1,0 +1,78 @@
+---
+import Base from '../../layouts/Base.astro';
+import MemberShell from '../../components/MemberShell.astro';
+import { url } from '../../lib/util';
+---
+<Base title="Community" description="Public, neighborhood, and friends feeds for Tradition Local members.">
+  <MemberShell active="community">
+    <p class="eyebrow">Prototype</p>
+    <h1>Community</h1>
+    <p class="lede">Posts and conversations from other members. This is an early look, no posts are live here yet.</p>
+
+    <div class="feed-tabs" role="tablist">
+      <button class="feed-tab" data-feed="public" role="tab" aria-selected="true">Public feed</button>
+      <button class="feed-tab" data-feed="locally" role="tab" aria-selected="false">Locally <span data-locally-label></span></button>
+      <button class="feed-tab" data-feed="friends" role="tab" aria-selected="false">Friends</button>
+    </div>
+
+    <div class="mcard feed-panel" data-feed-panel="public">
+      <h2>Public feed</h2>
+      <p>Everything shared openly across Tradition Local, from every neighborhood.</p>
+      <div class="empty-feed">
+        <p class="ph-text">[No posts yet. Once members start posting, their public updates will show up here.]</p>
+      </div>
+    </div>
+
+    <div class="mcard feed-panel" data-feed-panel="locally" hidden>
+      <h2>Locally <span data-locally-title></span></h2>
+      <p data-locally-desc>Posts from members in your neighborhood.</p>
+      <div class="empty-feed">
+        <p class="ph-text" data-locally-empty>[Set a primary area of interest in Settings to see your neighborhood's feed here.]</p>
+      </div>
+    </div>
+
+    <div class="mcard feed-panel" data-feed-panel="friends" hidden>
+      <h2>Friends feed</h2>
+      <p>Updates from members you've connected with.</p>
+      <div class="empty-feed">
+        <p class="ph-text">[No friends yet. Connecting with other members isn't built yet, this is a placeholder for what that feed will look like.]</p>
+      </div>
+    </div>
+  </MemberShell>
+</Base>
+
+<script>
+  import { membersReady, supabase, currentUser, getProfile } from '../../lib/members';
+  const tabs = document.querySelectorAll<HTMLButtonElement>('.feed-tab');
+  const panels = document.querySelectorAll<HTMLElement>('[data-feed-panel]');
+  tabs.forEach((tab) => {
+    tab.addEventListener('click', () => {
+      tabs.forEach((t) => t.setAttribute('aria-selected', 'false'));
+      tab.setAttribute('aria-selected', 'true');
+      panels.forEach((p) => { p.hidden = p.dataset.feedPanel !== tab.dataset.feed; });
+    });
+  });
+  async function load() {
+    if (!membersReady) return;
+    const user = await currentUser();
+    if (!user) return;
+    const p = await getProfile(user);
+    if (p.area_of_interest) {
+      document.querySelector('[data-locally-label]')!.textContent = p.area_of_interest;
+      document.querySelector('[data-locally-title]')!.textContent = p.area_of_interest;
+      document.querySelector('[data-locally-desc]')!.textContent = `Posts from members in ${p.area_of_interest}.`;
+      document.querySelector('[data-locally-empty]')!.textContent = `[No posts yet from members in ${p.area_of_interest}.]`;
+    }
+  }
+  if (membersReady) {
+    load();
+    supabase().auth.onAuthStateChange((event) => { if (event === 'SIGNED_IN') load(); });
+  }
+</script>
+<style>
+  .ph-text { color: #6d7482; font-style: italic; }
+  .feed-tabs { display: flex; gap: 8px; margin: 20px 0; border-bottom: 1px solid #2c3647; }
+  .feed-tab { background: none; border: none; color: #8f96a3; font-weight: 600; font-size: 15px; padding: 10px 16px; cursor: pointer; border-bottom: 2px solid transparent; }
+  .feed-tab[aria-selected="true"] { color: #fff; border-color: var(--gold); }
+  .empty-feed { background: #161d29; border: 1px dashed #2c3647; border-radius: 8px; padding: 32px; text-align: center; margin-top: 16px; }
+</style>
