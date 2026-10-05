@@ -1,15 +1,18 @@
 ---
-// Shared dark sidebar shell for the signed-in member area (My Account, Profile, Settings,
+// Shared dark sidebar shell for the signed-in member area (Profile, Community, Settings,
 // Real Estate Journey). Gated the same way MemberForm.astro gates the old single-page layout:
 // shows [data-state="out"] to signed-out visitors and [data-state="in"] to members.
+// Profile is the member's own public-facing page; Settings combines what used to be split
+// across My Account, Profile editing, and Settings into one page (editable profile fields at
+// the top, then account/security/privacy below), per Dillon's request.
 import { config } from '../config';
 import { url } from '../lib/util';
-interface Props { active: 'account' | 'profile' | 'settings' | 'journey' }
+interface Props { active: 'profile' | 'community' | 'settings' | 'journey' }
 const { active } = Astro.props;
 const ready = Boolean(config.supabaseUrl && config.supabaseAnonKey);
 const items = [
-  { key: 'account', label: 'My Account', href: '/members', icon: 'grid' },
-  { key: 'profile', label: 'Profile', href: '/members/profile', icon: 'user' },
+  { key: 'profile', label: 'My Profile', href: '/members', icon: 'user' },
+  { key: 'community', label: 'Community', href: '/members/community', icon: 'grid' },
   { key: 'settings', label: 'Settings', href: '/members/settings', icon: 'gear' },
   { key: 'journey', label: 'Real Estate Journey', href: '/members/journey', icon: 'home' },
 ];
