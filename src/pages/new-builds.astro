@@ -2,10 +2,16 @@
 import Base from '../layouts/Base.astro';
 import builds from '../data/new-builds.json';
 import { url } from '../lib/util';
+import { config } from '../config';
+import ComingSoon from '../components/ComingSoon.astro';
 
 const infoUrl = url('/neighborhood-info-request');
+// The page stays hidden behind the coming soon page until its connections exist.
+const ready = Boolean(config.contactFormAction);
 ---
-<Base title="New Builds" description="Search new construction communities across Greater Houston, compare your options, and understand the new build journey.">
+<Base title={ready ? 'New Builds' : 'Coming soon'} description="Search new construction communities across Greater Houston, compare your options, and understand the new build journey.">
+{ready ? (
+<>
   <section class="nb-hero">
     <div class="wrap">
       <p class="nb-crumb"><a href={url('/')}>Home</a> › Neighborhoods › New Builds</p>
@@ -288,6 +294,10 @@ const infoUrl = url('/neighborhood-info-request');
     render();
   })();
   </script>
+</>
+) : (
+<ComingSoon />
+)}
 </Base>
 
 <style is:global>
