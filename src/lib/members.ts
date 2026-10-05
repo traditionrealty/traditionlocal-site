@@ -15,7 +15,17 @@ export function supabase() {
 
 export interface Profile {
   first_name: string; last_name: string; phone: string | null; area_of_interest: string | null;
+  bio?: string | null; birthday?: string | null; employment?: string | null; education?: string | null;
+  relationship_status?: string | null;
+  bio_public?: boolean; birthday_public?: boolean; employment_public?: boolean;
+  education_public?: boolean; relationship_status_public?: boolean;
 }
+
+const BASE_FIELDS = 'first_name,last_name,phone,area_of_interest';
+// Prototype-stage fields: these columns may not exist in the live profiles table yet. We try
+// the fuller select first and fall back to the base fields alone if the database rejects it,
+// so a missing migration never breaks the whole profile page, just hides the new fields.
+const SOCIAL_FIELDS = 'bio,birthday,employment,education,relationship_status,bio_public,birthday_public,employment_public,education_public,relationship_status_public';
 
 /** Full URL for a page on this site, used for links inside Supabase emails. */
 export function siteUrl(path: string) {
@@ -30,12 +40,15 @@ export async function currentUser(): Promise<User | null> {
 
 export async function getProfile(user: User): Promise<Profile> {
   const meta = user.user_metadata || {};
-  const { data } = await supabase().from('profiles')
-    .select('first_name,last_name,phone,area_of_interest').eq('id', user.id).maybeSingle();
-  return data ?? {
+  const fallback: Profile = {
     first_name: meta.first_name || '', last_name: meta.last_name || '',
     phone: meta.phone || null, area_of_interest: meta.area_of_interest || null,
   };
+  const full = await supabase().from('profiles').select(`${BASE_FIELDS},${SOCIAL_FIELDS}`).eq('id', user.id).maybeSingle();
+  if (!full.error) return full.data ?? fallback;
+  // The social columns probably do not exist yet; retry with just the original fields.
+  const base = await supabase().from('profiles').select(BASE_FIELDS).eq('id', user.id).maybeSingle();
+  return base.data ?? fallback;
 }
 
 /** Friendlier wording for the errors members are most likely to hit. */
