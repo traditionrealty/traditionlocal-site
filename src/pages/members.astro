@@ -3,57 +3,33 @@ import Base from '../layouts/Base.astro';
 import MemberShell from '../components/MemberShell.astro';
 import { url } from '../lib/util';
 ---
-<Base title="My Account" description="Your Tradition Local member account.">
-  <MemberShell active="account">
-    <p class="eyebrow">Your member home</p>
-    <h1>Welcome back, <span data-first-name>neighbor</span>.</h1>
-    <p class="lede">Your local interests, saved resources, and personal guidance in one place.</p>
+<Base title="My Profile" description="Your Tradition Local profile.">
+  <MemberShell active="profile">
+    <p class="eyebrow">Your public profile</p>
+    <h1>My Profile</h1>
+    <p class="lede">This is what other members see of you in Community, based on what you've chosen to make public.</p>
+
+    <div class="mcard profile-card">
+      <div class="profile-head">
+        <span class="avatar-lg" data-ms-initials-lg>&nbsp;</span>
+        <div>
+          <h2 data-pf-name>Member</h2>
+          <p data-pf-area class="ph-text">[Area not set]</p>
+        </div>
+      </div>
+      <p data-pf-bio class="ph-text">[No bio yet]</p>
+      <dl class="profile-facts" data-pf-facts></dl>
+      <a class="mlink" href={url('/members/settings')}>Edit your profile &rarr;</a>
+    </div>
 
     <div class="mcard">
       <h2>What's new for members</h2>
       <ul class="perks">
+        <li><a class="mlink" href={url('/members/community')}>Visit the Community feed</a></li>
         <li><a class="mlink" href={url('/living')}>Upcoming events and meetups</a></li>
         <li><a class="mlink" href={url('/all-articles')}>The latest food finds and guides</a></li>
         <li><a class="mlink" href={url('/cities')}>Neighborhood guides across Greater Houston</a></li>
       </ul>
-    </div>
-
-    <div class="mcard">
-      <p class="eyebrow">Picked for your interests</p>
-      <h2 data-interest-headline>Explore Greater Houston and beyond.</h2>
-      <p data-interest-sub class="ph-text">[Eats &middot; Neighborhoods]</p>
-      <a class="btn gold" href={url('/members/profile')}>Update my interests &rarr;</a>
-    </div>
-
-    <div class="mgrid2">
-      <div class="mcard">
-        <h2>Saved discoveries</h2>
-        <div class="mrow-item">
-          <div>
-            <strong class="ph-text">[Saved neighborhood guide]</strong>
-            <p class="ph-text">[Sample saved guide] &middot; Neighborhoods</p>
-          </div>
-        </div>
-        <div class="mrow-item">
-          <div>
-            <strong class="ph-text">[Saved collection]</strong>
-            <p class="ph-text">[Sample saved collection] &middot; Eat</p>
-          </div>
-        </div>
-        <p class="mform-note">Saving guides and places to a list isn't built yet &mdash; this is a preview of where they'll show up.</p>
-      </div>
-      <div class="mcard">
-        <h2>Your subscriptions</h2>
-        <p>Choose the topics and messages you want to receive.</p>
-        <a class="mlink" href={url('/members/settings')}>Manage email preferences &rarr;</a>
-        <div class="mrow-item">
-          <div>
-            <strong>Your profile</strong>
-            <p data-profile-summary class="ph-text">[Preferred area, contact preference]</p>
-          </div>
-        </div>
-        <a class="mlink" href={url('/members/profile')}>Edit my details &rarr;</a>
-      </div>
     </div>
 
     <div class="mcard">
@@ -67,20 +43,39 @@ import { url } from '../lib/util';
 
 <script>
   import { membersReady, supabase, currentUser, getProfile } from '../lib/members';
+  const FACTS: [string, keyof Awaited<ReturnType<typeof getProfile>>, string][] = [
+    ['Employment', 'employment', 'employment_public'] as any,
+    ['Education', 'education', 'education_public'] as any,
+    ['Birthday', 'birthday', 'birthday_public'] as any,
+    ['Relationship status', 'relationship_status', 'relationship_status_public'] as any,
+  ];
   async function load() {
     if (!membersReady) return;
     const user = await currentUser();
     if (!user) return;
     const p = await getProfile(user);
     const first = (p.first_name || '').trim();
-    document.querySelector('[data-first-name]')!.textContent = first || 'neighbor';
-    if (p.area_of_interest) {
-      document.querySelector('[data-interest-headline]')!.textContent = `Explore ${p.area_of_interest} and beyond.`;
-      document.querySelector('[data-interest-sub]')!.textContent = '';
-      document.querySelector('[data-interest-sub]')!.classList.remove('ph-text');
-      const summary = document.querySelector('[data-profile-summary]')!;
-      summary.textContent = `Preferred area: ${p.area_of_interest}`;
-      summary.classList.remove('ph-text');
+    const last = (p.last_name || '').trim();
+    const name = `${first} ${last}`.trim() || user.email || 'Member';
+    document.querySelector('[data-pf-name]')!.textContent = name;
+    const initEl = document.querySelector('[data-ms-initials-lg]');
+    if (initEl) initEl.textContent = ((first[0] || '') + (last[0] || '')).toUpperCase() || (user.email || '?')[0].toUpperCase();
+    const areaEl = document.querySelector('[data-pf-area]')!;
+    if (p.area_of_interest) { areaEl.textContent = p.area_of_interest; areaEl.classList.remove('ph-text'); }
+    const bioEl = document.querySelector('[data-pf-bio]')!;
+    if (p.bio_public && p.bio) { bioEl.textContent = p.bio; bioEl.classList.remove('ph-text'); }
+    else { bioEl.textContent = p.bio ? '[Bio set, kept private]' : '[No bio yet]'; }
+    const factsEl = document.querySelector('[data-pf-facts]')!;
+    factsEl.innerHTML = '';
+    for (const [label, key, pubKey] of FACTS as any) {
+      const val = (p as any)[key];
+      const isPublic = (p as any)[pubKey];
+      if (!val) continue;
+      const dt = document.createElement('dt'); dt.textContent = label;
+      const dd = document.createElement('dd');
+      dd.textContent = isPublic ? val : 'Private';
+      if (!isPublic) dd.className = 'ph-text';
+      factsEl.appendChild(dt); factsEl.appendChild(dd);
     }
   }
   if (membersReady) {
@@ -90,4 +85,11 @@ import { url } from '../lib/util';
 </script>
 <style>
   .ph-text { color: #6d7482; font-style: italic; }
+  .profile-card { display: flex; flex-direction: column; gap: 14px; }
+  .profile-head { display: flex; align-items: center; gap: 16px; }
+  .avatar-lg { width: 64px; height: 64px; border-radius: 50%; background: #3a4a3a; color: var(--gold); display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-size: 1.5rem; flex-shrink: 0; }
+  .profile-head h2 { margin: 0 0 4px; }
+  .profile-facts { display: grid; grid-template-columns: auto 1fr; gap: 6px 16px; margin: 4px 0; }
+  .profile-facts dt { color: #8f96a3; font-size: 13px; }
+  .profile-facts dd { margin: 0; color: #fff; }
 </style>
