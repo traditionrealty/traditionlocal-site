@@ -3,7 +3,8 @@ import Base from '../layouts/Base.astro';
 import site from '../data/site.json';
 import posts from '../data/posts.json';
 import { url, fmtDate, RATING_LABELS } from '../lib/util';
-import { foodPlaces } from '../lib/food';
+import newAndNotable from '../data/new-and-notable.json';
+import { foodPlaces, closedFoodPlaces, decodeEntities, REGIONS } from '../lib/food';
 
 const places = foodPlaces();
 const TIERS = ['try-once', 'visit', 'return', 'recommend', 'favorite'];
@@ -17,6 +18,36 @@ const featured = places.filter((p) => p.rating === 'recommend' && p.review).sort
   || places.filter((p) => p.rating).sort((a, b) => b.year - a.year)[0];
 const stories = (posts as any[]).filter((p) => (p.categories || []).includes('food')).sort((a, b) => (a.date < b.date ? 1 : -1)).slice(0, 6);
 const groupCount = (g: string) => places.filter((p) => p.groups.includes(g as any)).length;
+
+// Cuisines: counts by cuisine and by region (only cuisines that at least one place uses are shown).
+const cuCount: Record<string, number> = {};
+const regCount: Record<string, number> = {};
+places.forEach((p) => { p.cuisines.forEach((c) => { cuCount[c] = (cuCount[c] || 0) + 1; }); p.regions.forEach((r) => { regCount[r] = (regCount[r] || 0) + 1; }); });
+const regions = REGIONS.filter((g) => regCount[g.r]).map((g) => ({
+  r: g.r, n: regCount[g.r],
+  cuisines: g.c.filter((c) => cuCount[c]).sort((a, b) => cuCount[b] - cuCount[a] || a.localeCompare(b)),
+}));
+const cuTotal = new Set(regions.filter((g) => g.r !== 'Dietary & style').flatMap((g) => g.cuisines)).size;
+const withCuisine = places.filter((p) => p.cuisines.length).length;
+
+// Neighborhood list, A to Z, with each place A to Z.
+const byHood: Record<string, typeof places> = {};
+places.forEach((p) => { (byHood[p.where] = byHood[p.where] || []).push(p); });
+const hoodNames = Object.keys(byHood).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+hoodNames.forEach((h) => byHood[h].sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase())));
+
+// Openings come from the new and notable list. Closings are reviews marked closed, plus closed profiles without a review post.
+const openings = (newAndNotable as any[]).filter((o) => !o.placeholder);
+const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const reviewedOn = (d: string) => 'Reviewed ' + MON[Number(d.slice(5, 7)) - 1] + ' ' + d.slice(0, 4);
+const NOT_FOOD = /Salon|Event|Dental|Spa\b|Nail|Hair|Threading|Fitness|Clinic/i;
+const closedPosts = (posts as any[]).filter((p) => p.closed).sort((a, b) => (a.date < b.date ? 1 : -1)).map((p) => {
+  const parts = decodeEntities(String(p.title)).replace(/\s+/g, ' ').trim().replace(/^Sara[’']s Review:\s*/, '').split(/\s[–—]\s/);
+  return { name: parts[0].trim(), tag: (parts[1] || '').slice(0, 90), when: reviewedOn(p.date), href: url(p.path), permanent: String(p.path).includes('permanently') };
+}).filter((c) => !NOT_FOOD.test(c.name) && !NOT_FOOD.test(c.tag));
+const seen = new Set(closedPosts.map((c) => c.name.toLowerCase().replace(/\W/g, '')));
+const closedProfiles = closedFoodPlaces().filter((c) => !seen.has(c.name.toLowerCase().replace(/\W/g, ''))).map((c) => ({ name: c.name, tag: c.cats.join(', '), when: 'Reviewed ' + c.year, href: url('/eat/' + c.slug), permanent: false }));
+const closings = [...closedPosts, ...closedProfiles];
 const SHOW = 12;
 
 const SV = 'fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"';
@@ -31,12 +62,12 @@ const icon = (name: string, s: number) => {
 };
 const BOOK = '<svg width="16" height="18" viewBox="0 0 16 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M3 2h10v14l-5-3.5L3 16z"/></svg>';
 const collections = [
-  { g: 'coffee', title: 'Coffee & conversation', text: 'Find your next place to linger.' },
+  { g: 'coffee', title: 'Hug in a mug', text: 'Find your next place to linger.' },
   { g: 'restaurants', title: 'Make time for a meal', text: 'Local stops for a relaxed outing.' },
   { g: 'sweets', title: 'Something sweet', text: 'A little treat worth the stop.' },
 ];
 const tabs = [['all', 'All food & drink'], ['coffee', 'Coffee & cafés'], ['restaurants', 'Restaurants'], ['sweets', 'Bakeries & sweets'], ['markets', 'Markets & groceries']];
-const bar = [['reviews', 'Reviews'], ['collections', 'Collections'], ['find', 'Find a place'], ['videos', 'Videos'], ['hoods', 'Neighborhoods']];
+const bar = [['reviews', 'Reviews'], ['collections', 'Collections'], ['cuisines', 'Cuisines'], ['find', 'Find a place'], ['openings', 'Openings'], ['videos', 'Videos'], ['hoods', 'Neighborhoods']];
 ---
 <Base title="Food" description="Houston restaurants, coffee shops, bakeries, and dessert spots reviewed by Sara Loren and the Tradition Local team.">
   <section class="band fd-band">
@@ -50,6 +81,7 @@ const bar = [['reviews', 'Reviews'], ['collections', 'Collections'], ['find', 'F
         <div><b>{ratedN}</b><span>Places we have rated</span></div>
         <div><b>{pickN}</b><span>Sara's picks</span></div>
         <div><b>{hoods.length}</b><span>Neighborhoods</span></div>
+        <div><b>{cuTotal}</b><span>Cuisines and styles</span></div>
       </div>
       <div class="fd-btns"><a class="fd-pill gold" href="#find">Find something good</a><a class="fd-pill white" href="#reviews">Explore our reviews</a></div>
     </div>
@@ -110,6 +142,19 @@ const bar = [['reviews', 'Reviews'], ['collections', 'Collections'], ['find', 'F
     </div>
   </section>
 
+  <section class="fd-blk wrap" id="cuisines">
+    <div class="fd-sechead"><div><h2>Eat around the world.</h2></div><span class="fd-badge">{cuTotal} cuisines and styles, {withCuisine} places</span></div>
+    <p class="fd-note">Pick a region to see every place that serves it, or choose a single cuisine.</p>
+    <div class="fd-regions">
+      {regions.map((g) => (
+        <div class="fd-reg">
+          <button class="rh" type="button" data-region={g.r}><h3>{g.r}</h3><span class="rn">{g.n} places &rarr;</span></button>
+          <div class="rc">{g.cuisines.slice(0, 6).map((c) => <button class="fd-cuchip" type="button" data-cuisine={c}>{c}<small>{cuCount[c]}</small></button>)}</div>
+        </div>
+      ))}
+    </div>
+  </section>
+
   <section class="fd-blk wrap" id="find">
     <span id="trending"></span>
     <div class="fd-sechead"><div><h2>What sounds good?</h2></div><span class="fd-badge">Every place links to its profile</span></div>
@@ -122,6 +167,14 @@ const bar = [['reviews', 'Reviews'], ['collections', 'Collections'], ['find', 'F
       <label>Neighborhood
         <select id="fd-where"><option value="">All areas</option>{hoods.map((h) => <option value={h}>{h} ({hoodCount[h]})</option>)}</select>
       </label>
+      <label>Cuisine
+        <select id="fd-cuisine"><option value="">Any cuisine</option>{regions.map((g) => (
+          <optgroup label={g.r + ' (' + g.n + ')'}>
+            <option value={'region:' + g.r}>All {g.r}</option>
+            {g.cuisines.map((c) => <option value={c}>{c} ({cuCount[c]})</option>)}
+          </optgroup>
+        ))}</select>
+      </label>
       <label>Rating
         <select id="fd-rate"><option value="">Any rating</option>{TIERS.filter((t) => rateCount[t]).map((t) => <option value={t}>{RATING_LABELS[t]} ({rateCount[t]})</option>)}</select>
       </label>
@@ -130,7 +183,7 @@ const bar = [['reviews', 'Reviews'], ['collections', 'Collections'], ['find', 'F
     <p class="fd-count" id="fd-count" aria-live="polite">{places.length} places</p>
     <div class="fd-grid" id="fd-grid">
       {places.map((p, i) => (
-        <article class="fd-biz" hidden={i >= SHOW} data-slug={p.slug} data-g={p.groups.join(' ')} data-where={p.where} data-rate={p.rating} data-pick={p.pick ? '1' : '0'}
+        <article class="fd-biz" hidden={i >= SHOW} data-slug={p.slug} data-g={p.groups.join(' ')} data-where={p.where} data-rate={p.rating} data-cu={p.cuisines.join('|')} data-rg={p.regions.join('|')} data-pick={p.pick ? '1' : '0'}
           data-text={(p.name + ' ' + p.desc + ' ' + p.cats.join(' ') + ' ' + p.where + ' ' + p.city).toLowerCase()}>
           <div class="top">
             <span class="ic" aria-hidden="true" set:html={icon(p.prim, 24)}></span>
@@ -152,6 +205,26 @@ const bar = [['reviews', 'Reviews'], ['collections', 'Collections'], ['find', 'F
     <noscript><style>.fd-biz[hidden] { display: flex; }</style></noscript>
   </section>
 
+  <section class="fd-blk wrap" id="openings">
+    <div class="fd-sechead"><div><h2>Openings and closings.</h2></div><a href="mailto:traditionlocal@gmail.com?subject=Opening%20or%20closing%20tip">Tell us about one &rarr;</a></div>
+    <p class="fd-note">New places worth a visit, and the places we have reviewed that have since closed.</p>
+    <div class="fd-oc">
+      <div class="fd-ocol">
+        <h3><i class="fd-dotnew"></i>Now open</h3>
+        {openings.length ? openings.map((o: any) => (
+          <div class="fd-orow"><h4>{o.name}<span class="fd-tagnew">New</span></h4><div class="m">{o.category} &middot; {o.area}</div></div>
+        )) : <p class="fd-note">No new openings logged yet.</p>}
+      </div>
+      <div class="fd-ocol">
+        <h3><i class="fd-dotclosed"></i>Recently closed</h3>
+        {closings.map((c, i) => (
+          <div class="fd-orow" hidden={i >= 6} data-closed={i >= 6 ? '1' : '0'}><h4><a href={c.href}>{c.name}</a><span class="fd-tagclosed">{c.permanent ? 'Permanently closed' : 'Closed'}</span></h4><div class="m">{c.when}{c.tag ? ' · ' + c.tag : ''}</div></div>
+        ))}
+        <div class="fd-more" style="justify-content:flex-start;padding:10px 0 0"><button class="fd-pill line sm" type="button" id="fd-clsmore" hidden={closings.length <= 6}>Show all {closings.length} closed places</button></div>
+      </div>
+    </div>
+  </section>
+
   <section class="fd-blk wrap" id="videos">
     <div class="fd-vid">
       <div><p class="eb">Sara visits</p><h2>Come along for the first bite.</h2><p>Discover the atmosphere, the flavors, and the people behind a place through Sara's visits and videos.</p></div>
@@ -160,9 +233,14 @@ const bar = [['reviews', 'Reviews'], ['collections', 'Collections'], ['find', 'F
   </section>
 
   <section class="fd-blk padb wrap" id="hoods">
-    <div class="fd-sechead"><div><h2>Eat by neighborhood.</h2></div><a href={url('/cities')}>Neighborhood guides &rarr;</a></div>
-    <p class="fd-note">Find a good meal, then explore what is nearby.</p>
-    <div class="fd-hoods">{hoods.slice(0, 10).map((h) => <button class="fd-hood" type="button" data-hood={h}>{h}<small>{hoodCount[h]}</small></button>)}</div>
+    <div class="fd-sechead"><div><h2>Eat by neighborhood</h2></div><span class="fd-hcount">{places.length} places in {hoodNames.length} neighborhoods</span></div>
+    <p class="fd-hdesc">Every place we have reviewed, grouped by neighborhood. Find a good meal, then explore what is nearby.</p>
+    {hoodNames.map((h) => (
+      <div class="fd-hgroup">
+        <h3>{h}<small>{byHood[h].length}</small></h3>
+        <ul class="fd-hlinks">{byHood[h].map((p) => <li><a href={url('/eat/' + p.slug)}>{p.name}</a></li>)}</ul>
+      </div>
+    ))}
   </section>
 </Base>
 
@@ -174,7 +252,7 @@ const bar = [['reviews', 'Reviews'], ['collections', 'Collections'], ['find', 'F
     var SHOW = 12;
     var saved = [];
     try { saved = JSON.parse(localStorage.getItem('tl-food-saved') || '[]'); } catch (e) {}
-    var st = { group: 'all', where: '', rate: '', pick: false, q: '', limit: SHOW, savedOnly: false };
+    var st = { group: 'all', where: '', rate: '', cuisine: '', region: '', pick: false, q: '', limit: SHOW, savedOnly: false };
     var LABEL = { 'try-once': 'Try at Least Once', visit: 'Worth a Visit', 'return': 'Would Go Again', recommend: 'Highly Recommend', favorite: 'Local Favorite' };
     var toastEl = null;
     function toast(m) {
@@ -188,6 +266,8 @@ const bar = [['reviews', 'Reviews'], ['collections', 'Collections'], ['find', 'F
         var ok = inGroup(c, st.group)
           && (!st.where || c.getAttribute('data-where') === st.where)
           && (!st.rate || c.getAttribute('data-rate') === st.rate)
+          && (!st.cuisine || ('|' + c.getAttribute('data-cu') + '|').indexOf('|' + st.cuisine + '|') > -1)
+          && (!st.region || ('|' + c.getAttribute('data-rg') + '|').indexOf('|' + st.region + '|') > -1)
           && (!st.pick || c.getAttribute('data-pick') === '1')
           && (!st.savedOnly || saved.indexOf(c.getAttribute('data-slug')) > -1)
           && (!q || c.getAttribute('data-text').indexOf(q) > -1);
@@ -202,14 +282,18 @@ const bar = [['reviews', 'Reviews'], ['collections', 'Collections'], ['find', 'F
       var sb = $('fd-savedBtn'); sb.textContent = 'Saved (' + saved.length + ')'; sb.setAttribute('aria-pressed', String(st.savedOnly));
     }
     function fresh(patch) {
-      st.group = 'all'; st.where = ''; st.rate = ''; st.pick = false; st.q = ''; st.savedOnly = false; st.limit = SHOW;
+      st.group = 'all'; st.where = ''; st.rate = ''; st.cuisine = ''; st.region = ''; st.pick = false; st.q = ''; st.savedOnly = false; st.limit = SHOW;
       for (var k in patch) st[k] = patch[k];
-      $('fd-where').value = st.where; $('fd-rate').value = st.rate; $('fd-pick').checked = st.pick; $('fd-q').value = st.q;
+      $('fd-where').value = st.where; $('fd-rate').value = st.rate; $('fd-cuisine').value = st.cuisine ? st.cuisine : (st.region ? 'region:' + st.region : ''); $('fd-pick').checked = st.pick; $('fd-q').value = st.q;
     }
     function jump(id) { var el = $(id); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
     document.addEventListener('click', function (e) {
       var c = e.target.closest('[data-coll]');
       if (c) { fresh({ group: c.getAttribute('data-coll') }); render(); jump('find'); return; }
+      var cc = e.target.closest('[data-cuisine]');
+      if (cc) { fresh({ cuisine: cc.getAttribute('data-cuisine') }); render(); jump('find'); toast('Showing ' + st.cuisine); return; }
+      var rg = e.target.closest('[data-region]');
+      if (rg) { fresh({ region: rg.getAttribute('data-region') }); render(); jump('find'); toast('Showing ' + st.region); return; }
       var h = e.target.closest('[data-hood]');
       if (h) { fresh({ where: h.getAttribute('data-hood') }); render(); jump('find'); toast('Showing ' + st.where); return; }
       var t = e.target.closest('[data-tier]');
@@ -227,6 +311,9 @@ const bar = [['reviews', 'Reviews'], ['collections', 'Collections'], ['find', 'F
     });
     $('fd-where').addEventListener('change', function () { st.where = this.value; st.limit = SHOW; render(); });
     $('fd-rate').addEventListener('change', function () { st.rate = this.value; st.limit = SHOW; render(); });
+    $('fd-cuisine').addEventListener('change', function () { var v = this.value; st.cuisine = v.indexOf('region:') === 0 ? '' : v; st.region = v.indexOf('region:') === 0 ? v.slice(7) : ''; st.limit = SHOW; render(); });
+    var cm = $('fd-clsmore');
+    if (cm) cm.addEventListener('click', function () { document.querySelectorAll('[data-closed="1"]').forEach(function (r) { r.hidden = false; }); cm.hidden = true; });
     $('fd-pick').addEventListener('change', function () { st.pick = this.checked; st.limit = SHOW; render(); });
     $('fd-q').addEventListener('input', function () { st.q = this.value; st.limit = SHOW; render(); });
     $('fd-more').addEventListener('click', function () { st.limit += SHOW; render(); });
@@ -360,6 +447,48 @@ const bar = [['reviews', 'Reviews'], ['collections', 'Collections'], ['find', 'F
   .fd-hood { border: 1.5px solid var(--line); background: #fff; border-radius: 12px; padding: 12px 18px; font-size: 16px; cursor: pointer; color: var(--navy); font-family: inherit; }
   .fd-hood:hover { border-color: var(--blue); }
   .fd-hood small { color: var(--muted); margin-left: 6px; font-size: 13px; }
+
+  .fd-regions { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+  .fd-reg { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 20px; }
+  .fd-reg:hover { border-color: var(--gold); }
+  .fd-reg .rh { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; width: 100%; background: none; border: 0; padding: 0; text-align: left; cursor: pointer; font: inherit; color: inherit; }
+  .fd-reg h3 { font-size: 22px; color: var(--navy); line-height: 1.2; margin: 0; }
+  .fd-reg .rn { font-weight: 700; color: var(--blue); font-size: 14px; white-space: nowrap; }
+  .fd-reg .rc { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .fd-cuchip { border: 1.5px solid var(--line); background: var(--cream); border-radius: 999px; padding: 6px 13px; font: inherit; font-size: 14px; cursor: pointer; color: var(--navy); }
+  .fd-cuchip:hover { border-color: var(--blue); }
+  .fd-cuchip small { color: var(--muted); margin-left: 5px; }
+  .fd-filters { grid-template-columns: 1fr 1fr 1fr auto; }
+  @media (max-width: 760px) { .fd-filters { grid-template-columns: 1fr; } }
+
+  .fd-oc { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; align-items: start; }
+  @media (max-width: 860px) { .fd-oc { grid-template-columns: 1fr; } }
+  .fd-ocol { background: #fff; border: 1px solid var(--line); border-top: 3px solid var(--gold); border-radius: 14px; padding: 20px 22px; }
+  .fd-ocol h3 { font-size: 24px; color: var(--navy); margin: 0 0 6px; display: flex; align-items: center; gap: 10px; }
+  .fd-dotnew, .fd-dotclosed { display: inline-block; width: 11px; height: 11px; border-radius: 50%; }
+  .fd-dotnew { background: #1e7a43; } .fd-dotclosed { background: #b3261e; }
+  .fd-orow { padding: 13px 0; border-top: 1px solid var(--line); }
+  .fd-orow[hidden] { display: none; }
+  .fd-ocol h3 + .fd-orow { border-top: 0; }
+  .fd-orow h4 { font: 600 19px/1.3 var(--serif); color: var(--navy); margin: 0 0 2px; }
+  .fd-orow h4 a { color: var(--blue); text-decoration: none; }
+  .fd-orow h4 a:hover { text-decoration: underline; }
+  .fd-orow .m { font-size: 14px; color: var(--muted); }
+  .fd-tagnew, .fd-tagclosed { display: inline-block; font: 700 11px var(--sans); letter-spacing: .04em; text-transform: uppercase; border-radius: 99px; padding: 1px 9px; margin-left: 8px; vertical-align: 2px; }
+  .fd-tagnew { background: #e3f3e6; color: #18642a; } .fd-tagclosed { background: #fdecea; color: #b3261e; }
+
+  .fd-hcount { font-size: 18px; color: var(--muted); padding-bottom: 2px; }
+  .fd-hdesc { font-size: 19px; color: var(--ink); margin: 0 0 34px; max-width: 70ch; }
+  .fd-hgroup { margin: 0 0 40px; }
+  .fd-hgroup h3 { font: 600 clamp(24px, 2.6vw, 30px)/1.2 var(--serif); color: var(--blue); margin: 0 0 16px; }
+  .fd-hgroup h3 small { font: 400 16px var(--sans); color: var(--muted); margin-left: 6px; }
+  .fd-hlinks { columns: 4; column-gap: 34px; list-style: none; margin: 0; padding: 0; }
+  @media (max-width: 1000px) { .fd-hlinks { columns: 3; } }
+  @media (max-width: 720px) { .fd-hlinks { columns: 2; } }
+  @media (max-width: 460px) { .fd-hlinks { columns: 1; } }
+  .fd-hlinks li { break-inside: avoid; margin: 0 0 14px; }
+  .fd-hlinks a { color: var(--blue); text-decoration: none; font-size: 19px; line-height: 1.35; }
+  .fd-hlinks a:hover { text-decoration: underline; }
 
   .fd-toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); background: var(--navy); color: #fff; padding: 9px 16px; border-radius: 8px; opacity: 0; pointer-events: none; transition: opacity .2s; z-index: 50; }
   .fd-toast.on { opacity: 1; }
