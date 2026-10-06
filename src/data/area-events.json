@@ -530,7 +530,7 @@
  {
   "id": "cultural-sites-museum-collections-a-conversation-with-the-wo-2026-10-0",
   "cat": "Talks",
-  "feat": true,
+  "feat": false,
   "date": "2026-10-08",
   "end": "",
   "title": "Cultural Sites & Museum Collections: A Conversation with the World Monuments Fund",
@@ -650,7 +650,7 @@
  {
   "id": "2026-fort-bend-nutcracker-market-2026-10-10",
   "cat": "Holiday",
-  "feat": true,
+  "feat": false,
   "date": "2026-10-10",
   "end": "",
   "title": "2026 Fort Bend Nutcracker Market",
@@ -1046,7 +1046,7 @@
  {
   "id": "movies-on-the-square-toy-story-5-2026-10-16",
   "cat": "Film",
-  "feat": true,
+  "feat": false,
   "date": "2026-10-16",
   "end": "",
   "title": "Movies on the Square: Toy Story 5",
@@ -1106,7 +1106,7 @@
  {
   "id": "8th-houston-lebanese-festival-2026-10-17",
   "cat": "Festivals",
-  "feat": true,
+  "feat": false,
   "date": "2026-10-17",
   "end": "2026-10-18",
   "title": "8th Houston Lebanese Festival",
@@ -1154,7 +1154,7 @@
  {
   "id": "caboosefest-hootenanny-hay-rides-2026-10-17",
   "cat": "Festivals",
-  "feat": true,
+  "feat": false,
   "date": "2026-10-17",
   "end": "",
   "title": "CabooseFest: Hootenanny & Hay Rides",
@@ -1238,7 +1238,7 @@
  {
   "id": "houston-filipino-street-festival-2026-10-17",
   "cat": "Festivals",
-  "feat": true,
+  "feat": false,
   "date": "2026-10-17",
   "end": "",
   "title": "Houston Filipino Street Festival",
@@ -1622,7 +1622,7 @@
  {
   "id": "m-k-t-hike-bike-fright-fest-2026-10-24",
   "cat": "Family",
-  "feat": true,
+  "feat": false,
   "date": "2026-10-24",
   "end": "",
   "title": "M-K-T Hike, Bike & Fright Fest",
