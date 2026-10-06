@@ -1,201 +1,367 @@
 ---
 import Base from '../layouts/Base.astro';
-import PostCard from '../components/PostCard.astro';
-import FoodFeature from '../components/FoodFeature.astro';
-import businesses from '../data/businesses.json';
-import posts from '../data/posts.json';
 import site from '../data/site.json';
-import { url, RATING_LABELS } from '../lib/util';
+import posts from '../data/posts.json';
+import { url, fmtDate, RATING_LABELS } from '../lib/util';
+import { foodPlaces } from '../lib/food';
 
-const counts: Record<string, number> = {};
-businesses.forEach((b) => b.categories.forEach((c) => (counts[c] = (counts[c] || 0) + 1)));
-const topCats = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 14).map(([c]) => c);
-const places = [...new Set(businesses.map((b) => b.neighborhood || b.city))].sort();
-const foodPosts = posts.filter((p) => p.categories.includes('food')).slice(0, 3);
+const places = foodPlaces();
+const TIERS = ['try-once', 'visit', 'return', 'recommend', 'favorite'];
+const hoodCount: Record<string, number> = {};
+const rateCount: Record<string, number> = {};
+places.forEach((p) => { hoodCount[p.where] = (hoodCount[p.where] || 0) + 1; if (p.rating) rateCount[p.rating] = (rateCount[p.rating] || 0) + 1; });
+const hoods = Object.keys(hoodCount).sort((a, b) => hoodCount[b] - hoodCount[a] || a.localeCompare(b));
+const ratedN = places.filter((p) => p.rating).length;
+const pickN = places.filter((p) => p.pick).length;
+const featured = places.filter((p) => p.rating === 'recommend' && p.review).sort((a, b) => b.year - a.year || Number(b.pick) - Number(a.pick))[0]
+  || places.filter((p) => p.rating).sort((a, b) => b.year - a.year)[0];
+const stories = (posts as any[]).filter((p) => (p.categories || []).includes('food')).sort((a, b) => (a.date < b.date ? 1 : -1)).slice(0, 6);
+const groupCount = (g: string) => places.filter((p) => p.groups.includes(g as any)).length;
+const SHOW = 12;
+
+const SV = 'fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"';
+const icon = (name: string, s: number) => {
+  const paths: Record<string, string> = {
+    coffee: '<path d="M4 8h13v6a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5z"/><path d="M17 10h2a2 2 0 0 1 0 4h-2M8 3v2M12 3v2"/>',
+    restaurants: '<circle cx="12" cy="13" r="6"/><circle cx="12" cy="13" r="2.5"/><path d="M3 4v6M5 4v6M3 7h2M4 10v9M20 4c-1.5 1-2.5 3-2.5 5.5S18.5 12 20 12v7"/>',
+    sweets: '<path d="M4 18l2-8h12l2 8z"/><path d="M6 10a6 5 0 0 1 12 0"/><path d="M12 3v2"/>',
+    markets: '<path d="M5 9h14l-1 11H6z"/><path d="M9 9V7a3 3 0 0 1 6 0v2"/>',
+  };
+  return '<svg width="' + s + '" height="' + s + '" viewBox="0 0 24 24" ' + SV + '>' + (paths[name] || paths.restaurants) + '</svg>';
+};
+const BOOK = '<svg width="16" height="18" viewBox="0 0 16 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M3 2h10v14l-5-3.5L3 16z"/></svg>';
+const collections = [
+  { g: 'coffee', title: 'Coffee & conversation', text: 'Find your next place to linger.' },
+  { g: 'restaurants', title: 'Make time for a meal', text: 'Local stops for a relaxed outing.' },
+  { g: 'sweets', title: 'Something sweet', text: 'A little treat worth the stop.' },
+];
+const tabs = [['all', 'All food & drink'], ['coffee', 'Coffee & cafés'], ['restaurants', 'Restaurants'], ['sweets', 'Bakeries & sweets'], ['markets', 'Markets & groceries']];
+const bar = [['reviews', 'Reviews'], ['collections', 'Collections'], ['find', 'Find a place'], ['videos', 'Videos'], ['hoods', 'Neighborhoods']];
 ---
 <Base title="Food" description="Houston restaurants, coffee shops, bakeries, and dessert spots reviewed by Sara Loren and the Tradition Local team.">
-  <section class="band">
+  <section class="band fd-band">
     <div class="wrap">
-      <p class="kicker">Food</p>
+      <p class="fd-crumb"><a href={url('/')}>Home</a> <span aria-hidden="true">&rsaquo;</span> Food</p>
+      <span class="fd-tag">Food &middot; Greater Houston</span>
       <h1>Eat like a local</h1>
-      <p class="lede">Every spot we have reviewed, rated from Try at Least Once to Highly Recommend, plus a short list Sara calls out as her own picks.</p>
+      <p class="fd-lead">Your next favorite is closer than you think. Discover coffee corners, memorable meals, and the local places worth making time for, with Dillon and Sara.</p>
+      <div class="fd-stats">
+        <div><b>{places.length}</b><span>Places to try</span></div>
+        <div><b>{ratedN}</b><span>Places we have rated</span></div>
+        <div><b>{pickN}</b><span>Sara's picks</span></div>
+        <div><b>{hoods.length}</b><span>Neighborhoods</span></div>
+      </div>
+      <div class="fd-btns"><a class="fd-pill gold" href="#find">Find something good</a><a class="fd-pill white" href="#reviews">Explore our reviews</a></div>
+    </div>
+  </section>
+  <div class="fd-bar">
+    <div class="wrap fd-barin">
+      <nav class="fd-barlist" aria-label="Sections on this page">{bar.map((b, i) => <a href={'#' + b[0]} data-sec={b[0]} class={i === 0 ? 'on' : ''}>{b[1]}</a>)}</nav>
+      <span class="fd-best">Best for: Coffee dates, family meals, and sweet stops</span>
+    </div>
+  </div>
+
+  <section class="fd-blk wrap" id="reviews">
+    <div class="fd-sechead"><div><h2>Reviews</h2></div><a href={url('/about-our-reviews')}>How we review &rarr;</a></div>
+    <p class="fd-note">Every place is rated by Sara or Dillon after a visit. Pick a rating to see those places.</p>
+    <div class="fd-rate">
+      {TIERS.map((t) => (
+        <button class="fd-tier" type="button" data-tier={t} disabled={!rateCount[t]}>
+          <span class="lab"><i class={'fd-dot ' + t}></i>{RATING_LABELS[t]}</span>
+          <b>{rateCount[t] || 0}</b>
+          <span class="s">{rateCount[t] ? 'places rated' : 'none yet'}</span>
+        </button>
+      ))}
+    </div>
+    {featured && (
+      <div class="fd-feat">
+        <div class="art" aria-hidden="true" set:html={icon(featured.prim, 72)}></div>
+        <div class="body">
+          <span class="fd-rb" style="align-self:flex-start"><i class={'fd-dot ' + featured.rating}></i>{RATING_LABELS[featured.rating]} &middot; Reviewed {featured.year}</span>
+          <h3>{featured.name}</h3>
+          {featured.review && <p class="quote">&ldquo;{featured.review}&rdquo;</p>}
+          <div class="meta">{featured.author} &middot; {featured.where === featured.city ? featured.city : featured.where + ', ' + featured.city} &middot; {featured.cats.join(', ')}</div>
+          <div><a class="fd-pill gold" href={url('/eat/' + featured.slug)}>Read the full review</a> <a class="fd-pill line" href={url('/eat/' + featured.slug)}>View profile</a></div>
+        </div>
+      </div>
+    )}
+    <div class="fd-stories">
+      <h3>Latest reviews and stories</h3>
+      {stories.map((p) => <div class="fd-srow"><b>{fmtDate(p.date)}</b><a href={url(p.path)}>{String(p.title).replace(/\s+/g, ' ').trim()}</a></div>)}
+    </div>
+    <div class="fd-nextgrid">
+      <a class="fd-next b" href={url('/about-our-reviews')}><h3>Best of 2026</h3><p>Our ranked guides by city and craving.</p></a>
+      <a class="fd-next g" href={site.social.youtube} target="_blank" rel="noopener"><h3>Watch the reviews</h3><p>See the food before you go.</p></a>
+      <a class="fd-next c" href={url('/all-articles/categories/food')}><h3>All food stories</h3><p>Every review and guide in one place.</p></a>
     </div>
   </section>
 
-  <section class="section" id="trending">
-    <div class="wrap">
-      <h2 class="filters-head">Where to eat</h2>
-      <div class="filters" id="filters">
-        <label class="search"><span class="sr">Search places</span>
-          <input type="search" id="q" placeholder="Search by name, dish, or neighborhood" />
-        </label>
-        <label><span class="sr">Area</span>
-          <select id="where"><option value="">All areas</option>{places.map((p) => <option value={p}>{p}</option>)}</select>
-        </label>
-        <label class="toggle"><input type="checkbox" id="picks" /> Sara's picks only</label>
-      </div>
-      <div class="chips" role="group" aria-label="Categories">
-        <button class="chip" data-cat="" data-trending="1" aria-pressed="true">Trending</button>
-        <button class="chip" data-cat="" aria-pressed="false">All</button>
-        {topCats.map((c) => <button class="chip" data-cat={c} aria-pressed="false">{c}</button>)}
-      </div>
-      <div class="rating-tags" role="group" aria-label="Filter by rating">
-        <button class="rchip" data-rating="" aria-pressed="true">All ratings</button>
-        <button class="rchip" data-rating="try-once" aria-pressed="false"><span class="dot try-once"></span>Try at Least Once</button>
-        <button class="rchip" data-rating="visit" aria-pressed="false"><span class="dot visit"></span>Worth a Visit</button>
-        <button class="rchip" data-rating="return" aria-pressed="false"><span class="dot return"></span>Would Go Again</button>
-        <button class="rchip" data-rating="recommend" aria-pressed="false"><span class="dot recommend"></span>Highly Recommend</button>
-        <button class="rchip" data-rating="favorite" aria-pressed="false"><span class="dot favorite"></span>Local Favorite</button>
-      </div>
-      <p class="muted" id="count" aria-live="polite">{businesses.length} places</p>
-
-      <ul class="biz-list" id="list">
-        {businesses.map((b) => (
-          <li data-name={`${b.name} ${b.description} ${b.categories.join(' ')} ${b.neighborhood || ''} ${b.city}`.toLowerCase()}
-              data-cats={b.categories.join('|')} data-where={b.neighborhood || b.city} data-pick={b.saraPick ? '1' : '0'} data-rating={b.rating || ''} data-year={b.reviewYear || 0}>
-            <a href={url(`/eat/${b.slug}`)}>
-              {(b.saraPick || b.rating || b.closed) && (
-                <span class="top">
-                  {b.saraPick ? (
-                    <span class="badge">Sara's Pick</span>
-                  ) : b.rating ? (
-                    <span class="badge tier-badge"><span class:list={['dot', b.rating]}></span>{RATING_LABELS[b.rating]}</span>
-                  ) : null}
-                  {b.closed && <span class="badge closed-badge">Closed</span>}
-                </span>
-              )}
-              <strong>{b.name}</strong>
-              <span class="where">{b.neighborhood ? `${b.neighborhood}, ${b.city}` : b.city}</span>
-              <span class="cats">{b.categories.slice(0, 3).join(', ')}</span>
-              <span class="desc">{b.description}</span>
-            </a>
-          </li>
-        ))}
-      </ul>
-      <p id="empty" hidden>No places match those filters. Try clearing the search or picking All.</p>
+  <section class="fd-blk wrap" id="collections">
+    <div class="fd-sechead"><div><h2>A craving. A collection.</h2></div><span class="fd-badge">Curated by Tradition Local</span></div>
+    <div class="fd-coll">
+      {collections.map((c) => (
+        <button class="fd-ccard" type="button" data-coll={c.g}>
+          <span class="ic" set:html={icon(c.g, 34)}></span>
+          <h3>{c.title}</h3>
+          <p>{c.text}</p>
+          <span class="go">{groupCount(c.g)} places &rarr;</span>
+        </button>
+      ))}
     </div>
   </section>
 
-  <FoodFeature />
+  <section class="fd-blk wrap" id="find">
+    <span id="trending"></span>
+    <div class="fd-sechead"><div><h2>What sounds good?</h2></div><span class="fd-badge">Every place links to its profile</span></div>
+    <div class="fd-tabs" id="fd-tabs" role="group" aria-label="Browse by type">
+      {tabs.map((t, i) => <button class="fd-tab" type="button" data-g={t[0]} aria-pressed={i === 0 ? 'true' : 'false'}>{t[1]}</button>)}
+      <button class="fd-tab saved" type="button" id="fd-savedBtn" aria-pressed="false">Saved (0)</button>
+    </div>
+    <div class="fd-searchrow"><label><span class="fd-sr">Search places</span><input type="search" id="fd-q" placeholder="Search by name, dish, or neighborhood" /></label></div>
+    <div class="fd-filters">
+      <label>Neighborhood
+        <select id="fd-where"><option value="">All areas</option>{hoods.map((h) => <option value={h}>{h} ({hoodCount[h]})</option>)}</select>
+      </label>
+      <label>Rating
+        <select id="fd-rate"><option value="">Any rating</option>{TIERS.filter((t) => rateCount[t]).map((t) => <option value={t}>{RATING_LABELS[t]} ({rateCount[t]})</option>)}</select>
+      </label>
+      <label class="picks"><input type="checkbox" id="fd-pick" /> Sara's picks only</label>
+    </div>
+    <p class="fd-count" id="fd-count" aria-live="polite">{places.length} places</p>
+    <div class="fd-grid" id="fd-grid">
+      {places.map((p, i) => (
+        <article class="fd-biz" hidden={i >= SHOW} data-slug={p.slug} data-g={p.groups.join(' ')} data-where={p.where} data-rate={p.rating} data-pick={p.pick ? '1' : '0'}
+          data-text={(p.name + ' ' + p.desc + ' ' + p.cats.join(' ') + ' ' + p.where + ' ' + p.city).toLowerCase()}>
+          <div class="top">
+            <span class="ic" aria-hidden="true" set:html={icon(p.prim, 24)}></span>
+            {p.pick ? <span class="fd-rb pick">Sara's Pick</span> : p.rating ? <span class="fd-rb"><i class={'fd-dot ' + p.rating}></i>{RATING_LABELS[p.rating]}</span> : <span></span>}
+          </div>
+          <h3><a href={url('/eat/' + p.slug)}>{p.name}</a></h3>
+          <div class="where">{p.where === p.city ? p.city : p.where + ', ' + p.city}</div>
+          <div class="cats">{p.cats.join(', ')}</div>
+          <p class="desc">{p.desc}</p>
+          <div class="row">
+            <a class="fd-pill line sm" href={url('/eat/' + p.slug)}>View profile &rarr;</a>
+            <button class="fd-save" type="button" data-save={p.slug} aria-pressed="false" aria-label={'Save place: ' + p.name} set:html={BOOK}></button>
+          </div>
+        </article>
+      ))}
+    </div>
+    <div class="fd-empty" id="fd-empty" hidden>No places match those filters. Try clearing the search or picking All.</div>
+    <div class="fd-more"><button class="fd-pill line" type="button" id="fd-more" hidden={places.length <= SHOW}>Show more places</button></div>
+    <noscript><style>.fd-biz[hidden] { display: flex; }</style></noscript>
+  </section>
 
-  <section class="section">
-    <div class="wrap">
-      <p class="eyebrow">Keep exploring</p>
-      <h2>Where to next?</h2>
-      <div class="next-grid">
-        <a class="next-card blue" href={url('/about-our-reviews')}>
-          <h3>Best of 2026</h3>
-          <p>Our ranked guides by city and craving.</p>
-        </a>
-        <a class="next-card green" href={site.social.youtube} target="_blank" rel="noopener">
-          <h3>Watch the reviews</h3>
-          <p>See the food before you go.</p>
-        </a>
-        <a class="next-card cream" href={url('/cities')}>
-          <h3>Eat by neighborhood</h3>
-          <p>Every guide ends with what it's like to live there.</p>
-        </a>
-      </div>
+  <section class="fd-blk wrap" id="videos">
+    <div class="fd-vid">
+      <div><p class="eb">Sara visits</p><h2>Come along for the first bite.</h2><p>Discover the atmosphere, the flavors, and the people behind a place through Sara's visits and videos.</p></div>
+      <div class="fd-vbox"><q>A local visit. A personal perspective.</q><a class="fd-pill gold" href={site.social.youtube} target="_blank" rel="noopener">Watch on YouTube</a></div>
     </div>
   </section>
 
-  {foodPosts.length > 0 && (
-    <section class="section tint">
-      <div class="wrap">
-        <div class="section-head"><h2>Latest food stories</h2><a href={url('/all-articles/categories/food')}>All food articles</a></div>
-        <div class="grid">{foodPosts.map((p) => <PostCard post={p} />)}</div>
-      </div>
-    </section>
-  )}
+  <section class="fd-blk padb wrap" id="hoods">
+    <div class="fd-sechead"><div><h2>Eat by neighborhood.</h2></div><a href={url('/cities')}>Neighborhood guides &rarr;</a></div>
+    <p class="fd-note">Find a good meal, then explore what is nearby.</p>
+    <div class="fd-hoods">{hoods.slice(0, 10).map((h) => <button class="fd-hood" type="button" data-hood={h}>{h}<small>{hoodCount[h]}</small></button>)}</div>
+  </section>
 </Base>
 
-<script>
-  const q = document.getElementById('q') as HTMLInputElement;
-  const where = document.getElementById('where') as HTMLSelectElement;
-  const picks = document.getElementById('picks') as HTMLInputElement;
-  const chips = [...document.querySelectorAll<HTMLButtonElement>('[data-cat]')];
-  const rchips = [...document.querySelectorAll<HTMLButtonElement>('[data-rating]')];
-  const list = document.getElementById('list')!;
-  const originalOrder = [...document.querySelectorAll<HTMLLIElement>('#list li')];
-  const items = originalOrder;
-  const count = document.getElementById('count')!;
-  const empty = document.getElementById('empty')!;
-  let cat = '';
-  let rating = '';
-  let trending = true;
-  function apply() {
-    const term = q.value.trim().toLowerCase();
-    const order = trending
-      ? [...items].sort((a, b) => Number(b.dataset.year) - Number(a.dataset.year))
-      : originalOrder;
-    let n = 0;
-    for (const li of order) {
-      const ok = (!term || li.dataset.name!.includes(term))
-        && (!cat || li.dataset.cats!.split('|').includes(cat))
-        && (!rating || li.dataset.rating === rating)
-        && (!where.value || li.dataset.where === where.value)
-        && (!picks.checked || li.dataset.pick === '1')
-        && (!trending || n < 12);
-      li.hidden = !ok; if (ok) n++;
+<script is:inline>
+  (function () {
+    var cards = [].slice.call(document.querySelectorAll('.fd-biz'));
+    if (!cards.length) return;
+    var $ = function (id) { return document.getElementById(id); };
+    var SHOW = 12;
+    var saved = [];
+    try { saved = JSON.parse(localStorage.getItem('tl-food-saved') || '[]'); } catch (e) {}
+    var st = { group: 'all', where: '', rate: '', pick: false, q: '', limit: SHOW, savedOnly: false };
+    var LABEL = { 'try-once': 'Try at Least Once', visit: 'Worth a Visit', 'return': 'Would Go Again', recommend: 'Highly Recommend', favorite: 'Local Favorite' };
+    var toastEl = null;
+    function toast(m) {
+      if (!toastEl) { toastEl = document.createElement('div'); toastEl.className = 'fd-toast'; toastEl.setAttribute('role', 'status'); document.body.appendChild(toastEl); }
+      toastEl.textContent = m; toastEl.classList.add('on'); clearTimeout(toast.h); toast.h = setTimeout(function () { toastEl.classList.remove('on'); }, 1800);
     }
-    count.textContent = `${n} ${n === 1 ? 'place' : 'places'}`;
-    empty.hidden = n > 0;
-    order.forEach((li) => list.appendChild(li));
-  }
-  chips.forEach((c) => c.addEventListener('click', () => {
-    cat = c.dataset.cat || '';
-    trending = c.dataset.trending === '1';
-    chips.forEach((x) => x.setAttribute('aria-pressed', String(x === c)));
-    apply();
-  }));
-  rchips.forEach((c) => c.addEventListener('click', () => {
-    rating = c.dataset.rating || '';
-    rchips.forEach((x) => x.setAttribute('aria-pressed', String(x === c)));
-    apply();
-  }));
-  [q, where, picks].forEach((el) => el.addEventListener('input', apply));
-  apply();
+    function inGroup(c, g) { return g === 'all' || (' ' + c.getAttribute('data-g') + ' ').indexOf(' ' + g + ' ') > -1; }
+    function render() {
+      var q = st.q.trim().toLowerCase(), n = 0, shown = 0;
+      cards.forEach(function (c) {
+        var ok = inGroup(c, st.group)
+          && (!st.where || c.getAttribute('data-where') === st.where)
+          && (!st.rate || c.getAttribute('data-rate') === st.rate)
+          && (!st.pick || c.getAttribute('data-pick') === '1')
+          && (!st.savedOnly || saved.indexOf(c.getAttribute('data-slug')) > -1)
+          && (!q || c.getAttribute('data-text').indexOf(q) > -1);
+        if (ok) { n++; if (shown < st.limit) { shown++; c.hidden = false; } else { c.hidden = true; } } else { c.hidden = true; }
+        var b = c.querySelector('[data-save]'); var on = saved.indexOf(c.getAttribute('data-slug')) > -1;
+        b.setAttribute('aria-pressed', String(on));
+      });
+      $('fd-count').textContent = n + ' place' + (n === 1 ? '' : 's');
+      $('fd-empty').hidden = n > 0;
+      $('fd-more').hidden = n <= st.limit;
+      document.querySelectorAll('#fd-tabs [data-g]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-g') === st.group)); });
+      var sb = $('fd-savedBtn'); sb.textContent = 'Saved (' + saved.length + ')'; sb.setAttribute('aria-pressed', String(st.savedOnly));
+    }
+    function fresh(patch) {
+      st.group = 'all'; st.where = ''; st.rate = ''; st.pick = false; st.q = ''; st.savedOnly = false; st.limit = SHOW;
+      for (var k in patch) st[k] = patch[k];
+      $('fd-where').value = st.where; $('fd-rate').value = st.rate; $('fd-pick').checked = st.pick; $('fd-q').value = st.q;
+    }
+    function jump(id) { var el = $(id); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    document.addEventListener('click', function (e) {
+      var c = e.target.closest('[data-coll]');
+      if (c) { fresh({ group: c.getAttribute('data-coll') }); render(); jump('find'); return; }
+      var h = e.target.closest('[data-hood]');
+      if (h) { fresh({ where: h.getAttribute('data-hood') }); render(); jump('find'); toast('Showing ' + st.where); return; }
+      var t = e.target.closest('[data-tier]');
+      if (t && !t.disabled) { fresh({ rate: t.getAttribute('data-tier') }); render(); jump('find'); toast('Showing ' + LABEL[st.rate]); return; }
+      var g = e.target.closest('#fd-tabs [data-g]');
+      if (g) { st.group = g.getAttribute('data-g'); st.savedOnly = false; st.limit = SHOW; render(); return; }
+      var sv = e.target.closest('[data-save]');
+      if (sv) {
+        var slug = sv.getAttribute('data-save'), p = saved.indexOf(slug);
+        if (p > -1) { saved.splice(p, 1); toast('Removed from saved'); } else { saved.push(slug); toast('Saved'); }
+        try { localStorage.setItem('tl-food-saved', JSON.stringify(saved)); } catch (err) {}
+        render(); return;
+      }
+      if (e.target.closest('#fd-savedBtn')) { st.savedOnly = !st.savedOnly; st.limit = SHOW; render(); return; }
+    });
+    $('fd-where').addEventListener('change', function () { st.where = this.value; st.limit = SHOW; render(); });
+    $('fd-rate').addEventListener('change', function () { st.rate = this.value; st.limit = SHOW; render(); });
+    $('fd-pick').addEventListener('change', function () { st.pick = this.checked; st.limit = SHOW; render(); });
+    $('fd-q').addEventListener('input', function () { st.q = this.value; st.limit = SHOW; render(); });
+    $('fd-more').addEventListener('click', function () { st.limit += SHOW; render(); });
+    // keep the section bar in sync while scrolling
+    var links = [].slice.call(document.querySelectorAll('.fd-bar a[data-sec]'));
+    window.addEventListener('scroll', function () {
+      var cur = links[0].getAttribute('data-sec');
+      links.forEach(function (a) { var el = document.getElementById(a.getAttribute('data-sec')); if (el && el.getBoundingClientRect().top <= 140) cur = a.getAttribute('data-sec'); });
+      links.forEach(function (a) { a.classList.toggle('on', a.getAttribute('data-sec') === cur); });
+    }, { passive: true });
+    render();
+  })();
 </script>
 
-<style>
-  .filters-head { margin: 0 0 16px; }
-  .filters { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
-  .filters input[type=search], .filters select { padding: 12px 16px; border: 1.5px solid var(--line); border-radius: 999px; font-size: 16px; background: #fff; }
-  .search { flex: 1 1 320px; } .search input { width: 100%; }
-  .toggle { display: flex; gap: 8px; align-items: center; font-size: 15px; }
-  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
-  .rating-tags { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
-  .rchip { display: flex; align-items: center; gap: 7px; padding: 8px 16px; border: 1.5px solid var(--line); border-radius: 999px; background: #fff; font-size: 14px; font-weight: 600; color: var(--navy); cursor: pointer; }
-  .rchip[aria-pressed="true"] { background: var(--navy); color: #fff; border-color: var(--navy); }
-  .rchip[aria-pressed="true"] .dot { outline: 2px solid rgba(255,255,255,.6); outline-offset: 1px; }
-  .dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
-  .dot.try-once { background: #b9b2a0; }
-  .dot.visit { background: #004aad; }
-  .dot.return { background: #1e7a43; }
-  .dot.recommend { background: #e7bc52; }
-  .dot.favorite { background: #9d693f; }
-  #count { margin: 18px 0; }
-  .tier-badge { display: inline-flex; align-items: center; gap: 6px; }
-  .biz-list { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 0; border-top: 1px solid var(--line); }
-  .biz-list li[hidden] { display: none; }
-  .biz-list a { display: flex; flex-direction: column; gap: 4px; padding: 20px 18px; text-decoration: none; color: var(--ink); border-bottom: 1px solid var(--line); height: 100%; }
-  .biz-list a:hover { background: var(--cream); }
-  .top { display: flex; justify-content: flex-end; gap: 6px; margin-bottom: 4px; }
-  .closed-badge { background: #fff; color: var(--brown); border: 1px solid var(--brown); }
-  .biz-list strong { display: block; font-family: var(--serif); font-weight: 400; font-size: 1.3rem; color: var(--blue); }
-  .where { font-size: 14px; color: var(--navy); font-weight: 600; }
-  .cats { font-size: 13px; color: var(--brown); }
-  .desc { font-size: 15px; color: var(--muted); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; margin-top: 4px; }
-  .eyebrow { color: var(--green, #1e7a43); font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; margin: 0 0 8px; }
-  .next-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 24px; }
-  .next-card { display: block; border-radius: 10px; padding: 24px; text-decoration: none; }
-  .next-card h3 { margin: 0 0 8px; font-size: 1.3rem; }
-  .next-card p { margin: 0; color: var(--ink); }
-  .next-card.blue { background: #e6eef8; }
-  .next-card.green { background: #e8f5ec; }
-  .next-card.cream { background: var(--cream); }
+<style is:global>
+  .fd-band { padding: 36px 0 44px; }
+  .fd-crumb { font-size: 14px; color: rgba(255,255,255,.8); margin: 0 0 18px; }
+  .fd-crumb a { color: #dfe6fb; }
+  .fd-tag { display: inline-block; background: rgba(255,255,255,.18); border-radius: 99px; padding: 7px 16px; font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 12px; color: #fff; }
+  .fd-band h1 { font-size: clamp(44px, 7vw, 78px); line-height: 1.05; margin: 0 0 22px; }
+  .fd-lead { font-size: 20px; line-height: 1.55; max-width: 34em; margin: 0 0 30px; color: #fff; }
+  .fd-stats { display: flex; flex-wrap: wrap; gap: 20px 56px; margin: 0 0 28px; }
+  .fd-stats b { display: block; font: 600 clamp(24px, 3vw, 32px)/1.2 var(--serif); color: #fff; }
+  .fd-stats span { font-size: 15px; color: rgba(255,255,255,.8); }
+  .fd-btns { display: flex; gap: 12px; flex-wrap: wrap; }
+  .fd-pill { display: inline-block; border-radius: 999px; padding: 12px 26px; font: 700 15px var(--serif); text-decoration: none; cursor: pointer; border: 2px solid transparent; }
+  .fd-pill:hover { text-decoration: none; }
+  .fd-pill.gold { background: var(--gold); color: var(--navy); }
+  .fd-pill.white { background: #fff; color: var(--navy); }
+  .fd-pill.line { background: #fff; border-color: var(--line); color: var(--blue); }
+  .fd-pill.line:hover { border-color: var(--blue); }
+  .fd-pill.sm { padding: 7px 16px; font-size: 13px; }
 
-  @media (max-width: 860px) {
-    .next-grid { grid-template-columns: 1fr; }
-  }
+  .fd-bar { position: sticky; top: 0; z-index: 6; background: #fff; border-bottom: 1px solid var(--line); }
+  .fd-barin { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 72px; flex-wrap: wrap; padding-top: 10px; padding-bottom: 10px; }
+  .fd-barlist { display: flex; gap: 6px; flex-wrap: wrap; }
+  .fd-barlist a { border-radius: 999px; padding: 11px 20px; font: 700 17px var(--sans); color: var(--navy); text-decoration: none; }
+  .fd-barlist a:hover { background: var(--cream); }
+  .fd-barlist a.on { background: var(--navy); color: #fff; }
+  .fd-best { color: var(--muted); font-size: 17px; }
+
+  .fd-blk { padding: 44px 0 8px; scroll-margin-top: 84px; }
+  .fd-blk.padb { padding-bottom: 44px; }
+  .fd-sechead { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; border-bottom: 2px solid var(--blue); padding-bottom: 8px; margin-bottom: 18px; }
+  .fd-sechead h2 { margin: 0; font-size: clamp(26px, 3.4vw, 34px); color: var(--blue); line-height: 1.15; }
+  .fd-sechead a { font-weight: 700; text-decoration: none; }
+  .fd-badge { font-size: 12px; color: var(--muted); background: #fff; border: 1px solid var(--line); border-radius: 99px; padding: 3px 12px; }
+  .fd-note { color: var(--muted); font-size: 14px; margin: 0 0 18px; }
+  .fd-sr { position: absolute; left: -9999px; }
+
+  .fd-rate { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 0 0 22px; }
+  .fd-tier { background: var(--cream); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; text-align: left; cursor: pointer; font: inherit; color: inherit; }
+  .fd-tier:hover:not(:disabled) { border-color: var(--blue); }
+  .fd-tier:disabled { opacity: .55; cursor: default; }
+  .fd-tier .lab { display: flex; align-items: center; gap: 8px; font-weight: 700; color: var(--navy); font-size: 15px; }
+  .fd-tier b { display: block; font: 600 28px var(--serif); color: var(--blue); margin-top: 4px; }
+  .fd-tier .s { font-size: 13px; color: var(--muted); }
+  .fd-dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; flex: none; }
+  .fd-dot.try-once { background: #b9b2a0; } .fd-dot.visit { background: #004aad; } .fd-dot.return { background: #1e7a43; } .fd-dot.recommend { background: #e7bc52; } .fd-dot.favorite { background: #9d693f; }
+  .fd-rb { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; border-radius: 99px; padding: 2px 10px; background: var(--cream); border: 1px solid var(--line); color: var(--navy); }
+  .fd-rb.pick { background: var(--gold-soft); border-color: var(--gold); color: #6b4a1d; }
+  .fd-feat { display: grid; grid-template-columns: 1fr 1.4fr; border: 1px solid var(--line); border-radius: 16px; overflow: hidden; background: #fff; }
+  @media (max-width: 800px) { .fd-feat { grid-template-columns: 1fr; } }
+  .fd-feat .art { background: var(--cream); display: flex; align-items: center; justify-content: center; color: var(--navy); min-height: 220px; }
+  .fd-feat .body { padding: 26px 28px; display: flex; flex-direction: column; gap: 10px; }
+  .fd-feat h3 { font-size: clamp(26px, 3vw, 34px); line-height: 1.15; color: var(--navy); margin: 0; }
+  .fd-feat .quote { font-size: 19px; line-height: 1.5; margin: 0; }
+  .fd-feat .meta { font-size: 14px; color: var(--muted); }
+  .fd-stories { margin-top: 26px; }
+  .fd-stories h3 { font-size: 22px; color: var(--navy); margin: 0 0 8px; }
+  .fd-srow { display: grid; grid-template-columns: 130px 1fr; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); align-items: baseline; }
+  .fd-srow b { font-size: 12px; letter-spacing: .03em; color: var(--navy); }
+  .fd-srow a { font: 500 1.15rem var(--serif); color: var(--blue); text-decoration: none; }
+  .fd-srow a:hover { text-decoration: underline; }
+  @media (max-width: 560px) { .fd-srow { grid-template-columns: 1fr; gap: 2px; } }
+  .fd-nextgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-top: 26px; }
+  .fd-next { display: block; border-radius: 12px; padding: 22px; text-decoration: none; color: var(--ink); }
+  .fd-next h3 { font-size: 22px; margin: 0 0 6px; color: var(--navy); }
+  .fd-next p { margin: 0; }
+  .fd-next.b { background: #e6eef8; } .fd-next.g { background: #e8f5ec; } .fd-next.c { background: var(--cream); }
+
+  .fd-coll { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; }
+  .fd-ccard { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 22px; text-align: left; cursor: pointer; display: flex; flex-direction: column; gap: 8px; font: inherit; color: inherit; }
+  .fd-ccard:hover { border-color: var(--gold); box-shadow: 0 0 0 2px var(--gold-soft); }
+  .fd-ccard .ic { color: var(--navy); }
+  .fd-ccard h3 { font-size: 23px; line-height: 1.2; color: var(--navy); margin: 0; }
+  .fd-ccard p { margin: 0; color: var(--muted); font-size: 15px; }
+  .fd-ccard .go { margin-top: auto; padding-top: 6px; font-weight: 700; color: var(--blue); font-size: 14px; }
+
+  .fd-tabs { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 16px; }
+  .fd-tab { border: 1.5px solid var(--line); background: #fff; color: var(--blue); border-radius: 999px; padding: 9px 20px; font-weight: 700; font-size: 15px; cursor: pointer; }
+  .fd-tab:hover { border-color: var(--blue); }
+  .fd-tab[aria-pressed="true"] { background: var(--navy); border-color: var(--navy); color: #fff; }
+  .fd-tab.saved { margin-left: auto; }
+  .fd-searchrow { margin-bottom: 14px; }
+  .fd-searchrow input { width: 100%; border: 1px solid var(--line); border-radius: 999px; padding: 13px 20px; font-size: 16px; background: #fff; }
+  .fd-filters { display: grid; grid-template-columns: 1fr 1fr auto; gap: 14px; background: var(--cream); border: 1px solid var(--line); border-top: 3px solid var(--gold); border-radius: 12px; padding: 16px; margin-bottom: 20px; align-items: end; }
+  @media (max-width: 760px) { .fd-filters { grid-template-columns: 1fr; } }
+  .fd-filters label { display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--muted); }
+  .fd-filters label.picks { flex-direction: row; align-items: center; gap: 8px; font-size: 15px; color: var(--ink); padding-bottom: 12px; }
+  .fd-filters select { appearance: none; background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none' stroke='%2320455e' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 6l5 5 5-5'/%3E%3C/svg%3E") no-repeat right 14px center; border: 1px solid var(--line); border-radius: 10px; padding: 12px 38px 12px 14px; font: inherit; font-size: 16px; color: var(--ink); cursor: pointer; }
+  .fd-count { color: var(--muted); margin: 0 0 16px; font-size: 15px; }
+  .fd-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 18px; }
+  .fd-biz { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; display: flex; flex-direction: column; gap: 6px; }
+  .fd-biz[hidden] { display: none; }
+  .fd-biz:hover { border-color: var(--gold); }
+  .fd-biz .top { display: flex; justify-content: space-between; gap: 8px; align-items: center; min-height: 24px; }
+  .fd-biz .ic { color: var(--navy); }
+  .fd-biz h3 { font-size: 22px; line-height: 1.2; margin: 0; }
+  .fd-biz h3 a { color: var(--blue); text-decoration: none; }
+  .fd-biz h3 a:hover { text-decoration: underline; }
+  .fd-biz .where { font-size: 14px; font-weight: 700; color: var(--navy); }
+  .fd-biz .cats { font-size: 13px; color: var(--brown); }
+  .fd-biz .desc { font-size: 15px; color: var(--muted); margin: 2px 0 0; }
+  .fd-biz .row { display: flex; gap: 8px; align-items: center; margin-top: auto; padding-top: 12px; }
+  .fd-save { width: 42px; height: 38px; border-radius: 999px; border: 1.5px solid var(--line); background: #fff; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; color: var(--blue); }
+  .fd-save[aria-pressed="true"] { background: var(--gold); border-color: var(--gold); color: var(--navy); }
+  .fd-empty { padding: 34px; text-align: center; color: var(--muted); border: 1px dashed var(--line); border-radius: 12px; }
+  .fd-more { display: flex; justify-content: center; padding: 22px 0 4px; }
+  .fd-more [hidden] { display: none; }
+
+  .fd-vid { background: var(--navy); color: #fff; border-radius: 18px; padding: 32px 34px; display: grid; grid-template-columns: 1fr 1fr; gap: 28px; align-items: center; }
+  @media (max-width: 860px) { .fd-vid { grid-template-columns: 1fr; } }
+  .fd-vid .eb { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--gold); margin: 0 0 6px; }
+  .fd-vid h2 { font-size: clamp(28px, 3.6vw, 38px); line-height: 1.15; margin: 0 0 10px; color: #fff; }
+  .fd-vid p { margin: 0; color: rgba(255,255,255,.88); }
+  .fd-vbox { background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.25); border-radius: 14px; padding: 26px; text-align: center; }
+  .fd-vbox q { display: block; font: 500 clamp(22px, 2.6vw, 30px)/1.3 var(--serif); quotes: none; margin-bottom: 18px; }
+
+  .fd-hoods { display: flex; flex-wrap: wrap; gap: 10px; }
+  .fd-hood { border: 1.5px solid var(--line); background: #fff; border-radius: 12px; padding: 12px 18px; font-size: 16px; cursor: pointer; color: var(--navy); font-family: inherit; }
+  .fd-hood:hover { border-color: var(--blue); }
+  .fd-hood small { color: var(--muted); margin-left: 6px; font-size: 13px; }
+
+  .fd-toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); background: var(--navy); color: #fff; padding: 9px 16px; border-radius: 8px; opacity: 0; pointer-events: none; transition: opacity .2s; z-index: 50; }
+  .fd-toast.on { opacity: 1; }
+  @media (prefers-reduced-motion: reduce) { .fd-toast { transition: none; } }
 </style>
