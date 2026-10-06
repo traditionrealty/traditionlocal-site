@@ -1,254 +1,383 @@
 ---
 import Base from '../layouts/Base.astro';
 import areas from '../data/areas.json';
-import businesses from '../data/businesses.json';
 import hoods from '../data/neighborhoods.json';
 import subdivisions from '../data/subdivisions.json';
+import { config } from '../config';
 import { url } from '../lib/util';
-const regions = ['Central', 'West', 'North', 'South', 'East', 'Suburbs', 'Coast', 'Countryside'].filter((r) => areas.some((a) => a.region === r));
-// "Trending" proxy for a neighborhood: the most recent reviewYear among businesses located there.
-// Areas with no linked businesses sort last.
-const latestYearByArea: Record<string, number> = {};
-businesses.forEach((b) => {
-  if (b.area && b.reviewYear) latestYearByArea[b.area] = Math.max(latestYearByArea[b.area] || 0, b.reviewYear);
-});
 
-// Group the 270 subdivision profiles by the neighborhood they're actually in, instead of one
-// flat A-Z list. Resolved by matching each profile's name against our subdivisions dataset
-// (which already carries a clean area link); a handful are themselves area-level names and
-// resolve directly against areas.json.
+const REGIONS = ['Central', 'West', 'North', 'South', 'East', 'Suburbs', 'Coast', 'Countryside'].filter((r) => areas.some((a) => a.region === r));
+const trim = (s: string | null | undefined, n: number) => {
+  const t = (s || '').replace(/\s+/g, ' ').trim();
+  return t.length <= n ? t : t.slice(0, n).replace(/\s+\S*$/, '').replace(/[,;:]+$/, '') + '…';
+};
+const list = (areas as any[]).map((a) => ({
+  slug: a.slug as string, name: a.name as string, type: a.type as string, region: a.region as string,
+  vibe: trim(a.vibe, 150), bestFor: trim(a.bestFor, 120), schools: trim(a.schools, 70),
+  take: a.take && a.vibe && a.schools ? trim(a.take, 230) : '',
+})).sort((a, b) => a.name.localeCompare(b.name));
+const nHood = list.filter((a) => a.type === 'Neighborhood').length;
+
+// Spotlight: rotates by day through our featured areas (each has a vibe line, Dillon's take, and school info).
+const FEATURED = ['spring-branch', 'the-heights', 'tanglewood', 'cypress', 'sugar-land', 'katy'];
+let pool = FEATURED.map((s) => list.find((a) => a.slug === s && a.take)).filter(Boolean) as typeof list;
+if (pool.length < 3) pool = list.filter((a) => a.take);
+const dayIndex = Math.floor(Date.now() / 86400000);
+const spotStart = pool.length ? dayIndex % pool.length : 0;
+const spot = pool[spotStart];
+
+// Group the subdivision profiles by the neighborhood they are in (same matching the old page used).
 const subAreaByName: Record<string, string> = {};
-subdivisions.forEach((s) => (subAreaByName[s.name.trim().toLowerCase()] = s.area));
-const areaByName: Record<string, (typeof areas)[number]> = {};
-areas.forEach((a) => (areaByName[a.name.trim().toLowerCase()] = a));
-const hoodGroups: Record<string, { area: (typeof areas)[number]; items: typeof hoods }> = {};
-const otherHoods: typeof hoods = [];
-hoods.forEach((h) => {
+(subdivisions as any[]).forEach((s) => (subAreaByName[s.name.trim().toLowerCase()] = s.area));
+const areaByName: Record<string, any> = {};
+(areas as any[]).forEach((a) => (areaByName[a.name.trim().toLowerCase()] = a));
+const hoodGroups: Record<string, { area: any; items: any[] }> = {};
+const otherHoods: any[] = [];
+(hoods as any[]).forEach((h) => {
   const key = h.name.trim().toLowerCase();
   const areaSlug = subAreaByName[key] || areaByName[key]?.slug;
-  const area = areaSlug ? areas.find((a) => a.slug === areaSlug) : null;
-  if (area) {
-    (hoodGroups[area.slug] ||= { area, items: [] }).items.push(h);
-  } else {
-    otherHoods.push(h);
-  }
+  const area = areaSlug ? (areas as any[]).find((a) => a.slug === areaSlug) : null;
+  if (area) (hoodGroups[area.slug] ||= { area, items: [] }).items.push(h); else otherHoods.push(h);
 });
-const sortedHoodGroups = Object.values(hoodGroups).sort((x, y) => x.area.name.localeCompare(y.area.name));
+const sortedGroups = Object.values(hoodGroups).sort((x, y) => x.area.name.localeCompare(y.area.name));
+sortedGroups.forEach((g) => g.items.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase())));
+otherHoods.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
+const subTotal = hoods.length;
 
-// Rotating neighborhood guide preview, shown above "Browse neighborhoods". Rotates by calendar
-// day (changes whenever the site next rebuilds on a new day) through areas that actually have
-// enough real content to look complete: at least 2 Sara's-pick businesses, a vibe line, Dillon's
-// take, and school info. Two fields we don't have anywhere (median home price, commute time) and
-// the "Perfect Saturday" itinerary beyond the coffee stop are shown as honest bracketed
-// placeholders, same convention used for "Opened this month" and the Food Feature card.
-const RATING_LABEL: Record<string, string> = { stop: 'Worth a Stop', drive: 'Worth the Drive', trip: 'Worth the Trip' };
-const picksByArea: Record<string, typeof businesses> = {};
-businesses.forEach((b) => { if (b.area && b.saraPick) (picksByArea[b.area] ||= []).push(b); });
-const rotationPool = areas.filter((a) => (picksByArea[a.slug]?.length || 0) >= 2 && a.take && a.vibe && a.schools);
-const dayIndex = Math.floor(Date.now() / 86400000);
-const featured = rotationPool.length > 0 ? rotationPool[dayIndex % rotationPool.length] : null;
-const featuredPicks = featured ? (picksByArea[featured.slug] || []).slice(0, 3) : [];
-const coffeePick = featuredPicks.find((b) => b.categories.includes('Coffee & Tea'));
+const SV = 'fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"';
+const icon = (type: string, s: number) => {
+  const paths: Record<string, string> = {
+    Neighborhood: '<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>',
+    City: '<path d="M4 21V8l6-3v16M10 21V10l10 3v8M3 21h18"/><path d="M7 11h0M7 15h0M14 15h0M17 17h0"/>',
+    Area: '<circle cx="12" cy="9" r="6"/><path d="M12 15v6M9 21h6"/>',
+  };
+  return '<svg width="' + s + '" height="' + s + '" viewBox="0 0 24 24" ' + SV + '>' + (paths[type] || paths.Area) + '</svg>';
+};
+const byType: Record<string, typeof list> = {};
+list.forEach((a) => { (byType[a.type] = byType[a.type] || []).push(a); });
+const TYPE_PLURAL: Record<string, string> = { Neighborhood: 'Neighborhoods', City: 'Cities', Area: 'Areas' };
+const SHOW = 12;
+const bar = [['spotlight', 'Spotlight'], ['kind', 'Your kind of local'], ['explore', 'Explore'], ['locally', 'Locally'], ['subs', 'Subdivisions'], ['home', 'Make it home']];
+const spotJson = JSON.stringify(pool.map((a) => ({ s: a.slug, n: a.name, t: a.type, r: a.region, v: a.vibe, b: a.bestFor, sc: a.schools, k: a.take })));
 ---
 <Base title="Around Town" description="Every Tradition Local neighborhood guide covers where to eat, how to spend a Saturday, and what it is really like to live there.">
-  <section class="band">
+  <section class="band cn-band">
     <div class="wrap">
-      <p class="kicker">Eat, do, and live like a local</p>
+      <p class="cn-crumb"><a href={url('/')}>Home</a> <span aria-hidden="true">&rsaquo;</span> Neighborhoods</p>
+      <span class="cn-tag">Neighborhoods &middot; Greater Houston</span>
       <h1>Around Town</h1>
-      <p class="lede">Every neighborhood guide covers where to eat, how to spend a Saturday, and what it is really like to live there.</p>
-      <a class="btn gold" href={url('/neighborhood-info-request')}>Not sure? Ask Dillon</a>
-      <p class="mih-link"><a href={url('/make-it-home')}>Compare neighborhoods side by side &rarr;</a></p>
+      <p class="cn-lead">Houston, one neighborhood at a time. Find a place that feels like you. Explore the local flavors, everyday discoveries, and connections that make each corner of Houston worth knowing.</p>
+      <div class="cn-stats">
+        <div><b>{list.length}</b><span>Area guides</span></div>
+        <div><b>{nHood}</b><span>Neighborhoods</span></div>
+        <div><b>{list.length - nHood}</b><span>Cities and areas</span></div>
+        <div><b>{subTotal}</b><span>Subdivision profiles</span></div>
+      </div>
+      <div class="cn-btns"><a class="cn-pill gold" href="#explore">Explore neighborhoods</a><a class="cn-pill white" href={url('/neighborhood-info-request')}>Help me get started</a></div>
     </div>
   </section>
-  {featured && (
-    <section class="section preview-section">
-      <div class="wrap">
-        <div class="preview-head">
-          <div>
-            <p class="preview-kicker">Neighborhood guide preview</p>
-            <h2>{featured.name}</h2>
-            <p class="preview-vibe">{featured.vibe}</p>
-          </div>
-          <a class="preview-open" href={url(`/cities/${featured.slug}`)}>Open the full {featured.name} guide &rarr;</a>
-        </div>
-        <div class="preview-grid">
-          <div class="preview-card">
-            <p class="col-kicker">Where to eat</p>
-            {featuredPicks.length > 0 ? (
-              <ul class="preview-eats">
-                {featuredPicks.map((b) => (
-                  <li>
-                    <div class="ph"></div>
-                    <div>
-                      <strong><a href={url(`/eat/${b.slug}`)}>{b.name}</a></strong>
-                      <span class="muted small">{RATING_LABEL[b.rating] || "Sara's pick"} &middot; {b.categories[0]}</span>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            ) : <p class="muted small">No spots listed here yet.</p>}
-            <a class="more-link" href={url(`/cities/${featured.slug}`)}>All places to eat &rarr;</a>
-          </div>
-          <div class="preview-card">
-            <p class="col-kicker">The perfect Saturday</p>
-            <ul class="sat-list">
-              <li><span class="time">9 AM</span><div><strong>Coffee</strong><span class="muted small">{coffeePick ? coffeePick.name : <span class="ph-text">[Coffee shop]</span>}</span></div></li>
-              <li><span class="time">11 AM</span><div><strong>Park or trail</strong><span class="muted small ph-text">[Park name]</span></div></li>
-              <li><span class="time">2 PM</span><div><strong>Local shops</strong><span class="muted small ph-text">[Shop or market]</span></div></li>
-              <li><span class="time">7 PM</span><div><strong>Dinner</strong><span class="muted small ph-text">[Restaurant]</span></div></li>
-            </ul>
-            <a class="more-link" href={url(`/cities/${featured.slug}`)}>What's on this weekend &rarr;</a>
-          </div>
-          <div class="preview-card dark">
-            <p class="col-kicker gold">Living here</p>
-            <dl>
-              <div><dt>Median home price</dt><dd class="ph-text">[$000K]</dd></div>
-              <div><dt>Commute to Galleria</dt><dd class="ph-text">[00 min]</dd></div>
-              <div><dt>School district</dt><dd>{featured.schools}</dd></div>
-            </dl>
-            <p class="quote">&ldquo;{featured.take}&rdquo;</p>
-            <a class="btn gold" href={url(`/cities/${featured.slug}`)}>Living in {featured.name} &rarr;</a>
-          </div>
+  <div class="cn-bar">
+    <div class="wrap cn-barin">
+      <nav class="cn-barlist" aria-label="Sections on this page">{bar.map((b, i) => <a href={'#' + b[0]} data-sec={b[0]} class={i === 0 ? 'on' : ''}>{b[1]}</a>)}</nav>
+      <span class="cn-best">Best for: Movers, curious locals, and anyone choosing where to live</span>
+    </div>
+  </div>
+
+  <section class="cn-blk wrap" id="perspective">
+    <div class="cn-persp first">
+      <h2>A local perspective. A personal connection.</h2>
+      <p>Explore with Dillon and Sara through firsthand visits, neighborhood spotlights, and useful guides that connect the places you are curious about.</p>
+      <p class="path"><a href="#explore">Area guide</a> &rarr; <a href="#spotlight">Neighborhood spotlight</a> &rarr; <a href="#subs">Subdivision profiles</a>, where applicable.</p>
+    </div>
+  </section>
+
+  {spot && (
+    <section class="cn-blk wrap" id="spotlight">
+      <div class="cn-sechead"><div><h2>Neighborhood spotlight</h2></div><button class="cn-linkbtn" type="button" id="cn-spotnext">See another &rarr;</button></div>
+      <div class="cn-spot" id="cn-spot">
+        <div class="tile" aria-hidden="true"><span set:html={icon(spot.type, 34)}></span><h3>{spot.name}</h3><span class="ph">[Neighborhood photo]</span></div>
+        <div class="body">
+          <span class="tg">Explore locally</span>
+          <h3 class="t">Get to know {spot.name}.</h3>
+          <p>{spot.vibe}</p>
+          <div class="facts"><span><b>Best for:</b> {spot.bestFor}</span><span><b>Schools:</b> {spot.schools}</span><span><b>Region:</b> {spot.region}</span></div>
+          <p class="take">&ldquo;{spot.take}&rdquo; Dillon</p>
+          <div class="acts"><a class="cn-pill gold" href={url('/cities/' + spot.slug)}>Explore the guide</a></div>
         </div>
       </div>
+      <script type="application/json" id="cn-spotdata" set:html={spotJson}></script>
     </section>
   )}
-  <section class="section">
-    <div class="wrap">
-      <h2 class="filters-head">Browse neighborhoods</h2>
-      <div class="filters" id="filters">
-        <label class="search"><span class="sr">Search neighborhoods</span>
-          <input type="search" id="q" placeholder="Search by name" />
-        </label>
+
+  <section class="cn-blk wrap" id="kind">
+    <div class="cn-kind">
+      <div><p class="eb">Your kind of local</p><h2>Start with what you love.</h2><p>Follow a good meal, an afternoon outdoors, or a local story into a neighborhood you want to know better.</p></div>
+      <div class="kchips">
+        <a class="kchip" href={url('/food')}>Food &amp; coffee</a>
+        <a class="kchip" href={url('/living')}>Outdoors &amp; outings</a>
+        <a class="kchip" href={url('/all-articles')}>People &amp; stories</a>
       </div>
-      <div class="chips" role="group" aria-label="Filter by region">
-        <button class="chip" data-region="" data-trending="1" aria-pressed="true">Trending</button>
-        <button class="chip" data-region="" aria-pressed="false">All regions</button>
-        {regions.map((r) => <button class="chip" data-region={r} aria-pressed="false">{r}</button>)}
-      </div>
-      <p class="muted" id="count" aria-live="polite">{areas.length} guides</p>
-      <ul class="areas" id="areas">
-        {areas.map((a) => (
-          <li data-region={a.region} data-name={a.name.toLowerCase()} data-year={latestYearByArea[a.slug] || 0}>
-            <a href={url(`/cities/${a.slug}`)}>
-              <span class="type">{a.type} in {a.region}</span>
-              <strong>{a.name}</strong>
-              <span class="vibe">{a.vibe}</span>
-            </a>
-          </li>
-        ))}
-      </ul>
-      <p id="empty" hidden>No neighborhoods match that search.</p>
     </div>
   </section>
-  <section class="section tint">
-    <div class="wrap">
-      <div class="section-head"><h2>Subdivision profiles</h2><span class="muted">{hoods.length} communities</span></div>
-      <p>Price ranges, price per square foot, HOAs, and school districts for individual subdivisions, grouped by neighborhood.</p>
-      {sortedHoodGroups.map((g) => (
-        <div class="hood-group">
-          <h3><a href={url(`/cities/${g.area.slug}`)}>{g.area.name}</a> <span class="muted small">{g.items.length}</span></h3>
-          <ul class="hood-index">{g.items.map((h) => <li><a href={url(h.path)}>{h.name}</a></li>)}</ul>
-        </div>
+
+  <section class="cn-blk wrap" id="explore">
+    <div class="cn-sechead"><div><h2>Where would you like to explore?</h2></div><span class="cn-badge">Every card opens its neighborhood profile</span></div>
+    <div class="cn-filters">
+      <label>Find an area<input type="search" id="cn-q" placeholder="Search neighborhoods and communities" /></label>
+      <label>Browse
+        <select id="cn-region"><option value="">All areas</option>{REGIONS.map((r) => <option value={r}>{r} ({list.filter((a) => a.region === r).length})</option>)}</select>
+      </label>
+    </div>
+    <div class="cn-tabs" id="cn-tabs" role="group" aria-label="Type of area">
+      <button class="cn-tab" type="button" data-type="" aria-pressed="true">All areas</button>
+      <button class="cn-tab" type="button" data-type="Neighborhood" aria-pressed="false">Neighborhoods</button>
+      <button class="cn-tab" type="button" data-type="City" aria-pressed="false">Cities</button>
+      <button class="cn-tab" type="button" data-type="Area" aria-pressed="false">Areas</button>
+    </div>
+    <p class="cn-count" id="cn-count" aria-live="polite">{list.length} areas to explore</p>
+    <div class="cn-grid" id="cn-grid">
+      {list.map((a, i) => (
+        <article class="cn-acard" hidden={i >= SHOW} data-region={a.region} data-type={a.type} data-text={(a.name + ' ' + a.vibe).toLowerCase()}>
+          <div class="band2"><span class="ic" set:html={icon(a.type, 26)}></span><span>{a.type} &middot; {a.region}</span></div>
+          <div class="body">
+            <h3><a href={url('/cities/' + a.slug)}>{a.name}</a></h3>
+            <p>{a.vibe}</p>
+            <div class="row"><a class="cn-pill line sm" href={url('/cities/' + a.slug)}>Explore {a.name.length > 26 ? 'this guide' : a.name} &rarr;</a></div>
+          </div>
+        </article>
       ))}
-      {otherHoods.length > 0 && (
-        <div class="hood-group">
-          <h3>Other communities <span class="muted small">{otherHoods.length}</span></h3>
-          <ul class="hood-index">{otherHoods.map((h) => <li><a href={url(h.path)}>{h.name}</a></li>)}</ul>
-        </div>
+    </div>
+    <div class="cn-empty" id="cn-empty" hidden>No areas match that search. Try another name or region.</div>
+    <div class="cn-more"><button class="cn-pill line" type="button" id="cn-more" hidden={list.length <= SHOW}>Show more areas</button></div>
+    <noscript><style>.cn-acard[hidden] { display: flex; }</style></noscript>
+  </section>
+
+  <section class="cn-blk wrap" id="locally">
+    <div class="cn-locally">
+      <div><p class="eb" id="cn-loceb">Locally{spot ? ' · ' + spot.name : ''}</p><h2>Your neighborhood.<br />In your inbox.</h2><p id="cn-loctext">Get food finds, things to do, local stories, and updates for your neighborhood.</p></div>
+      {config.newsletterAction ? (
+        <form id="cn-locform" action={config.newsletterAction} method="post">
+          <label for="cn-locarea">Choose your neighborhood</label>
+          <select id="cn-locarea" name="neighborhood">
+            {['Neighborhood', 'City', 'Area'].filter((t) => byType[t]).map((t) => (
+              <optgroup label={TYPE_PLURAL[t]}>{byType[t].map((a) => <option value={a.slug} selected={spot ? a.slug === spot.slug : false}>{a.name}</option>)}</optgroup>
+            ))}
+          </select>
+          <label for="cn-locemail">Email address</label>
+          <input id="cn-locemail" name="email" type="email" required placeholder="you@example.com" autocomplete="email" />
+          <input type="text" name="company" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px" />
+          <input type="hidden" name="return" id="cn-locreturn" />
+          <button type="submit">Join Locally</button>
+          <p class="fine" id="cn-locmsg" role="status">Joins the Tradition Local newsletter. We note your neighborhood for Locally updates.</p>
+        </form>
+      ) : (
+        <div><a class="cn-pill gold" href={'mailto:' + config.contactEmail + '?subject=Locally%20newsletter'}>Email us to join Locally</a></div>
       )}
     </div>
   </section>
+
+  <section class="cn-blk wrap" id="subs">
+    <div class="cn-sechead"><div><h2>Subdivision profiles</h2></div><span class="cn-hcount">{subTotal} communities</span></div>
+    <p class="cn-hdesc">Price ranges, price per square foot, HOAs, and school districts for individual subdivisions, grouped by neighborhood.</p>
+    {sortedGroups.map((g) => (
+      <div class="cn-hgroup">
+        <h3><a href={url('/cities/' + g.area.slug)}>{g.area.name}</a><small>{g.items.length}</small></h3>
+        <ul class="cn-hlinks">{g.items.map((h) => <li><a href={url(h.path)}>{h.name}</a></li>)}</ul>
+      </div>
+    ))}
+    {otherHoods.length > 0 && (
+      <div class="cn-hgroup">
+        <h3>Other communities<small>{otherHoods.length}</small></h3>
+        <ul class="cn-hlinks">{otherHoods.map((h) => <li><a href={url(h.path)}>{h.name}</a></li>)}</ul>
+      </div>
+    )}
+  </section>
+
+  <section class="cn-blk padb wrap" id="home">
+    <div class="cn-mih">
+      <div><p class="eb">Make it home</p><h2>Exploring a neighborhood? Considering a move?</h2><p>Dillon can help you turn local curiosity into a plan.</p></div>
+      <div class="btnrow"><a class="cn-pill gold" href={url('/neighborhood-info-request')}>Ask Dillon</a><a class="cn-pill line" href={url('/make-it-home')}>Compare neighborhoods</a></div>
+    </div>
+  </section>
 </Base>
-<script>
-  const q = document.getElementById('q') as HTMLInputElement;
-  const chips = [...document.querySelectorAll<HTMLButtonElement>('[data-region]')].filter((el) => el.tagName === 'BUTTON');
-  const list = document.getElementById('areas')!;
-  const originalOrder = [...document.querySelectorAll<HTMLLIElement>('#areas li')];
-  const items = originalOrder;
-  const count = document.getElementById('count')!;
-  const empty = document.getElementById('empty')!;
-  let region = '';
-  let trending = true;
-  function apply() {
-    const term = q.value.trim().toLowerCase();
-    const order = trending
-      ? [...items].sort((a, b) => Number(b.dataset.year) - Number(a.dataset.year))
-      : originalOrder;
-    let n = 0;
-    for (const li of order) {
-      const ok = (!term || li.dataset.name!.includes(term)) && (!region || li.dataset.region === region) && (!trending || n < 12);
-      li.hidden = !ok; if (ok) n++;
+
+<script is:inline>
+  (function () {
+    var $ = function (id) { return document.getElementById(id); };
+    var cards = [].slice.call(document.querySelectorAll('.cn-acard'));
+    var SHOW = 12, st = { q: '', region: '', type: '', limit: SHOW };
+    function render() {
+      var q = st.q.trim().toLowerCase(), n = 0, shown = 0;
+      cards.forEach(function (c) {
+        var ok = (!q || c.getAttribute('data-text').indexOf(q) > -1) && (!st.region || c.getAttribute('data-region') === st.region) && (!st.type || c.getAttribute('data-type') === st.type);
+        if (ok) { n++; if (shown < st.limit) { shown++; c.hidden = false; } else { c.hidden = true; } } else { c.hidden = true; }
+      });
+      $('cn-count').textContent = n + ' area' + (n === 1 ? '' : 's') + ' to explore';
+      $('cn-empty').hidden = n > 0;
+      $('cn-more').hidden = n <= st.limit;
+      document.querySelectorAll('#cn-tabs [data-type]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-type') === st.type)); });
     }
-    count.textContent = `${n} ${n === 1 ? 'guide' : 'guides'}`;
-    empty.hidden = n > 0;
-    order.forEach((li) => list.appendChild(li));
-  }
-  chips.forEach((c) => c.addEventListener('click', () => {
-    region = c.dataset.region || '';
-    trending = c.dataset.trending === '1';
-    chips.forEach((x) => x.setAttribute('aria-pressed', String(x === c)));
-    apply();
-  }));
-  q.addEventListener('input', apply);
-  apply();
+    $('cn-q').addEventListener('input', function () { st.q = this.value; st.limit = SHOW; render(); });
+    $('cn-region').addEventListener('change', function () { st.region = this.value; st.limit = SHOW; render(); });
+    $('cn-tabs').addEventListener('click', function (e) { var b = e.target.closest('[data-type]'); if (!b) return; st.type = b.getAttribute('data-type'); st.limit = SHOW; render(); });
+    $('cn-more').addEventListener('click', function () { st.limit += SHOW; render(); });
+    render();
+
+    // spotlight: "See another" cycles through the featured areas
+    var dataEl = $('cn-spotdata'), btn = $('cn-spotnext');
+    if (dataEl && btn) {
+      var pool = JSON.parse(dataEl.textContent), si = 0;
+      var base = (document.querySelector('.cn-hgroup h3 a') || { getAttribute: function () { return ''; } }).getAttribute('href') || '';
+      var prefix = base.replace(/\/cities\/[^/]*\/?$/, '');
+      function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+      var first = (document.querySelector('#cn-spot .acts a') || {}).getAttribute && document.querySelector('#cn-spot .acts a').getAttribute('href');
+      pool.forEach(function (a, i) { if (first && first.indexOf('/cities/' + a.s) > -1) si = i; });
+      var tileHtml = document.querySelector('#cn-spot .tile span').innerHTML;
+      var linkBase = first ? first.replace(/\/cities\/[^/]*\/?$/, '') : prefix;
+      btn.addEventListener('click', function () {
+        si = (si + 1) % pool.length; var a = pool[si];
+        $('cn-spot').innerHTML = '<div class="tile" aria-hidden="true"><span>' + tileHtml + '</span><h3>' + esc(a.n) + '</h3><span class="ph">[Neighborhood photo]</span></div><div class="body"><span class="tg">Explore locally</span><h3 class="t">Get to know ' + esc(a.n) + '.</h3><p>' + esc(a.v) + '</p><div class="facts"><span><b>Best for:</b> ' + esc(a.b) + '</span><span><b>Schools:</b> ' + esc(a.sc) + '</span><span><b>Region:</b> ' + esc(a.r) + '</span></div><p class="take">“' + esc(a.k) + '” Dillon</p><div class="acts"><a class="cn-pill gold" href="' + linkBase + '/cities/' + a.s + '">Explore the guide</a></div></div>';
+      });
+    }
+
+    // Locally: show the chosen neighborhood, and the result after the newsletter form returns here
+    var sel = $('cn-locarea');
+    if (sel) {
+      var upd = function () { var o = sel.options[sel.selectedIndex]; $('cn-loceb').textContent = 'Locally · ' + o.textContent; $('cn-loctext').textContent = 'Get food finds, things to do, local stories, and updates for ' + o.textContent + '.'; };
+      sel.addEventListener('change', upd); upd();
+      var ret = $('cn-locreturn'); if (ret) ret.value = location.origin + location.pathname;
+      var q = new URLSearchParams(location.search).get('newsletter'), m = $('cn-locmsg');
+      if (q && m) { m.textContent = q === 'ok' ? 'Thanks, you are subscribed. Welcome to Tradition Local.' : q === 'invalid' ? 'That email address does not look right. Please try again.' : 'Something went wrong. Please try again, or email us.'; var ls = $('locally'); if (ls) setTimeout(function () { ls.scrollIntoView(); }, 50); }
+    }
+
+    // keep the section bar in sync while scrolling
+    var links = [].slice.call(document.querySelectorAll('.cn-bar a[data-sec]'));
+    window.addEventListener('scroll', function () {
+      var cur = links[0].getAttribute('data-sec');
+      links.forEach(function (a) { var el = document.getElementById(a.getAttribute('data-sec')); if (el && el.getBoundingClientRect().top <= 140) cur = a.getAttribute('data-sec'); });
+      links.forEach(function (a) { a.classList.toggle('on', a.getAttribute('data-sec') === cur); });
+    }, { passive: true });
+  })();
 </script>
-<style>
-  .filters-head { margin: 0 0 16px; }
-  .filters { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
-  .filters input[type=search] { padding: 12px 16px; border: 1.5px solid var(--line); border-radius: 999px; font-size: 16px; background: #fff; }
-  .search { flex: 1 1 320px; } .search input { width: 100%; }
-  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
-  .mih-link { margin-top: 14px; }
-  .mih-link a { color: var(--gold); font-weight: 600; text-decoration: underline; }
-  .preview-section { background: var(--cream); }
-  .preview-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; flex-wrap: wrap; margin-bottom: 24px; }
-  .preview-kicker { font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--brown); margin: 0; }
-  .preview-head h2 { margin: 4px 0 6px; }
-  .preview-vibe { color: var(--muted); margin: 0; }
-  .preview-open { font-weight: 600; white-space: nowrap; }
-  .preview-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; align-items: stretch; }
-  .preview-card { background: #fff; border-radius: 10px; padding: 24px; display: flex; flex-direction: column; }
-  .preview-card.dark { background: var(--navy); color: #fff; }
-  .col-kicker { font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--brown); margin: 0 0 16px; }
-  .col-kicker.gold { color: var(--gold); }
-  .preview-eats { list-style: none; margin: 0 0 12px; padding: 0; }
-  .preview-eats li { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); }
-  .preview-eats li:last-child { border-bottom: none; }
-  .preview-eats .ph { flex-shrink: 0; width: 48px; height: 48px; border-radius: 6px; background: linear-gradient(135deg, var(--cream), var(--gold-soft)); }
-  .preview-eats strong { font-family: var(--serif); font-weight: 400; font-size: 1.05rem; }
-  .preview-eats strong a { color: var(--blue); text-decoration: none; }
-  .preview-eats span.muted { display: block; font-size: 13px; }
-  .sat-list { list-style: none; margin: 0 0 12px; padding: 0; }
-  .sat-list li { display: flex; gap: 14px; padding: 10px 0; border-bottom: 1px solid var(--line); }
-  .sat-list li:last-child { border-bottom: none; }
-  .sat-list .time { flex-shrink: 0; width: 46px; font-size: 12px; font-weight: 700; color: var(--brown); padding-top: 2px; }
-  .sat-list strong { display: block; font-size: 15px; }
-  .sat-list span.muted { display: block; font-size: 13px; }
-  .more-link { margin-top: auto; font-weight: 600; font-size: 14px; }
-  .preview-card.dark dl { margin: 0 0 20px; }
-  .preview-card.dark dl > div { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,.2); font-size: 14px; }
-  .preview-card.dark dt { color: rgba(255,255,255,.75); }
-  .preview-card.dark dd { font-weight: 700; }
-  .preview-card.dark .quote { font-family: var(--serif); font-size: 1.1rem; line-height: 1.4; margin: 0 0 20px; }
-  .preview-card.dark .btn.gold { margin-top: auto; text-align: center; }
-  .ph-text { color: var(--muted); font-style: italic; }
-  .preview-card.dark .ph-text { color: rgba(255,255,255,.6); }
-  @media (max-width: 900px) { .preview-grid { grid-template-columns: 1fr; } }
-  #count { margin: 18px 0; }
-  .areas { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
-  .areas li[hidden] { display: none; }
-  .areas a { display: flex; flex-direction: column; gap: 6px; height: 100%; padding: 22px; border: 1px solid var(--line); border-top: 4px solid var(--gold); text-decoration: none; color: var(--ink); }
-  .areas a:hover { background: var(--cream); }
-  .type { font-size: 13px; color: var(--brown); }
-  .areas strong { font-family: var(--serif); font-weight: 400; font-size: 1.5rem; color: var(--blue); }
-  .vibe { color: var(--muted); font-size: 15px; }
-  .hood-group { margin-top: 36px; }
-  .hood-group h3 { font-family: var(--serif); font-weight: 400; font-size: 1.3rem; color: var(--blue); margin: 0 0 4px; }
-  .hood-group h3 a { color: inherit; text-decoration: none; }
-  .hood-group h3 a:hover { text-decoration: underline; }
-  .muted.small { font-size: 14px; font-weight: 400; font-family: var(--sans); }
-  .hood-index { columns: 4 200px; padding: 0; list-style: none; margin-top: 12px; }
-  .hood-index li { break-inside: avoid; padding: 3px 0; }
-  .hood-index a { text-decoration: none; }
+
+<style is:global>
+  .cn-band { padding: 36px 0 44px; }
+  .cn-crumb { font-size: 14px; color: rgba(255,255,255,.8); margin: 0 0 18px; }
+  .cn-crumb a { color: #dfe6fb; }
+  .cn-tag { display: inline-block; background: rgba(255,255,255,.18); border-radius: 99px; padding: 7px 16px; font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 12px; color: #fff; }
+  .cn-band h1 { font-size: clamp(44px, 7vw, 78px); line-height: 1.05; margin: 0 0 22px; }
+  .cn-lead { font-size: 20px; line-height: 1.55; max-width: 34em; margin: 0 0 30px; color: #fff; }
+  .cn-stats { display: flex; flex-wrap: wrap; gap: 20px 56px; margin: 0 0 28px; }
+  .cn-stats b { display: block; font: 600 clamp(24px, 3vw, 32px)/1.2 var(--serif); color: #fff; }
+  .cn-stats span { font-size: 15px; color: rgba(255,255,255,.8); }
+  .cn-btns { display: flex; gap: 12px; flex-wrap: wrap; }
+  .cn-pill { display: inline-block; border-radius: 999px; padding: 12px 26px; font: 700 15px var(--serif); text-decoration: none; cursor: pointer; border: 2px solid transparent; }
+  .cn-pill:hover { text-decoration: none; }
+  .cn-pill.gold { background: var(--gold); color: var(--navy); }
+  .cn-pill.white { background: #fff; color: var(--navy); }
+  .cn-pill.line { background: #fff; border-color: var(--line); color: var(--blue); }
+  .cn-pill.line:hover { border-color: var(--blue); }
+  .cn-pill.sm { padding: 7px 16px; font-size: 13px; }
+
+  .cn-bar { position: sticky; top: 0; z-index: 6; background: #fff; border-bottom: 1px solid var(--line); }
+  .cn-barin { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 72px; flex-wrap: wrap; padding-top: 10px; padding-bottom: 10px; }
+  .cn-barlist { display: flex; gap: 6px; flex-wrap: wrap; }
+  .cn-barlist a { border-radius: 999px; padding: 11px 20px; font: 700 17px var(--sans); color: var(--navy); text-decoration: none; }
+  .cn-barlist a:hover { background: var(--cream); }
+  .cn-barlist a.on { background: var(--navy); color: #fff; }
+  .cn-best { color: var(--muted); font-size: 17px; }
+
+  .cn-blk { padding: 44px 0 8px; scroll-margin-top: 84px; }
+  .cn-blk.padb { padding-bottom: 44px; }
+  .cn-sechead { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; border-bottom: 2px solid var(--blue); padding-bottom: 8px; margin-bottom: 18px; }
+  .cn-sechead h2 { margin: 0; font-size: clamp(26px, 3.4vw, 34px); color: var(--blue); line-height: 1.15; }
+  .cn-badge { font-size: 12px; color: var(--muted); background: #fff; border: 1px solid var(--line); border-radius: 99px; padding: 3px 12px; }
+  .cn-linkbtn { background: none; border: 0; color: var(--blue); font-weight: 700; cursor: pointer; font-size: 15px; padding: 8px 4px; text-decoration: underline; }
+
+  .cn-persp h2 { font-size: clamp(26px, 3.2vw, 34px); color: var(--blue); margin: 0 0 10px; line-height: 1.2; }
+  .cn-persp p { font-size: 18px; max-width: 62ch; margin: 0 0 12px; }
+  .cn-persp .path { font-size: 15px; color: var(--muted); }
+  .cn-persp .path a { color: var(--blue); font-weight: 700; text-decoration: none; }
+
+  .cn-spot { display: grid; grid-template-columns: 1fr 1.4fr; border: 1px solid var(--line); border-radius: 16px; overflow: hidden; background: #fff; }
+  @media (max-width: 800px) { .cn-spot { grid-template-columns: 1fr; } }
+  .cn-spot .tile { background: var(--cream); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 34px 20px; min-height: 260px; text-align: center; color: var(--navy); }
+  .cn-spot .tile h3 { font-size: clamp(30px, 4vw, 44px); line-height: 1.1; margin: 0; }
+  .cn-spot .tile .ph { font: italic 400 15px var(--serif); color: var(--muted); }
+  .cn-spot .body { padding: 28px 32px; display: flex; flex-direction: column; gap: 12px; }
+  .cn-spot .tg { align-self: flex-start; background: var(--gold-soft); color: #6b4a1d; border-radius: 99px; padding: 4px 14px; font-size: 13px; font-weight: 700; }
+  .cn-spot h3.t { font-size: clamp(28px, 3.6vw, 38px); line-height: 1.15; color: var(--navy); margin: 0; }
+  .cn-spot p { margin: 0; font-size: 18px; color: var(--ink); }
+  .cn-spot .facts { display: flex; flex-wrap: wrap; gap: 8px 22px; font-size: 14px; color: var(--muted); }
+  .cn-spot .facts b { color: var(--navy); }
+  .cn-spot .take { border-left: 3px solid var(--gold); padding-left: 14px; font-size: 16px; color: var(--muted); font-style: italic; }
+  .cn-spot .acts { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+
+  .cn-kind { background: var(--navy); color: #fff; border-radius: 18px; padding: 30px 34px; display: grid; grid-template-columns: 1fr 1.2fr; gap: 26px; align-items: center; }
+  @media (max-width: 860px) { .cn-kind { grid-template-columns: 1fr; } }
+  .cn-kind .eb, .cn-mih .eb, .cn-locally .eb { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; margin: 0 0 6px; }
+  .cn-kind .eb { color: var(--gold); }
+  .cn-kind h2 { font-size: clamp(28px, 3.4vw, 36px); line-height: 1.15; margin: 0 0 10px; color: #fff; }
+  .cn-kind p { margin: 0; color: rgba(255,255,255,.88); }
+  .kchips { display: flex; flex-wrap: wrap; gap: 10px; }
+  .kchip { background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.3); color: #fff; border-radius: 12px; padding: 12px 18px; font-size: 16px; text-decoration: none; }
+  .kchip:hover { border-color: var(--gold); }
+
+  .cn-filters { display: grid; grid-template-columns: 1.4fr 1fr; gap: 14px; background: var(--cream); border: 1px solid var(--line); border-top: 3px solid var(--gold); border-radius: 12px; padding: 16px; margin-bottom: 16px; align-items: end; }
+  @media (max-width: 700px) { .cn-filters { grid-template-columns: 1fr; } }
+  .cn-filters label { display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--muted); }
+  .cn-filters input[type=search], .cn-filters select { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; font: inherit; font-size: 16px; color: var(--ink); }
+  .cn-filters select { appearance: none; background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none' stroke='%2320455e' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 6l5 5 5-5'/%3E%3C/svg%3E") no-repeat right 14px center; padding-right: 38px; cursor: pointer; }
+  .cn-tabs { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 14px; }
+  .cn-tab { border: 1.5px solid var(--line); background: #fff; color: var(--blue); border-radius: 999px; padding: 9px 20px; font-weight: 700; font-size: 15px; cursor: pointer; }
+  .cn-tab:hover { border-color: var(--blue); }
+  .cn-tab[aria-pressed="true"] { background: var(--navy); border-color: var(--navy); color: #fff; }
+  .cn-count { color: var(--muted); margin: 0 0 16px; font-size: 15px; }
+  .cn-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 18px; }
+  .cn-acard { background: #fff; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; }
+  .cn-acard[hidden] { display: none; }
+  .cn-acard:hover { border-color: var(--gold); }
+  .cn-acard .band2 { background: var(--cream); border-bottom: 1px solid var(--line); padding: 16px 20px; display: flex; align-items: center; gap: 12px; color: var(--navy); }
+  .cn-acard .band2 span:last-child { font-size: 13px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+  .cn-acard .body { padding: 18px 20px 20px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+  .cn-acard h3 { font-size: 24px; line-height: 1.2; margin: 0; }
+  .cn-acard h3 a { color: var(--navy); text-decoration: none; }
+  .cn-acard h3 a:hover { text-decoration: underline; }
+  .cn-acard p { margin: 0; color: var(--muted); font-size: 15px; }
+  .cn-acard .row { margin-top: auto; padding-top: 10px; }
+  .cn-empty { padding: 34px; text-align: center; color: var(--muted); border: 1px dashed var(--line); border-radius: 12px; }
+  .cn-more { display: flex; justify-content: center; padding: 22px 0 4px; }
+  .cn-more [hidden] { display: none; }
+
+  .cn-locally { background: var(--cream); border: 1px solid var(--line); border-top: 4px solid var(--gold); border-radius: 18px; padding: 32px 34px; display: grid; grid-template-columns: 1fr 1fr; gap: 30px; align-items: center; }
+  @media (max-width: 860px) { .cn-locally { grid-template-columns: 1fr; } }
+  .cn-locally .eb { color: var(--brown); }
+  .cn-locally h2 { font-size: clamp(28px, 3.4vw, 38px); color: var(--blue); line-height: 1.15; margin: 0 0 10px; }
+  .cn-locally p { margin: 0; color: var(--muted); }
+  .cn-locally label { display: block; font-size: 14px; margin: 0 0 6px; }
+  .cn-locally select, .cn-locally input[type=email] { width: 100%; height: 48px; border: 1.5px solid var(--line); border-radius: 999px; background: #fff; padding: 0 18px; font: inherit; font-size: 16px; margin-bottom: 12px; }
+  .cn-locally select { appearance: none; background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none' stroke='%2320455e' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 6l5 5 5-5'/%3E%3C/svg%3E") no-repeat right 18px center; }
+  .cn-locally button[type=submit] { width: 100%; height: 48px; border: 0; border-radius: 999px; background: var(--gold); color: var(--blue); font: 700 16px var(--serif); cursor: pointer; }
+  .cn-locally .fine { font-size: 13px; color: var(--muted); margin: 8px 0 0; }
+
+  .cn-hcount { font-size: 18px; color: var(--muted); padding-bottom: 2px; }
+  .cn-hdesc { font-size: 19px; color: var(--ink); margin: 0 0 30px; max-width: 70ch; }
+  .cn-hgroup { margin: 0 0 36px; }
+  .cn-hgroup h3 { font: 600 clamp(24px, 2.6vw, 30px)/1.2 var(--serif); color: var(--blue); margin: 0 0 14px; }
+  .cn-hgroup h3 a { color: var(--blue); text-decoration: none; }
+  .cn-hgroup h3 a:hover { text-decoration: underline; }
+  .cn-hgroup h3 small { font: 400 16px var(--sans); color: var(--muted); margin-left: 6px; }
+  .cn-hlinks { columns: 4; column-gap: 34px; list-style: none; margin: 0; padding: 0; }
+  @media (max-width: 1000px) { .cn-hlinks { columns: 3; } }
+  @media (max-width: 720px) { .cn-hlinks { columns: 2; } }
+  @media (max-width: 460px) { .cn-hlinks { columns: 1; } }
+  .cn-hlinks li { break-inside: avoid; margin: 0 0 12px; }
+  .cn-hlinks a { color: var(--blue); text-decoration: none; font-size: 18px; line-height: 1.35; }
+  .cn-hlinks a:hover { text-decoration: underline; }
+
+  .cn-mih { display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap; background: #e6eef8; border-radius: 16px; padding: 26px 30px; }
+  .cn-mih .eb { color: var(--brown); margin: 0 0 4px; }
+  .cn-mih h2 { font-size: clamp(24px, 3vw, 32px); color: var(--navy); margin: 0 0 4px; }
+  .cn-mih p { margin: 0; color: var(--muted); }
+  .cn-mih .btnrow { display: flex; gap: 10px; flex-wrap: wrap; }
 </style>
