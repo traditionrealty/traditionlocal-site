@@ -17,6 +17,28 @@ const MARKETS = new Set(['Grocery', 'International Grocery', 'Farmers Market', '
 
 export type Group = 'coffee' | 'restaurants' | 'sweets' | 'markets';
 
+// Cuisine regions for "Eat around the world". A cuisine can sit in more than one region (for example Halal).
+// Names that no place uses yet (Caribbean, Ethiopian, and so on) are listed so they appear as soon as a place is tagged.
+export const REGIONS: { r: string; c: string[] }[] = [
+  { r: 'Asian', c: ['Chinese', 'Japanese', 'Korean', 'Thai', 'Vietnamese', 'Taiwanese', 'Filipino', 'Indonesian', 'Cambodian', 'Laotian', 'Mongolian', 'Cantonese', 'Hong Kong Style Cafe', 'Asian Fusion', 'Sushi Bars', 'Ramen', 'Noodles', 'Izakaya', 'Indian', 'Pakistani', 'Bangladeshi', 'Nepalese', 'Sri Lankan'] },
+  { r: 'Middle Eastern & Mediterranean', c: ['Mediterranean', 'Middle Eastern', 'Persian/Iranian', 'Turkish', 'Greek', 'Arabic', 'Kebab', 'Afghan', 'Lebanese'] },
+  { r: 'African', c: ['Moroccan', 'Egyptian', 'South African', 'Ethiopian', 'Nigerian', 'West African', 'Senegalese', 'Somali', 'Eritrean', 'African'] },
+  { r: 'Latin American & Caribbean', c: ['Mexican', 'Tex-Mex', 'Tacos', 'Latin American', 'Peruvian', 'Argentine', 'Empanadas', 'Mexican Snacks', 'Caribbean', 'Jamaican', 'Cuban', 'Haitian', 'Puerto Rican', 'Dominican', 'Trinidadian', 'Brazilian', 'Colombian', 'Salvadoran'] },
+  { r: 'European', c: ['Italian', 'French', 'Spanish', 'Portuguese', 'Czech', 'Modern European', 'Tapas/Small Plates', 'Pizza'] },
+  { r: 'American & Southern', c: ['American', 'New American', 'Burgers', 'Barbeque', 'Southern', 'Cajun/Creole', 'Diners', 'Comfort Food', 'Cheesesteaks', 'Fast Food', 'Chicken Shop', 'Chicken Wings', 'Sandwiches', 'Delis', 'Breakfast & Brunch', 'Breakfast', 'Brunch Spots', 'Salad', 'Soup', 'Seafood', 'Fish & Chips', 'Gastropubs'] },
+  { r: 'Dietary & style', c: ['Halal', 'Vegan', 'Vegetarian', 'Live/Raw Food'] },
+];
+const CUISINE_REGIONS: Record<string, string[]> = {};
+REGIONS.forEach((g) => g.c.forEach((c) => { (CUISINE_REGIONS[c] = CUISINE_REGIONS[c] || []).push(g.r); }));
+
+/** Review titles store HTML entities; turn them back into plain text. */
+export function decodeEntities(s: string) {
+  return String(s || '')
+    .replace(/&#x([0-9a-f]+);/gi, (_m, h) => String.fromCodePoint(parseInt(h, 16)))
+    .replace(/&#(\d+);/g, (_m, d) => String.fromCodePoint(Number(d)))
+    .replace(/&nbsp;/g, ' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&amp;/g, '&');
+}
+
 export function trim(s: string | null | undefined, n: number) {
   const t = (s || '').replace(/\s+/g, ' ').trim();
   if (t.length <= n) return t;
@@ -38,6 +60,7 @@ export function foodPlaces() {
     .filter((b) => !b.closed && !b.categories.every((c: string) => NONFOOD.has(c)))
     .map((b) => {
       const groups = groupsOf(b.categories);
+      const cuisines = (b.categories as string[]).filter((c) => CUISINE_REGIONS[c]);
       return {
         slug: b.slug as string,
         name: b.name as string,
@@ -51,8 +74,18 @@ export function foodPlaces() {
         review: b.rating ? trim(b.review, 210) : '',
         author: (b.reviewAuthor || 'Sara Loren') as string,
         groups,
+        cuisines,
+        regions: [...new Set(cuisines.flatMap((c) => CUISINE_REGIONS[c]))].sort(),
         prim: (groups.includes('restaurants') ? 'restaurants' : groups[0] || 'restaurants') as Group,
       };
     })
     .sort((a, b) => Number(b.pick) - Number(a.pick) || b.year - a.year || a.name.localeCompare(b.name));
+}
+
+/** Closed food and drink places with a profile, newest review first. */
+export function closedFoodPlaces() {
+  return (businesses as any[])
+    .filter((b) => b.closed && !b.categories.every((c: string) => NONFOOD.has(c)))
+    .map((b) => ({ slug: b.slug as string, name: b.name as string, cats: (b.categories as string[]).slice(0, 2), year: Number(b.reviewYear) || 0 }))
+    .sort((a, b) => b.year - a.year || a.name.localeCompare(b.name));
 }
