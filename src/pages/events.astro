@@ -1,0 +1,61 @@
+---
+import Todo from '../layouts/Todo.astro';
+import EventCalendar from '../components/EventCalendar.astro';
+import events from '../data/events.json';
+import areaEvents from '../data/area-events.json';
+import { url } from '../lib/util';
+const today = new Date().toISOString().slice(0, 10);
+const upcomingCount = events.filter((e) => e.date && e.date >= today).length + areaEvents.filter((e) => (e.end || e.date) >= today).length;
+const nowCount = areaEvents.filter((e) => e.end && e.date <= today && e.end >= today).length;
+const ownUpcoming = events.filter((e) => e.date && e.date >= today).length;
+const ownPast = events.length - ownUpcoming;
+---
+<Todo
+  title="Events"
+  description="A calendar of what is happening around Greater Houston, from Tradition Local gatherings to exhibits and shows worth a visit."
+  tag="Events · Greater Houston"
+  heading="Events"
+  lead="What is happening around Greater Houston, from Tradition Local gatherings to exhibits and shows worth a visit."
+  crumbs={[{ label: 'Home', href: '/' }, { label: 'Things to Do', href: '/living' }, { label: 'Events' }]}
+  stats={[
+    { key: 'upcoming', value: upcomingCount, label: 'Upcoming and ongoing' },
+    { key: 'now', value: nowCount, label: 'Happening now' },
+    { key: 'tl', value: ownUpcoming, label: 'Tradition Local events' },
+    { key: 'past', value: ownPast, label: 'Past gatherings' },
+  ]}
+  buttons={[{ label: 'Submit an event', href: '#submit', kind: 'gold' }, { label: 'Weekend ideas', href: '/weekend-ideas', kind: 'white' }]}
+  bar={[{ id: 'calendar', label: 'Calendar' }, { id: 'ongoing', label: 'Happening now' }, { id: 'featured', label: 'Featured' }, { id: 'past', label: 'Past events' }, { id: 'submit', label: 'Submit' }]}
+  best="Best for: Planning ahead and finding something this week"
+>
+  <section class="td-blk wrap" id="calendar">
+    <div class="td-sechead"><div><h2>Event calendar</h2></div></div>
+    <EventCalendar />
+  </section>
+
+  <section class="td-blk wrap" id="ongoing">
+    <div class="td-sechead"><div><h2>Happening now</h2></div><span class="td-badge">Exhibits, shows, and long runs</span></div>
+    <div class="td-chips" id="td-ongoChips" role="group" aria-label="Filter ongoing events"></div>
+    <div class="td-ogrid" id="td-ongoGrid"></div>
+  </section>
+
+  <section class="td-blk wrap" id="featured">
+    <span id="events"></span>
+    <div class="td-sechead"><div><h2>Featured events</h2></div></div>
+    <div id="td-feat"></div>
+  </section>
+
+  <section class="td-blk wrap" id="past">
+    <div class="td-sechead"><div><h2>Past events</h2></div></div>
+    <details class="td-past">
+      <summary>Look back at Tradition Local gatherings</summary>
+      <ul class="td-pastlist" id="td-pastlist"></ul>
+    </details>
+  </section>
+
+  <section class="td-blk padb wrap" id="submit">
+    <div class="td-submit">
+      <div><h2>Hosting something local?</h2><p>Send us the details and we will consider it for the calendar. We list events that help people get out and explore Greater Houston.</p></div>
+      <a class="td-pill gold" href="mailto:traditionlocal@gmail.com?subject=Event%20submission">Submit an event</a>
+    </div>
+  </section>
+</Todo>
