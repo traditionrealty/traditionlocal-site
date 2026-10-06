@@ -33,10 +33,11 @@ const nav = [
     ],
   },
   {
-    label: 'Things To Do', href: '/living', match: ['/living', '/event-details'],
+    label: 'Things To Do', href: '/living', match: ['/living', '/event-details', '/events', '/weekend-ideas'],
     sub: [
       { label: 'This Weekend', href: '/living#weekend' },
-      { label: 'Upcoming Events', href: '/living#events' },
+      { label: 'Weekend Ideas', href: '/weekend-ideas' },
+      { label: 'Upcoming Events', href: '/events' },
     ],
   },
 ];
@@ -53,7 +54,7 @@ const moreActive = moreNav.some((n) => n.match.some((m) => path.startsWith(m)));
 const searchable = !/^\/(404|sign-in|join|reset-password|members|search)(\/|$)/.test(path);
 const searchType = /^\/(food|eat)(\/|$)/.test(path) ? 'Food'
   : /^\/(cities|copy-of-neighborhoods-1|traditionneighborhoods|subdivisions|make-it-home|new-builds)(\/|$)/.test(path) ? 'Neighborhoods'
-  : /^\/(living|event-details)(\/|$)/.test(path) ? 'Things To Do'
+  : /^\/(living|event-details|events|weekend-ideas)(\/|$)/.test(path) ? 'Things To Do'
   : /^\/(post|all-articles)(\/|$)/.test(path) ? 'Stories'
   : 'Pages';
 const popularSearches = ['coffee', 'brunch', 'Sugar Land', 'new builds', 'events'];
@@ -87,7 +88,7 @@ const popularSearches = ['coffee', 'brunch', 'Sugar Land', 'new builds', 'events
         <strong>Upcoming events</strong>
         <span class="eventbar-title">{next.title.replace(/\s*\[.*?\]\s*/g, ' ').trim()}, {fmtDate(next.date, { weekday: 'short', month: 'short', day: 'numeric' })}</span>
         <a class="rsvp" href={url(next.path)}>RSVP</a>
-        <a class="all" href={url('/living')}>See all events</a>
+        <a class="all" href={url('/events')}>See all events</a>
       </div>
     </div>
   )}
@@ -245,7 +246,7 @@ const popularSearches = ['coffee', 'brunch', 'Sugar Land', 'new builds', 'events
         <ul>
           <li><a href={url('/food')}>Where to eat</a></li>
           <li><a href={url('/cities')}>Neighborhood guides</a></li>
-          <li><a href={url('/living')}>Events</a></li>
+          <li><a href={url('/events')}>Events</a></li>
           <li><a href={url('/all-articles')}>All articles</a></li>
           <li><a href={url('/about-me')}>About us</a></li>
           {membersOn && <li><a href={url('/members')}>Members</a></li>}
