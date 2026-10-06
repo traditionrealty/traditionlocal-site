@@ -64,7 +64,7 @@
     var cls = 'td-pill line' + (sm ? ' sm' : '');
     return e.src === 'tl' ? '<a class="' + cls + '" href="' + esc(e.url) + '">View details</a>' : '<button class="' + cls + '" type="button" data-ev="' + esc(e.id) + '">View details</button>';
   }
-  function srcTag(e) { return '<span class="td-src ' + e.src + '">' + (e.src === 'tl' ? 'Tradition Local' : 'Visit Houston') + '</span>'; }
+  function srcTag(e) { return '<span class="td-src ' + e.src + '">' + (e.src === 'tl' ? 'Tradition Local' : (e.source || 'Visit Houston')) + '</span>'; }
   function eventRow(e) {
     var through = isRange(e);
     return '<div class="td-evrow"><div class="td-date">' + badge(e) + '</div><div><h3>' + esc(e.title) + srcTag(e) + '</h3><div class="td-meta">' + esc(e.venue) + (through ? ' · ' + md(e.date) + ' to ' + md(e.end) : '') + '</div></div>' + detailBtn(e, true) + '</div>';
