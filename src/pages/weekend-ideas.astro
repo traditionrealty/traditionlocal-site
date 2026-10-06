@@ -1,0 +1,32 @@
+---
+import Todo from '../layouts/Todo.astro';
+import ideas from '../data/ideas.json';
+const areas = [...new Set(ideas.map((i) => i.area))].sort();
+---
+<Todo
+  title="Weekend ideas"
+  description="Easy weekend plans by area and interest across Greater Houston. Save the ones you like and make a day of it."
+  tag="Weekend ideas · Greater Houston"
+  heading="Weekend ideas"
+  lead="Easy plans by area and interest. Save the ones you like and make a day of it."
+  crumbs={[{ label: 'Home', href: '/' }, { label: 'Things to Do', href: '/living' }, { label: 'Weekend ideas' }]}
+  stats={[
+    { key: 'ideas', value: ideas.length, label: 'Ideas to try' },
+    { key: 'areas', value: areas.length, label: 'Areas' },
+    { key: 'saved', value: 0, label: 'Saved by you' },
+  ]}
+  buttons={[{ label: 'See events', href: '/events', kind: 'gold' }, { label: 'Back to Things to Do', href: '/living', kind: 'white' }]}
+  bar={[{ id: 'discover', label: 'Discover' }]}
+  best="Best for: Families, couples, and anyone who wants to get out"
+>
+  <section class="td-blk padb wrap" id="discover">
+    <div class="td-tabs" role="tablist" aria-label="Browse by type" id="td-tabs"></div>
+    <div class="td-filters">
+      <label>Explore by area<select id="td-fArea"><option value="">All areas</option></select></label>
+      <label>Find your kind of outing<select id="td-fInt"><option value="">All interests</option></select></label>
+    </div>
+    <div class="td-sechead"><div><h2>Make a little time for local.</h2></div><span class="td-badge" id="td-ideaCount"></span></div>
+    <p class="td-note">Illustrative editorial ideas. Final guides would include verified places and practical details.</p>
+    <div class="td-ideas" id="td-ideaGrid"></div>
+  </section>
+</Todo>
