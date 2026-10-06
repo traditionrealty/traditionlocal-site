@@ -1,11 +1,15 @@
 ---
-import Base from '../layouts/Base.astro';
+import Todo from '../layouts/Todo.astro';
+import EventCalendar from '../components/EventCalendar.astro';
 import events from '../data/events.json';
-import { url, img, fmtDate } from '../lib/util';
+import areaEvents from '../data/area-events.json';
+import ideas from '../data/ideas.json';
+import { url, fmtDate } from '../lib/util';
 const today = new Date().toISOString().slice(0, 10);
 const upcoming = events.filter((e) => e.date && e.date >= today);
-const past = events.filter((e) => !e.date || e.date < today).reverse();
-const featured = upcoming[0];
+const upcomingCount = upcoming.length + areaEvents.filter((e) => (e.end || e.date) >= today).length;
+const nowCount = areaEvents.filter((e) => e.end && e.date <= today && e.end >= today).length;
+const areas = [...new Set(ideas.map((i) => i.area))].sort();
 
 // "This weekend" spotlight: our only real, dated recurring content is Coffee & Conversations.
 // We show it under its own real weekday rather than forcing it into a Saturday slot it may not
@@ -14,73 +18,87 @@ const featured = upcoming[0];
 const ccEvent = upcoming.find((e) => e.title.includes('Coffee & Conversations'));
 const ccDay = ccEvent ? fmtDate(ccEvent.date, { weekday: 'long' }) : null;
 ---
-<Base title="Things to Do" description="Events, weekend plans, and easy ideas for families, couples, and anyone who wants to get out and explore.">
-  <section class="band">
-    <div class="wrap">
-      <p class="crumb"><a href={url('/')}>Home</a> <span aria-hidden="true">&rsaquo;</span> Things to Do</p>
-      <p class="kicker">What to do in Greater Houston</p>
-      <h1>Things to Do</h1>
-      <p class="lede">Events, weekend plans, and easy ideas for families, couples, and anyone who wants to get out and explore.</p>
+<Todo
+  title="Things to Do"
+  description="Events, weekend plans, and easy ideas for families, couples, and anyone who wants to get out and explore Greater Houston."
+  tag="Things to Do · Greater Houston"
+  heading="Things to Do"
+  lead="Good plans start with a little discovery. Find something to do, a reason to get out, and a new favorite corner of Houston."
+  crumbs={[{ label: 'Home', href: '/' }, { label: 'Things to Do' }]}
+  stats={[
+    { key: 'upcoming', value: upcomingCount, label: 'Events on the calendar' },
+    { key: 'now', value: nowCount, label: 'Happening now' },
+    { key: 'ideas', value: ideas.length, label: 'Weekend ideas' },
+    { key: 'areas', value: areas.length, label: 'Areas to explore' },
+  ]}
+  buttons={[{ label: 'Explore weekend ideas', href: '/weekend-ideas', kind: 'gold' }, { label: 'Browse events', href: '/events', kind: 'white' }]}
+  bar={[{ id: 'weekend', label: 'This weekend' }, { id: 'calendar', label: 'Calendar' }, { id: 'featured', label: 'Featured events' }, { id: 'area', label: 'By area' }, { id: 'ideas', label: 'Ideas' }]}
+  best="Best for: Weekend plans, families, and curious locals"
+>
+  <section class="td-blk wrap" id="weekend">
+    <div class="td-sechead">
+      <div><span class="upd">Updated every Thursday</span><h2>This weekend in Houston</h2></div>
+      <a href={url('/events')}>Plan your weekend &rarr;</a>
+    </div>
+    <div class="weekend-grid">
+      <div class="weekend-card">
+        <p class="day">Friday</p>
+        <strong class="ph-text">[Live music night]</strong>
+        <span class="muted small ph-text">[Venue, area]</span>
+      </div>
+      <div class="weekend-card">
+        <p class="day">{ccDay || 'Saturday'}</p>
+        {ccEvent ? (
+          <>
+            <strong><a href={url(`/event-details/${ccEvent.slug}`)}>Coffee &amp; Conversations</a></strong>
+            <span class="muted small">{ccEvent.venue}</span>
+          </>
+        ) : (
+          <><strong class="ph-text">[Coffee shop meetup]</strong><span class="muted small ph-text">[Venue, area]</span></>
+        )}
+      </div>
+      <div class="weekend-card">
+        <p class="day">Saturday</p>
+        <strong class="ph-text">[Farmers market]</strong>
+        <span class="muted small ph-text">[Market, area]</span>
+      </div>
+      <div class="weekend-card">
+        <p class="day">Sunday</p>
+        <strong class="ph-text">[Park event or trail day]</strong>
+        <span class="muted small ph-text">[Park, area]</span>
+      </div>
     </div>
   </section>
-  <section class="section" id="weekend">
-    <div class="wrap">
-      <div class="section-head">
-        <div>
-          <p class="weekend-kicker">Updated every Thursday</p>
-          <h2>This weekend in Houston</h2>
-        </div>
-        <a href={url('/living')}>Plan your weekend &rarr;</a>
+
+  <section class="td-blk wrap" id="calendar">
+    <div class="td-sechead"><div><h2>Event calendar</h2></div><a href={url('/events')}>Open the full calendar &rarr;</a></div>
+    <EventCalendar />
+  </section>
+
+  <section class="td-blk wrap" id="featured">
+    <span id="events"></span>
+    <div class="td-sechead"><div><h2>Featured events</h2></div><a href={url('/events')}>See all events &rarr;</a></div>
+    <div id="td-feat"></div>
+  </section>
+
+  <section class="td-blk wrap" id="area">
+    <div class="td-dayc">
+      <div>
+        <p class="td-eyebrow">Make a day of it</p>
+        <h2>One area. More to explore.</h2>
+        <p>Pair your outing with a nearby cafe, a local shop, or a neighborhood walk. Pick an area to see ideas close together.</p>
       </div>
-      <div class="weekend-grid">
-        <div class="weekend-card">
-          <p class="day">Friday</p>
-          <strong class="ph-text">[Live music night]</strong>
-          <span class="muted small ph-text">[Venue, area]</span>
-        </div>
-        <div class="weekend-card">
-          <p class="day">{ccDay || 'Saturday'}</p>
-          {ccEvent ? (
-            <>
-              <strong><a href={url(ccEvent.path)}>Coffee &amp; Conversations</a></strong>
-              <span class="muted small">{ccEvent.venue}</span>
-            </>
-          ) : (
-            <><strong class="ph-text">[Coffee shop meetup]</strong><span class="muted small ph-text">[Venue, area]</span></>
-          )}
-        </div>
-        <div class="weekend-card">
-          <p class="day">Saturday</p>
-          <strong class="ph-text">[Farmers market]</strong>
-          <span class="muted small ph-text">[Market, area]</span>
-        </div>
-        <div class="weekend-card">
-          <p class="day">Sunday</p>
-          <strong class="ph-text">[Park event or trail day]</strong>
-          <span class="muted small ph-text">[Park, area]</span>
-        </div>
-      </div>
+      <div class="td-achips">{areas.map((a) => <a class="td-chip" href={url(`/weekend-ideas?area=${encodeURIComponent(a)}`)}>{a}</a>)}</div>
     </div>
   </section>
-  {upcoming.length > 1 && (
-    <section class="section" id="events">
-      <div class="wrap">
-        <div class="section-head"><h2>Upcoming events</h2></div>
-        <ul class="events">{upcoming.slice(1).map((e) => <li><a href={url(e.path)}><span class="d">{fmtDate(e.date, { weekday: 'short', month: 'short', day: 'numeric' })}</span><strong>{e.title}</strong><span class="muted">{e.venue}</span></a></li>)}</ul>
-      </div>
-    </section>
-  )}
-  <section class="section tint">
-    <div class="wrap">
-      <div class="section-head"><h2>Past events</h2></div>
-      <ul class="events">{past.map((e) => <li><a href={url(e.path)}><span class="d">{e.date && e.when?.includes(',') ? fmtDate(e.date) : e.when}</span><strong>{e.title}</strong><span class="muted">{e.venue}</span></a></li>)}</ul>
-    </div>
+
+  <section class="td-blk padb wrap" id="ideas">
+    <div class="td-sechead"><div><h2>Make a little time for local.</h2></div><a href={url('/weekend-ideas')}>See all ideas &rarr;</a></div>
+    <p class="td-note">Illustrative editorial ideas. Final guides would include verified places and practical details.</p>
+    <div class="td-ideas" id="td-hub-ideas"></div>
   </section>
-</Base>
+</Todo>
 <style>
-  .crumb { font-size: 13px; color: rgba(255,255,255,.65); margin: 0 0 14px; }
-  .crumb a { color: rgba(255,255,255,.65); }
-  .weekend-kicker { color: var(--green, #1e7a43); font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; margin: 0 0 6px; }
   .weekend-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
   .weekend-card { background: var(--cream); border-radius: 10px; padding: 20px; display: flex; flex-direction: column; gap: 6px; }
   .weekend-card .day { font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--blue); margin: 0; }
@@ -89,14 +107,4 @@ const ccDay = ccEvent ? fmtDate(ccEvent.date, { weekday: 'long' }) : null;
   .ph-text { color: var(--muted); font-style: italic; }
   @media (max-width: 860px) { .weekend-grid { grid-template-columns: repeat(2, 1fr); } }
   @media (max-width: 560px) { .weekend-grid { grid-template-columns: 1fr; } }
-
-  .feature { display: grid; grid-template-columns: 1.2fr 1fr; gap: 48px; align-items: center; }
-  .feature img { border-radius: 6px; }
-  .feature h1 { font-size: clamp(1.9rem, 4vw, 3rem); }
-  .events { list-style: none; padding: 0; margin: 0; }
-  .events a { display: grid; grid-template-columns: 170px 1fr auto; gap: 16px; padding: 16px 4px; border-bottom: 1px solid var(--line); text-decoration: none; color: var(--ink); align-items: baseline; }
-  .events a:hover { background: #fff; }
-  .d { font-weight: 700; color: var(--navy); font-size: 15px; }
-  .events strong { font-family: var(--serif); font-weight: 400; font-size: 1.2rem; color: var(--blue); }
-  @media (max-width: 760px) { .feature { grid-template-columns: 1fr; } .events a { grid-template-columns: 1fr; gap: 2px; } }
 </style>
