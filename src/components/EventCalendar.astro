@@ -1,0 +1,16 @@
+---
+// Month calendar. The page script (things-to-do.js) fills in the days and the selected day's list.
+---
+<div class="td-calwrap">
+  <div class="td-calbox">
+    <div class="td-calbar">
+      <button type="button" class="td-cnav" id="td-calPrev" aria-label="Previous month"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3L5 8l5 5"/></svg></button>
+      <h3 id="td-calLabel" aria-live="polite"></h3>
+      <button type="button" class="td-cnav" id="td-calNext" aria-label="Next month"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg></button>
+      <button type="button" class="td-pill line sm" id="td-calToday">Today</button>
+    </div>
+    <div class="td-calgrid" id="td-calGrid" role="grid" aria-label="Event calendar"></div>
+    <div class="td-legend"><span><i class="td-dot tl"></i>Tradition Local</span><span><i class="td-dot ot"></i>Other event</span><span><i class="td-dot ld"></i>Last day of a longer run</span></div>
+  </div>
+  <div class="td-daybox" aria-live="polite"><h3 id="td-dayTitle"></h3><div id="td-dayList"></div></div>
+</div>
