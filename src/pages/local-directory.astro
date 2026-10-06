@@ -1,123 +1,329 @@
 ---
 import Base from '../layouts/Base.astro';
-import { url, img } from '../lib/util';
-import { config } from '../config';
-import businesses from '../data/businesses.json';
+import areas from '../data/areas.json';
 import posts from '../data/posts.json';
+import { config } from '../config';
+import { url, img, RATING_LABELS } from '../lib/util';
+import { directoryListings, GROUPS, GROUP_LABEL } from '../lib/directory';
 
-const membersOn = Boolean(config.supabaseUrl && config.supabaseAnonKey);
+const listings = directoryListings();
+const SHOW = 12;
+const wcount: Record<string, number> = {};
+listings.forEach((b) => { wcount[b.where] = (wcount[b.where] || 0) + 1; });
+const wnames = Object.keys(wcount).sort((a, b) => wcount[b] - wcount[a] || a.localeCompare(b));
+const catSet = new Set<string>();
+listings.forEach((b) => b.cats.forEach((c) => catSet.add(c)));
+const pickN = listings.filter((b) => b.pick).length;
+const groupCount = (g: string) => (g ? listings.filter((b) => b.group === g).length : listings.length);
 
-// Real "Business Spotlight: ..." posts Dillon or Sara have written, pulled in automatically.
-// To add the next one, just write a post titled "Business Spotlight: <Business name>".
-const spotlightPosts = posts.filter((p) => /^business spotlight:/i.test(p.title));
-const spotlights = spotlightPosts.map((p) => {
-  const m = p.title.match(/^business spotlight:\s*(.*?)(?:\s+in\s+(.+?)(?:\s+neighborhood)?)?$/i);
-  const name = (m && m[1]) || p.title;
-  const area = m && m[2];
-  const firstSentence = p.description.split(/(?<=[.!?])\s/).slice(0, 2).join(' ');
-  return { name, area, path: p.path, image: p.image, blurb: firstSentence };
+// Area columns: the six areas with the most listings that also have a neighborhood guide.
+const guideSlug: Record<string, string> = {};
+(areas as any[]).forEach((a) => { guideSlug[a.name.trim().toLowerCase()] = a.slug; });
+const cols = wnames.filter((w) => guideSlug[w.toLowerCase()]).slice(0, 6).map((w) => ({ w, slug: guideSlug[w.toLowerCase()] }));
+const count = (w: string, g: string) => listings.filter((b) => b.where === w && (!g || b.group === g)).length;
+const near = cols.map((c) => ({ ...c, biz: listings.find((b) => b.where === c.w) })).filter((c) => c.biz);
+
+// Real partner spotlights come from posts titled "Business Spotlight: <name> in <area>".
+const spotlights = (posts as any[]).filter((p) => /^business spotlight:/i.test(p.title)).map((p) => {
+  const t = String(p.title).replace(/^business spotlight:\s*/i, '');
+  const m = t.match(/^(.*?)\s+in\s+(.+?)(?:\s+neighborhood)?$/i);
+  const name = (m && m[1]) || t;
+  const area = (m && m[2]) || '';
+  const d = String(p.description || '').replace(/\s+/g, ' ').replace(/\.([A-Z])/g, '. $1');
+  const k = d.indexOf(name + ' is');
+  const sents = (k > -1 ? d.slice(k) : d).split(/(?<=[.!?])\s/);
+  return { name, area, path: p.path as string, image: p.image as string | undefined, blurb: sents.slice(0, 2).join(' ') };
 });
+// A real review to point to: the newest rated listing outside food and drink.
+const sample = listings.filter((b) => b.group !== 'food' && b.rating).sort((a, b) => Number(b.pick) - Number(a.pick) || b.year - a.year)[0];
 
-const catCounts: Record<string, number> = {};
-businesses.forEach((b) => b.categories.forEach((c) => (catCounts[c] = (catCounts[c] || 0) + 1)));
-const topCats = Object.entries(catCounts).sort((a, b) => b[1] - a[1]).slice(0, 10).map(([c]) => c);
-const directoryData = businesses.map((b) => ({
-  slug: b.slug, name: b.name, cats: b.categories, where: b.neighborhood || b.city, pick: !!b.saraPick, closed: !!b.closed,
-}));
-const basePath = url('/').replace(/\/$/, '');
+const SV = 'fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"';
+const PATHS: Record<string, string> = {
+  food: '<path d="M4 8h13v6a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5z"/><path d="M17 10h2a2 2 0 0 1 0 4h-2M8 3v2M12 3v2"/>',
+  shops: '<path d="M4 9l1-5h14l1 5"/><path d="M5 9v11h14V9"/><path d="M10 20v-6h4v6"/>',
+  home: '<path d="M14 6a4 4 0 0 0-5 5L3 17l4 4 6-6a4 4 0 0 0 5-5l-3 3-3-1-1-3z"/>',
+  health: '<path d="M12 21c-5-3-8-7-8-11a4 4 0 0 1 8-1 4 4 0 0 1 8 1c0 4-3 8-8 11z"/>',
+  parks: '<circle cx="12" cy="9" r="6"/><path d="M12 15v6M9 21h6"/>',
+};
+const icon = (g: string, s: number) => '<svg width="' + s + '" height="' + s + '" viewBox="0 0 24 24" ' + SV + '>' + (PATHS[g] || PATHS.shops) + '</svg>';
+const BOOK = '<svg width="16" height="18" viewBox="0 0 16 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M3 2h10v14l-5-3.5L3 16z"/></svg>';
+const TIP_ICONS = [
+  '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M9 15l2 2 4-4"/>',
+  '<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+  '<rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4h6v3H9zM9 12h6M9 16h4"/>',
+];
+const tips = [
+  { t: 'Build a maintenance routine', d: 'Keep upkeep visible instead of letting it slip.' },
+  { t: 'Notice small changes early', d: 'Pay attention to concerns before they become familiar.' },
+  { t: 'Plan the next right step', d: 'Turn a concern into a clear request for help.' },
+];
+const bar = [['spotlight', 'Spotlight'], ['find', 'Find help'], ['suggest', 'Suggest'], ['care', 'Home care'], ['reviews', 'Reviews'], ['vendors', 'Vendors'], ['near', 'Near you'], ['areas', 'By area']];
+const areaItems = [['', 'All local businesses'], ['food', 'Food & coffee'], ['shops', 'Shops & everyday services'], ['home', 'Home services & maintenance']];
 ---
-<Base title="Local Directory" description="Restaurants, cafes, shops, and services across Greater Houston, with member perks and partner spotlights, in one place.">
-  <section class="band dir-hero">
+<Base title="Local Directory" description="Restaurants, cafes, shops, and services across Greater Houston, with our reviews, partner spotlights, and helpful guides in one place.">
+  <section class="band dr-band">
     <div class="wrap">
-      <p class="crumbs"><a href={url('/')}>Home</a> <span aria-hidden="true">&rsaquo;</span> Local Directory</p>
-      <p class="kicker">Every local spot, in one place</p>
+      <p class="dr-crumb"><a href={url('/')}>Home</a> <span aria-hidden="true">&rsaquo;</span> Local Directory</p>
+      <span class="dr-tag">Local businesses &middot; Helpful resources</span>
       <h1>Local Directory</h1>
-      <p class="lede">Restaurants, cafes, shops, and services across Greater Houston, with our reviews, partner spotlights, and member perks in one place.</p>
-      <div class="dir-search">
-        <label for="dir-q">Search the directory</label>
-        <input type="search" id="dir-q" placeholder="Try coffee or Bellaire" />
+      <p class="dr-lead">Good people. Useful connections. Discover local businesses, meet the people behind them, and find help for everyday life and caring for your home.</p>
+      <div class="dr-stats">
+        <div><b>{listings.length}</b><span>Local businesses</span></div>
+        <div><b>{pickN}</b><span>Sara's picks</span></div>
+        <div><b>{wnames.length}</b><span>Areas covered</span></div>
+        <div><b>{catSet.size}</b><span>Categories</span></div>
       </div>
+      <div class="dr-btns" data-state="in" hidden><a class="dr-pill gold" href="#find">Find a local business</a><a class="dr-pill white" href="#care">Explore home care tips</a></div>
+      <div class="dr-btns" data-state="out" hidden><a class="dr-pill gold" href={url('/join')}>Join free</a><a class="dr-pill white" href={url('/sign-in')}>Sign in</a></div>
     </div>
   </section>
 
   <div data-state="out" hidden>
-    <section class="section">
-      <div class="wrap gate">
+    <section class="dr-blk wrap">
+      <div class="dr-gate">
         <h2>This directory is for members</h2>
-        <p>Sign in or join free to browse the full directory, partner spotlights, and member perks.</p>
-        <p><a class="btn blue" href={url('/sign-in')}>Sign in</a> <a class="btn ghost" href={url('/join')}>Join free</a></p>
+        <p>Sign in or join free to browse the full directory, partner spotlights, and helpful guides.</p>
+        <p><a class="dr-pill gold" href={url('/sign-in')}>Sign in</a> <a class="dr-pill line" href={url('/join')}>Join free</a></p>
       </div>
     </section>
   </div>
 
   <div data-state="in" hidden>
+    <div class="dr-bar">
+      <div class="wrap dr-barin">
+        <nav class="dr-barlist" aria-label="Sections on this page">{bar.map((b, i) => <a href={'#' + b[0]} data-sec={b[0]} class={i === 0 ? 'on' : ''}>{b[1]}</a>)}</nav>
+        <span class="dr-best">Best for: Finding help, meeting local owners, and caring for your home</span>
+      </div>
+    </div>
+
     {spotlights.length > 0 && (
-      <section class="section tint">
-        <div class="wrap">
-          <p class="kicker dark">Business spotlights</p>
-          <div class="section-head"><h2>Local owners worth knowing</h2><p class="muted small">Partner spotlights are paid features, always labeled. Our reviews are never for sale.</p></div>
-          <div class="spotlight-grid">
-            {spotlights.map((s) => (
-              <a class="spotlight-card" href={url(s.path)}>
-                <div class="spotlight-img">
-                  {s.image ? <img src={img(s.image, 400)} alt="" /> : <div class="ph"></div>}
-                </div>
-                <div class="spotlight-body">
-                  <span class="spotlight-tag">Partner spotlight</span>
-                  <strong>{s.name}</strong>
-                  {s.area && <span class="muted small">{s.area}</span>}
-                  <p>{s.blurb}</p>
-                  <span class="read-more">Read the spotlight &rarr;</span>
-                </div>
-              </a>
-            ))}
+      <section class="dr-blk wrap" id="spotlight">
+        <div class="dr-sechead"><div><h2>Business spotlight</h2></div>{spotlights.length > 1 && <button class="dr-linkbtn" type="button" id="dr-spotnext">See another &rarr;</button>}</div>
+        {spotlights.map((s, i) => (
+          <div class="dr-spot" hidden={i > 0} data-spot>
+            <div class="tile">
+              {s.image ? <img src={img(s.image, 700)} alt="" /> : <><span aria-hidden="true" set:html={icon('shops', 34)}></span><h3>{s.name}</h3><span class="ph">[Business photo]</span></>}
+            </div>
+            <div class="body">
+              <span class="tg">Meet your local</span>
+              <h3 class="t">Every storefront has a story.</h3>
+              <p>{s.blurb}</p>
+              <p class="meta">Partner spotlight{s.area ? ' · ' + s.area : ''}. Partner spotlights are paid features, always labeled. Our reviews are never for sale.</p>
+              <div class="acts"><a class="dr-pill gold" href={url(s.path)}>Read the spotlight</a></div>
+            </div>
           </div>
-        </div>
+        ))}
       </section>
     )}
 
-    <section class="section">
-      <div class="wrap">
-        <p class="kicker dark">A to Z</p>
-        <h2>The directory</h2>
-        <div class="chips" role="group" aria-label="Categories" id="dir-chips">
-          <button class="chip" data-cat="" aria-pressed="true">All</button>
-          {topCats.map((c) => <button class="chip" data-cat={c} aria-pressed="false">{c}</button>)}
-        </div>
-        <p class="muted" id="dir-count" aria-live="polite">{businesses.length} businesses</p>
-        <div class="dir-list" id="dir-list"></div>
-        <p id="dir-empty" hidden>No businesses match that search. Try a different term or category.</p>
+    <section class="dr-blk wrap" id="find">
+      <span id="trending"></span>
+      <div class="dr-sechead"><div><h2>Who can help?</h2></div><span class="dr-badge">Every card opens its business profile</span></div>
+      <div class="dr-filters">
+        <label>Search businesses or services<input type="search" id="dr-q" placeholder="Try a cafe, local shop, or home service" /></label>
+        <label>Category<select id="dr-cat">{GROUPS.map((g) => <option value={g.id}>{g.label} ({groupCount(g.id)})</option>)}</select></label>
+        <label>Area<select id="dr-area"><option value="">All areas</option>{wnames.map((w) => <option value={w}>{w} ({wcount[w]})</option>)}</select></label>
+      </div>
+      <div class="dr-tabs" id="dr-tabs" role="group" aria-label="Browse by category">
+        {GROUPS.map((g, i) => <button class="dr-tab" type="button" data-g={g.id} aria-pressed={i === 0 ? 'true' : 'false'}>{g.label}</button>)}
+        <button class="dr-tab saved" type="button" id="dr-savedBtn" aria-pressed="false">Saved (0)</button>
+      </div>
+      <p class="dr-count" id="dr-count" aria-live="polite">{listings.length} businesses</p>
+      <div class="dr-grid" id="dr-grid">
+        {listings.map((b, i) => (
+          <article class="dr-bcard" hidden={i >= SHOW} data-slug={b.slug} data-g={b.group} data-w={b.where} data-text={(b.name + ' ' + b.cats.join(' ') + ' ' + b.where + ' ' + b.desc).toLowerCase()}>
+            <div class="band2">
+              <span aria-hidden="true" set:html={icon(b.group, 24)}></span>
+              <span class="lab">{GROUP_LABEL[b.group]}</span>
+              {b.pick ? <span class="rb pick">Sara's Pick</span> : b.rating && RATING_LABELS[b.rating] ? <span class="rb">{RATING_LABELS[b.rating]}</span> : null}
+            </div>
+            <div class="body">
+              <h3><a href={url('/eat/' + b.slug)}>{b.name}</a></h3>
+              <div class="where">{b.where}</div>
+              <div class="cats">{b.cats.join(', ')}</div>
+              <p>{b.desc}</p>
+              <div class="row">
+                <a class="dr-pill line sm" href={url('/eat/' + b.slug)}>View profile &rarr;</a>
+                <button class="dr-save" type="button" data-save={b.slug} aria-pressed="false" aria-label={'Save business: ' + b.name} set:html={BOOK}></button>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+      <div class="dr-empty" id="dr-empty" hidden>No businesses match those filters. Try another category or area.</div>
+      <div class="dr-more"><button class="dr-pill line" type="button" id="dr-more" hidden={listings.length <= SHOW}>Show more businesses</button></div>
+      <noscript><style>.dr-bcard[hidden] { display: flex; }</style></noscript>
+    </section>
+
+    <section class="dr-blk wrap" id="suggest">
+      <div class="dr-suggest">
+        <div><p class="eb">Help us discover more</p><h2>Know a business worth knowing?</h2><p>Recommend a local find or share your business for editorial consideration.</p></div>
+        <form id="dr-sugform" data-email={config.contactEmail} novalidate>
+          <label for="dr-sugname">Business name</label>
+          <input id="dr-sugname" type="text" placeholder="Tell us who to explore" autocomplete="off" />
+          <button type="submit">Suggest a business</button>
+        </form>
       </div>
     </section>
+
+    <section class="dr-blk wrap" id="care">
+      <div class="dr-care">
+        <p class="eb">Care for your home</p>
+        <h2>Small upkeep. Fewer costly surprises.</h2>
+        <p class="lead2">Deferred maintenance is postponed upkeep. Learn what to watch for, keep a record of concerns, and address small issues before they grow.</p>
+        <div class="dr-tips">
+          {tips.map((t, i) => (
+            <div class="dr-tip">
+              <span class="ic" set:html={'<svg width="30" height="30" viewBox="0 0 24 24" ' + SV + '>' + TIP_ICONS[i] + '</svg>'}></span>
+              <h3>{t.t}</h3>
+              <p>{t.d}</p>
+              <button class="dr-pill sm" type="button" data-tip={i}>Explore tip</button>
+            </div>
+          ))}
+        </div>
+        <p class="fine">Guides are in progress. Each one will connect a practical checklist with the relevant service category.</p>
+      </div>
+    </section>
+
+    <section class="dr-blk wrap" id="reviews">
+      <div class="dr-sechead"><div><h2>Reviews with a local perspective.</h2></div><span class="dr-badge">Firsthand experience comes first</span></div>
+      <div class="dr-rv">
+        <div class="dr-rcard"><span class="tg">Tradition Local reviews</span><h3>What was the experience like?</h3><p>Our visit or service experience, original evidence, useful observations, and who it might suit.</p>{sample ? <a class="dr-pill line sm" href={url('/eat/' + sample.slug)}>Read a sample review</a> : <a class="dr-pill line sm" href={url('/about-our-reviews')}>How we review</a>}</div>
+        <div class="dr-rcard"><span class="tg fut">Member reviews &middot; Future feature</span><h3>Hear from the community.</h3><p>Clearly attributed experiences with dates, moderation, and a way for businesses to respond.</p><button class="dr-pill line sm" type="button" data-dlg="member">Preview member review</button></div>
+        <div class="dr-rcard"><span class="tg">Keep the distinction clear</span><h3>Profile. Spotlight. Review.</h3><p>Facts help you plan. A spotlight tells a story. A review helps you decide.</p><button class="dr-pill line sm" type="button" data-dlg="types">Explore content types</button></div>
+      </div>
+    </section>
+
+    <section class="dr-blk wrap" id="vendors">
+      <div class="dr-vhead"><h2>Preferred vendors.</h2><button class="dr-pill line sm" type="button" data-dlg="select">How we select</button></div>
+      <p class="dr-vdesc">A separate collection for businesses we have evaluated through our own experience and a documented selection process.</p>
+      <div class="dr-vbox">
+        <div><p class="eb">Relationships with a reason</p><h3>Know why a provider is included.</h3><p>Each preferred profile would show its services, service area, selection basis, last review date, and any commercial relationship.</p></div>
+        <button class="dr-pill line" type="button" data-dlg="vendor">Preview preferred profile</button>
+      </div>
+      <p class="dr-disc">A directory listing alone does not mean a business is a preferred vendor. No preferred vendors are listed yet.</p>
+    </section>
+
+    <section class="dr-blk wrap" id="near">
+      <div class="dr-sechead"><div><h2>Discover a business near you.</h2></div><span class="dr-badge">One local find from each area</span></div>
+      <p class="dr-note">Explore a neighborhood, starting with a local business.</p>
+      <div class="dr-near">
+        {near.map((c) => (
+          <article class="dr-ncard">
+            <div class="art" aria-hidden="true" set:html={icon(c.biz!.group, 34)}></div>
+            <div class="body">
+              <span class="pillarea">{c.w}</span>
+              <h3>{c.biz!.name}</h3>
+              <p>{c.biz!.desc}</p>
+              <div class="row"><a class="dr-pill line sm" href={url('/eat/' + c.biz!.slug)}>Explore the business &rarr;</a></div>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <section class="dr-blk padb wrap" id="areas">
+      <div class="dr-sechead"><div><h2>More to discover, area by area.</h2></div><span class="dr-badge">Browse your local</span></div>
+      <p class="dr-note">Explore businesses and services by neighborhood. Start with the area closest to you.</p>
+      <div class="dr-acols">
+        {cols.map((c) => (
+          <div class="dr-acol">
+            <h3><a href={url('/cities/' + c.slug)}>{c.w}</a></h3>
+            <ul>
+              {areaItems.map((it) => {
+                const n = count(c.w, it[0]);
+                return n ? <li><button type="button" data-aw={c.w} data-ag={it[0]}>{it[1]}<small>{n}</small></button></li> : <li><span class="none">{it[1]}<small>none yet</small></span></li>;
+              })}
+              <li><a href={url('/cities/' + c.slug)}>Neighborhood guide</a></li>
+            </ul>
+          </div>
+        ))}
+      </div>
+      <p class="dr-fine">Listings grow as each area is added.</p>
+    </section>
   </div>
+
+  <dialog id="dr-dlg" class="dr-dlg"><div class="dr-dlgin"><h3 id="dr-dT"></h3><p class="m" id="dr-dM"></p><div id="dr-dB"></div><div class="x"><button class="dr-pill line sm" type="button" data-close>Close</button></div></div></dialog>
 </Base>
 
-<script define:vars={{ directoryData, basePath }}>
-  function apply() {
-    const q = document.getElementById('dir-q').value.trim().toLowerCase();
-    const cat = document.querySelector('#dir-chips [aria-pressed="true"]')?.dataset.cat || '';
-    const list = document.getElementById('dir-list');
-    const countEl = document.getElementById('dir-count');
-    const emptyEl = document.getElementById('dir-empty');
-    const matches = directoryData.filter((b) =>
-      (!q || b.name.toLowerCase().includes(q) || b.where.toLowerCase().includes(q) || b.cats.some((c) => c.toLowerCase().includes(q))) &&
-      (!cat || b.cats.includes(cat))
-    );
-    list.innerHTML = matches.map((b) =>
-      `<a class="dir-item" href="${basePath}/eat/${b.slug}/">` +
-        (b.pick ? '<span class="badge">Sara\'s pick</span>' : '') +
-        (b.closed ? '<span class="badge closed-badge">Closed</span>' : '') +
-        `<strong>${b.name}</strong><span class="muted small">${b.cats[0] || ''} &middot; ${b.where}</span></a>`
-    ).join('');
-    countEl.textContent = `${matches.length} ${matches.length === 1 ? 'business' : 'businesses'}`;
-    emptyEl.hidden = matches.length > 0;
-  }
-  document.getElementById('dir-q').addEventListener('input', apply);
-  document.querySelectorAll('#dir-chips [data-cat]').forEach((btn) => btn.addEventListener('click', () => {
-    document.querySelectorAll('#dir-chips [data-cat]').forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
-    apply();
-  }));
-  apply();
+<script is:inline>
+  (function () {
+    var cards = [].slice.call(document.querySelectorAll('.dr-bcard'));
+    if (!cards.length) return;
+    var $ = function (id) { return document.getElementById(id); };
+    var SHOW = 12, saved = [];
+    try { saved = JSON.parse(localStorage.getItem('tl-dir-saved') || '[]'); } catch (e) {}
+    var st = { q: '', g: '', w: '', limit: SHOW, savedOnly: false };
+    var GL = { '': 'All businesses', food: 'Food & drink', shops: 'Shops & everyday services', home: 'Home services & maintenance', health: 'Health, beauty & fitness', parks: 'Parks, travel & outings' };
+    var toastEl = null;
+    function toast(m) {
+      if (!toastEl) { toastEl = document.createElement('div'); toastEl.className = 'dr-toast'; toastEl.setAttribute('role', 'status'); document.body.appendChild(toastEl); }
+      toastEl.textContent = m; toastEl.classList.add('on'); clearTimeout(toast.h); toast.h = setTimeout(function () { toastEl.classList.remove('on'); }, 1800);
+    }
+    function render() {
+      var q = st.q.trim().toLowerCase(), n = 0, shown = 0;
+      cards.forEach(function (c) {
+        var ok = (!st.g || c.getAttribute('data-g') === st.g) && (!st.w || c.getAttribute('data-w') === st.w) && (!st.savedOnly || saved.indexOf(c.getAttribute('data-slug')) > -1) && (!q || c.getAttribute('data-text').indexOf(q) > -1);
+        if (ok) { n++; if (shown < st.limit) { shown++; c.hidden = false; } else { c.hidden = true; } } else { c.hidden = true; }
+        c.querySelector('[data-save]').setAttribute('aria-pressed', String(saved.indexOf(c.getAttribute('data-slug')) > -1));
+      });
+      $('dr-count').textContent = n + ' business' + (n === 1 ? '' : 'es');
+      $('dr-empty').hidden = n > 0; $('dr-more').hidden = n <= st.limit;
+      $('dr-cat').value = st.g; $('dr-area').value = st.w;
+      document.querySelectorAll('#dr-tabs [data-g]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-g') === st.g)); });
+      var sb = $('dr-savedBtn'); sb.textContent = 'Saved (' + saved.length + ')'; sb.setAttribute('aria-pressed', String(st.savedOnly));
+    }
+    function jump(id) { var el = $(id); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    $('dr-q').addEventListener('input', function () { st.q = this.value; st.limit = SHOW; render(); });
+    $('dr-cat').addEventListener('change', function () { st.g = this.value; st.limit = SHOW; render(); });
+    $('dr-area').addEventListener('change', function () { st.w = this.value; st.limit = SHOW; render(); });
+    $('dr-more').addEventListener('click', function () { st.limit += SHOW; render(); });
+
+    // dialogs
+    var TIPS = [
+      ['Build a maintenance routine', ['Pick a regular time each season to walk the house and yard.', 'Keep a simple list of filters, gutters, and appliances to check.', 'Write down the date each job was done.']],
+      ['Notice small changes early', ['Look for new stains, sounds, smells, or sticking doors.', 'Take a dated photo when something changes.', 'Small signs are easier and cheaper to address.']],
+      ['Plan the next right step', ['Describe what you see, where, and since when.', 'Gather photos and any past service records.', 'Ask providers what they would check first.']]
+    ];
+    function dlg(t, m, h) { var d = $('dr-dlg'); if (typeof d.showModal !== 'function') return; $('dr-dT').textContent = t; $('dr-dM').textContent = m; $('dr-dB').innerHTML = h; d.showModal(); }
+    var DLG = {
+      member: function () { dlg('Member reviews', 'Future feature. This is a layout preview, not a real review.', '<p><b>Sample member, Sugar Land</b> · Visited [date] · <i>Member review</i></p><p>[A member\'s own words about their experience would appear here, with the date of the visit.]</p><p><b>Response from the business</b> · [date]<br>[The business can reply here.]</p><p class="note">Reviews would be moderated, clearly attributed, and kept separate from Tradition Local reviews.</p>'); },
+      types: function () { dlg('Profile. Spotlight. Review.', 'Three kinds of content, kept clearly separate.', '<ul><li><b>Profile.</b> The facts that help you plan: what the business is, where it is, and how to reach it.</li><li><b>Spotlight.</b> A story about the people behind a business. Partner spotlights are paid features and are always labeled.</li><li><b>Review.</b> Our own firsthand experience, to help you decide. Our reviews are never for sale.</li></ul>'); },
+      select: function () { dlg('How we select preferred vendors', 'What a provider needs before we list them.', '<ul><li>We have used the service ourselves, or evaluated it through a clear process.</li><li>We record why a provider is included, and the date we last reviewed them.</li><li>We disclose any commercial relationship on the provider\'s profile.</li><li>A directory listing alone never makes a business a preferred vendor.</li></ul>'); },
+      vendor: function () { dlg('Preferred profile preview', 'Layout only. No provider is named here.', '<p><b>[Provider name]</b> · [Home services category]</p><ul><li><b>Services:</b> [what they do]</li><li><b>Service area:</b> [neighborhoods served]</li><li><b>Selection basis:</b> [how we evaluated them]</li><li><b>Last review date:</b> [date]</li><li><b>Commercial relationship:</b> [disclosure, or none]</li></ul>'); }
+    };
+    document.addEventListener('click', function (e) {
+      var d = e.target.closest('[data-dlg]'); if (d) { DLG[d.getAttribute('data-dlg')](); return; }
+      var tp = e.target.closest('[data-tip]'); if (tp) { var t = TIPS[+tp.getAttribute('data-tip')]; dlg(t[0], 'A quick checklist to start with.', '<ul>' + t[1].map(function (x) { return '<li>' + x + '</li>'; }).join('') + '</ul>'); return; }
+      var dd = $('dr-dlg'); if (e.target.hasAttribute('data-close') || e.target === dd) { dd.close(); return; }
+      var aw = e.target.closest('[data-aw]'); if (aw) { st = { q: '', g: aw.getAttribute('data-ag'), w: aw.getAttribute('data-aw'), limit: SHOW, savedOnly: false }; $('dr-q').value = ''; render(); jump('find'); toast('Showing ' + (st.g ? GL[st.g] + ' in ' : 'businesses in ') + st.w); return; }
+      var g = e.target.closest('#dr-tabs [data-g]'); if (g) { st.g = g.getAttribute('data-g'); st.savedOnly = false; st.limit = SHOW; render(); return; }
+      var sv = e.target.closest('[data-save]');
+      if (sv) { var s = sv.getAttribute('data-save'), p = saved.indexOf(s); if (p > -1) { saved.splice(p, 1); toast('Removed from saved'); } else { saved.push(s); toast('Saved'); } try { localStorage.setItem('tl-dir-saved', JSON.stringify(saved)); } catch (err) {} render(); return; }
+      if (e.target.closest('#dr-savedBtn')) { st.savedOnly = !st.savedOnly; st.limit = SHOW; render(); return; }
+    });
+
+    // suggest a business opens an email
+    var sf = $('dr-sugform');
+    if (sf) sf.addEventListener('submit', function (e) {
+      e.preventDefault(); var n = $('dr-sugname').value.trim(); if (!n) { toast('Enter a business name first'); return; }
+      toast('Opening your email app');
+      window.location.href = 'mailto:' + sf.getAttribute('data-email') + '?subject=' + encodeURIComponent('Business suggestion') + '&body=' + encodeURIComponent('Business name: ' + n + '\n\nWhy it is worth knowing:\n');
+    });
+
+    // spotlights
+    var spots = [].slice.call(document.querySelectorAll('[data-spot]')), nx = $('dr-spotnext'), si = 0;
+    if (nx && spots.length > 1) nx.addEventListener('click', function () { spots[si].hidden = true; si = (si + 1) % spots.length; spots[si].hidden = false; });
+
+    // keep the section bar in sync while scrolling
+    var links = [].slice.call(document.querySelectorAll('.dr-bar a[data-sec]'));
+    if (links.length) window.addEventListener('scroll', function () {
+      var cur = links[0].getAttribute('data-sec');
+      links.forEach(function (a) { var el = document.getElementById(a.getAttribute('data-sec')); if (el && el.getBoundingClientRect().top <= 140) cur = a.getAttribute('data-sec'); });
+      links.forEach(function (a) { a.classList.toggle('on', a.getAttribute('data-sec') === cur); });
+    }, { passive: true });
+    render();
+  })();
 </script>
 
 <script>
@@ -137,38 +343,158 @@ const basePath = url('/').replace(/\/$/, '');
   }
 </script>
 
-<style>
-  .dir-hero { padding: 64px 0 48px; }
-  .crumbs { font-size: 13px; color: rgba(255,255,255,.75); margin: 0 0 14px; }
-  .crumbs a { color: rgba(255,255,255,.85); text-decoration: none; }
-  .kicker.dark { color: var(--brown); }
-  .dir-search { margin-top: 8px; max-width: 420px; }
-  .dir-search label { display: block; font-size: 14px; font-weight: 600; color: #fff; margin-bottom: 8px; }
-  .dir-search input { width: 100%; padding: 13px 18px; border-radius: 999px; border: none; font-size: 16px; }
-  .gate { max-width: 560px; text-align: center; margin: 0 auto; padding: 40px 24px; }
-  .gate .btn { margin-top: 8px; }
-  .section-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap; margin-bottom: 24px; }
-  .section-head p.small { max-width: 32ch; margin: 0; }
-  .muted.small { font-size: 14px; }
-  .spotlight-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; }
-  .spotlight-card { display: flex; gap: 18px; background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 20px; text-decoration: none; color: var(--ink); }
-  .spotlight-img { flex-shrink: 0; width: 120px; height: 120px; border-radius: 6px; overflow: hidden; }
-  .spotlight-img img { width: 100%; height: 100%; object-fit: cover; }
-  .spotlight-img .ph { width: 100%; height: 100%; background: linear-gradient(135deg, var(--cream), var(--gold-soft)); }
-  .spotlight-body { display: flex; flex-direction: column; gap: 4px; }
-  .spotlight-tag { display: inline-block; align-self: flex-start; background: var(--gold); color: var(--navy); font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 10px; border-radius: 999px; margin-bottom: 4px; }
-  .spotlight-body strong { font-family: var(--serif); font-weight: 400; font-size: 1.25rem; color: var(--blue); }
-  .spotlight-body p { font-size: 14px; color: var(--muted); margin: 4px 0 0; }
-  .read-more { font-weight: 600; font-size: 14px; margin-top: 6px; }
-  .dir-list { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border-top: 1px solid var(--line); margin-top: 20px; }
-  .dir-list :global(.dir-item) { position: relative; display: flex; flex-direction: column; gap: 2px; padding: 16px 18px; text-decoration: none; color: var(--ink); border-bottom: 1px solid var(--line); }
-  .dir-list :global(.dir-item:nth-child(odd)) { border-right: 1px solid var(--line); }
-  .dir-list :global(.dir-item:hover) { background: var(--cream); }
-  .dir-list :global(.dir-item strong) { font-family: var(--serif); font-weight: 400; font-size: 1.1rem; color: var(--blue); }
-  .dir-list :global(.badge) { align-self: flex-end; margin-left: 10px; }
-  .dir-list :global(.closed-badge) { background: #fff; color: var(--brown); border: 1px solid var(--brown); }
-  @media (max-width: 700px) {
-    .dir-list { grid-template-columns: 1fr; }
-    .dir-list :global(.dir-item:nth-child(odd)) { border-right: none; }
-  }
+<style is:global>
+  .dr-band { padding: 36px 0 44px; }
+  .dr-crumb { font-size: 14px; color: rgba(255,255,255,.8); margin: 0 0 18px; }
+  .dr-crumb a { color: #dfe6fb; }
+  .dr-tag { display: inline-block; background: rgba(255,255,255,.18); border-radius: 99px; padding: 7px 16px; font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 12px; color: #fff; }
+  .dr-band h1 { font-size: clamp(44px, 7vw, 78px); line-height: 1.05; margin: 0 0 22px; }
+  .dr-lead { font-size: 20px; line-height: 1.55; max-width: 34em; margin: 0 0 30px; color: #fff; }
+  .dr-stats { display: flex; flex-wrap: wrap; gap: 20px 56px; margin: 0 0 28px; }
+  .dr-stats b { display: block; font: 600 clamp(24px, 3vw, 32px)/1.2 var(--serif); color: #fff; }
+  .dr-stats span { font-size: 15px; color: rgba(255,255,255,.8); }
+  .dr-btns { display: flex; gap: 12px; flex-wrap: wrap; }
+  .dr-btns[hidden] { display: none; }
+  .dr-pill { display: inline-block; border-radius: 999px; padding: 12px 26px; font: 700 15px var(--serif); text-decoration: none; cursor: pointer; border: 2px solid transparent; }
+  .dr-pill:hover { text-decoration: none; }
+  .dr-pill.gold { background: var(--gold); color: var(--navy); }
+  .dr-pill.white { background: #fff; color: var(--navy); }
+  .dr-pill.line { background: #fff; border-color: var(--line); color: var(--blue); }
+  .dr-pill.line:hover { border-color: var(--blue); }
+  .dr-pill.sm { padding: 7px 16px; font-size: 13px; }
+  .dr-gate { max-width: 560px; text-align: center; margin: 0 auto; padding: 40px 24px; }
+
+  .dr-bar { position: sticky; top: 0; z-index: 6; background: #fff; border-bottom: 1px solid var(--line); }
+  .dr-barin { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 72px; flex-wrap: wrap; padding-top: 10px; padding-bottom: 10px; }
+  .dr-barlist { display: flex; gap: 6px; flex-wrap: wrap; }
+  .dr-barlist a { border-radius: 999px; padding: 11px 20px; font: 700 17px var(--sans); color: var(--navy); text-decoration: none; }
+  .dr-barlist a:hover { background: var(--cream); }
+  .dr-barlist a.on { background: var(--navy); color: #fff; }
+  .dr-best { color: var(--muted); font-size: 17px; }
+
+  .dr-blk { padding: 44px 0 8px; scroll-margin-top: 84px; }
+  .dr-blk.padb { padding-bottom: 44px; }
+  .dr-sechead { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; border-bottom: 2px solid var(--blue); padding-bottom: 8px; margin-bottom: 18px; }
+  .dr-sechead h2 { margin: 0; font-size: clamp(26px, 3.4vw, 34px); color: var(--blue); line-height: 1.15; }
+  .dr-badge { font-size: 12px; color: var(--muted); background: #fff; border: 1px solid var(--line); border-radius: 99px; padding: 3px 12px; }
+  .dr-linkbtn { background: none; border: 0; color: var(--blue); font-weight: 700; cursor: pointer; font-size: 15px; padding: 8px 4px; text-decoration: underline; }
+  .dr-note { color: var(--muted); font-size: 14px; margin: 0 0 18px; }
+  .dr-fine { font-size: 13px; color: var(--muted); margin: 20px 0 0; }
+
+  .dr-filters { display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 14px; background: var(--cream); border: 1px solid var(--line); border-top: 3px solid var(--gold); border-radius: 12px; padding: 16px; margin-bottom: 16px; align-items: end; }
+  @media (max-width: 800px) { .dr-filters { grid-template-columns: 1fr; } }
+  .dr-filters label { display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--muted); }
+  .dr-filters input[type=search], .dr-filters select { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; font: inherit; font-size: 16px; color: var(--ink); }
+  .dr-filters select { appearance: none; background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none' stroke='%2320455e' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 6l5 5 5-5'/%3E%3C/svg%3E") no-repeat right 14px center; padding-right: 38px; cursor: pointer; }
+  .dr-tabs { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 14px; }
+  .dr-tab { border: 1.5px solid var(--line); background: #fff; color: var(--blue); border-radius: 999px; padding: 9px 20px; font-weight: 700; font-size: 15px; cursor: pointer; }
+  .dr-tab:hover { border-color: var(--blue); }
+  .dr-tab[aria-pressed="true"] { background: var(--navy); border-color: var(--navy); color: #fff; }
+  .dr-tab.saved { margin-left: auto; }
+  .dr-count { color: var(--muted); margin: 0 0 16px; font-size: 15px; }
+  .dr-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 18px; }
+  .dr-bcard { background: #fff; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; }
+  .dr-bcard[hidden] { display: none; }
+  .dr-bcard:hover { border-color: var(--gold); }
+  .dr-bcard .band2 { background: var(--cream); border-bottom: 1px solid var(--line); padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; gap: 10px; color: var(--navy); }
+  .dr-bcard .band2 .lab { font-size: 13px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); flex: 1; }
+  .dr-bcard .body { padding: 18px 20px 20px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+  .dr-bcard h3 { font-size: 23px; line-height: 1.2; margin: 0; }
+  .dr-bcard h3 a { color: var(--navy); text-decoration: none; }
+  .dr-bcard h3 a:hover { text-decoration: underline; }
+  .dr-bcard .where { font-size: 14px; font-weight: 700; color: var(--navy); }
+  .dr-bcard .cats { font-size: 13px; color: var(--brown); }
+  .dr-bcard p { margin: 2px 0 0; color: var(--muted); font-size: 15px; }
+  .dr-bcard .row { display: flex; gap: 8px; align-items: center; margin-top: auto; padding-top: 12px; }
+  .rb { display: inline-flex; align-items: center; font-size: 12px; font-weight: 700; border-radius: 99px; padding: 2px 10px; background: #fff; border: 1px solid var(--line); color: var(--navy); }
+  .rb.pick { background: var(--gold-soft); border-color: var(--gold); color: #6b4a1d; }
+  .dr-save { width: 42px; height: 38px; border-radius: 999px; border: 1.5px solid var(--line); background: #fff; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; color: var(--blue); }
+  .dr-save[aria-pressed="true"] { background: var(--gold); border-color: var(--gold); color: var(--navy); }
+  .dr-empty { padding: 34px; text-align: center; color: var(--muted); border: 1px dashed var(--line); border-radius: 12px; }
+  .dr-more { display: flex; justify-content: center; padding: 22px 0 4px; }
+  .dr-more [hidden] { display: none; }
+
+  .dr-acols { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 30px 34px; margin-top: 6px; }
+  .dr-acol h3 { font: 600 clamp(22px, 2.4vw, 28px)/1.2 var(--serif); margin: 0 0 12px; }
+  .dr-acol h3 a { color: var(--blue); text-decoration: none; }
+  .dr-acol ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+  .dr-acol button, .dr-acol li > a { background: none; border: 0; padding: 0; cursor: pointer; color: var(--blue); font: inherit; font-size: 17px; text-decoration: none; text-align: left; }
+  .dr-acol button:hover, .dr-acol li > a:hover { text-decoration: underline; }
+  .dr-acol small { color: var(--muted); margin-left: 6px; font-size: 14px; }
+  .dr-acol .none { color: var(--muted); font-size: 17px; }
+
+  .dr-suggest { background: var(--cream); border: 1px solid var(--line); border-top: 4px solid var(--gold); border-radius: 18px; padding: 30px 34px; display: grid; grid-template-columns: 1fr 1fr; gap: 30px; align-items: center; }
+  @media (max-width: 860px) { .dr-suggest { grid-template-columns: 1fr; } }
+  .eb { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; margin: 0 0 6px; color: var(--brown); }
+  .dr-suggest h2 { font-size: clamp(26px, 3.2vw, 36px); color: var(--blue); line-height: 1.15; margin: 0 0 10px; }
+  .dr-suggest p { margin: 0; color: var(--muted); }
+  .dr-suggest label { display: block; font-size: 14px; margin: 0 0 6px; }
+  .dr-suggest input { width: 100%; height: 48px; border: 1.5px solid var(--line); border-radius: 999px; background: #fff; padding: 0 18px; font: inherit; font-size: 16px; margin-bottom: 12px; }
+  .dr-suggest button { height: 48px; border: 0; border-radius: 999px; background: var(--gold); color: var(--navy); font: 700 16px var(--serif); padding: 0 28px; cursor: pointer; }
+
+  .dr-near { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 18px; }
+  .dr-ncard { background: #fff; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; }
+  .dr-ncard:hover { border-color: var(--gold); }
+  .dr-ncard .art { height: 96px; background: var(--cream); display: flex; align-items: center; justify-content: center; color: var(--navy); border-bottom: 1px solid var(--line); }
+  .dr-ncard .body { padding: 18px 20px 20px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+  .dr-ncard .pillarea { align-self: flex-start; background: var(--gold-soft); color: #6b4a1d; border-radius: 99px; padding: 3px 12px; font-size: 13px; font-weight: 700; }
+  .dr-ncard h3 { font-size: 22px; line-height: 1.2; color: var(--navy); margin: 0; }
+  .dr-ncard p { margin: 0; color: var(--muted); font-size: 15px; }
+  .dr-ncard .row { margin-top: auto; padding-top: 10px; }
+
+  .dr-care { background: var(--navy); color: #fff; border-radius: 18px; padding: 32px 34px; }
+  .dr-care .eb { color: var(--gold); }
+  .dr-care h2 { font-size: clamp(28px, 3.4vw, 38px); line-height: 1.15; margin: 0 0 10px; color: #fff; }
+  .dr-care .lead2 { margin: 0 0 22px; color: rgba(255,255,255,.88); max-width: 68ch; font-size: 18px; }
+  .dr-tips { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; }
+  .dr-tip { background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.22); border-radius: 14px; padding: 22px; display: flex; flex-direction: column; gap: 8px; }
+  .dr-tip .ic { color: var(--gold); }
+  .dr-tip h3 { font-size: 23px; line-height: 1.2; color: #fff; margin: 0; }
+  .dr-tip p { margin: 0; color: rgba(255,255,255,.82); font-size: 15px; }
+  .dr-tip .dr-pill { margin-top: auto; align-self: flex-start; background: #fff; color: var(--navy); }
+  .dr-care .fine { color: rgba(255,255,255,.75); margin: 18px 0 0; font-size: 13px; }
+
+  .dr-rv { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; }
+  .dr-rcard { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 22px; display: flex; flex-direction: column; gap: 10px; }
+  .dr-rcard .tg { align-self: flex-start; background: var(--cream); border: 1px solid var(--line); border-radius: 99px; padding: 4px 14px; font-size: 13px; font-weight: 700; color: var(--navy); }
+  .dr-rcard .tg.fut { background: var(--gold-soft); border-color: var(--gold); color: #6b4a1d; }
+  .dr-rcard h3 { font-size: 24px; line-height: 1.2; color: var(--navy); margin: 0; }
+  .dr-rcard p { margin: 0; color: var(--muted); font-size: 15px; }
+  .dr-rcard .dr-pill { margin-top: auto; align-self: flex-start; }
+
+  .dr-spot { display: grid; grid-template-columns: 1fr 1.4fr; border: 1px solid var(--line); border-radius: 16px; overflow: hidden; background: #fff; }
+  .dr-spot[hidden] { display: none; }
+  @media (max-width: 800px) { .dr-spot { grid-template-columns: 1fr; } }
+  .dr-spot .tile { background: var(--cream); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 34px 20px; min-height: 260px; text-align: center; color: var(--navy); }
+  .dr-spot .tile img { width: 100%; height: 100%; object-fit: cover; }
+  .dr-spot .tile h3 { font-size: clamp(26px, 3.4vw, 38px); line-height: 1.15; margin: 0; }
+  .dr-spot .tile .ph { font: italic 400 15px var(--serif); color: var(--muted); }
+  .dr-spot .body { padding: 28px 32px; display: flex; flex-direction: column; gap: 12px; }
+  .dr-spot .tg { align-self: flex-start; background: var(--gold-soft); color: #6b4a1d; border-radius: 99px; padding: 4px 14px; font-size: 13px; font-weight: 700; }
+  .dr-spot h3.t { font-size: clamp(28px, 3.6vw, 38px); line-height: 1.15; color: var(--navy); margin: 0; }
+  .dr-spot p { margin: 0; font-size: 18px; color: var(--ink); }
+  .dr-spot .meta { font-size: 14px; color: var(--muted); }
+  .dr-spot .acts { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+
+  .dr-vhead { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; }
+  .dr-vhead h2 { margin: 0; font-size: clamp(26px, 3.4vw, 34px); color: var(--blue); }
+  .dr-vdesc { font-size: 18px; max-width: 68ch; margin: 0 0 20px; }
+  .dr-vbox { background: #e6eef8; border-radius: 16px; padding: 26px 30px; display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap; }
+  .dr-vbox h3 { font-size: clamp(24px, 3vw, 30px); color: var(--navy); margin: 0 0 6px; }
+  .dr-vbox p { margin: 0; color: var(--muted); max-width: 60ch; }
+  .dr-disc { font-size: 14px; color: var(--muted); margin: 16px 0 0; }
+
+  .dr-dlg { background: #fff; color: var(--ink); border: 1px solid var(--line); border-radius: 14px; padding: 0; width: min(600px, 94vw); }
+  .dr-dlg::backdrop { background: rgba(20,40,55,.55); }
+  .dr-dlgin { padding: 26px 28px; }
+  .dr-dlgin h3 { font-size: 26px; color: var(--navy); margin: 0 0 6px; }
+  .dr-dlgin .m { color: var(--muted); font-size: 14px; margin: 0 0 12px; }
+  .dr-dlgin p { margin: 0 0 12px; }
+  .dr-dlgin ul { margin: 0 0 12px; padding-left: 20px; }
+  .dr-dlgin li { margin: 0 0 6px; }
+  .dr-dlgin .note { background: var(--gold-soft); border-radius: 10px; padding: 10px 14px; font-size: 14px; color: #6b4a1d; }
+  .dr-dlgin .x { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; margin-top: 8px; }
+  .dr-toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); background: var(--navy); color: #fff; padding: 9px 16px; border-radius: 8px; opacity: 0; pointer-events: none; transition: opacity .2s; z-index: 50; }
+  .dr-toast.on { opacity: 1; }
+  @media (prefers-reduced-motion: reduce) { .dr-toast { transition: none; } }
 </style>
