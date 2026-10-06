@@ -24,9 +24,15 @@ const ownPast = events.length - ownUpcoming;
     { key: 'past', value: ownPast, label: 'Past gatherings' },
   ]}
   buttons={[{ label: 'Submit an event', href: '#submit', kind: 'gold' }, { label: 'Weekend ideas', href: '/weekend-ideas', kind: 'white' }]}
-  bar={[{ id: 'calendar', label: 'Calendar' }, { id: 'ongoing', label: 'Happening now' }, { id: 'featured', label: 'Featured' }, { id: 'past', label: 'Past events' }, { id: 'submit', label: 'Submit' }]}
+  bar={[{ id: 'featured', label: 'Featured' }, { id: 'calendar', label: 'Calendar' }, { id: 'ongoing', label: 'Happening now' }, { id: 'past', label: 'Past events' }, { id: 'submit', label: 'Submit' }]}
   best="Best for: Planning ahead and finding something this week"
 >
+  <section class="td-blk wrap" id="featured">
+    <span id="events"></span>
+    <div class="td-sechead"><div><h2>Featured events</h2></div></div>
+    <div id="td-feat"></div>
+  </section>
+
   <section class="td-blk wrap" id="calendar">
     <div class="td-sechead"><div><h2>Event calendar</h2></div></div>
     <EventCalendar />
@@ -36,12 +42,6 @@ const ownPast = events.length - ownUpcoming;
     <div class="td-sechead"><div><h2>Happening now</h2></div><span class="td-badge">Exhibits, shows, and long runs</span></div>
     <div class="td-chips" id="td-ongoChips" role="group" aria-label="Filter ongoing events"></div>
     <div class="td-ogrid" id="td-ongoGrid"></div>
-  </section>
-
-  <section class="td-blk wrap" id="featured">
-    <span id="events"></span>
-    <div class="td-sechead"><div><h2>Featured events</h2></div></div>
-    <div id="td-feat"></div>
   </section>
 
   <section class="td-blk wrap" id="past">
