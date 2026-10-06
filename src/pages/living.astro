@@ -32,7 +32,7 @@ const ccDay = ccEvent ? fmtDate(ccEvent.date, { weekday: 'long' }) : null;
     { key: 'areas', value: areas.length, label: 'Areas to explore' },
   ]}
   buttons={[{ label: 'Explore weekend ideas', href: '/weekend-ideas', kind: 'gold' }, { label: 'Browse events', href: '/events', kind: 'white' }]}
-  bar={[{ id: 'weekend', label: 'This weekend' }, { id: 'calendar', label: 'Calendar' }, { id: 'featured', label: 'Featured events' }, { id: 'area', label: 'By area' }, { id: 'ideas', label: 'Ideas' }]}
+  bar={[{ id: 'weekend', label: 'This weekend' }, { id: 'featured', label: 'Featured events' }, { id: 'calendar', label: 'Calendar' }, { id: 'area', label: 'By area' }, { id: 'ideas', label: 'Ideas' }]}
   best="Best for: Weekend plans, families, and curious locals"
 >
   <section class="td-blk wrap" id="weekend">
@@ -70,15 +70,15 @@ const ccDay = ccEvent ? fmtDate(ccEvent.date, { weekday: 'long' }) : null;
     </div>
   </section>
 
-  <section class="td-blk wrap" id="calendar">
-    <div class="td-sechead"><div><h2>Event calendar</h2></div><a href={url('/events')}>Open the full calendar &rarr;</a></div>
-    <EventCalendar />
-  </section>
-
   <section class="td-blk wrap" id="featured">
     <span id="events"></span>
     <div class="td-sechead"><div><h2>Featured events</h2></div><a href={url('/events')}>See all events &rarr;</a></div>
     <div id="td-feat"></div>
+  </section>
+
+  <section class="td-blk wrap" id="calendar">
+    <div class="td-sechead"><div><h2>Event calendar</h2></div><a href={url('/events')}>Open the full calendar &rarr;</a></div>
+    <EventCalendar />
   </section>
 
   <section class="td-blk wrap" id="area">
