@@ -63,10 +63,10 @@ import { url } from '../lib/util';
       </div>
       <div class="fit-preview-card">
         <div class="fit-preview-head">
-          <h3>The Heights</h3>
+          <h3 id="fp-a">The Heights</h3>
           <span class="muted small">versus</span>
         </div>
-        <h3>Spring Branch</h3>
+        <h3 id="fp-b">Spring Branch</h3>
         <ul class="fit-preview-list">
           <li><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9"/></svg> Housing &amp; home styles</li>
           <li><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/><path d="M5 17V7h9l5 5v5"/></svg> Your commute &amp; daily errands</li>
@@ -113,6 +113,32 @@ import { url } from '../lib/util';
     </div>
   </section>
 </Base>
+
+<script>
+  const PAIRS = [
+    ['The Heights', 'Spring Branch'],
+    ['Katy', 'Cypress'],
+    ['Sugar Land', 'Pearland'],
+    ['Tanglewood', 'Memorial West'],
+    ['River Oaks', 'Memorial Villages'],
+    ['Bellaire', 'Meyerland'],
+    ['Rice / Museum District', 'West University / Southside'],
+  ];
+  const a = document.getElementById('fp-a');
+  const b = document.getElementById('fp-b');
+  if (a && b) {
+    let i = 0;
+    setInterval(() => {
+      i = (i + 1) % PAIRS.length;
+      [a, b].forEach((el) => { el.classList.add('fade'); });
+      setTimeout(() => {
+        a.textContent = PAIRS[i][0];
+        b.textContent = PAIRS[i][1];
+        [a, b].forEach((el) => { el.classList.remove('fade'); });
+      }, 250);
+    }, 3500);
+  }
+</script>
 <style>
   .kicker { color: var(--gold); font-weight: 700; text-transform: uppercase; letter-spacing: .04em; font-size: 12px; margin: 0 0 12px; }
   .kicker.light { color: rgba(255,255,255,.75); }
@@ -138,7 +164,8 @@ import { url } from '../lib/util';
   .fit-teaser { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
   .fit-preview-card { background: rgba(32,69,94,.06); border: 1px solid var(--line); border-radius: 12px; padding: 24px; }
   .fit-preview-head { display: flex; justify-content: space-between; align-items: baseline; }
-  .fit-preview-card h3 { margin: 0 0 4px; font-size: 1.3rem; }
+  .fit-preview-card h3 { margin: 0 0 4px; font-size: 1.3rem; transition: opacity .25s ease; }
+  .fit-preview-card h3.fade { opacity: 0; }
   .fit-preview-list { list-style: none; padding: 0; margin: 16px 0; display: flex; flex-direction: column; gap: 10px; }
   .fit-preview-list li { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--navy); }
 
