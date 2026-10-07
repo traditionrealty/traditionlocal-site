@@ -69,6 +69,10 @@
     var through = isRange(e);
     return '<div class="td-evrow"><div class="td-date">' + badge(e) + '</div><div><h3>' + esc(e.title) + srcTag(e) + '</h3><div class="td-meta">' + esc(e.venue) + (through ? ' · ' + md(e.date) + ' to ' + md(e.end) : '') + '</div></div>' + detailBtn(e, true) + '</div>';
   }
+  function eventTile(e) {
+    var through = isRange(e);
+    return '<article class="td-tile"><div class="td-date">' + badge(e) + '</div><h3>' + esc(e.title) + '</h3>' + srcTag(e) + '<div class="td-meta">' + esc(e.venue) + (through ? ' · ' + md(e.date) + ' to ' + md(e.end) : '') + '</div>' + detailBtn(e, true) + '</article>';
+  }
   function ideaCard(r) {
     var on = saved.indexOf(r.ix) > -1;
     return '<article class="td-idea"><div class="td-art" aria-hidden="true">' + (ICON[r.icon] || '') + '</div><div class="td-ibody"><div class="td-meta">' + esc(r.area) + ' · ' + esc(r.int) + ' · ' + (r.kind === 'weekend' ? 'Weekend' : 'Anytime') + '</div><h3>' + esc(r.t) + '</h3><p>' + esc(r.b) + '</p><div class="td-irow"><button class="td-pill line sm" type="button" data-idea="' + r.ix + '">Explore idea</button><button class="td-save" type="button" data-save="' + r.ix + '" aria-pressed="' + on + '" aria-label="' + (on ? 'Remove from saved' : 'Save idea') + ': ' + esc(r.t) + '">' + BOOK + '</button></div></div></article>';
@@ -81,7 +85,13 @@
     var list = ALL.filter(function (e) { return e.feat && (e.end || e.date) >= todayS; });
     if (nextTl) list.push(nextTl);
     list.sort(byDate);
-    box.innerHTML = list.length ? list.map(eventRow).join('') : '<p class="td-note">New featured events are added often. Check back soon.</p>';
+    // De-dupe (nextTl may already be in the feat list) and cap at 5 tiles, flowing left to right.
+    var seen = {}; var five = [];
+    list.forEach(function (e) { if (!seen[e.id]) { seen[e.id] = 1; five.push(e); } });
+    five = five.slice(0, 5);
+    box.innerHTML = five.length
+      ? '<div class="td-feat-row">' + five.map(eventTile).join('') + '</div>'
+      : '<p class="td-note">New featured events are added often. Check back soon.</p>';
   }
 
   // ---------- calendar ----------
