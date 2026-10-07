@@ -1,0 +1,222 @@
+---
+import Base from '../layouts/Base.astro';
+import EventCalendar from '../components/EventCalendar.astro';
+import events from '../data/events.json';
+import areaEvents from '../data/area-events.json';
+import ideas from '../data/ideas.json';
+import { config } from '../config';
+import { url, fmtDate } from '../lib/util';
+
+const todayS = new Date().toISOString().slice(0, 10);
+
+// Same merge Todo.astro uses, so the shared script and dialog behave identically here.
+const own = events.map((e: any) => ({
+  id: e.slug, src: 'tl', cat: 'Gatherings', date: e.date, end: '',
+  title: String(e.title).replace(/\s+/g, ' ').trim(), venue: e.venue || 'Houston',
+  url: url('/event-details/' + e.slug), monthOnly: !String(e.when || '').includes(','),
+}));
+const area = areaEvents.map((e: any) => ({ ...e, src: 'vh' }));
+const data = { events: [...own, ...area], ideas, urls: { events: url('/living#featured'), weekend: url('/weekend-ideas'), cities: url('/cities') } };
+
+const upcoming = [...own, ...area]
+  .filter((e: any) => (e.end || e.date) >= todayS)
+  .sort((a: any, b: any) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+const interests = [...new Set(upcoming.map((e: any) => e.cat))].sort();
+
+function isWeekend(dateStr: string) {
+  const d = new Date(dateStr + 'T12:00:00').getDay();
+  return d === 0 || d === 6;
+}
+function badgeDate(e: any) {
+  const d = new Date(e.date + 'T12:00:00');
+  return { wd: d.toLocaleDateString('en-US', { weekday: 'short' }), day: d.getDate() };
+}
+---
+<Base title="Local Events" description="Your calendar for local happenings, neighborhood outings, and Tradition Local gatherings in Greater Houston.">
+  <section class="band">
+    <div class="wrap le-hero">
+      <div>
+        <p class="kicker">Make time for something local</p>
+        <h1>Local Events</h1>
+        <p class="lede">Your calendar for local happenings, neighborhood outings, and Tradition Local gatherings.</p>
+      </div>
+      <a class="btn gold" href={`mailto:${config.contactEmail}?subject=Event%20submission`}>+ Suggest an event</a>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="le-filters">
+        <label><span>Find an event</span><input type="search" id="le-q" placeholder="Coffee, music, a neighborhood..." /></label>
+        <label><span>Interest</span>
+          <select id="le-interest">
+            <option value="">All interests</option>
+            {interests.map((c: any) => <option value={c}>{c}</option>)}
+          </select>
+        </label>
+      </div>
+      <div class="le-chips">
+        <button type="button" class="le-chip" id="le-free" aria-pressed="false">Free events</button>
+        <button type="button" class="le-chip" id="le-weekend" aria-pressed="false">Weekends</button>
+        <button type="button" class="le-chip" id="le-clear">Clear filters</button>
+      </div>
+
+      <div class="le-viewtabs">
+        <button type="button" class="le-vtab" data-view="month" aria-pressed="true">Month calendar</button>
+        <button type="button" class="le-vtab" data-view="list" aria-pressed="false">List</button>
+      </div>
+
+      <div id="le-view-month">
+        <EventCalendar />
+      </div>
+
+      <div id="le-view-list" hidden>
+        <p class="muted small" id="le-count">{upcoming.length} upcoming events</p>
+        <div class="le-list">
+          {upcoming.map((e: any) => {
+            const bd = badgeDate(e);
+            return (
+              <div class="le-row" data-cat={e.cat} data-free={e.cat === 'Free' ? '1' : '0'} data-weekend={isWeekend(e.date) ? '1' : '0'} data-name={(e.title + ' ' + e.venue).toLowerCase()}>
+                <div class="le-datebadge"><span>{bd.wd}</span><strong>{bd.day}</strong></div>
+                <div class="le-rowbody">
+                  <span class="le-tag">{e.cat}</span>
+                  <h3>{e.title}</h3>
+                  <p class="muted small">{fmtDate(e.date, { month: 'short', day: 'numeric' })} &middot; {e.venue}</p>
+                </div>
+                {e.src === 'tl'
+                  ? <a class="btn outline sm" href={e.url}>View details &rarr;</a>
+                  : <button class="btn outline sm" type="button" data-ev={e.id}>View details &rarr;</button>}
+              </div>
+            );
+          })}
+        </div>
+        <p class="le-empty" id="le-empty" hidden>No events match that search. Try a different term or filter.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section tint">
+    <div class="wrap">
+      <p class="eyebrow">A little inspiration for your calendar</p>
+      <h2>Worth making time for.</h2>
+      <div class="le-feat-grid">
+        {upcoming.slice(0, 3).map((e: any) => (
+          <div class="le-feat-card">
+            <span class="le-tag">{e.cat}</span>
+            <h3>{e.title}</h3>
+            <p class="muted small">{fmtDate(e.date, { month: 'short', day: 'numeric' })} &middot; {e.venue}</p>
+            {e.src === 'tl'
+              ? <a class="btn outline sm" href={e.url}>Explore event &rarr;</a>
+              : <button class="btn outline sm" type="button" data-ev={e.id}>Explore event &rarr;</button>}
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap le-cta">
+      <div>
+        <p class="eyebrow">Meet a little more locally</p>
+        <h2>Come curious. Leave connected.</h2>
+        <p>Explore ideas for coffee meetups, tasting outings, and neighborhood gatherings with Dillon and Sara.</p>
+      </div>
+      <a class="btn gold" href={url('/living')}>See Tradition Local gatherings &rarr;</a>
+    </div>
+  </section>
+
+  <dialog id="td-dlg" class="td-dlg"><div class="td-dlgin"><h3 id="td-dT"></h3><p class="td-m" id="td-dM"></p><p id="td-dB"></p><div class="td-x" id="td-dX"></div></div></dialog>
+  <div id="td-toast" role="status" aria-live="polite"></div>
+  <script type="application/json" id="td-data" set:html={JSON.stringify(data)}></script>
+</Base>
+<script>import '../scripts/things-to-do.js';</script>
+
+<script>
+  const month = document.getElementById('le-view-month')!;
+  const list = document.getElementById('le-view-list')!;
+  document.querySelectorAll<HTMLButtonElement>('.le-vtab').forEach((tab) => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.le-vtab').forEach((t) => t.setAttribute('aria-pressed', 'false'));
+      tab.setAttribute('aria-pressed', 'true');
+      const v = tab.dataset.view;
+      month.hidden = v !== 'month';
+      list.hidden = v !== 'list';
+    });
+  });
+
+  const q = document.getElementById('le-q') as HTMLInputElement;
+  const interest = document.getElementById('le-interest') as HTMLSelectElement;
+  const freeBtn = document.getElementById('le-free') as HTMLButtonElement;
+  const weekendBtn = document.getElementById('le-weekend') as HTMLButtonElement;
+  const clearBtn = document.getElementById('le-clear') as HTMLButtonElement;
+  const rows = [...document.querySelectorAll<HTMLElement>('.le-row')];
+  const count = document.getElementById('le-count')!;
+  const empty = document.getElementById('le-empty') as HTMLElement;
+
+  function apply() {
+    const term = q.value.trim().toLowerCase();
+    const cat = interest.value;
+    const freeOn = freeBtn.getAttribute('aria-pressed') === 'true';
+    const weekendOn = weekendBtn.getAttribute('aria-pressed') === 'true';
+    let n = 0;
+    rows.forEach((r) => {
+      const okTerm = !term || (r.dataset.name || '').includes(term);
+      const okCat = !cat || r.dataset.cat === cat;
+      const okFree = !freeOn || r.dataset.free === '1';
+      const okWeekend = !weekendOn || r.dataset.weekend === '1';
+      const ok = okTerm && okCat && okFree && okWeekend;
+      r.hidden = !ok; if (ok) n++;
+    });
+    count.textContent = `${n} upcoming ${n === 1 ? 'event' : 'events'}`;
+    empty.hidden = n > 0;
+  }
+  q.addEventListener('input', apply);
+  interest.addEventListener('change', apply);
+  freeBtn.addEventListener('click', () => { freeBtn.setAttribute('aria-pressed', String(freeBtn.getAttribute('aria-pressed') !== 'true')); apply(); });
+  weekendBtn.addEventListener('click', () => { weekendBtn.setAttribute('aria-pressed', String(weekendBtn.getAttribute('aria-pressed') !== 'true')); apply(); });
+  clearBtn.addEventListener('click', () => {
+    q.value = ''; interest.value = '';
+    freeBtn.setAttribute('aria-pressed', 'false'); weekendBtn.setAttribute('aria-pressed', 'false');
+    apply();
+  });
+</script>
+
+<style>
+  .le-hero { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; flex-wrap: wrap; }
+  .lede { max-width: 54ch; }
+  .le-filters { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; background: var(--cream); border-radius: 12px; padding: 22px 24px; margin-bottom: 16px; }
+  .le-filters label span { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--navy); }
+  .le-filters input, .le-filters select { width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--line); background: #fff; font-size: 15px; }
+  .le-chips { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 24px; }
+  .le-chip { background: #fff; border: 1.5px solid var(--line); color: var(--navy); border-radius: 999px; padding: 8px 16px; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .le-chip[aria-pressed="true"] { background: var(--navy); color: #fff; border-color: var(--navy); }
+  .le-viewtabs { display: flex; gap: 8px; margin-bottom: 20px; }
+  .le-vtab { background: #fff; border: 1.5px solid var(--line); color: var(--navy); border-radius: 999px; padding: 9px 18px; font-size: 14px; font-weight: 700; cursor: pointer; }
+  .le-vtab[aria-pressed="true"] { background: var(--gold); border-color: var(--gold); }
+
+  .le-list { display: flex; flex-direction: column; gap: 14px; margin-top: 16px; }
+  .le-row { display: flex; align-items: center; gap: 18px; background: var(--cream); border-radius: 12px; padding: 16px 20px; }
+  .le-datebadge { flex-shrink: 0; width: 56px; text-align: center; background: #fff; border-radius: 8px; padding: 8px 0; border: 1px solid var(--line); }
+  .le-datebadge span { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--muted); }
+  .le-datebadge strong { font-size: 1.3rem; color: var(--navy); font-family: var(--serif); }
+  .le-rowbody { flex: 1; min-width: 0; }
+  .le-rowbody h3 { font-size: 1.05rem; margin: 6px 0 2px; color: var(--navy); }
+  .le-tag { display: inline-block; background: var(--gold-soft); color: var(--brown); font-size: 11px; font-weight: 700; border-radius: 999px; padding: 3px 10px; }
+  .le-empty { text-align: center; color: var(--muted); padding: 32px 0; }
+
+  .le-feat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 20px; }
+  .le-feat-card { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 20px; }
+  .le-feat-card h3 { font-size: 1.1rem; margin: 10px 0 6px; color: var(--navy); }
+
+  .le-cta { display: flex; justify-content: space-between; align-items: center; gap: 24px; flex-wrap: wrap; background: var(--navy); color: #fff; border-radius: 14px; padding: 32px 36px; }
+  .le-cta h2 { color: #fff; }
+  .le-cta p { color: rgba(255,255,255,.8); max-width: 46ch; margin: 6px 0 0; }
+  .le-cta .eyebrow { color: var(--gold); }
+
+  .btn.outline { background: #fff; border: 1.5px solid var(--line); color: var(--blue); border-radius: 999px; padding: 9px 18px; font-weight: 700; font-size: 14px; text-decoration: none; cursor: pointer; }
+  .btn.outline.sm { padding: 7px 14px; font-size: 13px; }
+
+  @media (max-width: 860px) {
+    .le-filters, .le-feat-grid { grid-template-columns: 1fr; }
+  }
+</style>
