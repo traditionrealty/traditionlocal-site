@@ -15,7 +15,7 @@ const areas = [...new Set(ideas.map((i) => i.area))].sort();
     { key: 'areas', value: areas.length, label: 'Areas' },
     { key: 'saved', value: 0, label: 'Saved by you' },
   ]}
-  buttons={[{ label: 'See events', href: '/events', kind: 'gold' }, { label: 'Back to Things to Do', href: '/living', kind: 'white' }]}
+  buttons={[{ label: 'See events', href: '/living#featured', kind: 'gold' }, { label: 'Back to Things to Do', href: '/living', kind: 'white' }]}
   bar={[{ id: 'discover', label: 'Discover' }]}
   best="Best for: Families, couples, and anyone who wants to get out"
 >
