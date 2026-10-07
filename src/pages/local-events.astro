@@ -47,7 +47,10 @@ function srcLabel(e: any) {
         <h1>Calendar</h1>
         <p class="lede">Your calendar for local happenings, neighborhood outings, and Tradition Local gatherings.</p>
       </div>
-      <a class="btn gold" href={`mailto:${config.contactEmail}?subject=Event%20submission`}>+ Suggest an event</a>
+      <div class="le-hero-btns">
+        <a class="btn gold" href={`mailto:${config.contactEmail}?subject=Event%20submission`}>+ Suggest an event</a>
+        <a class="le-cms-link" href="https://app.pagescms.org" target="_blank" rel="noopener">Pages CMS &rarr;</a>
+      </div>
     </div>
   </section>
 
@@ -226,6 +229,9 @@ function srcLabel(e: any) {
 
 <style is:global>
   .le-hero { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; flex-wrap: wrap; }
+  .le-hero-btns { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+  .le-cms-link { color: rgba(255,255,255,.8); font-size: 13px; font-weight: 600; text-decoration: none; }
+  .le-cms-link:hover { color: #fff; text-decoration: underline; }
   .lede { max-width: 54ch; }
   .le-filters { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; background: var(--cream); border-radius: 12px; padding: 22px 24px; margin-bottom: 16px; }
   .le-filters label span { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--navy); }
