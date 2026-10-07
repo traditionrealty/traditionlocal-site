@@ -23,7 +23,7 @@ const ld = { '@context': 'https://schema.org', '@type': 'Event', name: e.title, 
   <script type="application/ld+json" slot="head" set:html={JSON.stringify(ld)} />
   <section class="band">
     <div class="wrap">
-      <p class="kicker"><a href={url('/events')}>Events</a> / {isPast ? 'Past event' : 'Upcoming'}</p>
+      <p class="kicker"><a href={url('/living#featured')}>Events</a> / {isPast ? 'Past event' : 'Upcoming'}</p>
       <h1>{e.title}</h1>
       <p class="lede">{exact ? e.when : e.when || 'Date to be announced'}</p>
     </div>
@@ -41,7 +41,7 @@ const ld = { '@context': 'https://schema.org', '@type': 'Event', name: e.title, 
         {e.location && <p>{e.location}</p>}
         {e.location && <a class="btn blue" href={`https://www.google.com/maps/search/${encodeURIComponent(e.location)}`}>Get directions</a>}
         {!isPast && (<div class="rsvp"><h3>RSVP</h3><form class="rsvp-form" data-rsvp-form data-slug={e.slug} data-title={e.title} data-when={e.when || ''} data-location={e.location || ''} novalidate><div data-rsvp-member hidden><p>Signed in as <strong data-rsvp-name></strong>.</p><button type="button" class="btn blue" data-rsvp-onetap>RSVP with one tap</button></div><div data-rsvp-fields><label>First name<input name="first_name" required autocomplete="given-name" /></label><label>Last name<input name="last_name" autocomplete="family-name" /></label><label>Email<input name="email" type="email" required autocomplete="email" /></label><label>Guests, including you<select name="party_size"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select></label><input type="text" name="company" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px" /><button class="btn blue" type="submit">RSVP</button></div><p data-rsvp-msg role="status" hidden></p><p class="muted" data-rsvp-signin-note>Free to attend. Have a Tradition Local account? <a href={url('/sign-in')}>Sign in</a> for one tap RSVPs.</p></form></div>)}
-        {isPast && <p class="muted">This event has ended. <a href={url('/events')}>See upcoming events</a>.</p>}
+        {isPast && <p class="muted">This event has ended. <a href={url('/living#featured')}>See upcoming events</a>.</p>}
       </aside>
     </div>
   </section>
