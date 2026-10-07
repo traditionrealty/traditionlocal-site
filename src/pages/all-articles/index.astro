@@ -75,6 +75,25 @@ function typeTag(p: any) {
     </section>
 
     <section class="sh-section">
+      <div class="wrap">
+        <div class="sh-sechead"><div><p class="sh-eyebrow">Fresh from Tradition Local</p><h2>Recently Added</h2></div><span class="muted small light">Articles, reviews &amp; videos</span></div>
+        <div class="sh-recent-list">
+          {recentFour.map((p: any) => (
+            <div class="sh-recent-row">
+              <span class="sh-recent-ic">{p.image ? <img src={img(p.image, 80)} alt="" /> : <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>}</span>
+              <div class="sh-recent-body">
+                <span class="sh-tag">{typeTag(p)}</span>
+                <h4><a href={url(p.path)}>{p.title}</a></h4>
+                <p class="sh-byline-sm">{p.author} &middot; {fmtDate(p.date)}</p>
+              </div>
+              <a class="sh-btn outline sm" href={url(p.path)}>Read &rarr;</a>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="sh-section">
       <div class="wrap sh-ask-row">
         <div>
           <p class="sh-eyebrow">What should we discover next?</p>
@@ -86,31 +105,6 @@ function typeTag(p: any) {
         </a>
       </div>
     </section>
-
-    {videos.length > 0 && (
-      <section class="sh-section">
-        <div class="wrap">
-          <p class="sh-eyebrow">Watch what's happening</p>
-          <div class="sh-sechead"><h2>Trending Houston</h2><span class="sh-badge light">With Dillon Loren</span></div>
-          <p class="sh-lede-sm">Houston headlines, new openings, development, and the stories shaping our city, explained by Dillon.</p>
-          <div class="sh-video-grid">
-            {videos.map((v: string) => (
-              <a class="sh-video-card" href={`https://www.youtube.com/watch?v=${v}`} target="_blank" rel="noopener">
-                <div class="sh-video-thumb">
-                  <img src={`https://img.youtube.com/vi/${v}/hqdefault.jpg`} alt="" loading="lazy" />
-                  <span class="sh-play"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
-                </div>
-                <div class="sh-video-body">
-                  <span class="sh-tag">YouTube &middot; Tradition Local</span>
-                  <p>Watch on YouTube &rarr;</p>
-                </div>
-              </a>
-            ))}
-          </div>
-          <a class="sh-mlink" href={site.social.youtube} target="_blank" rel="noopener">See all videos on our channel &rarr;</a>
-        </div>
-      </section>
-    )}
 
     <section class="sh-section">
       <div class="wrap">
@@ -142,24 +136,30 @@ function typeTag(p: any) {
       </div>
     </section>
 
-    <section class="sh-section">
-      <div class="wrap">
-        <div class="sh-sechead"><div><p class="sh-eyebrow">Fresh from Tradition Local</p><h2>Recently Added</h2></div><span class="muted small light">Articles, reviews &amp; videos</span></div>
-        <div class="sh-recent-list">
-          {recentFour.map((p: any) => (
-            <div class="sh-recent-row">
-              <span class="sh-recent-ic">{p.image ? <img src={img(p.image, 80)} alt="" /> : <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>}</span>
-              <div class="sh-recent-body">
-                <span class="sh-tag">{typeTag(p)}</span>
-                <h4><a href={url(p.path)}>{p.title}</a></h4>
-                <p class="sh-byline-sm">{p.author} &middot; {fmtDate(p.date)}</p>
-              </div>
-              <a class="sh-btn outline sm" href={url(p.path)}>Read &rarr;</a>
-            </div>
-          ))}
+    {videos.length > 0 && (
+      <section class="sh-section">
+        <div class="wrap">
+          <p class="sh-eyebrow">Watch what's happening</p>
+          <div class="sh-sechead"><h2>Trending Houston</h2><span class="sh-badge light">With Dillon Loren</span></div>
+          <p class="sh-lede-sm">Houston headlines, new openings, development, and the stories shaping our city, explained by Dillon.</p>
+          <div class="sh-video-grid">
+            {videos.map((v: string) => (
+              <a class="sh-video-card" href={`https://www.youtube.com/watch?v=${v}`} target="_blank" rel="noopener">
+                <div class="sh-video-thumb">
+                  <img src={`https://img.youtube.com/vi/${v}/hqdefault.jpg`} alt="" loading="lazy" />
+                  <span class="sh-play"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
+                </div>
+                <div class="sh-video-body">
+                  <span class="sh-tag">YouTube &middot; Tradition Local</span>
+                  <p>Watch on YouTube &rarr;</p>
+                </div>
+              </a>
+            ))}
+          </div>
+          <a class="sh-mlink" href={site.social.youtube} target="_blank" rel="noopener">See all videos on our channel &rarr;</a>
         </div>
-      </div>
-    </section>
+      </section>
+    )}
 
     <section class="sh-section" id="all-stories">
       <div class="wrap">
