@@ -43,14 +43,13 @@ const ICONS: Record<string, string> = {
       <h2>From a first try to a personal favorite.</h2>
       <p class="muted">Select a level to see how it would appear in a review.</p>
       <div class="levels" id="levels">
-        {levels.map((l) => (
+        {[...levels].reverse().map((l) => (
           <button type="button" class:list={['level-card', l.tier]} data-tier={l.tier} data-label={l.label} data-desc={l.desc} aria-pressed={l.tier === 'picks' ? 'true' : 'false'}>
             <span class="level-icon" set:html={`<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${ICONS[l.icon]}</svg>`}></span>
             <span class="level-text">
               <strong>{l.label}</strong>
               <span class="muted small">{l.desc}</span>
             </span>
-            <span class="level-n">Level {l.n}</span>
           </button>
         ))}
       </div>
@@ -209,7 +208,9 @@ const ICONS: Record<string, string> = {
   .eyebrow.small { font-size: 11px; margin: 0 0 6px; }
   .narrow { max-width: 760px; }
 
-  .levels { display: flex; flex-direction: column; gap: 10px; margin: 24px 0; }
+  .levels { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 24px 0; }
+  @media (max-width: 860px) { .levels { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px) { .levels { grid-template-columns: 1fr; } }
   .level-card { display: flex; align-items: center; gap: 16px; background: #fff; border: 1.5px solid var(--line); border-radius: 10px; padding: 16px 20px; text-align: left; cursor: pointer; width: 100%; }
   .level-card[aria-pressed="true"] { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold); }
   .level-icon { flex-shrink: 0; width: 44px; height: 44px; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: var(--cream); color: var(--brown); }
@@ -221,7 +222,6 @@ const ICONS: Record<string, string> = {
   .level-card.picks .level-icon { color: #fff; background: var(--navy); }
   .level-text { flex: 1; display: flex; flex-direction: column; gap: 2px; }
   .level-text strong { font-family: var(--serif); font-size: 1.15rem; color: var(--navy); }
-  .level-n { font-size: 12px; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; color: var(--brown); flex-shrink: 0; }
 
   .example-card { background: var(--cream); border-radius: 10px; padding: 24px; margin-top: 8px; }
   .example-card h3 { margin: 4px 0 6px; }
