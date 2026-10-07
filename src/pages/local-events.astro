@@ -219,4 +219,66 @@ function badgeDate(e: any) {
   @media (max-width: 860px) {
     .le-filters, .le-feat-grid { grid-template-columns: 1fr; }
   }
+
+  /* The month calendar and dialog are shared with the Things To Do page's script,
+     which expects these exact class names; copied here since this page doesn't use
+     the Todo layout that normally supplies them. */
+  .td-pill { display: inline-block; border-radius: 999px; padding: 12px 26px; font: 700 15px var(--serif); text-decoration: none; cursor: pointer; border: 2px solid transparent; }
+  .td-pill:hover { text-decoration: none; }
+  .td-pill.gold { background: var(--gold); color: var(--navy); }
+  .td-pill.white { background: #fff; color: var(--navy); }
+  .td-pill.line { background: #fff; border-color: var(--line); color: var(--blue); }
+  .td-pill.line:hover { border-color: var(--blue); }
+  .td-pill.sm { padding: 7px 16px; font-size: 13px; }
+  .td-meta { font-size: 14px; color: var(--muted); }
+  .td-src { display: inline-block; font-size: 11px; font-weight: 700; border-radius: 99px; padding: 1px 9px; margin-left: 6px; background: var(--gold-soft); color: #6b4a1d; vertical-align: 2px; font-family: var(--sans); }
+  .td-src.vh { background: #e6edfd; color: #1d4ed8; }
+
+  .td-calwrap { display: grid; grid-template-columns: 1.35fr 1fr; gap: 24px; align-items: start; }
+  @media (max-width: 900px) { .td-calwrap { grid-template-columns: 1fr; } }
+  .td-calbox, .td-daybox { background: #fff; border: 1px solid var(--line); border-radius: 14px; }
+  .td-calbox { padding: 16px 16px 12px; border-top: 3px solid var(--gold); }
+  .td-calbar { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+  .td-calbar h3 { font-size: 24px; color: var(--navy); flex: 1; text-align: center; margin: 0; }
+  .td-cnav { width: 38px; height: 38px; border-radius: 50%; border: 1.5px solid var(--line); background: #fff; color: var(--blue); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+  .td-cnav:hover { border-color: var(--blue); }
+  .td-calgrid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+  .td-wd { font-size: 11px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); text-align: center; padding: 4px 0; }
+  .td-dc { position: relative; aspect-ratio: 1 / .92; min-height: 46px; border: 1px solid transparent; border-radius: 10px; background: var(--cream); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 6px 2px 4px; font: 600 15px var(--sans); color: var(--ink); }
+  .td-dc:hover { border-color: var(--blue); }
+  .td-dc.blank { background: transparent; cursor: default; border: 0; }
+  .td-dc.last { background: #fbe6d3; border-color: #f0c6a2; }
+  .td-dc.today { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold); }
+  .td-dc.sel { background: var(--navy); color: #fff; border-color: var(--navy); }
+  .td-dots { display: flex; gap: 3px; margin-top: 4px; min-height: 7px; }
+  .td-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; }
+  .td-dot.tl { background: var(--gold); }
+  .td-dot.ot { background: var(--blue); }
+  .td-dot.ld { background: #c2571a; }
+  .td-dc.sel .td-dot.ot { background: #fff; }
+  .td-dc.sel .td-dot.ld { background: #ffb27a; }
+  .td-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12px; color: var(--muted); padding: 10px 4px 2px; }
+  .td-legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .td-daybox { padding: 20px 22px; }
+  .td-daybox h3 { font-size: 24px; color: var(--navy); margin: 0 0 12px; }
+  .td-dayitem { padding: 12px 0; border-top: 1px solid var(--line); }
+  .td-dayitem:first-of-type { border-top: 0; padding-top: 0; }
+  .td-dayitem h4 { font: 600 18px/1.3 var(--serif); color: var(--navy); margin: 0 0 2px; }
+  .td-dayitem .td-meta { margin: 0 0 8px; }
+  .td-lab { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; border-radius: 99px; padding: 1px 9px; margin-right: 6px; background: var(--cream); border: 1px solid var(--line); color: var(--navy); }
+  .td-dayempty { color: var(--muted); margin: 0 0 6px; }
+  .td-ongo { margin: 14px 0 0; padding-top: 12px; border-top: 1px dashed var(--line); font-size: 14px; color: var(--muted); }
+  .td-ongo a { font-weight: 700; }
+  #td-dayList { max-height: 380px; overflow: auto; padding-right: 6px; }
+
+  .td-dlg { background: #fff; color: var(--ink); border: 1px solid var(--line); border-radius: 14px; padding: 0; width: min(560px, 94vw); }
+  .td-dlg::backdrop { background: rgba(20,40,55,.55); }
+  .td-dlgin { padding: 26px 28px; }
+  .td-dlgin h3 { font-size: 26px; color: var(--navy); margin: 0 0 6px; }
+  .td-m { color: var(--muted); font-size: 14px; margin: 0 0 12px; }
+  .td-dlgin p { margin: 0 0 14px; }
+  .td-x { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; margin-top: 6px; }
+  #td-toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); background: var(--navy); color: #fff; padding: 9px 16px; border-radius: 8px; opacity: 0; pointer-events: none; transition: opacity .2s; z-index: 50; }
+  #td-toast.on { opacity: 1; }
+  @media (prefers-reduced-motion: reduce) { #td-toast { transition: none; } }
 </style>
