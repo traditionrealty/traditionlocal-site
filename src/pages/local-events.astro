@@ -36,12 +36,12 @@ function badgeDate(e: any) {
   return { wd: d.toLocaleDateString('en-US', { weekday: 'short' }), day: d.getDate() };
 }
 ---
-<Base title="Local Events" description="Your calendar for local happenings, neighborhood outings, and Tradition Local gatherings in Greater Houston.">
+<Base title="Calendar" description="Your calendar for local happenings, neighborhood outings, and Tradition Local gatherings in Greater Houston.">
   <section class="band">
     <div class="wrap le-hero">
       <div>
         <p class="kicker">Make time for something local</p>
-        <h1>Local Events</h1>
+        <h1>Calendar</h1>
         <p class="lede">Your calendar for local happenings, neighborhood outings, and Tradition Local gatherings.</p>
       </div>
       <a class="btn gold" href={`mailto:${config.contactEmail}?subject=Event%20submission`}>+ Suggest an event</a>
@@ -72,33 +72,6 @@ function badgeDate(e: any) {
 
       <div id="le-view-month">
         <EventCalendar />
-      </div>
-
-      <div class="le-month-glance">
-        <div class="le-sechead">
-          <div><p class="eyebrow">Your month, at a glance</p><h2>This Month's Events</h2></div>
-          <span class="le-month-badge">{monthLabel}</span>
-        </div>
-        <p class="muted small">In date order, from today through the end of the month.</p>
-        <div class="le-glance-list">
-          {thisMonthEvents.map((e: any) => {
-            const bd = badgeDate(e);
-            return (
-              <div class="le-grow">
-                <div class="le-datebadge sm"><span>{bd.wd}</span><strong>{bd.day}</strong></div>
-                <div class="le-rowbody">
-                  <span class="le-tag">{e.cat}</span>
-                  <h3>{e.title}</h3>
-                  <p class="muted small">{e.venue}</p>
-                </div>
-                {e.src === 'tl'
-                  ? <a class="btn outline sm" href={e.url}>View details &rarr;</a>
-                  : <button class="btn outline sm" type="button" data-ev={e.id}>View details &rarr;</button>}
-              </div>
-            );
-          })}
-          {thisMonthEvents.length === 0 && <p class="le-empty">No more events on the calendar for {monthLabel}. Check back soon, or browse the full list below.</p>}
-        </div>
       </div>
 
       <div id="le-view-list" hidden>
@@ -141,6 +114,35 @@ function badgeDate(e: any) {
               : <button class="btn outline sm" type="button" data-ev={e.id}>Explore event &rarr;</button>}
           </div>
         ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="le-sechead">
+        <div><p class="eyebrow">Your month, at a glance</p><h2>This Month's Events</h2></div>
+        <span class="le-month-badge">{monthLabel}</span>
+      </div>
+      <p class="muted small">In date order, from today through the end of the month.</p>
+      <div class="le-glance-list">
+        {thisMonthEvents.map((e: any) => {
+          const bd = badgeDate(e);
+          return (
+            <div class="le-grow">
+              <div class="le-datebadge sm"><span>{bd.wd}</span><strong>{bd.day}</strong></div>
+              <div class="le-rowbody">
+                <span class="le-tag">{e.cat}</span>
+                <h3>{e.title}</h3>
+                <p class="muted small">{e.venue}</p>
+              </div>
+              {e.src === 'tl'
+                ? <a class="btn outline sm" href={e.url}>View details &rarr;</a>
+                : <button class="btn outline sm" type="button" data-ev={e.id}>View details &rarr;</button>}
+            </div>
+          );
+        })}
+        {thisMonthEvents.length === 0 && <p class="le-empty">No more events on the calendar for {monthLabel}. Check back soon, or browse the full list below.</p>}
       </div>
     </div>
   </section>
@@ -320,8 +322,10 @@ function badgeDate(e: any) {
   .td-daybox { order: -1; }
   .td-dc { min-height: 72px; font-size: 16px; }
   .td-calbar h3 { font-size: 28px; }
-
-  .le-month-glance { margin-top: 32px; }
+  /* The selected day's events flow left to right here instead of stacking top to bottom. */
+  #td-dayList { display: flex; flex-wrap: wrap; gap: 14px; max-height: none; overflow: visible; padding-right: 0; }
+  .td-dayitem { flex: 1 1 240px; max-width: 320px; border-top: none; padding: 16px 18px; background: var(--cream); border-radius: 10px; }
+  .td-dayitem:first-of-type { padding-top: 16px; }
   .le-sechead { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 4px; }
   .le-month-badge { background: var(--cream); border: 1px solid var(--line); border-radius: 999px; padding: 8px 18px; font-weight: 700; font-size: 14px; color: var(--navy); }
   .le-glance-list { display: flex; flex-direction: column; margin-top: 18px; }
