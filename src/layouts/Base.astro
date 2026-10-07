@@ -26,9 +26,10 @@ const nav = [
     ],
   },
   {
-    label: 'Neighborhoods', href: '/cities', match: ['/cities', '/copy-of-neighborhoods-1', '/traditionneighborhoods', '/subdivisions', '/make-it-home'],
+    label: 'Neighborhoods', href: '/cities', match: ['/cities', '/copy-of-neighborhoods-1', '/traditionneighborhoods', '/subdivisions', '/make-it-home', '/home-and-design'],
     sub: [
       { label: 'Compare Neighborhoods', href: '/make-it-home' },
+      { label: 'Home & Design', href: '/home-and-design' },
     ],
   },
   {
@@ -38,10 +39,6 @@ const nav = [
       { label: 'Upcoming Events', href: '/events' },
     ],
   },
-];
-// Top level items with no dropdown.
-const plainNav = [
-  { label: 'Home & Design', href: '/home-and-design', match: ['/home-and-design'] },
 ];
 const moreNav = [
   { label: 'Stories', href: '/all-articles', match: ['/all-articles', '/post'] },
@@ -115,11 +112,6 @@ const popularSearches = ['coffee', 'brunch', 'Sugar Land', 'new builds', 'events
             </div>
           );
         })}
-        {plainNav.map((n) => (
-          <div class="nav-more">
-            <a href={url(n.href)} class="nav-more-link" aria-current={n.match.some((m) => path.startsWith(m)) ? 'page' : undefined}>{n.label}</a>
-          </div>
-        ))}
         <div class="nav-more" data-nav-more>
           <button type="button" class="nav-more-btn" aria-haspopup="true" aria-expanded="false" aria-current={moreActive ? 'page' : undefined}>
             More
