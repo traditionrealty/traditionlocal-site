@@ -79,12 +79,16 @@
   }
 
   // ---------- featured events ----------
+  // Single-day events sort by their date; ongoing (ranged) events sort by their end date, so an
+  // event that is wrapping up soon surfaces ahead of one that runs for months yet. Earliest first.
+  function featKey(e) { return isRange(e) ? e.end : e.date; }
+  function byFeat(a, b) { var ka = featKey(a), kb = featKey(b); return ka < kb ? -1 : ka > kb ? 1 : 0; }
   function renderFeatured() {
     var box = $('td-feat'); if (!box) return;
     var nextTl = ALL.filter(function (e) { return e.src === 'tl' && e.date >= todayS && !e.monthOnly; }).sort(byDate)[0];
     var list = ALL.filter(function (e) { return e.feat && (e.end || e.date) >= todayS; });
     if (nextTl) list.push(nextTl);
-    list.sort(byDate);
+    list.sort(byFeat);
     // De-dupe (nextTl may already be in the feat list); show every featured event, flowing left to right.
     var seen = {}; var tiles = [];
     list.forEach(function (e) { if (!seen[e.id]) { seen[e.id] = 1; tiles.push(e); } });
