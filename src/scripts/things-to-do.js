@@ -85,12 +85,11 @@
     var list = ALL.filter(function (e) { return e.feat && (e.end || e.date) >= todayS; });
     if (nextTl) list.push(nextTl);
     list.sort(byDate);
-    // De-dupe (nextTl may already be in the feat list) and cap at 5 tiles, flowing left to right.
-    var seen = {}; var five = [];
-    list.forEach(function (e) { if (!seen[e.id]) { seen[e.id] = 1; five.push(e); } });
-    five = five.slice(0, 5);
-    box.innerHTML = five.length
-      ? '<div class="td-feat-row">' + five.map(eventTile).join('') + '</div>'
+    // De-dupe (nextTl may already be in the feat list); show every featured event, flowing left to right.
+    var seen = {}; var tiles = [];
+    list.forEach(function (e) { if (!seen[e.id]) { seen[e.id] = 1; tiles.push(e); } });
+    box.innerHTML = tiles.length
+      ? '<div class="td-feat-row">' + tiles.map(eventTile).join('') + '</div>'
       : '<p class="td-note">New featured events are added often. Check back soon.</p>';
   }
 
