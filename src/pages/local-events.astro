@@ -65,6 +65,7 @@ function badgeDate(e: any) {
         <button type="button" class="le-chip" id="le-clear">Clear filters</button>
       </div>
 
+      <h2 class="le-cal-title">Event Calendar</h2>
       <div class="le-viewtabs">
         <button type="button" class="le-vtab" data-view="month" aria-pressed="true">Month calendar</button>
         <button type="button" class="le-vtab" data-view="list" aria-pressed="false">List</button>
@@ -223,6 +224,7 @@ function badgeDate(e: any) {
   .le-chips { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 24px; }
   .le-chip { background: #fff; border: 1.5px solid var(--line); color: var(--navy); border-radius: 999px; padding: 8px 16px; font-size: 13px; font-weight: 600; cursor: pointer; }
   .le-chip[aria-pressed="true"] { background: var(--navy); color: #fff; border-color: var(--navy); }
+  .le-cal-title { font-size: 1.6rem; color: var(--navy); margin: 8px 0 16px; }
   .le-viewtabs { display: flex; gap: 8px; margin-bottom: 20px; }
   .le-vtab { background: #fff; border: 1.5px solid var(--line); color: var(--navy); border-radius: 999px; padding: 9px 18px; font-size: 14px; font-weight: 700; cursor: pointer; }
   .le-vtab[aria-pressed="true"] { background: var(--gold); border-color: var(--gold); }
@@ -322,10 +324,11 @@ function badgeDate(e: any) {
   .td-daybox { order: -1; }
   .td-dc { min-height: 72px; font-size: 16px; }
   .td-calbar h3 { font-size: 28px; }
-  /* The selected day's events flow left to right here instead of stacking top to bottom. */
-  #td-dayList { display: flex; flex-wrap: wrap; gap: 14px; max-height: none; overflow: visible; padding-right: 0; }
-  .td-dayitem { flex: 1 1 240px; max-width: 320px; border-top: none; padding: 16px 18px; background: var(--cream); border-radius: 10px; }
+  /* The selected day's events scroll through as a panoramic slider instead of stacking top to bottom. */
+  #td-dayList { display: flex; flex-wrap: nowrap; gap: 14px; max-height: none; overflow-x: auto; overflow-y: visible; padding: 4px 4px 14px; margin: 0 -4px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+  .td-dayitem { scroll-snap-align: start; flex: 0 0 260px; border-top: none; padding: 16px 18px; background: var(--cream); border-radius: 10px; }
   .td-dayitem:first-of-type { padding-top: 16px; }
+  @media (max-width: 640px) { .td-dayitem { flex-basis: 78vw; } }
   .le-sechead { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 4px; }
   .le-month-badge { background: var(--cream); border: 1px solid var(--line); border-radius: 999px; padding: 8px 18px; font-weight: 700; font-size: 14px; color: var(--navy); }
   .le-glance-list { display: flex; flex-direction: column; margin-top: 18px; }
