@@ -23,6 +23,10 @@ const upcoming = [...own, ...area]
   .sort((a: any, b: any) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
 const interests = [...new Set(upcoming.map((e: any) => e.cat))].sort();
 
+const nowMonth = todayS.slice(0, 7);
+const thisMonthEvents = upcoming.filter((e: any) => e.date.slice(0, 7) === nowMonth);
+const monthLabel = new Date(todayS + 'T12:00:00').toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
 function isWeekend(dateStr: string) {
   const d = new Date(dateStr + 'T12:00:00').getDay();
   return d === 0 || d === 6;
@@ -68,6 +72,33 @@ function badgeDate(e: any) {
 
       <div id="le-view-month">
         <EventCalendar />
+      </div>
+
+      <div class="le-month-glance">
+        <div class="le-sechead">
+          <div><p class="eyebrow">Your month, at a glance</p><h2>This Month's Events</h2></div>
+          <span class="le-month-badge">{monthLabel}</span>
+        </div>
+        <p class="muted small">In date order, from today through the end of the month.</p>
+        <div class="le-glance-list">
+          {thisMonthEvents.map((e: any) => {
+            const bd = badgeDate(e);
+            return (
+              <div class="le-grow">
+                <div class="le-datebadge sm"><span>{bd.wd}</span><strong>{bd.day}</strong></div>
+                <div class="le-rowbody">
+                  <span class="le-tag">{e.cat}</span>
+                  <h3>{e.title}</h3>
+                  <p class="muted small">{e.venue}</p>
+                </div>
+                {e.src === 'tl'
+                  ? <a class="btn outline sm" href={e.url}>View details &rarr;</a>
+                  : <button class="btn outline sm" type="button" data-ev={e.id}>View details &rarr;</button>}
+              </div>
+            );
+          })}
+          {thisMonthEvents.length === 0 && <p class="le-empty">No more events on the calendar for {monthLabel}. Check back soon, or browse the full list below.</p>}
+        </div>
       </div>
 
       <div id="le-view-list" hidden>
@@ -281,4 +312,20 @@ function badgeDate(e: any) {
   #td-toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); background: var(--navy); color: #fff; padding: 9px 16px; border-radius: 8px; opacity: 0; pointer-events: none; transition: opacity .2s; z-index: 50; }
   #td-toast.on { opacity: 1; }
   @media (prefers-reduced-motion: reduce) { #td-toast { transition: none; } }
+
+  /* This page's calendar reads differently from the Things To Do page's: the selected day's
+     detail sits above a full-width calendar (instead of beside a narrower one), and the day
+     cells run bigger. */
+  .td-calwrap { grid-template-columns: 1fr; }
+  .td-daybox { order: -1; }
+  .td-dc { min-height: 72px; font-size: 16px; }
+  .td-calbar h3 { font-size: 28px; }
+
+  .le-month-glance { margin-top: 32px; }
+  .le-sechead { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 4px; }
+  .le-month-badge { background: var(--cream); border: 1px solid var(--line); border-radius: 999px; padding: 8px 18px; font-weight: 700; font-size: 14px; color: var(--navy); }
+  .le-glance-list { display: flex; flex-direction: column; margin-top: 18px; }
+  .le-grow { display: flex; align-items: center; gap: 18px; padding: 16px 0; border-top: 1px solid var(--line); }
+  .le-grow:first-child { border-top: none; padding-top: 0; }
+  .le-datebadge.sm { width: 50px; padding: 6px 0; }
 </style>
