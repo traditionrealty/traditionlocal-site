@@ -62,7 +62,8 @@
   }
   function detailBtn(e, sm) {
     var cls = 'td-pill line' + (sm ? ' sm' : '');
-    return e.src === 'tl' ? '<a class="' + cls + '" href="' + esc(e.url) + '">View details</a>' : '<button class="' + cls + '" type="button" data-ev="' + esc(e.id) + '">View details</button>';
+    var inner = 'View details' + srcTag(e);
+    return e.src === 'tl' ? '<a class="' + cls + '" href="' + esc(e.url) + '">' + inner + '</a>' : '<button class="' + cls + '" type="button" data-ev="' + esc(e.id) + '">' + inner + '</button>';
   }
   function srcTag(e) { return '<span class="td-src ' + e.src + '">' + (e.src === 'tl' ? 'Tradition Local' : (e.source || 'Visit Houston')) + '</span>'; }
   function eventRow(e) {
@@ -71,7 +72,7 @@
   }
   function eventTile(e) {
     var through = isRange(e);
-    return '<article class="td-tile"><div class="td-date">' + badge(e) + '</div><h3>' + esc(e.title) + '</h3>' + srcTag(e) + '<div class="td-meta">' + esc(e.venue) + (through ? ' · ' + md(e.date) + ' to ' + md(e.end) : '') + '</div>' + detailBtn(e, true) + '</article>';
+    return '<article class="td-tile"><div class="td-date">' + badge(e) + '</div><h3>' + esc(e.title) + '</h3><div class="td-meta">' + esc(e.venue) + (through ? ' · ' + md(e.date) + ' to ' + md(e.end) : '') + '</div>' + detailBtn(e, true) + '</article>';
   }
   function ideaCard(r) {
     var on = saved.indexOf(r.ix) > -1;
@@ -126,7 +127,7 @@
     var html = '';
     function item(e, label) {
       var isPast = (e.end || e.date) < todayS;
-      return '<div class="td-dayitem"><h4>' + esc(e.title) + '</h4><div class="td-meta">' + (label ? '<span class="td-lab">' + label + '</span>' : '') + esc(e.venue) + (isPast && e.src === 'tl' ? ' · Past event' : '') + '</div><div class="td-x">' + srcTag(e) + detailBtn(e, true) + '</div></div>';
+      return '<div class="td-dayitem"><h4>' + esc(e.title) + '</h4><div class="td-meta">' + (label ? '<span class="td-lab">' + label + '</span>' : '') + esc(e.venue) + (isPast && e.src === 'tl' ? ' · Past event' : '') + '</div>' + detailBtn(e, true) + '</div>';
     }
     single.forEach(function (e) { html += item(e, ''); });
     opens.forEach(function (e) { html += item(e, 'Opens'); });
