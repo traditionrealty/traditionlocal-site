@@ -126,7 +126,7 @@
     var html = '';
     function item(e, label) {
       var isPast = (e.end || e.date) < todayS;
-      return '<div class="td-dayitem"><h4>' + esc(e.title) + srcTag(e) + '</h4><div class="td-meta">' + (label ? '<span class="td-lab">' + label + '</span>' : '') + esc(e.venue) + (isPast && e.src === 'tl' ? ' · Past event' : '') + '</div>' + detailBtn(e, true) + '</div>';
+      return '<div class="td-dayitem"><h4>' + esc(e.title) + '</h4><div class="td-meta">' + (label ? '<span class="td-lab">' + label + '</span>' : '') + esc(e.venue) + (isPast && e.src === 'tl' ? ' · Past event' : '') + '</div><div class="td-x">' + srcTag(e) + detailBtn(e, true) + '</div></div>';
     }
     single.forEach(function (e) { html += item(e, ''); });
     opens.forEach(function (e) { html += item(e, 'Opens'); });
