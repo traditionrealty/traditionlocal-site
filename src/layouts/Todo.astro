@@ -20,7 +20,7 @@ const own = events.map((e: any) => ({
   url: url('/event-details/' + e.slug), monthOnly: !String(e.when || '').includes(',')
 }));
 const area = areaEvents.map((e: any) => ({ ...e, src: 'vh' }));
-const data = { events: [...own, ...area], ideas, urls: { events: url('/events'), weekend: url('/weekend-ideas'), cities: url('/cities') } };
+const data = { events: [...own, ...area], ideas, urls: { events: url('/living#featured'), weekend: url('/weekend-ideas'), cities: url('/cities') } };
 ---
 <Base title={title} description={description}>
   <section class="band td-band">
