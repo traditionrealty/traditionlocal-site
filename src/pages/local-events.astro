@@ -35,6 +35,9 @@ function badgeDate(e: any) {
   const d = new Date(e.date + 'T12:00:00');
   return { wd: d.toLocaleDateString('en-US', { weekday: 'short' }), day: d.getDate() };
 }
+function srcLabel(e: any) {
+  return e.src === 'tl' ? 'Tradition Local' : (e.source || 'Visit Houston');
+}
 ---
 <Base title="Calendar" description="Your calendar for local happenings, neighborhood outings, and Tradition Local gatherings in Greater Houston.">
   <section class="band">
@@ -88,9 +91,12 @@ function badgeDate(e: any) {
                   <h3>{e.title}</h3>
                   <p class="muted small">{fmtDate(e.date, { month: 'short', day: 'numeric' })} &middot; {e.venue}</p>
                 </div>
-                {e.src === 'tl'
-                  ? <a class="btn outline sm" href={e.url}>View details &rarr;</a>
-                  : <button class="btn outline sm" type="button" data-ev={e.id}>View details &rarr;</button>}
+                <div class="le-btnrow">
+                  <span class:list={['td-src', e.src]}>{srcLabel(e)}</span>
+                  {e.src === 'tl'
+                    ? <a class="btn outline sm" href={e.url}>View details &rarr;</a>
+                    : <button class="btn outline sm" type="button" data-ev={e.id}>View details &rarr;</button>}
+                </div>
               </div>
             );
           })}
@@ -110,9 +116,12 @@ function badgeDate(e: any) {
             <span class="le-tag">{e.cat}</span>
             <h3>{e.title}</h3>
             <p class="muted small">{fmtDate(e.date, { month: 'short', day: 'numeric' })} &middot; {e.venue}</p>
-            {e.src === 'tl'
-              ? <a class="btn outline sm" href={e.url}>Explore event &rarr;</a>
-              : <button class="btn outline sm" type="button" data-ev={e.id}>Explore event &rarr;</button>}
+            <div class="le-btnrow">
+              <span class:list={['td-src', e.src]}>{srcLabel(e)}</span>
+              {e.src === 'tl'
+                ? <a class="btn outline sm" href={e.url}>Explore event &rarr;</a>
+                : <button class="btn outline sm" type="button" data-ev={e.id}>Explore event &rarr;</button>}
+            </div>
           </div>
         ))}
       </div>
@@ -137,9 +146,12 @@ function badgeDate(e: any) {
                 <h3>{e.title}</h3>
                 <p class="muted small">{e.venue}</p>
               </div>
-              {e.src === 'tl'
-                ? <a class="btn outline sm" href={e.url}>View details &rarr;</a>
-                : <button class="btn outline sm" type="button" data-ev={e.id}>View details &rarr;</button>}
+              <div class="le-btnrow">
+                <span class:list={['td-src', e.src]}>{srcLabel(e)}</span>
+                {e.src === 'tl'
+                  ? <a class="btn outline sm" href={e.url}>View details &rarr;</a>
+                  : <button class="btn outline sm" type="button" data-ev={e.id}>View details &rarr;</button>}
+              </div>
             </div>
           );
         })}
@@ -242,6 +254,8 @@ function badgeDate(e: any) {
   .le-feat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 20px; }
   .le-feat-card { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 20px; }
   .le-feat-card h3 { font-size: 1.1rem; margin: 10px 0 6px; color: var(--navy); }
+  .le-btnrow { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+  .le-feat-card .le-btnrow { margin-top: 14px; }
 
   .le-cta { display: flex; justify-content: space-between; align-items: center; gap: 24px; flex-wrap: wrap; background: var(--navy); color: #fff; border-radius: 14px; padding: 32px 36px; }
   .le-cta h2 { color: #fff; }
