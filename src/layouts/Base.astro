@@ -42,7 +42,7 @@ const nav = [
   },
 ];
 const moreNav = [
-  { label: 'Stories', href: '/all-articles', match: ['/all-articles', '/post'] },
+  { label: 'Blog', href: '/all-articles', match: ['/all-articles', '/post'] },
   { label: 'Reviews', href: '/about-our-reviews', match: ['/about-our-reviews'] },
   { label: 'Newsletters', href: '/newsletters', match: ['/newsletters'] },
   ...(membersOn ? [{ label: 'Local Directory', href: '/local-directory', match: ['/local-directory'] }] : []),
@@ -55,7 +55,7 @@ const searchable = !/^\/(404|sign-in|join|reset-password|members|search)(\/|$)/.
 const searchType = /^\/(food|eat)(\/|$)/.test(path) ? 'Food'
   : /^\/(cities|copy-of-neighborhoods-1|traditionneighborhoods|subdivisions|make-it-home|new-builds)(\/|$)/.test(path) ? 'Neighborhoods'
   : /^\/(living|event-details|events|weekend-ideas)(\/|$)/.test(path) ? 'Things To Do'
-  : /^\/(post|all-articles)(\/|$)/.test(path) ? 'Stories'
+  : /^\/(post|all-articles)(\/|$)/.test(path) ? 'Blog'
   : 'Pages';
 const popularSearches = ['coffee', 'brunch', 'Sugar Land', 'new builds', 'events'];
 ---
