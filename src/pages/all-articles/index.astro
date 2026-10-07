@@ -1,7 +1,326 @@
 ---
 import Base from '../../layouts/Base.astro';
-import ArticleList from '../../components/ArticleList.astro';
 import posts from '../../data/posts.json';
-const desc = 'A Houston city community using local guides and videos to connect Houstonians and those relocating with food, neighborhoods, and culture where they live.';
+import categories from '../../data/categories.json';
+import site from '../../data/site.json';
+import { config } from '../../config';
+import { url, img, fmtDate } from '../../lib/util';
+
+const dated = posts.filter((p: any) => p.date);
+const byRecent = [...dated].sort((a: any, b: any) => (a.date < b.date ? 1 : -1));
+const featured = byRecent[0];
+const recentFour = byRecent.slice(0, 4);
+const videos = (site.videos || []).slice(0, 3);
+
+const RATING_LEVELS = [
+  { n: 1, label: 'Try at Least Once' }, { n: 2, label: 'Worth a Visit' }, { n: 3, label: 'Would Go Again' },
+  { n: 4, label: 'Highly Recommend' }, { n: 5, label: 'Local Favorite' }, { n: 6, label: "Sara's Pick" },
+];
+
+function typeTag(p: any) {
+  const c = (p.categories || [])[0];
+  if (!c) return 'Guide';
+  const found = categories.find((x: any) => x.slug === c);
+  return found ? found.name : 'Guide';
+}
 ---
-<Base title="All articles" description={desc}><ArticleList posts={posts} title="Explore" intro={desc} /></Base>
+<Base title="Houston Stories & Guides" description="A closer look at Houston. Reviews, local businesses, neighborhood discoveries, and ideas for living well.">
+  <div class="sh-page">
+    <section class="sh-hero">
+      <div class="wrap sh-hero-grid">
+        <div class="sh-intro">
+          <p class="sh-eyebrow">Discoveries, people &amp; places</p>
+          <h1>Houston Stories &amp; Guides</h1>
+          <p class="sh-lede">A closer look at Houston. Reviews, local businesses, neighborhood discoveries, and ideas for living well.</p>
+        </div>
+        <p class="sh-byline">From Dillon &amp; Sara Loren</p>
+      </div>
+
+      <div class="wrap sh-feat-grid">
+        {featured && (
+          <a class="sh-feat-card" href={url(featured.path)}>
+            <div class="sh-feat-media">
+              {featured.image ? <img src={img(featured.image, 900)} alt="" /> : <div class="sh-ph"><span>Featured story photography</span></div>}
+            </div>
+            <div class="sh-feat-body">
+              <div class="sh-tags"><span class="sh-badge light">Featured</span><span class="sh-tag">{typeTag(featured)}</span></div>
+              <h2>{featured.title}</h2>
+              <p>{featured.description}</p>
+              <p class="sh-byline-sm">{featured.author} &middot; {fmtDate(featured.date)}</p>
+              <span class="sh-btn light">Explore the guide &rarr;</span>
+            </div>
+          </a>
+        )}
+        <div class="sh-side">
+          <div class="sh-side-card">
+            <p class="sh-eyebrow small">Meet the team</p>
+            <h3>Meet the People Behind Tradition Local</h3>
+            <p>Origins, craft, and a local connection.</p>
+            <a class="sh-btn outline" href={url('/about')}>Meet the team &rarr;</a>
+          </div>
+          <div class="sh-side-card">
+            <p class="sh-eyebrow small">Neighborhood guide</p>
+            <h3>Compare Any Two Neighborhoods</h3>
+            <p>Understand the differences, side by side.</p>
+            <a class="sh-btn outline" href={url('/find-your-fit')}>Explore the tool &rarr;</a>
+          </div>
+          <div class="sh-side-card dark">
+            <h3>Good stories start locally.</h3>
+            <p>First-hand discoveries, thoughtful guides, and the people who make a place feel like home.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sh-section">
+      <div class="wrap sh-ask-row">
+        <div>
+          <p class="sh-eyebrow">What should we discover next?</p>
+          <h2>Every neighborhood has a story.</h2>
+          <p>Suggest a local business, an interesting place, or someone we should meet.</p>
+        </div>
+        <a class="sh-btn outline" href={`mailto:${config.contactEmail}?subject=Story%20suggestion`}>Suggest a story
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-8.8 8.4 9 9 0 0 1-3.4-.7L4 20l1-4.6A8.3 8.3 0 0 1 4 11.5 8.4 8.4 0 0 1 12.8 3a8.3 8.3 0 0 1 8.2 8.5z"/></svg>
+        </a>
+      </div>
+    </section>
+
+    {videos.length > 0 && (
+      <section class="sh-section">
+        <div class="wrap">
+          <p class="sh-eyebrow">Watch what's happening</p>
+          <div class="sh-sechead"><h2>Trending Houston</h2><span class="sh-badge light">With Dillon Loren</span></div>
+          <p class="sh-lede-sm">Houston headlines, new openings, development, and the stories shaping our city, explained by Dillon.</p>
+          <div class="sh-video-grid">
+            {videos.map((v: string) => (
+              <a class="sh-video-card" href={`https://www.youtube.com/watch?v=${v}`} target="_blank" rel="noopener">
+                <div class="sh-video-thumb">
+                  <img src={`https://img.youtube.com/vi/${v}/hqdefault.jpg`} alt="" loading="lazy" />
+                  <span class="sh-play"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
+                </div>
+                <div class="sh-video-body">
+                  <span class="sh-tag">YouTube &middot; Tradition Local</span>
+                  <p>Watch on YouTube &rarr;</p>
+                </div>
+              </a>
+            ))}
+          </div>
+          <a class="sh-mlink" href={site.social.youtube} target="_blank" rel="noopener">See all videos on our channel &rarr;</a>
+        </div>
+      </section>
+    )}
+
+    <section class="sh-section">
+      <div class="wrap">
+        <div class="sh-sechead"><div><p class="sh-eyebrow">Our review levels</p><h2>From a first try to a personal favorite.</h2></div><a class="sh-btn outline" href={url('/about-our-reviews')}>Explore reviews &rarr;</a></div>
+        <div class="sh-rating-grid">
+          {RATING_LEVELS.map((r) => (
+            <div class:list={['sh-rating-card', { hi: r.n === 6 }]}>
+              <span class="sh-rating-n">Level {r.n}</span>
+              <h4>{r.label}</h4>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="sh-section">
+      <div class="wrap">
+        <div class="sh-sechead"><div><p class="sh-eyebrow">The newsletter, on the website</p><h2>From In the Loop</h2></div><a class="sh-btn outline" href={url('/newsletters')}>Get the newsletter &rarr;</a></div>
+        <p class="sh-lede-sm">Our weekly note, with articles like these featured inside.</p>
+        <div class="sh-nl-grid">
+          {recentFour.slice(0, 2).map((p: any) => (
+            <div class="sh-nl-item">
+              <span class="sh-tag">{typeTag(p)}</span>
+              <h4><a href={url(p.path)}>{p.title}</a></h4>
+              <a class="sh-mlink" href={url(p.path)}>Read &rarr;</a>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="sh-section">
+      <div class="wrap">
+        <div class="sh-sechead"><div><p class="sh-eyebrow">Fresh from Tradition Local</p><h2>Recently Added</h2></div><span class="muted small light">Articles, reviews &amp; videos</span></div>
+        <div class="sh-recent-list">
+          {recentFour.map((p: any) => (
+            <div class="sh-recent-row">
+              <span class="sh-recent-ic">{p.image ? <img src={img(p.image, 80)} alt="" /> : <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>}</span>
+              <div class="sh-recent-body">
+                <span class="sh-tag">{typeTag(p)}</span>
+                <h4><a href={url(p.path)}>{p.title}</a></h4>
+                <p class="sh-byline-sm">{p.author} &middot; {fmtDate(p.date)}</p>
+              </div>
+              <a class="sh-btn outline sm" href={url(p.path)}>Read &rarr;</a>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="sh-section" id="all-stories">
+      <div class="wrap">
+        <div class="sh-sechead"><h2>Explore all stories</h2></div>
+        <p class="sh-lede-sm">Browse every story, or choose a type to narrow your discoveries.</p>
+        <div class="sh-filters">
+          <button class="sh-chip" data-cat="" aria-pressed="true">All</button>
+          {categories.map((c: any) => <button class="sh-chip" data-cat={c.slug} aria-pressed="false">{c.name}</button>)}
+        </div>
+        <label class="sh-search"><span class="sr">Search stories</span>
+          <input type="search" id="sh-q" placeholder="Search a title or topic" />
+        </label>
+        <p class="muted small light" id="sh-count">{posts.length} stories</p>
+        <div class="sh-grid" id="sh-grid">
+          {posts.map((p: any) => (
+            <article class="sh-card" data-cats={(p.categories || []).join('|')} data-name={(p.title + ' ' + (p.description || '')).toLowerCase()}>
+              <a class="sh-card-media" href={url(p.path)}>
+                {p.image ? <img src={img(p.image, 520)} alt="" loading="lazy" /> : <div class="sh-ph small"><span>Story photography</span></div>}
+              </a>
+              <div class="sh-card-body">
+                <span class="sh-tag">{typeTag(p)}</span>
+                <h3><a href={url(p.path)}>{p.title}</a></h3>
+                <p>{p.description}</p>
+                <p class="sh-byline-sm">{p.author} &middot; {fmtDate(p.date)}</p>
+                <div class="sh-card-actions">
+                  <a class="sh-btn outline sm" href={url(p.path)}>Read story &rarr;</a>
+                  <button class="sh-save" type="button" title="Saving stories isn't built yet" aria-label="Bookmark"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 3h12v18l-6-4-6 4V3z"/></svg></button>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+        <p id="sh-empty" class="sh-empty" hidden>No stories match that search. Try a different term or category.</p>
+      </div>
+    </section>
+  </div>
+</Base>
+
+<script>
+  const q = document.getElementById('sh-q') as HTMLInputElement;
+  const chips = [...document.querySelectorAll<HTMLButtonElement>('[data-cat]')];
+  const cards = [...document.querySelectorAll<HTMLElement>('.sh-card')];
+  const count = document.getElementById('sh-count')!;
+  const empty = document.getElementById('sh-empty') as HTMLElement;
+  let cat = '';
+  function apply() {
+    const term = q.value.trim().toLowerCase();
+    let n = 0;
+    cards.forEach((c) => {
+      const okCat = !cat || (c.dataset.cats || '').split('|').includes(cat);
+      const okTerm = !term || (c.dataset.name || '').includes(term);
+      const ok = okCat && okTerm;
+      c.hidden = !ok; if (ok) n++;
+    });
+    count.textContent = `${n} ${n === 1 ? 'story' : 'stories'}`;
+    empty.hidden = n > 0;
+  }
+  chips.forEach((chip) => chip.addEventListener('click', () => {
+    cat = chip.dataset.cat || '';
+    chips.forEach((c) => c.setAttribute('aria-pressed', String(c === chip)));
+    apply();
+  }));
+  q.addEventListener('input', apply);
+</script>
+
+<style>
+  .sh-page { background: #11180e; color: #dde6d2; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .sh-eyebrow { color: #9fae8e; font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; margin: 0 0 10px; }
+  .sh-eyebrow.small { font-size: 11px; margin: 0 0 6px; }
+  .sh-lede { color: #b9c4ab; font-size: 18px; max-width: 54ch; margin: 0; }
+  .sh-lede-sm { color: #b9c4ab; font-size: 15px; margin: 0 0 18px; }
+  h1 { color: #fff; font-size: clamp(2.2rem, 5vw, 3.4rem); margin: 0 0 14px; font-family: var(--serif); font-weight: 400; }
+  h2 { color: #fff; font-family: var(--serif); font-weight: 400; margin: 0; }
+  h3, h4 { color: #fff; font-family: var(--serif); font-weight: 400; margin: 0 0 8px; }
+  .sh-byline { color: #9fae8e; font-size: 14px; }
+  .sh-byline-sm { color: #93a184; font-size: 13px; margin: 10px 0 0; }
+  .muted.small.light { color: #93a184; font-size: 13px; }
+
+  .sh-hero { padding: 56px 0 0; }
+  .sh-hero-grid { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; flex-wrap: wrap; margin-bottom: 36px; }
+  .sh-feat-grid { display: grid; grid-template-columns: 1.6fr 1fr; gap: 24px; align-items: start; padding-bottom: 40px; }
+  .sh-feat-card { display: block; background: #212e1d; border-radius: 16px; overflow: hidden; text-decoration: none; color: inherit; }
+  .sh-feat-media { aspect-ratio: 16/9; background: #3a4a35; display: flex; align-items: center; justify-content: center; }
+  .sh-feat-media img { width: 100%; height: 100%; object-fit: cover; }
+  .sh-ph { color: #9fae8e; font-size: 14px; text-align: center; }
+  .sh-ph.small { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #2d3b29; }
+  .sh-feat-body { padding: 26px 30px 30px; }
+  .sh-tags { display: flex; gap: 8px; align-items: center; margin-bottom: 14px; }
+  .sh-badge { display: inline-block; border-radius: 999px; padding: 5px 14px; font-size: 12px; font-weight: 700; }
+  .sh-badge.light { background: #cddba0; color: #2a3a20; }
+  .sh-tag { display: inline-block; background: rgba(255,255,255,.08); color: #c3d0b6; font-size: 12px; font-weight: 600; border-radius: 999px; padding: 4px 12px; }
+  .sh-feat-body h2 { font-size: clamp(1.5rem, 2.6vw, 2rem); margin: 0 0 12px; }
+  .sh-feat-body p { color: #b9c4ab; margin: 0; }
+  .sh-btn { display: inline-flex; align-items: center; gap: 8px; border-radius: 999px; padding: 11px 22px; font-weight: 700; font-size: 14px; text-decoration: none; margin-top: 18px; border: 0; cursor: pointer; }
+  .sh-btn.light { background: #cddba0; color: #2a3a20; }
+  .sh-btn.outline { background: transparent; border: 1.5px solid #3f4e38; color: #dde6d2; }
+  .sh-btn.sm { padding: 8px 16px; font-size: 13px; margin-top: 0; }
+
+  .sh-side { display: flex; flex-direction: column; gap: 18px; }
+  .sh-side-card { background: #212e1d; border-radius: 14px; padding: 22px; }
+  .sh-side-card.dark { background: #2a3a20; }
+  .sh-side-card h3 { font-size: 1.1rem; }
+  .sh-side-card p { color: #b9c4ab; font-size: 14px; margin: 0; }
+
+  .sh-section { padding: 42px 0; border-top: 1px solid #263021; }
+  .sh-ask-row { display: flex; justify-content: space-between; align-items: center; gap: 24px; flex-wrap: wrap; }
+  .sh-ask-row p:last-child { color: #b9c4ab; margin: 6px 0 0; }
+  .sh-sechead { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; }
+
+  .sh-video-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin: 20px 0 14px; }
+  .sh-video-card { display: block; background: #212e1d; border-radius: 14px; overflow: hidden; text-decoration: none; color: inherit; }
+  .sh-video-thumb { position: relative; aspect-ratio: 16/9; background: #3a4a35; }
+  .sh-video-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .sh-play { position: absolute; inset: 0; margin: auto; width: 48px; height: 48px; border-radius: 50%; background: rgba(0,0,0,.5); color: #fff; display: flex; align-items: center; justify-content: center; }
+  .sh-video-body { padding: 16px 18px 20px; }
+  .sh-video-body p { color: #cddba0; font-size: 14px; font-weight: 600; margin: 10px 0 0; }
+  .sh-mlink { color: #cddba0; font-weight: 600; text-decoration: none; font-size: 14px; }
+
+  .sh-rating-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 20px; }
+  .sh-rating-card { background: #212e1d; border-radius: 10px; padding: 18px 20px; }
+  .sh-rating-card.hi { background: #cddba0; }
+  .sh-rating-card.hi h4, .sh-rating-card.hi .sh-rating-n { color: #2a3a20; }
+  .sh-rating-n { display: block; font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #9fae8e; margin-bottom: 6px; }
+  .sh-rating-card h4 { font-size: 1rem; margin: 0; }
+
+  .sh-nl-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .sh-nl-item { background: #212e1d; border-radius: 12px; padding: 20px; }
+  .sh-nl-item h4 { font-size: 1.1rem; margin: 10px 0 12px; }
+  .sh-nl-item h4 a { color: #fff; text-decoration: none; }
+
+  .sh-recent-list { display: flex; flex-direction: column; margin-top: 16px; }
+  .sh-recent-row { display: flex; align-items: center; gap: 16px; padding: 16px 0; border-top: 1px solid #263021; }
+  .sh-recent-row:first-child { border-top: none; padding-top: 0; }
+  .sh-recent-ic { width: 44px; height: 44px; border-radius: 10px; background: #212e1d; display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; color: #9fae8e; }
+  .sh-recent-ic img { width: 100%; height: 100%; object-fit: cover; }
+  .sh-recent-body { flex: 1; min-width: 0; }
+  .sh-recent-body h4 { font-size: 1.05rem; margin: 6px 0 2px; }
+  .sh-recent-body h4 a { color: #fff; text-decoration: none; }
+
+  .sh-filters { display: flex; gap: 8px; flex-wrap: wrap; margin: 18px 0 16px; }
+  .sh-chip { background: #212e1d; border: 1px solid #3f4e38; color: #dde6d2; border-radius: 999px; padding: 8px 16px; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .sh-chip[aria-pressed="true"] { background: #cddba0; color: #2a3a20; border-color: #cddba0; }
+  .sh-search { display: block; max-width: 420px; margin-bottom: 10px; }
+  .sh-search input { width: 100%; padding: 11px 16px; border-radius: 10px; border: 1px solid #3f4e38; background: #1a2316; color: #fff; font-size: 15px; }
+  .sh-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 20px; }
+  .sh-card { background: #212e1d; border-radius: 14px; overflow: hidden; }
+  .sh-card-media { display: block; aspect-ratio: 4/3; background: #3a4a35; }
+  .sh-card-media img { width: 100%; height: 100%; object-fit: cover; }
+  .sh-card-body { padding: 18px 20px 20px; }
+  .sh-card-body h3 { font-size: 1.15rem; margin: 10px 0 8px; }
+  .sh-card-body h3 a { color: #fff; text-decoration: none; }
+  .sh-card-body p { color: #b9c4ab; font-size: 14px; margin: 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  .sh-card-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; }
+  .sh-save { background: none; border: 1px solid #3f4e38; border-radius: 6px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; color: #dde6d2; cursor: pointer; flex-shrink: 0; }
+  .sh-empty { text-align: center; color: #9fae8e; padding: 40px 0; }
+
+  @media (max-width: 980px) {
+    .sh-feat-grid, .sh-video-grid, .sh-nl-grid, .sh-grid { grid-template-columns: 1fr; }
+    .sh-rating-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 640px) {
+    .sh-rating-grid { grid-template-columns: 1fr; }
+  }
+</style>
