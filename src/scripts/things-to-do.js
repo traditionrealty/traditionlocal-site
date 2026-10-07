@@ -151,6 +151,8 @@
 
   // ---------- ongoing ----------
   var ongoCat = 'All';
+  var ongoExpanded = false;
+  var ONGO_CAP = 9;
   function renderOngoing() {
     var grid = $('td-ongoGrid'); if (!grid) return;
     var list = ongoingNow, cats = ['All'];
@@ -158,9 +160,14 @@
     if (cats.indexOf(ongoCat) < 0) ongoCat = 'All';
     $('td-ongoChips').innerHTML = cats.map(function (c) { return '<button class="td-fc" type="button" data-cat="' + esc(c) + '" aria-pressed="' + (c === ongoCat) + '">' + esc(c) + '</button>'; }).join('');
     var rows = list.filter(function (e) { return ongoCat === 'All' || e.cat === ongoCat; }).sort(function (a, b) { return a.end < b.end ? -1 : a.end > b.end ? 1 : 0; });
-    grid.innerHTML = rows.map(function (e) {
+    var shown = ongoExpanded ? rows : rows.slice(0, ONGO_CAP);
+    var cards = shown.map(function (e) {
       return '<article class="td-ocard"><span class="td-through">Through ' + md(e.end) + '</span><h3>' + esc(e.title) + '</h3><div class="td-meta">' + esc(e.venue) + '</div><div class="td-meta"><span class="td-src vh" style="margin-left:0">' + esc(e.cat) + '</span></div><div class="td-orow">' + detailBtn(e, true) + '</div></article>';
     }).join('') || '<div class="td-empty">Nothing is running right now in this group.</div>';
+    var more = (!ongoExpanded && rows.length > ONGO_CAP)
+      ? '<div class="td-seeall"><button class="td-pill line" type="button" id="td-ongoMore">See all ' + rows.length + ' &rarr;</button></div>'
+      : '';
+    grid.innerHTML = cards + more;
   }
 
   // ---------- past events ----------
@@ -227,7 +234,8 @@
     var t = e.target.closest('[data-t]'); if (t) { tab = t.getAttribute('data-t'); savedOnly = false; renderIdeas(); return; }
     if (e.target.closest('#td-savedBtn')) { savedOnly = !savedOnly; renderIdeas(); return; }
     var dc = e.target.closest('[data-day]'); if (dc) { selDay = dc.getAttribute('data-day'); renderCal(); return; }
-    var ct = e.target.closest('[data-cat]'); if (ct) { ongoCat = ct.getAttribute('data-cat'); renderOngoing(); return; }
+    var ct = e.target.closest('[data-cat]'); if (ct) { ongoCat = ct.getAttribute('data-cat'); ongoExpanded = false; renderOngoing(); return; }
+    if (e.target.closest('#td-ongoMore')) { ongoExpanded = true; renderOngoing(); return; }
   });
   if ($('td-calPrev')) {
     $('td-calPrev').onclick = function () { shift(-1); };
