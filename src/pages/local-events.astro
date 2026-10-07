@@ -92,10 +92,9 @@ function srcLabel(e: any) {
                   <p class="muted small">{fmtDate(e.date, { month: 'short', day: 'numeric' })} &middot; {e.venue}</p>
                 </div>
                 <div class="le-btnrow">
-                  <span class:list={['td-src', e.src]}>{srcLabel(e)}</span>
                   {e.src === 'tl'
-                    ? <a class="btn outline sm" href={e.url}>View details &rarr;</a>
-                    : <button class="btn outline sm" type="button" data-ev={e.id}>View details &rarr;</button>}
+                    ? <a class="btn outline sm" href={e.url}>View details<span class:list={['td-src', e.src]}>{srcLabel(e)}</span></a>
+                    : <button class="btn outline sm" type="button" data-ev={e.id}>View details<span class:list={['td-src', e.src]}>{srcLabel(e)}</span></button>}
                 </div>
               </div>
             );
@@ -117,10 +116,9 @@ function srcLabel(e: any) {
             <h3>{e.title}</h3>
             <p class="muted small">{fmtDate(e.date, { month: 'short', day: 'numeric' })} &middot; {e.venue}</p>
             <div class="le-btnrow">
-              <span class:list={['td-src', e.src]}>{srcLabel(e)}</span>
               {e.src === 'tl'
-                ? <a class="btn outline sm" href={e.url}>Explore event &rarr;</a>
-                : <button class="btn outline sm" type="button" data-ev={e.id}>Explore event &rarr;</button>}
+                ? <a class="btn outline sm" href={e.url}>Explore event<span class:list={['td-src', e.src]}>{srcLabel(e)}</span></a>
+                : <button class="btn outline sm" type="button" data-ev={e.id}>Explore event<span class:list={['td-src', e.src]}>{srcLabel(e)}</span></button>}
             </div>
           </div>
         ))}
@@ -147,10 +145,9 @@ function srcLabel(e: any) {
                 <p class="muted small">{e.venue}</p>
               </div>
               <div class="le-btnrow">
-                <span class:list={['td-src', e.src]}>{srcLabel(e)}</span>
                 {e.src === 'tl'
-                  ? <a class="btn outline sm" href={e.url}>View details &rarr;</a>
-                  : <button class="btn outline sm" type="button" data-ev={e.id}>View details &rarr;</button>}
+                  ? <a class="btn outline sm" href={e.url}>View details<span class:list={['td-src', e.src]}>{srcLabel(e)}</span></a>
+                  : <button class="btn outline sm" type="button" data-ev={e.id}>View details<span class:list={['td-src', e.src]}>{srcLabel(e)}</span></button>}
               </div>
             </div>
           );
@@ -262,7 +259,8 @@ function srcLabel(e: any) {
   .le-cta p { color: rgba(255,255,255,.8); max-width: 46ch; margin: 6px 0 0; }
   .le-cta .eyebrow { color: var(--gold); }
 
-  .btn.outline { background: #fff; border: 1.5px solid var(--line); color: var(--blue); border-radius: 999px; padding: 9px 18px; font-weight: 700; font-size: 14px; text-decoration: none; cursor: pointer; }
+  .btn.outline { display: inline-flex; align-items: center; gap: 8px; background: #fff; border: 1.5px solid var(--line); color: var(--blue); border-radius: 999px; padding: 9px 18px; font-weight: 700; font-size: 14px; text-decoration: none; cursor: pointer; }
+  .btn.outline .td-src { margin-left: 0; }
   .btn.outline.sm { padding: 7px 14px; font-size: 13px; }
 
   @media (max-width: 860px) {
