@@ -31,14 +31,14 @@ const ccDay = ccEvent ? fmtDate(ccEvent.date, { weekday: 'long' }) : null;
     { key: 'ideas', value: ideas.length, label: 'Weekend ideas' },
     { key: 'areas', value: areas.length, label: 'Areas to explore' },
   ]}
-  buttons={[{ label: 'Explore weekend ideas', href: '/weekend-ideas', kind: 'gold' }, { label: 'Browse events', href: '/events', kind: 'white' }]}
-  bar={[{ id: 'weekend', label: 'This weekend' }, { id: 'featured', label: 'Featured events' }, { id: 'calendar', label: 'Calendar' }, { id: 'area', label: 'By area' }, { id: 'ideas', label: 'Ideas' }]}
+  buttons={[{ label: 'Explore weekend ideas', href: '/weekend-ideas', kind: 'gold' }, { label: 'Submit an event', href: '#submit', kind: 'white' }]}
+  bar={[{ id: 'weekend', label: 'This weekend' }, { id: 'featured', label: 'Featured events' }, { id: 'calendar', label: 'Calendar' }, { id: 'ongoing', label: 'Happening now' }, { id: 'area', label: 'By area' }, { id: 'ideas', label: 'Ideas' }, { id: 'past', label: 'Past events' }]}
   best="Best for: Weekend plans, families, and curious locals"
 >
   <section class="td-blk wrap" id="weekend">
     <div class="td-sechead">
       <div><span class="upd">Updated every Thursday</span><h2>This weekend in Houston</h2></div>
-      <a href={url('/events')}>Plan your weekend &rarr;</a>
+      <a href={url('/weekend-ideas')}>Plan your weekend &rarr;</a>
     </div>
     <div class="weekend-grid">
       <div class="weekend-card">
@@ -72,13 +72,19 @@ const ccDay = ccEvent ? fmtDate(ccEvent.date, { weekday: 'long' }) : null;
 
   <section class="td-blk wrap" id="featured">
     <span id="events"></span>
-    <div class="td-sechead"><div><h2>Featured events</h2></div><a href={url('/events')}>See all events &rarr;</a></div>
+    <div class="td-sechead"><div><h2>Featured events</h2></div></div>
     <div id="td-feat"></div>
   </section>
 
   <section class="td-blk wrap" id="calendar">
-    <div class="td-sechead"><div><h2>Event calendar</h2></div><a href={url('/events')}>Open the full calendar &rarr;</a></div>
+    <div class="td-sechead"><div><h2>Event calendar</h2></div></div>
     <EventCalendar />
+  </section>
+
+  <section class="td-blk wrap" id="ongoing">
+    <div class="td-sechead"><div><h2>Happening now</h2></div><span class="td-badge">Exhibits, shows, and long runs</span></div>
+    <div class="td-chips" id="td-ongoChips" role="group" aria-label="Filter ongoing events"></div>
+    <div class="td-ogrid" id="td-ongoGrid"></div>
   </section>
 
   <section class="td-blk wrap" id="area">
@@ -92,10 +98,25 @@ const ccDay = ccEvent ? fmtDate(ccEvent.date, { weekday: 'long' }) : null;
     </div>
   </section>
 
-  <section class="td-blk padb wrap" id="ideas">
+  <section class="td-blk wrap" id="ideas">
     <div class="td-sechead"><div><h2>Make a little time for local.</h2></div><a href={url('/weekend-ideas')}>See all ideas &rarr;</a></div>
     <p class="td-note">Illustrative editorial ideas. Final guides would include verified places and practical details.</p>
     <div class="td-ideas" id="td-hub-ideas"></div>
+  </section>
+
+  <section class="td-blk wrap" id="past">
+    <div class="td-sechead"><div><h2>Past events</h2></div></div>
+    <details class="td-past">
+      <summary>Look back at Tradition Local gatherings</summary>
+      <ul class="td-pastlist" id="td-pastlist"></ul>
+    </details>
+  </section>
+
+  <section class="td-blk padb wrap" id="submit">
+    <div class="td-submit">
+      <div><h2>Hosting something local?</h2><p>Send us the details and we will consider it for the calendar. We list events that help people get out and explore Greater Houston.</p></div>
+      <a class="td-pill gold" href="mailto:traditionlocal@gmail.com?subject=Event%20submission">Submit an event</a>
+    </div>
   </section>
 </Todo>
 <style>
