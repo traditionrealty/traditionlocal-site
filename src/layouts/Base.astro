@@ -37,7 +37,7 @@ const nav = [
     label: 'Things To Do', href: '/living', match: ['/living', '/event-details', '/events', '/weekend-ideas'],
     sub: [
       { label: 'Weekend Ideas', href: '/weekend-ideas' },
-      { label: 'Upcoming Events', href: '/events' },
+      { label: 'Upcoming Events', href: '/living#featured' },
     ],
   },
 ];
@@ -88,7 +88,7 @@ const popularSearches = ['coffee', 'brunch', 'Sugar Land', 'new builds', 'events
         <strong>Upcoming events</strong>
         <span class="eventbar-title">{next.title.replace(/\s*\[.*?\]\s*/g, ' ').trim()}, {fmtDate(next.date, { weekday: 'short', month: 'short', day: 'numeric' })}</span>
         <a class="rsvp" href={url(next.path)}>RSVP</a>
-        <a class="all" href={url('/events')}>See all events</a>
+        <a class="all" href={url('/living#featured')}>See all events</a>
       </div>
     </div>
   )}
@@ -246,7 +246,7 @@ const popularSearches = ['coffee', 'brunch', 'Sugar Land', 'new builds', 'events
         <ul>
           <li><a href={url('/food')}>Where to eat</a></li>
           <li><a href={url('/cities')}>Neighborhood guides</a></li>
-          <li><a href={url('/events')}>Events</a></li>
+          <li><a href={url('/living#featured')}>Events</a></li>
           <li><a href={url('/all-articles')}>All articles</a></li>
           <li><a href={url('/about-me')}>About us</a></li>
           {membersOn && <li><a href={url('/members')}>Members</a></li>}
