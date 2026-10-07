@@ -1,188 +1,158 @@
 ---
 import Base from '../layouts/Base.astro';
-import areas from '../data/areas.json';
-import businesses from '../data/businesses.json';
 import { url } from '../lib/util';
-
-// "Food scene" is the one comparison stat we can back with real data: count of businesses
-// we've actually reviewed in that area. Everything else in the compare table that we don't
-// have real data for (median home price, commute time, flood risk) stays an honest bracketed
-// placeholder, same convention used elsewhere on the site (Food Feature, neighborhood preview).
-const reviewedCountByArea: Record<string, number> = {};
-businesses.forEach((b) => { if (b.area) reviewedCountByArea[b.area] = (reviewedCountByArea[b.area] || 0) + 1; });
-
-const compareData = areas.map((a) => ({
-  slug: a.slug,
-  name: a.name,
-  homeType: a.homes || '[Home type]',
-  schools: a.schools || '[District]',
-  bestFor: a.bestFor || '[Who this fits]',
-  foodCount: reviewedCountByArea[a.slug] || 0,
-}));
-
-const defaultA = areas.find((a) => a.slug === 'sugar-land') || areas[0];
-const defaultB = areas.find((a) => a.slug === 'the-heights') || areas[1];
 ---
-<Base title="Make It Home" description="Honest answers about Houston neighborhoods: prices, schools, commutes, flood risk, and who each place fits best.">
+<Base title="Make It Home" description="Explore Houston neighborhoods, understand your options, and take your next step at your own pace.">
   <section class="band">
-    <div class="wrap">
-      <p class="crumb"><a href={url('/')}>Home</a> <span aria-hidden="true">&rsaquo;</span> Make It Home</p>
-      <p class="kicker">Love where you eat? Live there.</p>
-      <h1>Make It Home</h1>
-      <p class="lede">Honest answers about Houston neighborhoods: prices, schools, commutes, flood risk, and who each place fits best.</p>
-      <div class="actions">
-        <a class="btn gold" href="https://traditionrealtygroup.com" target="_blank" rel="noopener">Search homes</a>
-        <a class="btn outline" href={url('/neighborhood-info-request')}>Talk with Dillon</a>
+    <div class="wrap mih-hero">
+      <div class="mih-intro">
+        <p class="kicker">Make It Home &middot; Houston</p>
+        <h1>A place that fits. A life that feels like you.</h1>
+        <p class="lede">Explore neighborhoods, understand your options, and take your next step at your own pace.</p>
+        <a class="btn gold" href="#start">Find your starting point &darr;</a>
+      </div>
+      <div class="mih-side">
+        <p class="kicker light">More than an address</p>
+        <p class="mih-side-text">Your morning coffee.<br />Your favorite park.<br />Your kind of neighborhood.</p>
+        <div class="mih-icons">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 10h14v4a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4v-4z"/><path d="M17 11h2a2 2 0 0 1 0 4h-2"/><path d="M6 3c0 1-1 1-1 2s1 1 1 2"/><path d="M10 3c0 1-1 1-1 2s1 1 1 2"/></svg>
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 2a5 5 0 0 1 5 5c0 3-5 9-5 9s-5-6-5-9a5 5 0 0 1 5-5z"/><circle cx="12" cy="7" r="2"/></svg>
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9"/></svg>
+        </div>
+        <span class="mih-tag">Discover first. Decide when you're ready.</span>
       </div>
     </div>
   </section>
 
-  <section class="section">
+  <section class="section" id="start">
     <div class="wrap">
-      <p class="section-kicker">Compare neighborhoods</p>
-      <h2>Side by side, in plain English</h2>
-      <div class="pickers">
-        <label><span>Neighborhood 1</span>
-          <select id="pick-a">{compareData.map((a) => <option value={a.slug} selected={a.slug === defaultA.slug}>{a.name}</option>)}</select>
-        </label>
-        <label><span>Neighborhood 2</span>
-          <select id="pick-b">{compareData.map((a) => <option value={a.slug} selected={a.slug === defaultB.slug}>{a.name}</option>)}</select>
-        </label>
+      <div class="section-head">
+        <h2>Where would you like to begin?</h2>
+        <span class="muted small">Every chapter has a starting point.</span>
       </div>
-      <table class="compare">
-        <thead><tr><th></th><th id="head-a"></th><th id="head-b"></th></tr></thead>
-        <tbody>
-          <tr><th>Median home price</th><td class="ph-text">[$000K]</td><td class="ph-text">[$000K]</td></tr>
-          <tr><th>Typical home</th><td id="row-homeType-a"></td><td id="row-homeType-b"></td></tr>
-          <tr><th>School district</th><td id="row-schools-a"></td><td id="row-schools-b"></td></tr>
-          <tr><th>Commute to Galleria</th><td class="ph-text">[00 min]</td><td class="ph-text">[00 min]</td></tr>
-          <tr><th>Flood risk</th><td class="ph-text">[Low / Moderate / High]</td><td class="ph-text">[Low / Moderate / High]</td></tr>
-          <tr><th>Food scene</th><td id="row-food-a"></td><td id="row-food-b"></td></tr>
-          <tr><th>Best for</th><td id="row-bestFor-a"></td><td id="row-bestFor-b"></td></tr>
-        </tbody>
-      </table>
-      <div class="compare-links">
-        <p><a id="link-eat-a" href="#">Where to eat &rarr;</a> <a id="link-guide-a" href="#">Full guide &rarr;</a></p>
-        <p><a id="link-eat-b" href="#">Where to eat &rarr;</a> <a id="link-guide-b" href="#">Full guide &rarr;</a></p>
+      <div class="start-grid">
+        <div class="start-card">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7"/></svg>
+          <h3>Find your neighborhood</h3>
+          <p>Get to know the places you're considering, side by side.</p>
+          <a class="btn outline" href={url('/find-your-fit')}>Compare neighborhoods &rarr;</a>
+        </div>
+        <div class="start-card">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="8" cy="15" r="4"/><path d="M11 12l8-8"/><path d="M15 8l2 2"/><path d="M18 5l2 2"/></svg>
+          <h3>Find your next rental</h3>
+          <p>Learn about leases, applications, and what to prepare before you move.</p>
+          <a class="mlink" href={url('/neighborhood-info-request')}>Explore renting &rarr;</a>
+        </div>
+        <div class="start-card">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9"/></svg>
+          <h3>Explore homeownership</h3>
+          <p>Understand the steps, ask questions, and build a plan that works for you.</p>
+          <a class="mlink" href={url('/neighborhood-info-request')}>Start learning &rarr;</a>
+        </div>
       </div>
     </div>
   </section>
 
   <section class="section tint">
-    <div class="wrap grid2">
-      <div class="card gold">
-        <p class="card-kicker">Market snapshot &middot; <span class="ph-text">[Month] 2026</span></p>
-        <h3>Greater Houston this month</h3>
-        <div class="stats">
-          <div><strong class="ph-text">[$000K]</strong><span>Median sale price</span></div>
-          <div><strong class="ph-text">[00]</strong><span>Days on market</span></div>
-          <div><strong class="ph-text">[Type]</strong><span>Market</span></div>
-        </div>
-        <a href={url('/neighborhood-info-request')}>Read the full market report &rarr;</a>
+    <div class="wrap fit-teaser">
+      <div class="fit-teaser-copy">
+        <p class="kicker light">Find your fit</p>
+        <h2>Same city. Different everyday lives.</h2>
+        <p>Compare the details that matter to you: housing, daily routes, local places, and costs to check.</p>
+        <a class="btn gold" href={url('/find-your-fit')}>Compare neighborhoods &rarr;</a>
       </div>
-      <div class="card">
-        <p class="badge">Dillon's take</p>
-        <p class="quote ph-text">[Two or three sentences with Dillon's honest read on the market this month, and who it's a good time for.]</p>
-        <p class="byline"><strong>Dillon Loren</strong><br /><span class="muted small">Tradition Realty Group</span></p>
+      <div class="fit-preview-card">
+        <div class="fit-preview-head">
+          <h3>The Heights</h3>
+          <span class="muted small">versus</span>
+        </div>
+        <h3>Spring Branch</h3>
+        <ul class="fit-preview-list">
+          <li><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9"/></svg> Housing &amp; home styles</li>
+          <li><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/><path d="M5 17V7h9l5 5v5"/></svg> Your commute &amp; daily errands</li>
+          <li><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 10h14v4a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4v-4z"/><path d="M17 11h2a2 2 0 0 1 0 4h-2"/></svg> Food, parks &amp; local discoveries</li>
+        </ul>
+        <p class="muted small">Compare your priorities. Keep your favorites.</p>
       </div>
     </div>
   </section>
 
   <section class="section">
-    <div class="wrap grid3">
-      <div class="card light">
-        <p class="card-kicker">Moving to Houston?</p>
-        <h3>The relocation guide</h3>
-        <p>Where to start, what to expect, and how Houston neighborhoods really compare.</p>
-        <a href={url('/neighborhood-info-request')}>Read the guide &rarr;</a>
-      </div>
-      <div class="card">
-        <p class="badge">Free guide</p>
-        <h3>Compare every neighborhood</h3>
-        <form class="email-form" onsubmit="return false;">
-          <label><span class="sr">Email address</span>
-            <input type="email" placeholder="you@email.com" />
-          </label>
-          <button class="btn gold" type="submit">Send me the guide</button>
-        </form>
-      </div>
-      <div class="card dark">
-        <p class="badge gold">Ready to look?</p>
-        <h3>Talk with Dillon</h3>
-        <p>A no-pressure conversation about what you want and where you'd fit.</p>
-        <a class="btn gold" href={url('/neighborhood-info-request')}>Book a call</a>
-        <a class="link-light" href="https://traditionrealtygroup.com" target="_blank" rel="noopener">Search homes on TRG &rarr;</a>
+    <div class="wrap">
+      <h2>Make yourself at home.</h2>
+      <div class="home-grid">
+        <div class="home-card">
+          <h3>Moving to Houston</h3>
+          <p>A practical starting point for planning a move and getting oriented.</p>
+          <a class="mlink" href={url('/cities')}>Plan your arrival &rarr;</a>
+        </div>
+        <div class="home-card">
+          <h3>Care for your home</h3>
+          <p>Explore upkeep, renovations, materials, and outdoor living.</p>
+          <a class="mlink" href={url('/home-and-design')}>Explore home resources &rarr;</a>
+        </div>
+        <div class="home-card">
+          <h3>Your home, your next chapter</h3>
+          <p>Considering a sale or a change? Start with your goals and questions.</p>
+          <a class="mlink" href={url('/neighborhood-info-request')}>Explore your next move &rarr;</a>
+        </div>
       </div>
     </div>
   </section>
+
+  <section class="section tint">
+    <div class="wrap talk-row">
+      <div>
+        <p class="eyebrow">A little guidance goes a long way</p>
+        <h2>Talk it through with Dillon.</h2>
+        <p>Whether you're exploring, renting, buying, or planning ahead, start with a conversation.</p>
+      </div>
+      <a class="btn gold talk-btn" href={url('/neighborhood-info-request')}>Ask a question
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-8.8 8.4 9 9 0 0 1-3.4-.7L4 20l1-4.6A8.3 8.3 0 0 1 4 11.5 8.4 8.4 0 0 1 12.8 3a8.3 8.3 0 0 1 8.2 8.5z"/></svg>
+      </a>
+    </div>
+  </section>
 </Base>
-
-<script define:vars={{ compareData, baseUrl: url('/') }}>
-  const data = Object.fromEntries(compareData.map((a) => [a.slug, a]));
-  const pickA = document.getElementById('pick-a');
-  const pickB = document.getElementById('pick-b');
-
-  function render() {
-    for (const [suffix, select] of [['a', pickA], ['b', pickB]]) {
-      const a = data[select.value];
-      document.getElementById(`head-${suffix}`).textContent = a.name;
-      document.getElementById(`row-homeType-${suffix}`).textContent = a.homeType;
-      document.getElementById(`row-schools-${suffix}`).textContent = a.schools;
-      document.getElementById(`row-bestFor-${suffix}`).textContent = a.bestFor;
-      document.getElementById(`row-food-${suffix}`).textContent = a.foodCount > 0 ? `${a.foodCount} spots reviewed` : 'Not reviewed yet';
-      document.getElementById(`link-eat-${suffix}`).href = `${baseUrl}cities/${a.slug}`;
-      document.getElementById(`link-guide-${suffix}`).href = `${baseUrl}cities/${a.slug}`;
-    }
-  }
-  pickA.addEventListener('change', render);
-  pickB.addEventListener('change', render);
-  render();
-</script>
-
 <style>
-  .band { background: var(--navy); color: #fff; }
-  .crumb { font-size: 13px; color: rgba(255,255,255,.65); margin: 0 0 14px; }
-  .crumb a { color: rgba(255,255,255,.65); }
-  .kicker { color: var(--gold); font-size: 13px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; margin: 0 0 8px; }
-  .lede { max-width: 640px; color: rgba(255,255,255,.85); }
-  .actions { display: flex; gap: 14px; margin-top: 24px; flex-wrap: wrap; }
-  .btn.outline { border: 1.5px solid #fff; color: #fff; background: transparent; }
+  .kicker { color: var(--gold); font-weight: 700; text-transform: uppercase; letter-spacing: .04em; font-size: 12px; margin: 0 0 12px; }
+  .kicker.light { color: rgba(255,255,255,.75); }
+  .lede { max-width: 48ch; }
+  .crumb { font-size: 13px; color: var(--muted); }
 
-  .section-kicker { font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--brown); margin: 0 0 6px; }
-  .pickers { display: flex; gap: 20px; flex-wrap: wrap; margin: 20px 0; }
-  .pickers label { display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--muted); flex: 1 1 260px; }
-  .pickers select { padding: 10px 14px; border: 1.5px solid var(--line); border-radius: 6px; font-size: 15px; background: #fff; }
-  table.compare { width: 100%; border-collapse: collapse; margin-top: 8px; }
-  table.compare th, table.compare td { padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--line); }
-  table.compare thead th { background: var(--navy); color: #fff; font-weight: 600; }
-  table.compare thead th:first-child { background: var(--navy); }
-  table.compare tbody th { font-weight: 600; color: var(--ink); width: 180px; }
-  table.compare tbody tr:nth-child(even) { background: var(--cream); }
-  .compare-links { display: flex; justify-content: space-between; margin-top: 16px; }
-  .compare-links a { font-weight: 600; margin-right: 16px; font-size: 14px; }
+  .mih-hero { display: grid; grid-template-columns: 1.3fr 1fr; gap: 24px; align-items: stretch; }
+  .mih-intro { display: flex; flex-direction: column; justify-content: center; }
+  .mih-side { background: rgba(255,255,255,.08); border-radius: 14px; padding: 28px; display: flex; flex-direction: column; gap: 14px; }
+  .mih-side-text { font-family: var(--serif); font-size: 1.4rem; line-height: 1.3; margin: 0; color: #fff; }
+  .mih-icons { display: flex; gap: 14px; color: rgba(255,255,255,.7); }
+  .mih-tag { background: rgba(0,0,0,.25); border-radius: 999px; padding: 8px 16px; font-size: 13px; width: fit-content; }
 
-  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
-  .card { background: #fff; border-radius: 10px; padding: 28px; }
-  .card.gold { background: var(--gold-soft); }
-  .card.light { background: #eef2fb; }
-  .card.dark { background: var(--navy); color: #fff; display: flex; flex-direction: column; gap: 14px; }
-  .card-kicker { font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--brown); margin: 0 0 10px; }
-  .badge { display: inline-block; background: var(--gold-soft); color: var(--brown); font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 999px; margin: 0 0 14px; }
-  .badge.gold { background: var(--gold); color: var(--navy); }
-  .stats { display: flex; gap: 28px; margin: 18px 0; flex-wrap: wrap; }
-  .stats strong { display: block; font-family: var(--serif); font-size: 1.5rem; color: var(--navy); }
-  .stats span { font-size: 13px; color: var(--muted); }
-  .quote { font-family: var(--serif); font-size: 1.1rem; line-height: 1.5; margin: 0 0 16px; }
-  .byline strong { display: block; }
-  .email-form { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
-  .email-form input { padding: 10px 14px; border: 1.5px solid var(--line); border-radius: 6px; font-size: 15px; }
-  .card.dark a.link-light { color: #fff; text-decoration: underline; font-weight: 600; font-size: 14px; }
-  .ph-text { color: var(--muted); font-style: italic; }
-  .card.dark .ph-text, .card.gold .ph-text { color: inherit; opacity: .75; }
+  .section-head { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; flex-wrap: wrap; margin-bottom: 4px; border: none; padding: 0; }
+  .start-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 24px; }
+  .start-card { background: var(--cream); border-radius: 10px; padding: 24px; display: flex; flex-direction: column; gap: 10px; }
+  .start-card svg { color: var(--navy); }
+  .start-card h3 { margin: 0; font-size: 1.2rem; }
+  .start-card p { margin: 0; color: var(--muted); font-size: 14px; flex: 1; }
+  .start-card .btn, .start-card .mlink { align-self: flex-start; margin-top: 6px; }
+  .mlink { color: var(--blue); font-weight: 600; text-decoration: none; }
+
+  .fit-teaser { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
+  .fit-preview-card { background: rgba(32,69,94,.06); border: 1px solid var(--line); border-radius: 12px; padding: 24px; }
+  .fit-preview-head { display: flex; justify-content: space-between; align-items: baseline; }
+  .fit-preview-card h3 { margin: 0 0 4px; font-size: 1.3rem; }
+  .fit-preview-list { list-style: none; padding: 0; margin: 16px 0; display: flex; flex-direction: column; gap: 10px; }
+  .fit-preview-list li { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--navy); }
+
+  .home-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 24px; }
+  .home-card { background: var(--cream); border-radius: 10px; padding: 24px; }
+  .home-card h3 { margin: 0 0 8px; font-size: 1.2rem; }
+  .home-card p { margin: 0 0 12px; color: var(--muted); font-size: 14px; }
+
+  .talk-row { display: flex; justify-content: space-between; align-items: center; gap: 24px; flex-wrap: wrap; }
+  .talk-row p.eyebrow { color: #1e7a43; font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; margin: 0 0 8px; }
+  .talk-row p:last-child { color: var(--muted); max-width: 46ch; margin: 8px 0 0; }
+  .talk-btn { display: inline-flex; align-items: center; gap: 10px; }
 
   @media (max-width: 860px) {
-    .grid2, .grid3 { grid-template-columns: 1fr; }
-    table.compare tbody th { width: auto; }
+    .mih-hero, .start-grid, .fit-teaser, .home-grid { grid-template-columns: 1fr; }
   }
 </style>
