@@ -94,19 +94,6 @@ function typeTag(p: any) {
     </section>
 
     <section class="sh-section">
-      <div class="wrap sh-ask-row">
-        <div>
-          <p class="sh-eyebrow">What should we discover next?</p>
-          <h2>Every neighborhood has a story.</h2>
-          <p>Suggest a local business, an interesting place, or someone we should meet.</p>
-        </div>
-        <a class="sh-btn outline" href={`mailto:${config.contactEmail}?subject=Story%20suggestion`}>Suggest a story
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-8.8 8.4 9 9 0 0 1-3.4-.7L4 20l1-4.6A8.3 8.3 0 0 1 4 11.5 8.4 8.4 0 0 1 12.8 3a8.3 8.3 0 0 1 8.2 8.5z"/></svg>
-        </a>
-      </div>
-    </section>
-
-    <section class="sh-section">
       <div class="wrap">
         <div class="sh-sechead"><div><p class="sh-eyebrow">Our review levels</p><h2>From a first try to a personal favorite.</h2></div><a class="sh-btn outline" href={url('/about-our-reviews')}>Explore reviews &rarr;</a></div>
         <div class="sh-rating-grid">
@@ -159,6 +146,20 @@ function typeTag(p: any) {
         </div>
       </section>
     )}
+
+
+    <section class="sh-section">
+      <div class="wrap sh-ask-row">
+        <div>
+          <p class="sh-eyebrow">What should we discover next?</p>
+          <h2>Every neighborhood has a story.</h2>
+          <p>Suggest a local business, an interesting place, or someone we should meet.</p>
+        </div>
+        <a class="sh-btn outline" href={`mailto:${config.contactEmail}?subject=Story%20suggestion`}>Suggest a story
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-8.8 8.4 9 9 0 0 1-3.4-.7L4 20l1-4.6A8.3 8.3 0 0 1 4 11.5 8.4 8.4 0 0 1 12.8 3a8.3 8.3 0 0 1 8.2 8.5z"/></svg>
+        </a>
+      </div>
+    </section>
 
     <section class="sh-section" id="all-stories">
       <div class="wrap">
