@@ -1,262 +1,244 @@
 ---
 import Base from '../../layouts/Base.astro';
+import MemberShell from '../../components/MemberShell.astro';
+import { config } from '../../config';
 import { url } from '../../lib/util';
+import areas from '../../data/areas.json';
+const areaNames = [...new Set((areas as any[]).map((a) => a.name))].sort();
 ---
-<Base title="My Account" description="Account and settings concept for Locally members.">
-  <div class="acct-page">
-    <div class="wrap">
-      <div class="acct-top">
-        <div>
-          <p class="acct-kicker">Private to you</p>
-          <h1 id="acct-title">My Account</h1>
-          <p class="acct-sub" id="acct-sub">Your account essentials, in one place.</p>
-        </div>
-      </div>
-
-      <div class="acct-tabs" role="tablist">
-        <button type="button" class="acct-tab" data-tab="account" aria-selected="true">My Account</button>
-        <button type="button" class="acct-tab" data-tab="settings" aria-selected="false">Settings</button>
-      </div>
-
-      <div class="acct-panel" data-panel="account">
-        <div class="acct-grid2">
-          <div class="acct-card">
-            <div class="acct-profile-head">
-              <span class="acct-avatar">AL</span>
-              <button type="button" class="acct-btn sm">📷 Change</button>
-            </div>
-            <h2>Welcome, Alex.</h2>
-            <p class="acct-muted">You're a Locally member.</p>
-          </div>
-          <div class="acct-card">
-            <h2>What's new</h2>
-            <ul class="acct-whatsnew acct-whatsnew-lg">
-              <li><a href="#">Visit the Community feed &rarr;</a></li>
-              <li><a href="#">Upcoming events and meetups &rarr;</a></li>
-              <li><a href="#">The latest food finds and guides &rarr;</a></li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="acct-grid2">
-          <div class="acct-card">
-            <h2>My neighborhood</h2>
-            <p class="acct-muted">This is the area used for your Locally page and your custom feed.</p>
-            <label class="acct-field">
-              <span class="acct-label">Current area</span>
-              <select>
-                <option>The Heights</option>
-                <option>Spring Branch</option>
-                <option>Katy</option>
-                <option>Sugar Land</option>
-                <option>Bellaire</option>
-              </select>
-            </label>
-            <button type="button" class="acct-btn gold">Save neighborhood</button>
-          </div>
-          <div class="acct-card">
-            <h2>Make yourself at home.</h2>
-            <p class="acct-muted">A few good places to start.</p>
-            <ul class="acct-linklist">
-              <li>
-                <a href={url('/about')}>About us &rarr;</a>
-                <p class="acct-muted-sm">Meet Dillon, Sara, and the people behind Tradition Local.</p>
-              </li>
-              <li>
-                <a href={url('/about-our-reviews')}>Our reviews &rarr;</a>
-                <p class="acct-muted-sm">How we rate places, from a first try to a personal favorite.</p>
-              </li>
-              <li>
-                <a href={url('/newsletters')}>The newsletter &rarr;</a>
-                <p class="acct-muted-sm">What's in your weekly In the Loop email.</p>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="acct-grid3">
-          <div class="acct-card">
-            <h2>My events</h2>
-            <p class="acct-muted">Events you're going to or interested in.</p>
-            <ul class="acct-events">
-              <li><span class="acct-status going">Going</span><div><strong>Coffee &amp; Conversations</strong><span class="acct-muted-sm">Sun, Oct 18</span></div></li>
-              <li><span class="acct-status interested">Interested</span><div><strong>Fall Festival</strong><span class="acct-muted-sm">Sat, Oct 25</span></div></li>
-            </ul>
-          </div>
-          <div class="acct-card">
-            <h2>Bookmarks</h2>
-            <p class="acct-muted">Businesses and articles you've bookmarked.</p>
-            <ul class="acct-saved">
-              <li><span class="acct-tag">Food</span><a href="#">La Placita Cafe</a></li>
-              <li><span class="acct-tag">Article</span><a href="#">Best patios for fall</a></li>
-            </ul>
-          </div>
-          <div class="acct-card">
-            <h2>Share</h2>
-            <p class="acct-muted">Tell a friend about Tradition Local.</p>
-            <div class="acct-share-btns">
-              <button type="button" class="acct-btn">📱 Text a friend</button>
-              <button type="button" class="acct-btn">✉️ Email a friend</button>
-              <button type="button" class="acct-btn">Share on social</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="acct-panel" data-panel="settings" hidden>
-        <details class="acct-card acct-accordion acct-full" open>
-          <summary>Email &amp; password</summary>
-          <div class="acct-accordion-body">
-            <label class="acct-field">
-              <span class="acct-label">Name</span>
-              <input type="text" value="Alex Local" />
-            </label>
-            <label class="acct-field">
-              <span class="acct-label">Email address</span>
-              <input type="email" value="alex@example.com" />
-            </label>
-            <button type="button" class="acct-btn">Save email</button>
-          </div>
-        </details>
-        <details class="acct-card acct-accordion acct-full" open>
-          <summary>Newsletters &amp; notifications</summary>
-          <div class="acct-accordion-body">
-            <label class="acct-check">
-              <input type="checkbox" checked />
-              <span>In the Loop weekly newsletter</span>
-            </label>
-            <button type="button" class="acct-btn gold">Save preferences</button>
-          </div>
-        </details>
-        <details class="acct-card acct-accordion acct-full">
-          <summary>Account help</summary>
-          <div class="acct-accordion-body">
-            <p class="acct-muted">Questions about your account? Access support or manage your account data.</p>
-            <button type="button" class="acct-btn">Get help</button>
-          </div>
-        </details>
-        <details class="acct-card acct-accordion acct-full">
-          <summary>Change password</summary>
-          <div class="acct-accordion-body">
-            <label class="acct-field">
-              <span class="acct-label">Current password</span>
-              <input type="password" />
-            </label>
-            <label class="acct-field">
-              <span class="acct-label">New password</span>
-              <input type="password" />
-            </label>
-            <label class="acct-field">
-              <span class="acct-label">Confirm new password</span>
-              <input type="password" />
-            </label>
-            <button type="button" class="acct-btn">Preview password change</button>
-            <p class="acct-footnote-sm">Preview only &middot; Passwords are not saved or changed.</p>
-          </div>
-        </details>
-      </div>
-
-      <p class="acct-footnote">Interactive concept &middot; Example member data &middot; No live account changes</p>
+<Base title="My Account" description="Your Tradition Local member account.">
+  <MemberShell active="account">
+    <div class="acct-tabs" role="tablist">
+      <button type="button" class="acct-tab" data-tab="account" aria-selected="true">My Account</button>
+      <button type="button" class="acct-tab" data-tab="settings" aria-selected="false">Settings</button>
     </div>
-  </div>
+
+    <div class="acct-panel" data-panel="account">
+      <p class="eyebrow">Your member home</p>
+      <h1>Welcome, <span data-first-name>neighbor</span>.</h1>
+      <p class="lede">You're a Locally member.</p>
+
+      <div class="mgrid2">
+        <div class="mcard">
+          <h2>What's new</h2>
+          <ul class="perks">
+            <li><a class="mlink" href={url('/living')}>Upcoming events and meetups &rarr;</a></li>
+            <li><a class="mlink" href={url('/all-articles')}>The latest food finds and guides &rarr;</a></li>
+            <li><a class="mlink" href={url('/cities')}>Neighborhood guides across Greater Houston &rarr;</a></li>
+          </ul>
+        </div>
+        <div class="mcard">
+          <h2>Make yourself at home.</h2>
+          <p>A few good places to start.</p>
+          <ul class="perks">
+            <li><a class="mlink" href={url('/about')}>About us &rarr;</a></li>
+            <li><a class="mlink" href={url('/about-our-reviews')}>Our reviews &rarr;</a></li>
+            <li><a class="mlink" href={url('/newsletters')}>The newsletter &rarr;</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <form class="mcard" id="neighborhood-form" novalidate>
+        <h2>My neighborhood</h2>
+        <p>This is the area used for your Locally page and your custom feed.</p>
+        <p class="msg" data-nb-msg role="alert" tabindex="-1" hidden></p>
+        <div class="mform-field">
+          <label for="area-of-interest">Current area</label>
+          <select id="area-of-interest" name="area-of-interest">
+            <option value="">Choose one</option>
+            {areaNames.map((n: string) => <option value={n}>{n}</option>)}
+          </select>
+        </div>
+        <button class="btn gold" type="submit">Save neighborhood</button>
+      </form>
+
+      <div class="mgrid2">
+        <div class="mcard">
+          <h2>Bookmarks</h2>
+          <p>Businesses and articles you've bookmarked.</p>
+          <p class="mform-note">Saving bookmarks isn't built yet &mdash; this is a preview of where they'll show up.</p>
+        </div>
+        <div class="mcard">
+          <h2>My events</h2>
+          <p>Events you're going to or interested in.</p>
+          <p class="mform-note">Event RSVPs aren't built yet &mdash; this is a preview of where they'll show up.</p>
+        </div>
+      </div>
+
+      <div class="mcard">
+        <h2>Share</h2>
+        <p>Tell a friend about Tradition Local.</p>
+        <p><a class="mlink" href={`mailto:?subject=Check%20out%20Tradition%20Local&body=${encodeURIComponent('I thought you might like this: ' + url('/'))}`}>Email a friend &rarr;</a></p>
+      </div>
+    </div>
+
+    <div class="acct-panel" data-panel="settings" hidden>
+      <p class="eyebrow">Communication &amp; account controls</p>
+      <h1>Settings</h1>
+      <p class="lede">Choose what you receive and manage your account.</p>
+
+      <form class="mcard" id="profile-form" novalidate>
+        <h2>Name &amp; email</h2>
+        <p class="msg" data-msg role="alert" tabindex="-1" hidden></p>
+        <div class="mgrid2">
+          <div class="mform-field">
+            <label for="first-name">First name</label>
+            <input type="text" id="first-name" name="first-name" autocomplete="given-name" required />
+          </div>
+          <div class="mform-field">
+            <label for="last-name">Last name</label>
+            <input type="text" id="last-name" name="last-name" autocomplete="family-name" required />
+          </div>
+        </div>
+        <div class="mform-field">
+          <label for="email">Email address</label>
+          <input type="email" id="email" name="email" readonly />
+          <p class="mform-note">An email change requires contacting us.</p>
+        </div>
+        <button class="btn gold" type="submit">Save</button>
+      </form>
+
+      <div class="mcard">
+        <h2>Newsletters &amp; notifications</h2>
+        <label class="mcheck">
+          <input type="checkbox" id="weekly-guide" />
+          <span><strong>In the Loop weekly newsletter</strong><p>Food finds, neighborhood discoveries, and weekend ideas.</p></span>
+        </label>
+        <p class="mform-note">Saved to this browser; we don't have an email preference center yet, so this won't follow you to another device.</p>
+        <button class="btn gold" type="button" id="save-prefs">Save preferences</button>
+        <p class="msg" data-prefs-msg hidden></p>
+      </div>
+
+      <div class="mcard">
+        <h2>Password &amp; sign-in</h2>
+        <div class="mrow-item">
+          <div>
+            <strong>Sign-in email</strong>
+            <p data-settings-email>&nbsp;</p>
+          </div>
+        </div>
+        <div class="mrow-item">
+          <div>
+            <strong>Password</strong>
+            <p>Manage your login credentials.</p>
+          </div>
+          <a class="btn-outline-dark" href={url('/reset-password')}>Manage sign-in</a>
+        </div>
+      </div>
+
+      <div class="mcard">
+        <h2>Account help</h2>
+        <div class="mrow-item">
+          <div>
+            <strong>Your information</strong>
+            <p>Request a copy of your stored account data.</p>
+          </div>
+          <a class="btn-outline-dark" href={`mailto:${config.contactEmail}?subject=Request%20my%20account%20data`}>Request my data</a>
+        </div>
+        <div class="mrow-item">
+          <div>
+            <strong>Close your member account</strong>
+            <p>Contact us and we'll close your account for you.</p>
+          </div>
+          <a class="mlink" href={`mailto:${config.contactEmail}?subject=Close%20my%20member%20account`}>Request account closure &rarr;</a>
+        </div>
+      </div>
+    </div>
+  </MemberShell>
 </Base>
 
 <script>
+  import { membersReady, supabase, currentUser, getProfile, friendly, say, busy, field } from '../../lib/members';
+
   const tabs = [...document.querySelectorAll<HTMLButtonElement>('.acct-tab')];
   const panels = [...document.querySelectorAll<HTMLElement>('.acct-panel')];
-  const title = document.getElementById('acct-title')!;
-  const sub = document.getElementById('acct-sub')!;
-  const copy: Record<string, [string, string]> = {
-    account: ['My Account', 'Your account essentials, in one place.'],
-    settings: ['Settings', 'Manage your account and preferences.'],
-  };
-  function activate(k: string) {
+  function activateTab(k: string) {
     const tab = tabs.find((t) => t.dataset.tab === k);
-    if (!tab || !copy[k]) return;
+    if (!tab) return;
     tabs.forEach((t) => t.setAttribute('aria-selected', String(t === tab)));
     panels.forEach((p) => { p.hidden = p.dataset.panel !== k; });
-    title.textContent = copy[k][0];
-    sub.textContent = copy[k][1];
   }
-  tabs.forEach((tab) => {
-    tab.addEventListener('click', () => activate(tab.dataset.tab!));
+  tabs.forEach((tab) => tab.addEventListener('click', () => activateTab(tab.dataset.tab!)));
+  if (location.hash === '#settings') activateTab('settings');
+
+  const profileForm = document.getElementById('profile-form') as HTMLFormElement | null;
+  const nbForm = document.getElementById('neighborhood-form') as HTMLFormElement | null;
+  const PREF_KEY = 'tl-email-prefs';
+
+  async function load() {
+    const user = await currentUser();
+    if (!user) return;
+    const p = await getProfile(user);
+    const first = (p.first_name || '').trim();
+    document.querySelector('[data-first-name]')!.textContent = first || 'neighbor';
+    const emailEl = document.querySelector('[data-settings-email]');
+    if (emailEl) emailEl.textContent = user.email || '';
+    if (profileForm) {
+      const set = (name: string, v: string | null) => { (profileForm.elements.namedItem(name) as HTMLInputElement).value = v || ''; };
+      set('email', user.email || ''); set('first-name', p.first_name); set('last-name', p.last_name);
+    }
+    if (nbForm) (nbForm.elements.namedItem('area-of-interest') as HTMLSelectElement).value = p.area_of_interest || '';
+    const weeklyGuide = document.getElementById('weekly-guide') as HTMLInputElement | null;
+    if (weeklyGuide) {
+      try {
+        const saved = JSON.parse(localStorage.getItem(PREF_KEY) || '{}');
+        weeklyGuide.checked = 'weekly-guide' in saved ? Boolean(saved['weekly-guide']) : true;
+      } catch {}
+    }
+  }
+
+  if (membersReady) {
+    load();
+    supabase().auth.onAuthStateChange((event) => { if (event === 'SIGNED_IN') load(); });
+  }
+
+  profileForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!profileForm.reportValidity()) return;
+    say(profileForm, '');
+    const user = await currentUser();
+    if (!user) return say(profileForm, 'Your session ended. Please sign in again.');
+    const row = { first_name: field(profileForm, 'first-name'), last_name: field(profileForm, 'last-name') };
+    const { error } = await busy(profileForm, 'Saving…', async () => {
+      const sb = supabase();
+      let res = await sb.from('profiles').update(row).eq('id', user.id).select('id');
+      if (!res.error && !res.data?.length) res = await sb.from('profiles').insert({ id: user.id, email: user.email, ...row }).select('id');
+      if (!res.error) await sb.auth.updateUser({ data: { first_name: row.first_name, last_name: row.last_name } });
+      return res;
+    });
+    if (error) return say(profileForm, friendly(error.message));
+    say(profileForm, 'Saved.', 'ok');
+    document.querySelector('[data-first-name]')!.textContent = row.first_name || 'neighbor';
   });
-  if (location.hash === '#settings') activate('settings');
+
+  nbForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    say(nbForm, '');
+    const user = await currentUser();
+    if (!user) return say(nbForm, 'Your session ended. Please sign in again.');
+    const row = { area_of_interest: field(nbForm, 'area-of-interest') || null };
+    const { error } = await busy(nbForm, 'Saving…', async () => {
+      const sb = supabase();
+      let res = await sb.from('profiles').update(row).eq('id', user.id).select('id');
+      if (!res.error && !res.data?.length) res = await sb.from('profiles').insert({ id: user.id, email: user.email, ...row }).select('id');
+      return res;
+    });
+    if (error) return say(nbForm, friendly(error.message));
+    say(nbForm, 'Saved.', 'ok');
+  });
+
+  document.getElementById('save-prefs')?.addEventListener('click', () => {
+    const weeklyGuide = document.getElementById('weekly-guide') as HTMLInputElement;
+    localStorage.setItem(PREF_KEY, JSON.stringify({ 'weekly-guide': weeklyGuide.checked }));
+    const msg = document.querySelector('[data-prefs-msg]') as HTMLElement;
+    msg.textContent = 'Saved to this browser.';
+    msg.hidden = false;
+  });
 </script>
 
 <style is:global>
-  .acct-page { background: #171f2b; color: #e8e9ec; min-height: 70vh; padding: 56px 0 88px; }
-  .acct-page .wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
-  .acct-top { margin-bottom: 4px; }
-  .acct-kicker { color: var(--gold); font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; margin: 0 0 10px; }
-  .acct-page h1 { font-family: var(--serif); font-size: clamp(2rem, 4vw, 2.5rem); color: #fff; margin: 0; }
-  .acct-sub { color: #aab0bb; margin: 10px 0 0; }
-
-  .acct-tabs { display: flex; gap: 8px; margin: 32px 0 32px; flex-wrap: wrap; border-bottom: 1px solid #2c3647; padding-bottom: 0; }
+  .acct-tabs { display: flex; gap: 8px; margin: 0 0 28px; flex-wrap: wrap; border-bottom: 1px solid #2c3647; }
   .acct-tab { background: transparent; border: none; border-bottom: 2px solid transparent; color: #8f96a3; padding: 12px 4px; margin-right: 24px; font-size: 15px; font-weight: 600; cursor: pointer; }
   .acct-tab[aria-selected="true"] { color: #fff; border-bottom-color: var(--gold); }
-
-  .acct-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 24px; align-items: start; margin-bottom: 24px; }
-  @media (max-width: 760px) { .acct-grid { grid-template-columns: 1fr; } }
-  .acct-side { display: flex; flex-direction: column; gap: 24px; }
-  .acct-grid2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-bottom: 24px; }
-  @media (max-width: 760px) { .acct-grid2 { grid-template-columns: 1fr; } }
-  .acct-grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
-  .acct-share-btns { display: flex; flex-direction: column; gap: 10px; }
-  .acct-share-btns .acct-btn { text-align: left; }
-  @media (max-width: 900px) { .acct-grid3 { grid-template-columns: 1fr 1fr; } }
-  @media (max-width: 600px) { .acct-grid3 { grid-template-columns: 1fr; } }
-  .acct-full { margin-bottom: 24px; }
-
-  .acct-card { background: #1d2635; border: 1px solid #2c3647; border-radius: 10px; padding: 28px 32px; }
-  .acct-card h2 { font-family: var(--serif); font-size: 1.4rem; color: #fff; margin: 0 0 12px; }
-  .acct-muted { color: #aab0bb; margin: 0 0 18px; line-height: 1.5; }
-  .acct-label { display: block; font-size: 13px; font-weight: 600; color: #cfd3da; margin-bottom: 6px; }
-
-  .acct-btn { background: transparent; border: 1.5px solid #2c3647; color: #e8e9ec; border-radius: 6px; padding: 9px 18px; font-weight: 600; font-size: 14px; cursor: pointer; white-space: nowrap; }
-  .acct-btn:hover { border-color: #434f63; }
-  .acct-btn.gold { background: var(--gold); border-color: var(--gold); color: var(--navy); }
-  .acct-btn.sm { padding: 6px 14px; font-size: 13px; }
-
-  .acct-profile-head { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
-  .acct-avatar { width: 64px; height: 64px; border-radius: 50%; background: #3a4a3a; color: var(--gold); display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-size: 1.4rem; flex-shrink: 0; }
-
-  .acct-field { display: block; margin: 0 0 18px; }
-  .acct-field:last-of-type { margin-bottom: 20px; }
-  .acct-field input, .acct-field select { width: 100%; margin-top: 2px; padding: 11px 14px; border-radius: 6px; border: 1px solid #2c3647; background: #161d29; color: #fff; font-size: 15px; }
-
-  .acct-check { display: flex; align-items: center; gap: 10px; margin: 0 0 22px; cursor: pointer; }
-  .acct-check input { width: 17px; height: 17px; accent-color: var(--gold); }
-
-  .acct-whatsnew { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
-  .acct-whatsnew a { color: var(--gold); text-decoration: none; font-weight: 600; font-size: 14px; }
-  .acct-whatsnew a:hover { text-decoration: underline; }
-  .acct-whatsnew-lg { gap: 18px; }
-  .acct-whatsnew-lg a { font-size: 16px; }
-
-  .acct-linklist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 18px; }
-  .acct-linklist a { color: var(--gold); text-decoration: none; font-weight: 600; font-size: 16px; }
-  .acct-linklist a:hover { text-decoration: underline; }
-  .acct-linklist p { margin: 4px 0 0; }
-
-  .acct-tag { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; background: #161d29; border: 1px solid #2c3647; color: #aab0bb; border-radius: 999px; padding: 4px 10px; flex-shrink: 0; white-space: nowrap; }
-  .acct-saved, .acct-events { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 16px; }
-  .acct-saved li { display: flex; align-items: center; gap: 12px; }
-  .acct-saved a { color: var(--gold); text-decoration: none; font-weight: 600; font-size: 14px; }
-  .acct-saved a:hover { text-decoration: underline; }
-  .acct-events li { display: flex; align-items: center; gap: 14px; }
-  .acct-events strong { display: block; font-weight: 600; color: #fff; font-size: 14px; }
-  .acct-muted-sm { color: #8f96a3; font-size: 13px; }
-  .acct-status { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; border-radius: 999px; padding: 4px 10px; flex-shrink: 0; white-space: nowrap; }
-  .acct-status.going { background: rgba(216,187,83,.16); color: var(--gold); }
-  .acct-status.interested { background: #161d29; border: 1px solid #2c3647; color: #aab0bb; }
-
-  .acct-accordion summary { font-family: var(--serif); font-size: 1.25rem; color: #fff; cursor: pointer; list-style: none; }
-  .acct-accordion summary::-webkit-details-marker { display: none; }
-  .acct-accordion summary::before { content: '▸'; color: var(--gold); margin-right: 10px; display: inline-block; font-size: .8em; }
-  .acct-accordion[open] summary::before { content: '▾'; }
-  .acct-accordion-body { padding-top: 22px; }
-  .acct-footnote-sm { color: #8f96a3; font-size: 13px; margin: 14px 0 0; }
-
-  .acct-footnote { color: #6b7280; font-size: 13px; margin-top: 8px; }
+  .mform-note { font-size: 13px; color: #8f96a3; margin: 6px 0 0; }
 </style>
