@@ -26,25 +26,8 @@ import Base from '../../layouts/Base.astro';
             </div>
             <h2>Welcome, Alex.</h2>
             <p class="acct-muted">You're a Locally member. Start exploring whenever you're ready.</p>
-            <div class="acct-row">
-              <div><span class="acct-label">Name</span><p class="acct-val">Alex Local</p></div>
-              <button type="button" class="acct-btn">Edit</button>
-            </div>
-            <div class="acct-row">
-              <div><span class="acct-label">Email</span><p class="acct-val">alex@example.com</p></div>
-              <button type="button" class="acct-btn">Manage</button>
-            </div>
-            <div class="acct-row last">
-              <div><span class="acct-label">In the Loop</span><p class="acct-val">Weekly local discoveries</p></div>
-              <button type="button" class="acct-btn">Preferences</button>
-            </div>
           </div>
           <div class="acct-side">
-            <div class="acct-card">
-              <h2>Make yourself at home.</h2>
-              <p class="acct-muted">Explore food, neighborhoods, and things to do around Houston.</p>
-              <button type="button" class="acct-btn gold">Start exploring &rarr;</button>
-            </div>
             <div class="acct-card">
               <h2>What's new</h2>
               <ul class="acct-whatsnew">
@@ -52,6 +35,11 @@ import Base from '../../layouts/Base.astro';
                 <li><a href="#">Upcoming events and meetups &rarr;</a></li>
                 <li><a href="#">The latest food finds and guides &rarr;</a></li>
               </ul>
+            </div>
+            <div class="acct-card">
+              <h2>Make yourself at home.</h2>
+              <p class="acct-muted">Explore food, neighborhoods, and things to do around Houston.</p>
+              <button type="button" class="acct-btn gold">Start exploring &rarr;</button>
             </div>
           </div>
         </div>
@@ -61,13 +49,14 @@ import Base from '../../layouts/Base.astro';
         <details class="acct-card acct-accordion" open>
           <summary>Email &amp; password</summary>
           <label class="acct-field">
+            <span class="acct-label">Name</span>
+            <input type="text" value="Alex Local" />
+          </label>
+          <label class="acct-field">
             <span class="acct-label">Email address</span>
             <input type="email" value="alex@example.com" />
           </label>
           <button type="button" class="acct-btn">Save email</button>
-          <details class="acct-sub-accordion">
-            <summary>Change password</summary>
-          </details>
         </details>
         <details class="acct-card acct-accordion" open>
           <summary>Newsletters &amp; notifications</summary>
@@ -81,6 +70,23 @@ import Base from '../../layouts/Base.astro';
           <summary>Account help</summary>
           <p class="acct-muted">Questions about your account? Access support or manage your account data.</p>
           <button type="button" class="acct-btn">Get help</button>
+        </details>
+        <details class="acct-card acct-accordion">
+          <summary>Change password</summary>
+          <label class="acct-field">
+            <span class="acct-label">Current password</span>
+            <input type="password" />
+          </label>
+          <label class="acct-field">
+            <span class="acct-label">New password</span>
+            <input type="password" />
+          </label>
+          <label class="acct-field">
+            <span class="acct-label">Confirm new password</span>
+            <input type="password" />
+          </label>
+          <button type="button" class="acct-btn">Preview password change</button>
+          <p class="acct-footnote-sm">Preview only &middot; Passwords are not saved or changed.</p>
         </details>
       </div>
 
@@ -153,4 +159,5 @@ import Base from '../../layouts/Base.astro';
   .acct-sub-accordion summary::-webkit-details-marker { display: none; }
   .acct-sub-accordion summary::before { content: '▸ '; }
   .acct-footnote { color: rgba(232,237,228,.45); font-size: 13px; margin-top: 36px; }
+  .acct-footnote-sm { color: rgba(232,237,228,.5); font-size: 13px; margin: 14px 0 0; }
 </style>
