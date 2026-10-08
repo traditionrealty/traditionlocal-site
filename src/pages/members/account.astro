@@ -43,6 +43,42 @@ import Base from '../../layouts/Base.astro';
             </div>
           </div>
         </div>
+
+        <div class="acct-card">
+          <h2>My neighborhood</h2>
+          <p class="acct-muted">This is the area used for your weekly In the Loop newsletter and your Locally [area] community feed.</p>
+          <label class="acct-field">
+            <span class="acct-label">Current area</span>
+            <select>
+              <option>The Heights</option>
+              <option>Spring Branch</option>
+              <option>Katy</option>
+              <option>Sugar Land</option>
+              <option>Bellaire</option>
+            </select>
+          </label>
+          <button type="button" class="acct-btn gold">Save neighborhood</button>
+        </div>
+
+        <div class="acct-grid2">
+          <div class="acct-card">
+            <h2>Saved places</h2>
+            <p class="acct-muted">Businesses, articles, and events you've bookmarked.</p>
+            <ul class="acct-saved">
+              <li><span class="acct-tag">Food</span><a href="#">La Placita Cafe</a></li>
+              <li><span class="acct-tag">Article</span><a href="#">Best patios for fall</a></li>
+              <li><span class="acct-tag">Event</span><a href="#">Fall Festival at Discovery Green</a></li>
+            </ul>
+          </div>
+          <div class="acct-card">
+            <h2>My events</h2>
+            <p class="acct-muted">Events you're going to or interested in.</p>
+            <ul class="acct-events">
+              <li><span class="acct-status going">Going</span><div><strong>Coffee &amp; Conversations</strong><span class="acct-muted-sm">Sun, Oct 18</span></div></li>
+              <li><span class="acct-status interested">Interested</span><div><strong>Fall Festival</strong><span class="acct-muted-sm">Sat, Oct 25</span></div></li>
+            </ul>
+          </div>
+        </div>
       </div>
 
       <div class="acct-panel" data-panel="settings" hidden>
@@ -128,6 +164,20 @@ import Base from '../../layouts/Base.astro';
   .acct-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 20px; align-items: start; }
   @media (max-width: 760px) { .acct-grid { grid-template-columns: 1fr; } }
   .acct-side { display: flex; flex-direction: column; gap: 20px; }
+  .acct-grid2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  @media (max-width: 760px) { .acct-grid2 { grid-template-columns: 1fr; } }
+  .acct-field select { width: 100%; margin-top: 8px; padding: 12px 16px; border-radius: 8px; border: 1px solid rgba(232,237,228,.25); background: rgba(232,237,228,.06); color: #e8ede4; font-size: 15px; }
+  .acct-tag { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; background: rgba(232,237,228,.12); color: rgba(232,237,228,.75); border-radius: 999px; padding: 4px 10px; flex-shrink: 0; white-space: nowrap; }
+  .acct-saved, .acct-events { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+  .acct-saved li { display: flex; align-items: center; gap: 10px; }
+  .acct-saved a { color: #cdd6a0; text-decoration: none; font-weight: 600; }
+  .acct-saved a:hover { text-decoration: underline; }
+  .acct-events li { display: flex; align-items: center; gap: 14px; }
+  .acct-events strong { display: block; font-weight: 600; }
+  .acct-muted-sm { color: rgba(232,237,228,.55); font-size: 13px; }
+  .acct-status { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; border-radius: 999px; padding: 4px 10px; flex-shrink: 0; white-space: nowrap; }
+  .acct-status.going { background: rgba(205,214,160,.2); color: #cdd6a0; }
+  .acct-status.interested { background: rgba(232,237,228,.12); color: rgba(232,237,228,.8); }
   .acct-card { background: rgba(232,237,228,.05); border: 1px solid rgba(232,237,228,.14); border-radius: 14px; padding: 28px; margin-bottom: 16px; }
   .acct-card h2 { font-family: var(--serif); font-size: 1.5rem; color: #fff; margin: 0 0 10px; }
   .acct-muted { color: rgba(232,237,228,.7); margin: 0 0 18px; }
