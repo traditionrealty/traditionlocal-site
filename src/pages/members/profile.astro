@@ -1,16 +1,17 @@
 ---
-// Profile editing moved into the combined Settings page. Redirect anyone with an old link.
+// Profile editing moved into the combined My Account page. Redirect anyone with an old link.
 import { url } from '../../lib/util';
-const dest = url('/members/settings');
+const dest = url('/members/account');
 ---
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta http-equiv="refresh" content={`0; url=${dest}`} />
+  <meta name="robots" content="noindex, follow" />
   <link rel="canonical" href={dest} />
   <title>Redirecting…</title>
 </head>
 <body>
-  <p>This page moved. <a href={dest}>Continue to Settings</a>.</p>
+  <p>This page moved. <a href={dest}>Continue to My Account</a>.</p>
 </body>
 </html>
