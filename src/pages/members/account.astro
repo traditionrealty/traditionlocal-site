@@ -1,0 +1,147 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+<Base title="My Account" description="Account, profile, and settings concept for Tradition Local members.">
+  <div class="acct-page">
+    <div class="wrap">
+      <div class="acct-top">
+        <div>
+          <h1 id="acct-title">My Account</h1>
+          <p class="acct-sub" id="acct-sub">Your account essentials, in one place.</p>
+        </div>
+        <span class="acct-badge">Private to you</span>
+      </div>
+
+      <div class="acct-tabs" role="tablist">
+        <button type="button" class="acct-tab" data-tab="account" aria-selected="true">My Account</button>
+        <button type="button" class="acct-tab" data-tab="profile" aria-selected="false">My Profile</button>
+        <button type="button" class="acct-tab" data-tab="settings" aria-selected="false">Settings</button>
+      </div>
+
+      <div class="acct-panel" data-panel="account">
+        <div class="acct-grid">
+          <div class="acct-card">
+            <h2>Welcome, Alex.</h2>
+            <p class="acct-muted">You're part of Tradition Local. Start exploring whenever you're ready.</p>
+            <div class="acct-row">
+              <div><span class="acct-label">Name</span><p class="acct-val">Alex Local</p></div>
+              <button type="button" class="acct-btn">Edit</button>
+            </div>
+            <div class="acct-row">
+              <div><span class="acct-label">Email</span><p class="acct-val">alex@example.com</p></div>
+              <button type="button" class="acct-btn">Manage</button>
+            </div>
+            <div class="acct-row last">
+              <div><span class="acct-label">In the Loop</span><p class="acct-val">Weekly local discoveries</p></div>
+              <button type="button" class="acct-btn">Preferences</button>
+            </div>
+          </div>
+          <div class="acct-card">
+            <h2>Make yourself at home.</h2>
+            <p class="acct-muted">Explore food, neighborhoods, and things to do around Houston.</p>
+            <button type="button" class="acct-btn gold">Start exploring &rarr;</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="acct-panel" data-panel="profile" hidden>
+        <div class="acct-card">
+          <div class="acct-profile-head">
+            <span class="acct-avatar">AL</span>
+            <div>
+              <h2>Alex Local</h2>
+              <p class="acct-muted">Your profile details</p>
+              <button type="button" class="acct-btn">📷 Change photo</button>
+            </div>
+          </div>
+          <label class="acct-field">
+            <span class="acct-label">Display name</span>
+            <input type="text" value="Alex Local" />
+          </label>
+          <button type="button" class="acct-btn gold">Save profile</button>
+        </div>
+      </div>
+
+      <div class="acct-panel" data-panel="settings" hidden>
+        <details class="acct-card acct-accordion" open>
+          <summary>Email &amp; password</summary>
+          <label class="acct-field">
+            <span class="acct-label">Email address</span>
+            <input type="email" value="alex@example.com" />
+          </label>
+          <button type="button" class="acct-btn">Save email</button>
+          <details class="acct-sub-accordion">
+            <summary>Change password</summary>
+          </details>
+        </details>
+        <details class="acct-card acct-accordion">
+          <summary>Newsletters &amp; notifications</summary>
+        </details>
+        <details class="acct-card acct-accordion">
+          <summary>Account help</summary>
+        </details>
+      </div>
+
+      <p class="acct-footnote">Interactive concept &middot; Example member data &middot; No live account changes</p>
+    </div>
+  </div>
+</Base>
+
+<script>
+  const tabs = [...document.querySelectorAll<HTMLButtonElement>('.acct-tab')];
+  const panels = [...document.querySelectorAll<HTMLElement>('.acct-panel')];
+  const title = document.getElementById('acct-title')!;
+  const sub = document.getElementById('acct-sub')!;
+  const copy: Record<string, [string, string]> = {
+    account: ['My Account', 'Your account essentials, in one place.'],
+    profile: ['My Profile', 'Your personal details. Private to you.'],
+    settings: ['Settings', 'Manage your account and preferences.'],
+  };
+  tabs.forEach((tab) => {
+    tab.addEventListener('click', () => {
+      const k = tab.dataset.tab!;
+      tabs.forEach((t) => t.setAttribute('aria-selected', String(t === tab)));
+      panels.forEach((p) => { p.hidden = p.dataset.panel !== k; });
+      title.textContent = copy[k][0];
+      sub.textContent = copy[k][1];
+    });
+  });
+</script>
+
+<style is:global>
+  .acct-page { background: #1b2a1e; color: #e8ede4; min-height: 70vh; padding: 48px 0 80px; }
+  .acct-page .wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+  .acct-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; }
+  .acct-page h1 { font-family: var(--serif); font-size: clamp(2rem, 4vw, 2.6rem); color: #fff; margin: 0; }
+  .acct-sub { color: rgba(232,237,228,.75); margin: 8px 0 0; }
+  .acct-badge { background: rgba(232,237,228,.12); border: 1px solid rgba(232,237,228,.25); border-radius: 999px; padding: 8px 18px; font-size: 13px; color: #e8ede4; white-space: nowrap; }
+  .acct-tabs { display: flex; gap: 10px; margin: 28px 0 24px; flex-wrap: wrap; }
+  .acct-tab { background: rgba(232,237,228,.08); border: 1px solid rgba(232,237,228,.18); color: #e8ede4; border-radius: 10px; padding: 12px 20px; font-size: 15px; font-weight: 600; cursor: pointer; }
+  .acct-tab[aria-selected="true"] { background: #cdd6a0; border-color: #cdd6a0; color: #1b2a1e; }
+  .acct-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 20px; }
+  @media (max-width: 760px) { .acct-grid { grid-template-columns: 1fr; } }
+  .acct-card { background: rgba(232,237,228,.05); border: 1px solid rgba(232,237,228,.14); border-radius: 14px; padding: 28px; margin-bottom: 16px; }
+  .acct-card h2 { font-family: var(--serif); font-size: 1.5rem; color: #fff; margin: 0 0 10px; }
+  .acct-muted { color: rgba(232,237,228,.7); margin: 0 0 18px; }
+  .acct-row { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 16px 0; border-top: 1px solid rgba(232,237,228,.12); }
+  .acct-row:first-of-type { border-top: 1px solid rgba(232,237,228,.12); margin-top: 6px; }
+  .acct-row.last { border-bottom: 1px solid rgba(232,237,228,.12); }
+  .acct-label { display: block; font-size: 13px; color: rgba(232,237,228,.6); margin-bottom: 4px; }
+  .acct-val { margin: 0; font-size: 16px; }
+  .acct-btn { background: transparent; border: 1px solid rgba(232,237,228,.3); color: #e8ede4; border-radius: 8px; padding: 9px 18px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+  .acct-btn.gold { background: #cdd6a0; border-color: #cdd6a0; color: #1b2a1e; }
+  .acct-profile-head { display: flex; align-items: center; gap: 20px; margin-bottom: 24px; }
+  .acct-avatar { width: 70px; height: 70px; border-radius: 50%; background: rgba(232,237,228,.1); display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-size: 1.6rem; flex-shrink: 0; }
+  .acct-field { display: block; margin: 18px 0; }
+  .acct-field input { width: 100%; margin-top: 8px; padding: 12px 16px; border-radius: 8px; border: 1px solid rgba(232,237,228,.25); background: rgba(232,237,228,.06); color: #e8ede4; font-size: 15px; }
+  .acct-accordion { padding: 22px 28px; }
+  .acct-accordion summary { font-family: var(--serif); font-size: 1.2rem; color: #fff; cursor: pointer; list-style: none; }
+  .acct-accordion summary::-webkit-details-marker { display: none; }
+  .acct-accordion summary::before { content: '▸ '; }
+  .acct-accordion[open] summary::before { content: '▾ '; }
+  .acct-sub-accordion { margin-top: 18px; border: 1px solid rgba(232,237,228,.18); border-radius: 10px; padding: 16px 20px; }
+  .acct-sub-accordion summary { font-size: 15px; cursor: pointer; list-style: none; }
+  .acct-sub-accordion summary::-webkit-details-marker { display: none; }
+  .acct-sub-accordion summary::before { content: '▸ '; }
+  .acct-footnote { color: rgba(232,237,228,.45); font-size: 13px; margin-top: 36px; }
+</style>
