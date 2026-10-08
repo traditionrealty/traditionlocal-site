@@ -450,7 +450,12 @@ const popularSearches = ['coffee', 'brunch', 'Sugar Land', 'new builds', 'events
   @media (max-width: 760px) {
     .footer-grid { grid-template-columns: 1fr; }
     .header-inner { padding-top: 14px; padding-bottom: 14px; }
-    .site-header nav { gap: 18px; }
+    /* Smaller text and tighter spacing so Food / Neighborhoods / Things To Do / More
+       fit on one row instead of wrapping to a second line. ".site-header nav" below
+       is more specific than ".top-nav" alone, so the gap has to be set here instead. */
+    .site-header nav.top-nav { gap: 0; }
+    .top-link { font-size: 12.5px; padding: 8px 5px; gap: 2px; min-height: 40px; white-space: nowrap; }
+    .top-link .chev { width: 8px; height: 6px; }
     .site-search { order: 1; margin-left: auto; }
     .site-search + .account { margin-left: 0; }
     .band { padding: 48px 0; }
