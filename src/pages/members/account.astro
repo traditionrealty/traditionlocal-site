@@ -28,41 +28,50 @@ import { url } from '../../lib/util';
             <h2>Welcome, Alex.</h2>
             <p class="acct-muted">You're a Locally member. Start exploring whenever you're ready.</p>
           </div>
-          <div class="acct-side">
-            <div class="acct-card">
-              <h2>What's new</h2>
-              <ul class="acct-whatsnew">
-                <li><a href="#">Visit the Community feed &rarr;</a></li>
-                <li><a href="#">Upcoming events and meetups &rarr;</a></li>
-                <li><a href="#">The latest food finds and guides &rarr;</a></li>
-              </ul>
-            </div>
-            <div class="acct-card">
-              <h2>Make yourself at home.</h2>
-              <p class="acct-muted">A few good places to start.</p>
-              <ul class="acct-whatsnew">
-                <li><a href={url('/about')}>About us &rarr;</a></li>
-                <li><a href={url('/about-our-reviews')}>Our reviews &rarr;</a></li>
-                <li><a href={url('/newsletters')}>The newsletter &rarr;</a></li>
-              </ul>
-            </div>
+          <div class="acct-card">
+            <h2>What's new</h2>
+            <ul class="acct-whatsnew acct-whatsnew-lg">
+              <li><a href="#">Visit the Community feed &rarr;</a></li>
+              <li><a href="#">Upcoming events and meetups &rarr;</a></li>
+              <li><a href="#">The latest food finds and guides &rarr;</a></li>
+            </ul>
           </div>
         </div>
 
-        <div class="acct-card acct-full">
-          <h2>My neighborhood</h2>
-          <p class="acct-muted">This is the area used for your weekly In the Loop newsletter and your Locally [area] community feed.</p>
-          <label class="acct-field">
-            <span class="acct-label">Current area</span>
-            <select>
-              <option>The Heights</option>
-              <option>Spring Branch</option>
-              <option>Katy</option>
-              <option>Sugar Land</option>
-              <option>Bellaire</option>
-            </select>
-          </label>
-          <button type="button" class="acct-btn gold">Save neighborhood</button>
+        <div class="acct-grid2">
+          <div class="acct-card">
+            <h2>My neighborhood</h2>
+            <p class="acct-muted">This is the area used for your weekly In the Loop newsletter and your Locally [area] community feed.</p>
+            <label class="acct-field">
+              <span class="acct-label">Current area</span>
+              <select>
+                <option>The Heights</option>
+                <option>Spring Branch</option>
+                <option>Katy</option>
+                <option>Sugar Land</option>
+                <option>Bellaire</option>
+              </select>
+            </label>
+            <button type="button" class="acct-btn gold">Save neighborhood</button>
+          </div>
+          <div class="acct-card">
+            <h2>Make yourself at home.</h2>
+            <p class="acct-muted">A few good places to start.</p>
+            <ul class="acct-linklist">
+              <li>
+                <a href={url('/about')}>About us &rarr;</a>
+                <p class="acct-muted-sm">Meet Dillon, Sara, and the people behind Tradition Local.</p>
+              </li>
+              <li>
+                <a href={url('/about-our-reviews')}>Our reviews &rarr;</a>
+                <p class="acct-muted-sm">How we rate places, from a first try to a personal favorite.</p>
+              </li>
+              <li>
+                <a href={url('/newsletters')}>The newsletter &rarr;</a>
+                <p class="acct-muted-sm">What's in your weekly In the Loop email.</p>
+              </li>
+            </ul>
+          </div>
         </div>
 
         <div class="acct-grid2">
@@ -206,6 +215,13 @@ import { url } from '../../lib/util';
   .acct-whatsnew { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
   .acct-whatsnew a { color: var(--gold); text-decoration: none; font-weight: 600; font-size: 14px; }
   .acct-whatsnew a:hover { text-decoration: underline; }
+  .acct-whatsnew-lg { gap: 18px; }
+  .acct-whatsnew-lg a { font-size: 16px; }
+
+  .acct-linklist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 18px; }
+  .acct-linklist a { color: var(--gold); text-decoration: none; font-weight: 600; font-size: 16px; }
+  .acct-linklist a:hover { text-decoration: underline; }
+  .acct-linklist p { margin: 4px 0 0; }
 
   .acct-tag { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; background: #161d29; border: 1px solid #2c3647; color: #aab0bb; border-radius: 999px; padding: 4px 10px; flex-shrink: 0; white-space: nowrap; }
   .acct-saved, .acct-events { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 16px; }
