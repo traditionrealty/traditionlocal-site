@@ -378,8 +378,18 @@ const popularSearches = ['coffee', 'brunch', 'Sugar Land', 'new builds', 'events
   /* The bar that drops down below the header. Food/Neighborhoods/Things To Do show their own
      sub-list automatically when you're on that page (see activeNav in the frontmatter); More
      is a hover (desktop) / tap (mobile) menu that previews on top of it -- see the script above. */
-  .subheader { max-height: 0; overflow: hidden; background: var(--cream); border-bottom: 1px solid transparent; transition: max-height .25s ease, border-color .2s ease; }
-  .subheader.open { max-height: 220px; border-color: var(--line); }
+  /* White + a visible top border + a soft shadow, so this reads as its own dropped-down panel,
+     distinct from the solid --cream header bar sitting above it. */
+  .subheader {
+    max-height: 0; overflow: hidden; background: #fff;
+    border-top: 1px solid transparent; border-bottom: 1px solid transparent;
+    box-shadow: 0 0 0 rgba(32, 69, 94, 0);
+    transition: max-height .25s ease, border-color .2s ease, box-shadow .2s ease;
+  }
+  .subheader.open {
+    max-height: 220px; border-color: var(--line);
+    box-shadow: 0 10px 24px rgba(32, 69, 94, .1);
+  }
   .subheader .wrap { padding-top: 0; padding-bottom: 0; }
   .sub-list { display: flex; flex-wrap: wrap; gap: 6px; padding: 14px 0; margin: 0; list-style: none; }
   .sub-list[hidden] { display: none; }
@@ -388,8 +398,8 @@ const popularSearches = ['coffee', 'brunch', 'Sugar Land', 'new builds', 'events
     padding: 0 16px; border-radius: 8px; background: transparent;
     font-weight: 600; font-size: 15px; color: var(--blue); text-decoration: none;
   }
-  /* The bar itself is --cream, so the link hover needs a different color to actually show up. */
-  .sub-list a:hover { background: #fff; }
+  /* The bar itself is white now, so the hover highlight uses --cream to show up against it. */
+  .sub-list a:hover { background: var(--cream); }
   .sub-list a:active { background: var(--gold-soft); }
   .sub-list a[aria-current] { color: var(--navy); font-weight: 700; }
 
