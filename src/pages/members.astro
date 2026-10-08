@@ -1,95 +1,17 @@
 ---
-import Base from '../layouts/Base.astro';
-import MemberShell from '../components/MemberShell.astro';
+// My Profile replaced by the combined My Account page. Redirect anyone with an old link.
 import { url } from '../lib/util';
+const dest = url('/members/account');
 ---
-<Base title="My Profile" description="Your Tradition Local profile.">
-  <MemberShell active="profile">
-    <p class="eyebrow">Your public profile</p>
-    <h1>My Profile</h1>
-    <p class="lede">This is what other members see of you in Community, based on what you've chosen to make public.</p>
-
-    <div class="mcard profile-card">
-      <div class="profile-head">
-        <span class="avatar-lg" data-ms-initials-lg>&nbsp;</span>
-        <div>
-          <h2 data-pf-name>Member</h2>
-          <p data-pf-area class="ph-text">[Area not set]</p>
-        </div>
-      </div>
-      <p data-pf-bio class="ph-text">[No bio yet]</p>
-      <dl class="profile-facts" data-pf-facts></dl>
-      <a class="mlink" href={url('/members/settings')}>Edit your profile &rarr;</a>
-    </div>
-
-    <div class="mcard">
-      <h2>What's new for members</h2>
-      <ul class="perks">
-        <li><a class="mlink" href={url('/members/community')}>Visit the Community feed</a></li>
-        <li><a class="mlink" href={url('/living')}>Upcoming events and meetups</a></li>
-        <li><a class="mlink" href={url('/all-articles')}>The latest food finds and guides</a></li>
-        <li><a class="mlink" href={url('/cities')}>Neighborhood guides across Greater Houston</a></li>
-      </ul>
-    </div>
-
-    <div class="mcard">
-      <p class="eyebrow">When you're ready</p>
-      <h2>Your real estate journey</h2>
-      <p>Next steps, milestones, documents, and your team.</p>
-      <a class="btn gold" href={url('/members/journey')}>View my journey &rarr;</a>
-    </div>
-  </MemberShell>
-</Base>
-
-<script>
-  import { membersReady, supabase, currentUser, getProfile } from '../lib/members';
-  const FACTS: [string, keyof Awaited<ReturnType<typeof getProfile>>, string][] = [
-    ['Employment', 'employment', 'employment_public'] as any,
-    ['Education', 'education', 'education_public'] as any,
-    ['Birthday', 'birthday', 'birthday_public'] as any,
-    ['Relationship status', 'relationship_status', 'relationship_status_public'] as any,
-  ];
-  async function load() {
-    if (!membersReady) return;
-    const user = await currentUser();
-    if (!user) return;
-    const p = await getProfile(user);
-    const first = (p.first_name || '').trim();
-    const last = (p.last_name || '').trim();
-    const name = `${first} ${last}`.trim() || user.email || 'Member';
-    document.querySelector('[data-pf-name]')!.textContent = name;
-    const initEl = document.querySelector('[data-ms-initials-lg]');
-    if (initEl) initEl.textContent = ((first[0] || '') + (last[0] || '')).toUpperCase() || (user.email || '?')[0].toUpperCase();
-    const areaEl = document.querySelector('[data-pf-area]')!;
-    if (p.area_of_interest) { areaEl.textContent = p.area_of_interest; areaEl.classList.remove('ph-text'); }
-    const bioEl = document.querySelector('[data-pf-bio]')!;
-    if (p.bio_public && p.bio) { bioEl.textContent = p.bio; bioEl.classList.remove('ph-text'); }
-    else { bioEl.textContent = p.bio ? '[Bio set, kept private]' : '[No bio yet]'; }
-    const factsEl = document.querySelector('[data-pf-facts]')!;
-    factsEl.innerHTML = '';
-    for (const [label, key, pubKey] of FACTS as any) {
-      const val = (p as any)[key];
-      const isPublic = (p as any)[pubKey];
-      if (!val) continue;
-      const dt = document.createElement('dt'); dt.textContent = label;
-      const dd = document.createElement('dd');
-      dd.textContent = isPublic ? val : 'Private';
-      if (!isPublic) dd.className = 'ph-text';
-      factsEl.appendChild(dt); factsEl.appendChild(dd);
-    }
-  }
-  if (membersReady) {
-    load();
-    supabase().auth.onAuthStateChange((event) => { if (event === 'SIGNED_IN') load(); });
-  }
-</script>
-<style>
-  .ph-text { color: #6d7482; font-style: italic; }
-  .profile-card { display: flex; flex-direction: column; gap: 14px; }
-  .profile-head { display: flex; align-items: center; gap: 16px; }
-  .avatar-lg { width: 64px; height: 64px; border-radius: 50%; background: #3a4a3a; color: var(--gold); display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-size: 1.5rem; flex-shrink: 0; }
-  .profile-head h2 { margin: 0 0 4px; }
-  .profile-facts { display: grid; grid-template-columns: auto 1fr; gap: 6px 16px; margin: 4px 0; }
-  .profile-facts dt { color: #8f96a3; font-size: 13px; }
-  .profile-facts dd { margin: 0; color: #fff; }
-</style>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="refresh" content={`0; url=${dest}`} />
+  <meta name="robots" content="noindex, follow" />
+  <link rel="canonical" href={dest} />
+  <title>Redirecting…</title>
+</head>
+<body>
+  <p>This page moved. <a href={dest}>Continue to My Account</a>.</p>
+</body>
+</html>
