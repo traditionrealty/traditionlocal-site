@@ -19,7 +19,7 @@ import { url } from '../../lib/util';
       </div>
 
       <div class="acct-panel" data-panel="account">
-        <div class="acct-grid">
+        <div class="acct-grid2">
           <div class="acct-card">
             <div class="acct-profile-head">
               <span class="acct-avatar">AL</span>
@@ -74,7 +74,14 @@ import { url } from '../../lib/util';
           </div>
         </div>
 
-        <div class="acct-grid2">
+        <div class="acct-grid3">
+          <div class="acct-card">
+            <h2>My events</h2>
+            <p class="acct-muted">Events you're going to.</p>
+            <ul class="acct-events">
+              <li><span class="acct-status going">Going</span><div><strong>Coffee &amp; Conversations</strong><span class="acct-muted-sm">Sun, Oct 18</span></div></li>
+            </ul>
+          </div>
           <div class="acct-card">
             <h2>Saved places</h2>
             <p class="acct-muted">Businesses, articles, and events you've bookmarked.</p>
@@ -85,10 +92,9 @@ import { url } from '../../lib/util';
             </ul>
           </div>
           <div class="acct-card">
-            <h2>My events</h2>
-            <p class="acct-muted">Events you're going to or interested in.</p>
+            <h2>Interested</h2>
+            <p class="acct-muted">Events you've marked as maybe.</p>
             <ul class="acct-events">
-              <li><span class="acct-status going">Going</span><div><strong>Coffee &amp; Conversations</strong><span class="acct-muted-sm">Sun, Oct 18</span></div></li>
               <li><span class="acct-status interested">Interested</span><div><strong>Fall Festival</strong><span class="acct-muted-sm">Sat, Oct 25</span></div></li>
             </ul>
           </div>
@@ -188,8 +194,11 @@ import { url } from '../../lib/util';
   .acct-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 24px; align-items: start; margin-bottom: 24px; }
   @media (max-width: 760px) { .acct-grid { grid-template-columns: 1fr; } }
   .acct-side { display: flex; flex-direction: column; gap: 24px; }
-  .acct-grid2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+  .acct-grid2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-bottom: 24px; }
   @media (max-width: 760px) { .acct-grid2 { grid-template-columns: 1fr; } }
+  .acct-grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  @media (max-width: 900px) { .acct-grid3 { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 600px) { .acct-grid3 { grid-template-columns: 1fr; } }
   .acct-full { margin-bottom: 24px; }
 
   .acct-card { background: #1d2635; border: 1px solid #2c3647; border-radius: 10px; padding: 28px 32px; }
