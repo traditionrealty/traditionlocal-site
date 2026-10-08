@@ -391,10 +391,15 @@ const popularSearches = ['coffee', 'brunch', 'Sugar Land', 'new builds', 'events
     box-shadow: 0 10px 24px rgba(32, 69, 94, .1);
   }
   .subheader .wrap { padding-top: 0; padding-bottom: 0; }
+  /* Spread the links across the full bar as equal-width columns instead of clustering
+     them on the left. The <li> wrappers are the actual flex children here, not the <a>
+     tags inside them, so the equal-width growth has to go on the <li> (and it needs
+     display:flex itself so its own <a> child can then stretch to fill it). */
   .sub-list { display: flex; flex-wrap: wrap; gap: 6px; padding: 14px 0; margin: 0; list-style: none; }
   .sub-list[hidden] { display: none; }
+  .sub-list li { flex: 1; display: flex; }
   .sub-list a {
-    display: flex; align-items: center; min-height: 44px;
+    display: flex; align-items: center; justify-content: center; min-height: 44px; flex: 1;
     padding: 0 16px; border-radius: 8px; background: transparent;
     font-weight: 600; font-size: 15px; color: var(--blue); text-decoration: none;
   }
