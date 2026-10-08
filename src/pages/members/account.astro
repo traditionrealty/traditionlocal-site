@@ -170,15 +170,18 @@ import { url } from '../../lib/util';
     account: ['My Account', 'Your account essentials, in one place.'],
     settings: ['Settings', 'Manage your account and preferences.'],
   };
+  function activate(k: string) {
+    const tab = tabs.find((t) => t.dataset.tab === k);
+    if (!tab || !copy[k]) return;
+    tabs.forEach((t) => t.setAttribute('aria-selected', String(t === tab)));
+    panels.forEach((p) => { p.hidden = p.dataset.panel !== k; });
+    title.textContent = copy[k][0];
+    sub.textContent = copy[k][1];
+  }
   tabs.forEach((tab) => {
-    tab.addEventListener('click', () => {
-      const k = tab.dataset.tab!;
-      tabs.forEach((t) => t.setAttribute('aria-selected', String(t === tab)));
-      panels.forEach((p) => { p.hidden = p.dataset.panel !== k; });
-      title.textContent = copy[k][0];
-      sub.textContent = copy[k][1];
-    });
+    tab.addEventListener('click', () => activate(tab.dataset.tab!));
   });
+  if (location.hash === '#settings') activate('settings');
 </script>
 
 <style is:global>
