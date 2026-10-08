@@ -6,10 +6,10 @@ import Base from '../../layouts/Base.astro';
     <div class="wrap">
       <div class="acct-top">
         <div>
+          <p class="acct-kicker">Private to you</p>
           <h1 id="acct-title">My Account</h1>
           <p class="acct-sub" id="acct-sub">Your account essentials, in one place.</p>
         </div>
-        <span class="acct-badge">Private to you</span>
       </div>
 
       <div class="acct-tabs" role="tablist">
@@ -44,7 +44,7 @@ import Base from '../../layouts/Base.astro';
           </div>
         </div>
 
-        <div class="acct-card">
+        <div class="acct-card acct-full">
           <h2>My neighborhood</h2>
           <p class="acct-muted">This is the area used for your weekly In the Loop newsletter and your Locally [area] community feed.</p>
           <label class="acct-field">
@@ -82,47 +82,55 @@ import Base from '../../layouts/Base.astro';
       </div>
 
       <div class="acct-panel" data-panel="settings" hidden>
-        <details class="acct-card acct-accordion" open>
+        <details class="acct-card acct-accordion acct-full" open>
           <summary>Email &amp; password</summary>
-          <label class="acct-field">
-            <span class="acct-label">Name</span>
-            <input type="text" value="Alex Local" />
-          </label>
-          <label class="acct-field">
-            <span class="acct-label">Email address</span>
-            <input type="email" value="alex@example.com" />
-          </label>
-          <button type="button" class="acct-btn">Save email</button>
+          <div class="acct-accordion-body">
+            <label class="acct-field">
+              <span class="acct-label">Name</span>
+              <input type="text" value="Alex Local" />
+            </label>
+            <label class="acct-field">
+              <span class="acct-label">Email address</span>
+              <input type="email" value="alex@example.com" />
+            </label>
+            <button type="button" class="acct-btn">Save email</button>
+          </div>
         </details>
-        <details class="acct-card acct-accordion" open>
+        <details class="acct-card acct-accordion acct-full" open>
           <summary>Newsletters &amp; notifications</summary>
-          <label class="acct-check">
-            <input type="checkbox" checked />
-            <span>In the Loop weekly newsletter</span>
-          </label>
-          <button type="button" class="acct-btn gold">Save preferences</button>
+          <div class="acct-accordion-body">
+            <label class="acct-check">
+              <input type="checkbox" checked />
+              <span>In the Loop weekly newsletter</span>
+            </label>
+            <button type="button" class="acct-btn gold">Save preferences</button>
+          </div>
         </details>
-        <details class="acct-card acct-accordion">
+        <details class="acct-card acct-accordion acct-full">
           <summary>Account help</summary>
-          <p class="acct-muted">Questions about your account? Access support or manage your account data.</p>
-          <button type="button" class="acct-btn">Get help</button>
+          <div class="acct-accordion-body">
+            <p class="acct-muted">Questions about your account? Access support or manage your account data.</p>
+            <button type="button" class="acct-btn">Get help</button>
+          </div>
         </details>
-        <details class="acct-card acct-accordion">
+        <details class="acct-card acct-accordion acct-full">
           <summary>Change password</summary>
-          <label class="acct-field">
-            <span class="acct-label">Current password</span>
-            <input type="password" />
-          </label>
-          <label class="acct-field">
-            <span class="acct-label">New password</span>
-            <input type="password" />
-          </label>
-          <label class="acct-field">
-            <span class="acct-label">Confirm new password</span>
-            <input type="password" />
-          </label>
-          <button type="button" class="acct-btn">Preview password change</button>
-          <p class="acct-footnote-sm">Preview only &middot; Passwords are not saved or changed.</p>
+          <div class="acct-accordion-body">
+            <label class="acct-field">
+              <span class="acct-label">Current password</span>
+              <input type="password" />
+            </label>
+            <label class="acct-field">
+              <span class="acct-label">New password</span>
+              <input type="password" />
+            </label>
+            <label class="acct-field">
+              <span class="acct-label">Confirm new password</span>
+              <input type="password" />
+            </label>
+            <button type="button" class="acct-btn">Preview password change</button>
+            <p class="acct-footnote-sm">Preview only &middot; Passwords are not saved or changed.</p>
+          </div>
         </details>
       </div>
 
@@ -152,62 +160,66 @@ import Base from '../../layouts/Base.astro';
 </script>
 
 <style is:global>
-  .acct-page { background: #1b2a1e; color: #e8ede4; min-height: 70vh; padding: 48px 0 80px; }
+  .acct-page { background: #171f2b; color: #e8e9ec; min-height: 70vh; padding: 56px 0 88px; }
   .acct-page .wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
-  .acct-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; }
-  .acct-page h1 { font-family: var(--serif); font-size: clamp(2rem, 4vw, 2.6rem); color: #fff; margin: 0; }
-  .acct-sub { color: rgba(232,237,228,.75); margin: 8px 0 0; }
-  .acct-badge { background: rgba(232,237,228,.12); border: 1px solid rgba(232,237,228,.25); border-radius: 999px; padding: 8px 18px; font-size: 13px; color: #e8ede4; white-space: nowrap; }
-  .acct-tabs { display: flex; gap: 10px; margin: 28px 0 24px; flex-wrap: wrap; }
-  .acct-tab { background: rgba(232,237,228,.08); border: 1px solid rgba(232,237,228,.18); color: #e8ede4; border-radius: 10px; padding: 12px 20px; font-size: 15px; font-weight: 600; cursor: pointer; }
-  .acct-tab[aria-selected="true"] { background: #cdd6a0; border-color: #cdd6a0; color: #1b2a1e; }
-  .acct-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 20px; align-items: start; }
+  .acct-top { margin-bottom: 4px; }
+  .acct-kicker { color: var(--gold); font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; margin: 0 0 10px; }
+  .acct-page h1 { font-family: var(--serif); font-size: clamp(2rem, 4vw, 2.5rem); color: #fff; margin: 0; }
+  .acct-sub { color: #aab0bb; margin: 10px 0 0; }
+
+  .acct-tabs { display: flex; gap: 8px; margin: 32px 0 32px; flex-wrap: wrap; border-bottom: 1px solid #2c3647; padding-bottom: 0; }
+  .acct-tab { background: transparent; border: none; border-bottom: 2px solid transparent; color: #8f96a3; padding: 12px 4px; margin-right: 24px; font-size: 15px; font-weight: 600; cursor: pointer; }
+  .acct-tab[aria-selected="true"] { color: #fff; border-bottom-color: var(--gold); }
+
+  .acct-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 24px; align-items: start; margin-bottom: 24px; }
   @media (max-width: 760px) { .acct-grid { grid-template-columns: 1fr; } }
-  .acct-side { display: flex; flex-direction: column; gap: 20px; }
-  .acct-grid2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  .acct-side { display: flex; flex-direction: column; gap: 24px; }
+  .acct-grid2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
   @media (max-width: 760px) { .acct-grid2 { grid-template-columns: 1fr; } }
-  .acct-field select { width: 100%; margin-top: 8px; padding: 12px 16px; border-radius: 8px; border: 1px solid rgba(232,237,228,.25); background: rgba(232,237,228,.06); color: #e8ede4; font-size: 15px; }
-  .acct-tag { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; background: rgba(232,237,228,.12); color: rgba(232,237,228,.75); border-radius: 999px; padding: 4px 10px; flex-shrink: 0; white-space: nowrap; }
-  .acct-saved, .acct-events { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
-  .acct-saved li { display: flex; align-items: center; gap: 10px; }
-  .acct-saved a { color: #cdd6a0; text-decoration: none; font-weight: 600; }
+  .acct-full { margin-bottom: 24px; }
+
+  .acct-card { background: #1d2635; border: 1px solid #2c3647; border-radius: 10px; padding: 28px 32px; }
+  .acct-card h2 { font-family: var(--serif); font-size: 1.4rem; color: #fff; margin: 0 0 12px; }
+  .acct-muted { color: #aab0bb; margin: 0 0 18px; line-height: 1.5; }
+  .acct-label { display: block; font-size: 13px; font-weight: 600; color: #cfd3da; margin-bottom: 6px; }
+
+  .acct-btn { background: transparent; border: 1.5px solid #2c3647; color: #e8e9ec; border-radius: 6px; padding: 9px 18px; font-weight: 600; font-size: 14px; cursor: pointer; white-space: nowrap; }
+  .acct-btn:hover { border-color: #434f63; }
+  .acct-btn.gold { background: var(--gold); border-color: var(--gold); color: var(--navy); }
+  .acct-btn.sm { padding: 6px 14px; font-size: 13px; }
+
+  .acct-profile-head { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+  .acct-avatar { width: 64px; height: 64px; border-radius: 50%; background: #3a4a3a; color: var(--gold); display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-size: 1.4rem; flex-shrink: 0; }
+
+  .acct-field { display: block; margin: 0 0 18px; }
+  .acct-field:last-of-type { margin-bottom: 20px; }
+  .acct-field input, .acct-field select { width: 100%; margin-top: 2px; padding: 11px 14px; border-radius: 6px; border: 1px solid #2c3647; background: #161d29; color: #fff; font-size: 15px; }
+
+  .acct-check { display: flex; align-items: center; gap: 10px; margin: 0 0 22px; cursor: pointer; }
+  .acct-check input { width: 17px; height: 17px; accent-color: var(--gold); }
+
+  .acct-whatsnew { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+  .acct-whatsnew a { color: var(--gold); text-decoration: none; font-weight: 600; font-size: 14px; }
+  .acct-whatsnew a:hover { text-decoration: underline; }
+
+  .acct-tag { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; background: #161d29; border: 1px solid #2c3647; color: #aab0bb; border-radius: 999px; padding: 4px 10px; flex-shrink: 0; white-space: nowrap; }
+  .acct-saved, .acct-events { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 16px; }
+  .acct-saved li { display: flex; align-items: center; gap: 12px; }
+  .acct-saved a { color: var(--gold); text-decoration: none; font-weight: 600; font-size: 14px; }
   .acct-saved a:hover { text-decoration: underline; }
   .acct-events li { display: flex; align-items: center; gap: 14px; }
-  .acct-events strong { display: block; font-weight: 600; }
-  .acct-muted-sm { color: rgba(232,237,228,.55); font-size: 13px; }
+  .acct-events strong { display: block; font-weight: 600; color: #fff; font-size: 14px; }
+  .acct-muted-sm { color: #8f96a3; font-size: 13px; }
   .acct-status { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; border-radius: 999px; padding: 4px 10px; flex-shrink: 0; white-space: nowrap; }
-  .acct-status.going { background: rgba(205,214,160,.2); color: #cdd6a0; }
-  .acct-status.interested { background: rgba(232,237,228,.12); color: rgba(232,237,228,.8); }
-  .acct-card { background: rgba(232,237,228,.05); border: 1px solid rgba(232,237,228,.14); border-radius: 14px; padding: 28px; margin-bottom: 16px; }
-  .acct-card h2 { font-family: var(--serif); font-size: 1.5rem; color: #fff; margin: 0 0 10px; }
-  .acct-muted { color: rgba(232,237,228,.7); margin: 0 0 18px; }
-  .acct-row { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 16px 0; border-top: 1px solid rgba(232,237,228,.12); }
-  .acct-row:first-of-type { border-top: 1px solid rgba(232,237,228,.12); margin-top: 6px; }
-  .acct-row.last { border-bottom: 1px solid rgba(232,237,228,.12); }
-  .acct-label { display: block; font-size: 13px; color: rgba(232,237,228,.6); margin-bottom: 4px; }
-  .acct-val { margin: 0; font-size: 16px; }
-  .acct-btn { background: transparent; border: 1px solid rgba(232,237,228,.3); color: #e8ede4; border-radius: 8px; padding: 9px 18px; font-weight: 600; cursor: pointer; white-space: nowrap; }
-  .acct-btn.gold { background: #cdd6a0; border-color: #cdd6a0; color: #1b2a1e; }
-  .acct-btn.sm { padding: 6px 14px; font-size: 13px; }
-  .acct-profile-head { display: flex; align-items: center; gap: 16px; margin-bottom: 18px; }
-  .acct-avatar { width: 64px; height: 64px; border-radius: 50%; background: rgba(232,237,228,.1); display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-size: 1.4rem; flex-shrink: 0; }
-  .acct-field { display: block; margin: 18px 0; }
-  .acct-field input { width: 100%; margin-top: 8px; padding: 12px 16px; border-radius: 8px; border: 1px solid rgba(232,237,228,.25); background: rgba(232,237,228,.06); color: #e8ede4; font-size: 15px; }
-  .acct-check { display: flex; align-items: center; gap: 10px; margin: 16px 0 22px; cursor: pointer; }
-  .acct-check input { width: 18px; height: 18px; }
-  .acct-whatsnew { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
-  .acct-whatsnew a { color: #cdd6a0; text-decoration: none; font-weight: 600; }
-  .acct-whatsnew a:hover { text-decoration: underline; }
-  .acct-accordion { padding: 22px 28px; }
-  .acct-accordion summary { font-family: var(--serif); font-size: 1.2rem; color: #fff; cursor: pointer; list-style: none; }
+  .acct-status.going { background: rgba(216,187,83,.16); color: var(--gold); }
+  .acct-status.interested { background: #161d29; border: 1px solid #2c3647; color: #aab0bb; }
+
+  .acct-accordion summary { font-family: var(--serif); font-size: 1.25rem; color: #fff; cursor: pointer; list-style: none; }
   .acct-accordion summary::-webkit-details-marker { display: none; }
-  .acct-accordion summary::before { content: '▸ '; }
-  .acct-accordion[open] summary::before { content: '▾ '; }
-  .acct-accordion[open] summary { margin-bottom: 18px; display: block; }
-  .acct-sub-accordion { margin-top: 18px; border: 1px solid rgba(232,237,228,.18); border-radius: 10px; padding: 16px 20px; }
-  .acct-sub-accordion summary { font-size: 15px; cursor: pointer; list-style: none; }
-  .acct-sub-accordion summary::-webkit-details-marker { display: none; }
-  .acct-sub-accordion summary::before { content: '▸ '; }
-  .acct-footnote { color: rgba(232,237,228,.45); font-size: 13px; margin-top: 36px; }
-  .acct-footnote-sm { color: rgba(232,237,228,.5); font-size: 13px; margin: 14px 0 0; }
+  .acct-accordion summary::before { content: '▸'; color: var(--gold); margin-right: 10px; display: inline-block; font-size: .8em; }
+  .acct-accordion[open] summary::before { content: '▾'; }
+  .acct-accordion-body { padding-top: 22px; }
+  .acct-footnote-sm { color: #8f96a3; font-size: 13px; margin: 14px 0 0; }
+
+  .acct-footnote { color: #6b7280; font-size: 13px; margin-top: 8px; }
 </style>
