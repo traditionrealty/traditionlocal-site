@@ -23,8 +23,7 @@ import { url } from '../lib/util';
     <div data-acct="in" hidden>
       <p class="menu-who"><strong data-acct-name>Member</strong><span data-acct-email></span></p>
       <a class="menu-link" href={url('/members/account')}>My account</a>
-      <a class="menu-link" href={url('/members/community')}>Community</a>
-      <a class="menu-link" href={url('/reset-password')}>Change password</a>
+      <a class="menu-link" href={`${url('/members/account')}#settings`}>Settings</a>
       <button class="menu-link signout" type="button" data-signout>Sign out</button>
     </div>
   </div>
