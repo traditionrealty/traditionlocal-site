@@ -1,5 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
+import { url } from '../../lib/util';
 ---
 <Base title="My Account" description="Account and settings concept for Locally members.">
   <div class="acct-page">
@@ -38,8 +39,12 @@ import Base from '../../layouts/Base.astro';
             </div>
             <div class="acct-card">
               <h2>Make yourself at home.</h2>
-              <p class="acct-muted">Explore food, neighborhoods, and things to do around Houston.</p>
-              <button type="button" class="acct-btn gold">Start exploring &rarr;</button>
+              <p class="acct-muted">A few good places to start.</p>
+              <ul class="acct-whatsnew">
+                <li><a href={url('/about')}>About us &rarr;</a></li>
+                <li><a href={url('/about-our-reviews')}>Our reviews &rarr;</a></li>
+                <li><a href={url('/newsletters')}>The newsletter &rarr;</a></li>
+              </ul>
             </div>
           </div>
         </div>
