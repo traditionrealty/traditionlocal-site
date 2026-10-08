@@ -19,14 +19,13 @@ const next = events.find((e) => e.date && e.date >= today);
 const path = Astro.url.pathname.replace(import.meta.env.BASE_URL.replace(/\/$/, ''), '') || '/';
 const nav = [
   {
-    label: 'Food', href: '/food', match: ['/food', '/eat'],
+    id: 'food', label: 'Food', href: '/food', match: ['/food', '/eat'],
     sub: [
-      { label: 'All Places', href: '/food' },
       { label: 'Trending', href: '/food#trending' },
     ],
   },
   {
-    label: 'Neighborhoods', href: '/cities', match: ['/cities', '/copy-of-neighborhoods-1', '/traditionneighborhoods', '/subdivisions', '/make-it-home', '/find-your-fit', '/home-and-design'],
+    id: 'hoods', label: 'Neighborhoods', href: '/cities', match: ['/cities', '/copy-of-neighborhoods-1', '/traditionneighborhoods', '/subdivisions', '/make-it-home', '/find-your-fit', '/home-and-design'],
     sub: [
       { label: 'Make It Home', href: '/make-it-home' },
       { label: 'Find Your Fit', href: '/find-your-fit' },
@@ -34,7 +33,7 @@ const nav = [
     ],
   },
   {
-    label: 'Things To Do', href: '/living', match: ['/living', '/event-details', '/events', '/weekend-ideas', '/local-events'],
+    id: 'todo', label: 'Things To Do', href: '/living', match: ['/living', '/event-details', '/events', '/weekend-ideas', '/local-events'],
     sub: [
       { label: 'Weekend Ideas', href: '/weekend-ideas' },
       { label: 'Upcoming Events', href: '/living#featured' },
@@ -50,6 +49,10 @@ const moreNav = [
   { label: 'About Us', href: '/about', match: ['/about'] },
 ];
 const moreActive = moreNav.some((n) => n.match.some((m) => path.startsWith(m)));
+// Which top-level section the bar below the header shows by default (no JS needed): whichever
+// one's page you're actually on. "More" has no page of its own, so it isn't part of this; it's
+// a hover/tap menu (see the script below) that previews on top of whichever section is active.
+const activeNav = nav.find((n) => n.match.some((m) => path.startsWith(m)));
 // Site search (Pagefind). Account, sign in and utility pages stay out of the index; every other page is
 // tagged with a type so results can be filtered.
 const searchable = !/^\/(404|sign-in|join|reset-password|members|search)(\/|$)/.test(path);
@@ -99,32 +102,14 @@ const popularSearches = ['coffee', 'brunch', 'Sugar Land', 'new builds', 'events
         <img src={img(site.logo)} alt="" width="56" height="56" />
         <span>Tradition Local</span>
       </a>
-      <nav aria-label="Main">
-        {nav.map((n) => {
-          const active = n.match.some((m) => path.startsWith(m));
-          return (
-            <div class="nav-more" data-nav-more>
-              <a href={url(n.href)} class="nav-more-link" aria-current={active ? 'page' : undefined}>{n.label}</a>
-              <button type="button" class="nav-chevron-btn" aria-haspopup="true" aria-expanded="false" aria-label={`${n.label} submenu`}>
-                <svg aria-hidden="true" viewBox="0 0 12 8" width="10" height="7"><path d="M1 1l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" /></svg>
-              </button>
-              <div class="nav-more-menu" hidden>
-                {n.sub.map((s) => <a href={url(s.href)}>{s.label}</a>)}
-              </div>
-            </div>
-          );
-        })}
-        <div class="nav-more" data-nav-more>
-          <button type="button" class="nav-more-btn" aria-haspopup="true" aria-expanded="false" aria-current={moreActive ? 'page' : undefined}>
-            More
-            <svg aria-hidden="true" viewBox="0 0 12 8" width="10" height="7"><path d="M1 1l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" /></svg>
-          </button>
-          <div class="nav-more-menu" hidden>
-            {moreNav.map((n) => (
-              <a href={url(n.href)} aria-current={n.match.some((m) => path.startsWith(m)) ? 'page' : undefined}>{n.label}</a>
-            ))}
-          </div>
-        </div>
+      <nav class="top-nav" aria-label="Main">
+        {nav.map((n) => (
+          <a href={url(n.href)} class="top-link" aria-current={activeNav?.id === n.id ? 'page' : undefined}>{n.label}</a>
+        ))}
+        <button type="button" class="top-link top-more-btn" data-nav-more-btn aria-haspopup="true" aria-expanded="false" aria-current={moreActive ? 'page' : undefined}>
+          More
+          <svg class="chev" aria-hidden="true" viewBox="0 0 12 8" width="10" height="7"><path d="M1 1l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" /></svg>
+        </button>
       </nav>
       <div class="site-search" data-site-search data-base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
         <button type="button" class="search-btn" aria-label="Search" aria-expanded="false" aria-controls="search-panel">
@@ -143,17 +128,66 @@ const popularSearches = ['coffee', 'brunch', 'Sugar Land', 'new builds', 'events
       </div>
       {membersOn && <AccountMenu />}
     </div>
+    <div class={`subheader${activeNav || moreActive ? ' open' : ''}`} id="subheader" data-default={activeNav ? activeNav.id : ''}>
+      <div class="wrap">
+        {nav.map((n) => (
+          <ul class="sub-list" id={`sub-${n.id}`} hidden={activeNav?.id !== n.id}>
+            {n.sub.map((s) => <li><a href={url(s.href)}>{s.label}</a></li>)}
+          </ul>
+        ))}
+        <ul class="sub-list" id="sub-more" hidden={!moreActive}>
+          {moreNav.map((m) => (
+            <li><a href={url(m.href)} aria-current={m.match.some((mm) => path.startsWith(mm)) ? 'page' : undefined}>{m.label}</a></li>
+          ))}
+        </ul>
+      </div>
+    </div>
   </header>
   <script>
-    // Dropdowns in the main nav. Each opens on hover via CSS; this wires up click and keyboard
-    // access too, for touch devices and anyone not using a mouse.
-    document.querySelectorAll<HTMLElement>('[data-nav-more]').forEach((root) => {
-      const btn = root.querySelector<HTMLButtonElement>('.nav-more-btn, .nav-chevron-btn')!;
-      const menu = root.querySelector<HTMLElement>('.nav-more-menu')!;
-      const setOpen = (open: boolean) => { menu.hidden = !open; btn.setAttribute('aria-expanded', String(open)); };
-      btn.addEventListener('click', (e) => { e.stopPropagation(); setOpen(menu.hidden); });
-      document.addEventListener('click', (e) => { if (!root.contains(e.target as Node)) setOpen(false); });
-      document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !menu.hidden) { setOpen(false); btn.focus(); } });
+    // Food / Neighborhoods / Things To Do are plain links now; the bar below the header shows
+    // the right one automatically because the server already knows which page you're on (see
+    // activeNav above), no JS needed for those three. "More" has no page of its own, so it stays
+    // a menu: hover opens it on desktop, tap toggles it on mobile, and closing it falls back to
+    // whichever section's bar was showing before, instead of closing to nothing.
+    const canHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    const topNav = document.querySelector<HTMLElement>('.top-nav')!;
+    const subheader = document.getElementById('subheader')!;
+    const moreBtn = document.querySelector<HTMLButtonElement>('[data-nav-more-btn]')!;
+    const lists = [...document.querySelectorAll<HTMLElement>('.sub-list')];
+    const defaultId = subheader.dataset.default ? `sub-${subheader.dataset.default}` : '';
+    let moreOpen = false;
+
+    function render() {
+      const showId = moreOpen ? 'sub-more' : defaultId;
+      lists.forEach((l) => { l.hidden = l.id !== showId; });
+      moreBtn.setAttribute('aria-expanded', String(moreOpen));
+      subheader.classList.toggle('open', Boolean(showId));
+    }
+
+    if (canHover) {
+      moreBtn.addEventListener('mouseenter', () => { moreOpen = true; render(); });
+      moreBtn.addEventListener('focus', () => { moreOpen = true; render(); });
+      let closeTimer: number;
+      [topNav, subheader].forEach((el) => {
+        el.addEventListener('mouseenter', () => clearTimeout(closeTimer));
+        el.addEventListener('mouseleave', () => {
+          closeTimer = window.setTimeout(() => { moreOpen = false; render(); }, 120);
+        });
+      });
+    } else {
+      moreBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        moreOpen = !moreOpen;
+        render();
+      });
+      document.addEventListener('click', (e) => {
+        if (moreOpen && !subheader.contains(e.target as Node) && !topNav.contains(e.target as Node)) {
+          moreOpen = false; render();
+        }
+      });
+    }
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && moreOpen) { moreOpen = false; render(); moreBtn.focus(); }
     });
   </script>
   <script is:inline>
@@ -327,20 +361,37 @@ const popularSearches = ['coffee', 'brunch', 'Sugar Land', 'new builds', 'events
   .header-inner { display: flex; align-items: center; justify-content: space-between; min-height: 104px; gap: 16px; flex-wrap: wrap; }
   .brand { display: flex; align-items: center; gap: 22px; text-decoration: none; }
   .brand span { font-family: var(--serif); font-size: clamp(1.4rem, 2.6vw, 2rem); color: var(--blue); letter-spacing: .06em; text-transform: uppercase; }
-  .site-header nav { display: flex; gap: 22px; flex-wrap: wrap; align-items: center; }
-  .site-header nav a { text-decoration: none; font-weight: 600; font-size: 16px; padding: 6px 0; border-bottom: 2px solid transparent; }
-  .site-header nav a:hover, .site-header nav a[aria-current] { border-color: var(--gold); }
-  .nav-more { position: relative; display: flex; align-items: center; gap: 2px; }
-  .nav-more-link { display: inline-flex; align-items: center; color: var(--blue); font-family: var(--sans); font-weight: 600; font-size: 16px; padding: 6px 0; border-bottom: 2px solid transparent; text-decoration: none; }
-  .nav-more-link:hover, .nav-more-link[aria-current] { border-color: var(--gold); }
-  .nav-chevron-btn { display: flex; align-items: center; background: none; border: none; cursor: pointer; color: var(--blue); padding: 6px 2px; }
-  .nav-more-btn { display: flex; align-items: center; gap: 6px; background: none; border: none; cursor: pointer; color: var(--blue); font-family: var(--sans); font-weight: 600; font-size: 16px; padding: 6px 0; border-bottom: 2px solid transparent; }
-  .nav-more-btn:hover, .nav-more-btn[aria-current], .nav-more-btn[aria-expanded="true"] { border-color: var(--gold); }
-  .nav-more-menu { position: absolute; top: calc(100% + 10px); left: 0; min-width: 180px; background: #fff; border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 12px 32px rgba(32, 69, 94, .16); padding: 8px; z-index: 20; }
-  .nav-more-menu a { display: block; padding: 9px 10px; border-radius: 6px; font-weight: 600; font-size: 15px; text-decoration: none; color: var(--blue); border-bottom: none; }
-  .nav-more-menu a:hover, .nav-more-menu a[aria-current] { background: var(--cream); }
-  .nav-more-menu[hidden] { display: none; }
-  .nav-more:hover .nav-more-menu[hidden] { display: block; }
+  /* Top-level nav: each item (including More) is one single element, so there's no
+     separate tiny chevron button to tap on mobile -- the whole item is the tap target. */
+  .top-nav { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
+  .top-link {
+    display: inline-flex; align-items: center; gap: 6px; text-decoration: none;
+    background: none; border: none; cursor: pointer;
+    color: var(--blue); font-family: var(--sans); font-weight: 600; font-size: 16px;
+    padding: 10px 12px; min-height: 44px; border-radius: 8px;
+  }
+  .top-link:hover { background: var(--cream); }
+  .top-link[aria-current], .top-link[aria-expanded="true"] { background: var(--cream); }
+  .top-link .chev { color: var(--muted); transition: transform .2s ease; }
+  .top-link[aria-expanded="true"] .chev { transform: rotate(180deg); }
+
+  /* The bar that drops down below the header. Food/Neighborhoods/Things To Do show their own
+     sub-list automatically when you're on that page (see activeNav in the frontmatter); More
+     is a hover (desktop) / tap (mobile) menu that previews on top of it -- see the script above. */
+  .subheader { max-height: 0; overflow: hidden; background: var(--cream); border-bottom: 1px solid transparent; transition: max-height .25s ease, border-color .2s ease; }
+  .subheader.open { max-height: 220px; border-color: var(--line); }
+  .subheader .wrap { padding-top: 0; padding-bottom: 0; }
+  .sub-list { display: flex; flex-wrap: wrap; gap: 6px; padding: 14px 0; margin: 0; list-style: none; }
+  .sub-list[hidden] { display: none; }
+  .sub-list a {
+    display: flex; align-items: center; min-height: 44px;
+    padding: 0 16px; border-radius: 8px; background: transparent;
+    font-weight: 600; font-size: 15px; color: var(--blue); text-decoration: none;
+  }
+  /* The bar itself is --cream, so the link hover needs a different color to actually show up. */
+  .sub-list a:hover { background: #fff; }
+  .sub-list a:active { background: var(--gold-soft); }
+  .sub-list a[aria-current] { color: var(--navy); font-weight: 700; }
 
   .band { background: var(--blue-deep); color: #fff; padding: 72px 0 64px; }
   .band h1, .band h2 { color: #fff; }
