@@ -7,12 +7,11 @@
 // the top, then account/security/privacy below), per Dillon's request.
 import { config } from '../config';
 import { url } from '../lib/util';
-interface Props { active: 'account' | 'community' | 'journey' }
+interface Props { active: 'account' | 'journey' }
 const { active } = Astro.props;
 const ready = Boolean(config.supabaseUrl && config.supabaseAnonKey);
 const items = [
   { key: 'account', label: 'My Account', href: '/members/account', icon: 'user' },
-  { key: 'community', label: 'Community', href: '/members/community', icon: 'grid' },
   { key: 'journey', label: 'Real Estate Journey', href: '/members/journey', icon: 'home' },
 ];
 ---
