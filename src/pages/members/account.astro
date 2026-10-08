@@ -77,9 +77,10 @@ import { url } from '../../lib/util';
         <div class="acct-grid3">
           <div class="acct-card">
             <h2>My events</h2>
-            <p class="acct-muted">Events you're going to.</p>
+            <p class="acct-muted">Events you're going to or interested in.</p>
             <ul class="acct-events">
               <li><span class="acct-status going">Going</span><div><strong>Coffee &amp; Conversations</strong><span class="acct-muted-sm">Sun, Oct 18</span></div></li>
+              <li><span class="acct-status interested">Interested</span><div><strong>Fall Festival</strong><span class="acct-muted-sm">Sat, Oct 25</span></div></li>
             </ul>
           </div>
           <div class="acct-card">
@@ -91,11 +92,13 @@ import { url } from '../../lib/util';
             </ul>
           </div>
           <div class="acct-card">
-            <h2>Interested</h2>
-            <p class="acct-muted">Events you've marked as maybe.</p>
-            <ul class="acct-events">
-              <li><span class="acct-status interested">Interested</span><div><strong>Fall Festival</strong><span class="acct-muted-sm">Sat, Oct 25</span></div></li>
-            </ul>
+            <h2>Share</h2>
+            <p class="acct-muted">Tell a friend about Tradition Local.</p>
+            <div class="acct-share-btns">
+              <button type="button" class="acct-btn">📱 Text a friend</button>
+              <button type="button" class="acct-btn">✉️ Email a friend</button>
+              <button type="button" class="acct-btn">Share on social</button>
+            </div>
           </div>
         </div>
       </div>
@@ -196,6 +199,8 @@ import { url } from '../../lib/util';
   .acct-grid2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-bottom: 24px; }
   @media (max-width: 760px) { .acct-grid2 { grid-template-columns: 1fr; } }
   .acct-grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .acct-share-btns { display: flex; flex-direction: column; gap: 10px; }
+  .acct-share-btns .acct-btn { text-align: left; }
   @media (max-width: 900px) { .acct-grid3 { grid-template-columns: 1fr 1fr; } }
   @media (max-width: 600px) { .acct-grid3 { grid-template-columns: 1fr; } }
   .acct-full { margin-bottom: 24px; }
