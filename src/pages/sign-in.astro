@@ -5,7 +5,7 @@ import { url } from '../lib/util';
 ---
 <Base title="Sign in" description="Sign in to your Tradition Local member account.">
   <MemberForm title="Welcome back" intro="Sign in to your Tradition Local member account.">
-    <div data-redirect-if-member={url('/members')}></div>
+    <div data-redirect-if-member={url('/members/account')}></div>
     <form class="mform" id="signin-form" novalidate>
       <p class="msg" data-msg role="alert" tabindex="-1" hidden></p>
       <label>Email
@@ -33,7 +33,7 @@ import { url } from '../lib/util';
         supabase().auth.signInWithPassword({ email: field(form, 'email'), password: field(form, 'password') }));
       if (error) return say(form, friendly(error.message));
       const back = new URLSearchParams(window.location.search).get('next');
-      window.location.href = back && back.startsWith('/') ? siteUrl(back) : siteUrl('/members');
+      window.location.href = back && back.startsWith('/') ? siteUrl(back) : siteUrl('/members/account');
     });
   }
 </script>
