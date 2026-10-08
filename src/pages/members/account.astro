@@ -1,7 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 ---
-<Base title="My Account" description="Account, profile, and settings concept for Tradition Local members.">
+<Base title="My Account" description="Account and settings concept for Locally members.">
   <div class="acct-page">
     <div class="wrap">
       <div class="acct-top">
@@ -14,15 +14,18 @@ import Base from '../../layouts/Base.astro';
 
       <div class="acct-tabs" role="tablist">
         <button type="button" class="acct-tab" data-tab="account" aria-selected="true">My Account</button>
-        <button type="button" class="acct-tab" data-tab="profile" aria-selected="false">My Profile</button>
         <button type="button" class="acct-tab" data-tab="settings" aria-selected="false">Settings</button>
       </div>
 
       <div class="acct-panel" data-panel="account">
         <div class="acct-grid">
           <div class="acct-card">
+            <div class="acct-profile-head">
+              <span class="acct-avatar">AL</span>
+              <button type="button" class="acct-btn sm">📷 Change</button>
+            </div>
             <h2>Welcome, Alex.</h2>
-            <p class="acct-muted">You're part of Tradition Local. Start exploring whenever you're ready.</p>
+            <p class="acct-muted">You're a Locally member. Start exploring whenever you're ready.</p>
             <div class="acct-row">
               <div><span class="acct-label">Name</span><p class="acct-val">Alex Local</p></div>
               <button type="button" class="acct-btn">Edit</button>
@@ -36,29 +39,21 @@ import Base from '../../layouts/Base.astro';
               <button type="button" class="acct-btn">Preferences</button>
             </div>
           </div>
-          <div class="acct-card">
-            <h2>Make yourself at home.</h2>
-            <p class="acct-muted">Explore food, neighborhoods, and things to do around Houston.</p>
-            <button type="button" class="acct-btn gold">Start exploring &rarr;</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="acct-panel" data-panel="profile" hidden>
-        <div class="acct-card">
-          <div class="acct-profile-head">
-            <span class="acct-avatar">AL</span>
-            <div>
-              <h2>Alex Local</h2>
-              <p class="acct-muted">Your profile details</p>
-              <button type="button" class="acct-btn">📷 Change photo</button>
+          <div class="acct-side">
+            <div class="acct-card">
+              <h2>Make yourself at home.</h2>
+              <p class="acct-muted">Explore food, neighborhoods, and things to do around Houston.</p>
+              <button type="button" class="acct-btn gold">Start exploring &rarr;</button>
+            </div>
+            <div class="acct-card">
+              <h2>What's new</h2>
+              <ul class="acct-whatsnew">
+                <li><a href="#">Visit the Community feed &rarr;</a></li>
+                <li><a href="#">Upcoming events and meetups &rarr;</a></li>
+                <li><a href="#">The latest food finds and guides &rarr;</a></li>
+              </ul>
             </div>
           </div>
-          <label class="acct-field">
-            <span class="acct-label">Display name</span>
-            <input type="text" value="Alex Local" />
-          </label>
-          <button type="button" class="acct-btn gold">Save profile</button>
         </div>
       </div>
 
@@ -74,11 +69,18 @@ import Base from '../../layouts/Base.astro';
             <summary>Change password</summary>
           </details>
         </details>
-        <details class="acct-card acct-accordion">
+        <details class="acct-card acct-accordion" open>
           <summary>Newsletters &amp; notifications</summary>
+          <label class="acct-check">
+            <input type="checkbox" checked />
+            <span>In the Loop weekly newsletter</span>
+          </label>
+          <button type="button" class="acct-btn gold">Save preferences</button>
         </details>
         <details class="acct-card acct-accordion">
           <summary>Account help</summary>
+          <p class="acct-muted">Questions about your account? Access support or manage your account data.</p>
+          <button type="button" class="acct-btn">Get help</button>
         </details>
       </div>
 
@@ -94,7 +96,6 @@ import Base from '../../layouts/Base.astro';
   const sub = document.getElementById('acct-sub')!;
   const copy: Record<string, [string, string]> = {
     account: ['My Account', 'Your account essentials, in one place.'],
-    profile: ['My Profile', 'Your personal details. Private to you.'],
     settings: ['Settings', 'Manage your account and preferences.'],
   };
   tabs.forEach((tab) => {
@@ -118,8 +119,9 @@ import Base from '../../layouts/Base.astro';
   .acct-tabs { display: flex; gap: 10px; margin: 28px 0 24px; flex-wrap: wrap; }
   .acct-tab { background: rgba(232,237,228,.08); border: 1px solid rgba(232,237,228,.18); color: #e8ede4; border-radius: 10px; padding: 12px 20px; font-size: 15px; font-weight: 600; cursor: pointer; }
   .acct-tab[aria-selected="true"] { background: #cdd6a0; border-color: #cdd6a0; color: #1b2a1e; }
-  .acct-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 20px; }
+  .acct-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 20px; align-items: start; }
   @media (max-width: 760px) { .acct-grid { grid-template-columns: 1fr; } }
+  .acct-side { display: flex; flex-direction: column; gap: 20px; }
   .acct-card { background: rgba(232,237,228,.05); border: 1px solid rgba(232,237,228,.14); border-radius: 14px; padding: 28px; margin-bottom: 16px; }
   .acct-card h2 { font-family: var(--serif); font-size: 1.5rem; color: #fff; margin: 0 0 10px; }
   .acct-muted { color: rgba(232,237,228,.7); margin: 0 0 18px; }
@@ -130,15 +132,22 @@ import Base from '../../layouts/Base.astro';
   .acct-val { margin: 0; font-size: 16px; }
   .acct-btn { background: transparent; border: 1px solid rgba(232,237,228,.3); color: #e8ede4; border-radius: 8px; padding: 9px 18px; font-weight: 600; cursor: pointer; white-space: nowrap; }
   .acct-btn.gold { background: #cdd6a0; border-color: #cdd6a0; color: #1b2a1e; }
-  .acct-profile-head { display: flex; align-items: center; gap: 20px; margin-bottom: 24px; }
-  .acct-avatar { width: 70px; height: 70px; border-radius: 50%; background: rgba(232,237,228,.1); display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-size: 1.6rem; flex-shrink: 0; }
+  .acct-btn.sm { padding: 6px 14px; font-size: 13px; }
+  .acct-profile-head { display: flex; align-items: center; gap: 16px; margin-bottom: 18px; }
+  .acct-avatar { width: 64px; height: 64px; border-radius: 50%; background: rgba(232,237,228,.1); display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-size: 1.4rem; flex-shrink: 0; }
   .acct-field { display: block; margin: 18px 0; }
   .acct-field input { width: 100%; margin-top: 8px; padding: 12px 16px; border-radius: 8px; border: 1px solid rgba(232,237,228,.25); background: rgba(232,237,228,.06); color: #e8ede4; font-size: 15px; }
+  .acct-check { display: flex; align-items: center; gap: 10px; margin: 16px 0 22px; cursor: pointer; }
+  .acct-check input { width: 18px; height: 18px; }
+  .acct-whatsnew { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+  .acct-whatsnew a { color: #cdd6a0; text-decoration: none; font-weight: 600; }
+  .acct-whatsnew a:hover { text-decoration: underline; }
   .acct-accordion { padding: 22px 28px; }
   .acct-accordion summary { font-family: var(--serif); font-size: 1.2rem; color: #fff; cursor: pointer; list-style: none; }
   .acct-accordion summary::-webkit-details-marker { display: none; }
   .acct-accordion summary::before { content: '▸ '; }
   .acct-accordion[open] summary::before { content: '▾ '; }
+  .acct-accordion[open] summary { margin-bottom: 18px; display: block; }
   .acct-sub-accordion { margin-top: 18px; border: 1px solid rgba(232,237,228,.18); border-radius: 10px; padding: 16px 20px; }
   .acct-sub-accordion summary { font-size: 15px; cursor: pointer; list-style: none; }
   .acct-sub-accordion summary::-webkit-details-marker { display: none; }
