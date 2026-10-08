@@ -6,7 +6,7 @@ import { url } from '../lib/util';
 ---
 <Base title="Join Tradition Local" description="Become a Tradition Local member for local food finds, neighborhood guides, events, and member perks across Greater Houston.">
   <MemberForm title="Join Tradition Local" intro="Create your free member account for local finds, events, and member perks across Greater Houston.">
-    <div data-redirect-if-member={url('/members')}></div>
+    <div data-redirect-if-member={url('/members/account')}></div>
     <form class="mform" id="join-form" novalidate>
       <p class="msg" data-msg role="alert" tabindex="-1" hidden></p>
       <div class="row">
@@ -58,7 +58,7 @@ import { url } from '../lib/util';
           email,
           password: field(form, 'password'),
           options: {
-            emailRedirectTo: siteUrl('/members'),
+            emailRedirectTo: siteUrl('/members/account'),
             data: {
               first_name: field(form, 'first-name'),
               last_name: field(form, 'last-name'),
@@ -70,7 +70,7 @@ import { url } from '../lib/util';
       if (error) return say(form, friendly(error.message));
       // Supabase returns a user with no identities when the email is already registered.
       if (data.user && data.user.identities?.length === 0) return say(form, friendly('already registered'));
-      if (data.session) { window.location.href = siteUrl('/members'); return; }
+      if (data.session) { window.location.href = siteUrl('/members/account'); return; }
       const done = document.getElementById('join-done')!;
       done.querySelector('[data-sent-to]')!.textContent = email;
       form.hidden = true; done.hidden = false;
