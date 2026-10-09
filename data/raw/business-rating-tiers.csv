@@ -1,0 +1,336 @@
+slug,business_id,rating_tier,rating_tier_source,sara_review_ids,sara_review_count,primary_review_id
+24-hour-fitness-sugar-land,biz-001,Try at Least Once,linked review,rev-0336,1,rev-0336
+59-diner,biz-002,Would Go Again,linked review,rev-0208,1,rev-0208
+a-sweet-factory,biz-003,Highly Recommend,linked review,rev-0198,1,rev-0198
+abdallahs-bakery,biz-004,,,,0,
+acacia-food-mart,biz-005,Local Favorite,linked review,rev-0070,1,rev-0070
+afandim-restaurant,biz-006,Would Go Again,linked review,rev-0145,1,rev-0145
+agha-juice-and-cafe,biz-007,Would Go Again,linked review,rev-0187,1,rev-0187
+agora,biz-008,Would Go Again,linked review,rev-0278,1,rev-0278
+aki-steak-and-sushi,biz-009,Would Go Again,linked review,rev-0130,1,rev-0130
+al-rabba-world-food,biz-010,Local Favorite,linked review,rev-0007,1,rev-0007
+aldi,biz-011,Would Go Again,linked review,rev-0144,1,rev-0144
+all-about-cakes,biz-012,Local Favorite,linked review,rev-0220,1,rev-0220
+alpha-dessert-juice-cafe,biz-013,Worth a Visit,linked review,rev-0168,1,rev-0168
+amorino-gelato,biz-014,Would Go Again,"stars only, no review on file",,0,
+amy-hieu-hair-salon,biz-015,Local Favorite,linked review,rev-0001,1,rev-0001
+amys-ice-creams,biz-016,Try at Least Once,"stars only, no review on file",,0,
+anatolia-intl-foods,biz-017,Would Go Again,linked review,rev-0298,1,rev-0298
+anonymous-caf,biz-018,Would Go Again,linked review,rev-0131,1,rev-0131
+arnaldo-richards-picos,biz-019,Try at Least Once,linked review,rev-0093,1,rev-0093
+ashars-kitchen,biz-020,Worth a Visit,"stars only, no review on file",,0,
+asia-blue,biz-021,Worth a Visit,"stars only, no review on file",,0,
+asia-market-thai-lao-food,biz-022,Would Go Again,linked review,rev-0333,1,rev-0333
+baklava-cafe,biz-023,Would Go Again,linked review,rev-0219,1,rev-0219
+bambu,biz-024,Worth a Visit,linked review,rev-0133,1,rev-0133
+bayou-city-seafood-and-pasta,biz-025,Worth a Visit,linked review,rev-0100,1,rev-0100
+beans-cafe-coffeehouse,biz-026,Worth a Visit,linked review,rev-0338,1,rev-0338
+bella-coffee-and-gelato,biz-027,Would Go Again,linked review,rev-0213,1,rev-0213
+bellagreen,biz-028,Would Go Again,linked review,rev-0258,1,rev-0258
+berings,biz-029,Highly Recommend,linked review,rev-0096,1,rev-0096
+berriblends,biz-030,Would Go Again,linked review,rev-0194,1,rev-0194
+berripop-frozen-yogurt-meyerland,biz-031,Worth a Visit,linked review,rev-0132,1,rev-0132
+berripop-frozen-yogurt-west-university,biz-032,Would Go Again,linked review,rev-0269,1,rev-0269
+berripop-frozen-yogurt-sugar-land,biz-033,Highly Recommend,linked review,rev-0191,1,rev-0191
+berryhill-baja-grill,biz-034,Would Go Again,linked review,rev-0185,1,rev-0185
+best-donuts,biz-035,Would Go Again,linked review,rev-0281,1,rev-0281
+bevers-kitchen-and-gifts,biz-036,Would Go Again,linked review,rev-0047,1,rev-0047
+big-guys-chicken-and-rice,biz-037,Would Go Again,"stars only, no review on file",,0,
+bijan-persian-grill-sharpstown,biz-038,Highly Recommend,linked review,rev-0181,1,rev-0181
+bijan-persian-grill-sugar-land,biz-039,Try at Least Once,linked review,rev-0254,1,rev-0254
+bismillah-restaurant-and-caf,biz-040,Would Go Again,"stars only, no review on file",,0,
+bjs-restaurant-and-brewhouse,biz-041,Worth a Visit,linked review,rev-0205,1,rev-0205
+black-bear-diner,biz-042,Would Go Again,linked review,rev-0088,1,rev-0088
+black-hole-coffee-house,biz-043,Would Go Again,linked review,rev-0116,1,rev-0116
+black-walnut-caf,biz-044,Try at Least Once,linked review,rev-0162,1,rev-0162
+blacksmith,biz-045,Would Go Again,linked review,rev-0236,1,rev-0236
+blenders,biz-046,Worth a Visit,linked review,rev-0228,1,rev-0228
+blendin-coffee-club,biz-047,Local Favorite,linked review,rev-0117,1,rev-0117
+blue-fish-house-ii,biz-048,Would Go Again,linked review,rev-0210,1,rev-0210
+blue-willow-bookshop,biz-049,Try at Least Once,linked review,rev-0018,1,rev-0018
+bombay-pizza-express,biz-050,Highly Recommend,linked review,rev-0214,1,rev-0214
+bombay-to-beijing,biz-051,Would Go Again,linked review,rev-0204,1,rev-0204
+bonchon,biz-052,Worth a Visit,linked review,rev-0101,1,rev-0101
+boomtown-coffee,biz-053,Would Go Again,linked review,rev-0265,1,rev-0265
+bouch-e-patisserie,biz-054,Highly Recommend,"stars only, no review on file",,0,
+brasil,biz-055,Worth a Visit,"stars only, no review on file",,0,
+british-isles,biz-056,Would Go Again,linked review,rev-0299,1,rev-0299
+buc-ees,biz-057,Local Favorite,linked review,rev-0023,1,rev-0023
+cafe-101,biz-058,Would Go Again,linked review,rev-0176,1,rev-0176
+cafe-dolce-gelato,biz-059,Worth a Visit,linked review,rev-0109,1,rev-0109
+cafe-marrese,biz-060,Try at Least Once,linked review,rev-0086,1,rev-0086
+caff-bene,biz-061,Would Go Again,linked review,rev-0169,1,rev-0169
+caf-bustelo,biz-062,Would Go Again,"stars only, no review on file",,0,
+campesino-coffee-house,biz-063,Would Go Again,linked review,rev-0147,1,rev-0147
+carmelos-mexican-grill,biz-064,Would Go Again,linked review,rev-0202,1,rev-0202
+carters,biz-065,Highly Recommend,linked review,rev-0080,1,rev-0080
+casian-king-food-truck,biz-066,Worth a Visit,linked review,rev-0311,1,rev-0311
+celebrity-cupcakes,biz-067,Try at Least Once,linked review,rev-0226,1,rev-0226
+chai-shai,biz-068,Worth a Visit,linked review,rev-0304,1,rev-0304
+changs-chinese-restaurant,biz-069,Would Go Again,linked review,rev-0128,1,rev-0128
+cherrywood-coffeehouse,biz-070,Would Go Again,linked review,rev-0141,1,rev-0141
+chez-beignets-quan-ong-tre,biz-071,Worth a Visit,linked review,rev-0325,1,rev-0325
+chicken-station,biz-072,Would Go Again,"stars only, no review on file",,0,
+chipotle-mexican-grill,biz-073,Would Go Again,linked review,rev-0190,1,rev-0190
+cillies-cakes,biz-074,Worth a Visit,linked review,rev-0306,1,rev-0306
+cinnamons-bakery,biz-075,Worth a Visit,linked review,rev-0339,1,rev-0339
+cliffs-hamburger-grill,biz-076,Would Go Again,linked review,rev-0113,1,rev-0113
+cloud-10-creamery,biz-077,Would Go Again,linked review,rev-0268,1,rev-0268
+coco-crepes-waffles-and-coffee,biz-078,Would Go Again,linked review,rev-0323|rev-0324,2,rev-0323
+cocos-cafe,biz-079,Worth a Visit,linked review,rev-0332,1,rev-0332
+coffee-mill,biz-080,Would Go Again,linked review,rev-0064,1,rev-0064
+common-bond-bistro-and-bakery,biz-081,Local Favorite,linked review,rev-0067,1,rev-0067
+cornelius-nursery,biz-082,Local Favorite,linked review,rev-0048,1,rev-0048
+corner-bakery-cafe,biz-083,Worth a Visit,linked review,rev-0223,1,rev-0223
+cravers-corner,biz-084,Worth a Visit,linked review,rev-0252,1,rev-0252
+crescent-city-beignets-houston,biz-085,Worth a Visit,linked review,rev-0342,1,rev-0342
+crescent-city-beignets-upper-kirby,biz-086,Would Go Again,linked review,rev-0189,1,rev-0189
+croissant-brioche,biz-087,Would Go Again,linked review,rev-0240,1,rev-0240
+cupcake-cafe,biz-088,,,,0,
+daiso-westchase,biz-089,Would Go Again,"stars only, no review on file",,0,
+daiso-sugar-land,biz-090,Local Favorite,linked review,rev-0016,1,rev-0016
+dandanah-cafe-and-grill,biz-091,Worth a Visit,linked review,rev-0270,1,rev-0270
+dandelion-cafe,biz-092,Worth a Visit,linked review,rev-0114,1,rev-0114
+darband-shishkabob,biz-093,Try at Least Once,linked review,rev-0310,1,rev-0310
+diegos-cantina,biz-094,Worth a Visit,linked review,rev-0212,1,rev-0212
+ding-tea,biz-095,Would Go Again,"stars only, no review on file",,0,
+dish-society,biz-096,Worth a Visit,linked review,rev-0321,1,rev-0321
+dolce-and-cafe,biz-097,Try at Least Once,linked review,rev-0038,1,rev-0038
+don-cafe,biz-098,Would Go Again,linked review,rev-0246,1,rev-0246
+double-trouble-caffeine-and-cocktails,biz-099,Worth a Visit,linked review,rev-0262,1,rev-0262
+droubis-bakery-and-deli,biz-100,Would Go Again,linked review,rev-0195,1,rev-0195
+droubis-international-imports-and-cafe,biz-101,Worth a Visit,linked review,rev-0180,1,rev-0180
+dulce-tapioca,biz-102,Would Go Again,linked review,rev-0175,1,rev-0175
+dumplings-and-noodles-by-cooking-girl,biz-103,Worth a Visit,linked review,rev-0069,1,rev-0069
+dunkin-river-oaks,biz-104,Worth a Visit,linked review,rev-0337,1,rev-0337
+dunkin-houston,biz-105,Local Favorite,linked review,rev-0029,1,rev-0029
+damicos-italian-market-cafe,biz-106,Would Go Again,linked review,rev-0251,1,rev-0251
+elevation-burger,biz-107,Worth a Visit,linked review,rev-0273,1,rev-0273
+empire-cafe,biz-108,Would Go Again,linked review,rev-0239,1,rev-0239
+epicure-caf,biz-109,Would Go Again,linked review,rev-0309,1,rev-0309
+fadis-mediterranean-grill,biz-110,Highly Recommend,linked review,rev-0229,1,rev-0229
+fanoosh-burgers-and-biryani,biz-111,Try at Least Once,linked review,rev-0103,1,rev-0103
+fellini-caff,biz-112,Would Go Again,linked review,rev-0266,1,rev-0266
+fish-city-grill,biz-113,Worth a Visit,linked review,rev-0275,1,rev-0275
+fix-coffeebar,biz-114,Would Go Again,"stars only, no review on file",,0,
+flower-child,biz-115,Try at Least Once,linked review,rev-0045,1,rev-0045
+foam-coffee-house,biz-116,Worth a Visit,"stars only, no review on file",,0,
+freebirds-world-burrito,biz-117,Would Go Again,linked review,rev-0257,1,rev-0257
+french-riviera-bakery-cafe,biz-118,Would Go Again,linked review,rev-0241,1,rev-0241
+fresh-boba,biz-119,Worth a Visit,linked review,rev-0327,1,rev-0327
+fresh-dental-care,biz-120,Would Go Again,linked review,rev-0302,1,rev-0302
+fresh-off-the-bowl,biz-121,Try at Least Once,linked review,rev-0123,1,rev-0123
+fruit-frenzy,biz-122,Would Go Again,linked review,rev-0234,1,rev-0234
+fruity-yogurt,biz-123,Worth a Visit,linked review,rev-0171,1,rev-0171
+gelato-cup,biz-124,Worth a Visit,"stars only, no review on file",,0,
+george-bush-intercontinental-airport-iah,biz-125,Try at Least Once,linked review,rev-0288,1,rev-0288
+gigis-cupcakes-of-sugarland,biz-126,Worth a Visit,linked review,rev-0184,1,rev-0184
+golden-dumpling-house,biz-127,Local Favorite,linked review,rev-0005,1,rev-0005
+golems-gate,biz-128,Highly Recommend,linked review,rev-0074,1,rev-0074
+got-banh-mi-and-pho,biz-129,Would Go Again,linked review,rev-0341,1,rev-0341
+grady-park,biz-130,Would Go Again,linked review,rev-0094,1,rev-0094
+guru-burgers-and-bowls,biz-131,Would Go Again,linked review,rev-0261,1,rev-0261
+gyro-king,biz-132,Would Go Again,linked review,rev-0331,1,rev-0331
+gyro-republic,biz-133,Worth a Visit,"stars only, no review on file",,0,
+h-e-b,biz-134,Highly Recommend,linked review,rev-0231,1,rev-0231
+harvest-express,biz-135,Would Go Again,linked review,rev-0295,1,rev-0295
+harvest-organic-grille,biz-136,Would Go Again,linked review,rev-0250,1,rev-0250
+haute-pets-mobile-grooming-salon,biz-137,Would Go Again,linked review,rev-0136,1,rev-0136
+hippo-ice,biz-138,Would Go Again,linked review,rev-0293,1,rev-0293
+honey-bee-teahouse-and-fast-food,biz-139,Worth a Visit,linked review,rev-0238,1,rev-0238
+house-of-bowls,biz-140,Would Go Again,linked review,rev-0164,1,rev-0164
+houston-italian-festival,biz-141,Try at Least Once,"stars only, no review on file",,0,
+houston-livestock-show-and-rodeo,biz-142,Local Favorite,linked review,rev-0107,1,rev-0107
+houston-marriott-sugar-land,biz-143,Would Go Again,linked review,rev-0178,1,rev-0178
+hteao,biz-144,Local Favorite,linked review,rev-0039,1,rev-0039
+ichiban-sushi-and-tapioca,biz-145,Try at Least Once,linked review,rev-0170,1,rev-0170
+imperial-farmers-market,biz-146,Would Go Again,linked review,rev-0314,1,rev-0314
+in-n-out-burger,biz-147,Local Favorite,linked review,rev-0058,1,rev-0058
+inside-scoop-frozen-custard-and-yogurt,biz-148,Would Go Again,linked review,rev-0243,1,rev-0243
+inversion-coffee-house,biz-149,Would Go Again,linked review,rev-0283,1,rev-0283
+jambetos-bakery-and-cafe,biz-150,Try at Least Once,linked review,rev-0248,1,rev-0248
+jang-guem-tofu-and-bbq-katy,biz-151,Try at Least Once,"stars only, no review on file",,0,
+jang-guem-tofu-and-bbq-sugar-land,biz-152,Worth a Visit,linked review,rev-0054,1,rev-0054
+java-pura-coffee-roasters,biz-153,Highly Recommend,"stars only, no review on file",,0,
+jl-foot-spa,biz-154,Would Go Again,linked review,rev-0330,1,rev-0330
+juicy-box,biz-155,Worth a Visit,linked review,rev-0303,1,rev-0303
+jusgo-supermarket,biz-156,Worth a Visit,"stars only, no review on file",,0,
+jus-mac-sugar-land,biz-157,Would Go Again,linked review,rev-0221,1,rev-0221
+kabob-cafe,biz-158,Worth a Visit,linked review,rev-0224,1,rev-0224
+kabob-korner,biz-159,Worth a Visit,linked review,rev-0267,1,rev-0267
+kamalan-bakery,biz-160,Would Go Again,linked review,rev-0334,1,rev-0334
+keepers-japanese-restaurant-and-bar,biz-161,Worth a Visit,linked review,rev-0276,1,rev-0276
+koffeteria,biz-162,Local Favorite,linked review,rev-0034,1,rev-0034
+kolache-shoppe-greenway,biz-163,Would Go Again,linked review,rev-0098,1,rev-0098
+kona-grill,biz-164,Try at Least Once,linked review,rev-0172,1,rev-0172
+koryo-bakery,biz-165,Worth a Visit,linked review,rev-0301,1,rev-0301
+kublai-khan-stir-fry,biz-166,Try at Least Once,linked review,rev-0274,1,rev-0274
+kung-fu-tea,biz-167,Would Go Again,linked review,rev-0159,1,rev-0159
+la-argentina-gelato-and-coffee,biz-168,Worth a Visit,linked review,rev-0066,1,rev-0066
+la-baguette-french-bakery,biz-169,Worth a Visit,linked review,rev-0271,1,rev-0271
+la-crawfish,biz-170,Local Favorite,linked review,rev-0022,1,rev-0022
+la-la-land-kind-caf,biz-171,Would Go Again,"stars only, no review on file",,0,
+la-super-hueva-tacos-y-tortas,biz-172,Worth a Visit,"stars only, no review on file",,0,
+lamppost-coffee,biz-173,Local Favorite,linked review,rev-0013,1,rev-0013
+lava-coffee,biz-174,Highly Recommend,"stars only, no review on file",,0,
+les-givrals-sandwich-and-caf,biz-175,Would Go Again,linked review,rev-0286,1,rev-0286
+ln-beauty-express,biz-176,Worth a Visit,linked review,rev-0318,1,rev-0318
+local-foods,biz-177,Would Go Again,linked review,rev-0340,1,rev-0340
+lopez-mexican-restaurant,biz-178,Worth a Visit,linked review,rev-0280,1,rev-0280
+luce-ave-coffee-roasters,biz-179,Would Go Again,linked review,rev-0110,1,rev-0110
+luna-pizzeria,biz-180,Would Go Again,linked review,rev-0300,1,rev-0300
+loccitane-en-provence,biz-181,Try at Least Once,linked review,rev-0316,1,rev-0316
+mandm-grill,biz-182,Would Go Again,linked review,rev-0247,1,rev-0247
+maggie-moos-ice-cream-and-treatery,biz-183,Would Go Again,linked review,rev-0188,1,rev-0188
+magic-cup,biz-184,Would Go Again,linked review,rev-0155,1,rev-0155
+magnol-french-baking,biz-185,Local Favorite,linked review,rev-0082,1,rev-0082
+mai-colachi,biz-186,Would Go Again,linked review,rev-0319,1,rev-0319
+maiberry,biz-187,Would Go Again,linked review,rev-0186,1,rev-0186
+mama-yu,biz-188,Would Go Again,linked review,rev-0242,1,rev-0242
+marble-slab-creamery,biz-189,Local Favorite,linked review,rev-0025,1,rev-0025
+marcos-pizza,biz-190,Would Go Again,linked review,rev-0263,1,rev-0263
+maria-yari-salon,biz-191,,,,0,
+market-place-antiques-and-collectibles,biz-192,Local Favorite,linked review,rev-0028,1,rev-0028
+masala-munchies,biz-193,Would Go Again,linked review,rev-0282,1,rev-0282
+mazajj-organic-coffee,biz-194,Local Favorite,linked review,rev-0079,1,rev-0079
+mcalisters-deli,biz-195,Worth a Visit,linked review,rev-0216,1,rev-0216
+menchies-frozen-yogurt,biz-196,Try at Least Once,linked review,rev-0215,1,rev-0215
+mercantile,biz-197,Would Go Again,linked review,rev-0313,1,rev-0313
+milk-mustache,biz-198,Would Go Again,linked review,rev-0091,1,rev-0091
+minuti-coffee-galleria-uptown,biz-199,Local Favorite,linked review,rev-0112,1,rev-0112
+minuti-coffee-sugar-land,biz-200,Would Go Again,linked review,rev-0207,1,rev-0207
+mission-burrito,biz-201,Would Go Again,linked review,rev-0192,1,rev-0192
+mochinut-houston-heights,biz-202,Local Favorite,linked review,rev-0077,1,rev-0077
+monster-dessert-bar,biz-203,Worth a Visit,linked review,rev-0260,1,rev-0260
+moxies,biz-204,Try at Least Once,linked review,rev-0125,1,rev-0125
+mr-wish,biz-205,Would Go Again,"stars only, no review on file",,0,
+mtea-and-coffee,biz-206,Would Go Again,"stars only, no review on file",,0,
+naha-thai-restaurant,biz-207,Local Favorite,linked review,rev-0052,1,rev-0052
+nails-by-yen,biz-208,Local Favorite,linked review,rev-0026,1,rev-0026
+naseeb-indian-restaurant,biz-209,Would Go Again,linked review,rev-0272,1,rev-0272
+nazifs,biz-210,Would Go Again,linked review,rev-0245,1,rev-0245
+nikoz-fusion-grill,biz-211,Try at Least Once,linked review,rev-0255,1,rev-0255
+nom-mi-street,biz-212,Would Go Again,linked review,rev-0259,1,rev-0259
+nordstrom-ebar-artisan-coffee,biz-213,Would Go Again,linked review,rev-0320,1,rev-0320
+nordstrom-houston-galleria-e-bar,biz-214,,,,0,
+nothing-bundt-cakes,biz-215,Would Go Again,linked review,rev-0235,1,rev-0235
+old-saigon-cafe,biz-216,Local Favorite,linked review,rev-0129,1,rev-0129
+orange-nail-spa-and-facial,biz-217,Highly Recommend,linked review,rev-0312,1,rev-0312
+paciugo-gelato,biz-218,Would Go Again,linked review,rev-0206,1,rev-0206
+paciugo-gelato-and-caff,biz-219,Worth a Visit,linked review,rev-0335,1,rev-0335
+pangea-bar-and-grill,biz-220,Would Go Again,linked review,rev-0118,1,rev-0118
+paper-co-cafe,biz-221,Would Go Again,linked review,rev-0292,1,rev-0292
+pappa-genos,biz-222,Try at Least Once,"stars only, no review on file",,0,
+path-of-tea,biz-223,Would Go Again,linked review,rev-0157,1,rev-0157
+pho-ben,biz-224,Would Go Again,linked review,rev-0153,1,rev-0153
+pho-saigon,biz-225,Try at Least Once,linked review,rev-0279,1,rev-0279
+phoenicia-specialty-foods,biz-226,Highly Recommend,linked review,rev-0177,1,rev-0177
+piccomolo-italian-ice-cream,biz-227,Would Go Again,linked review,rev-0179,1,rev-0179
+pizza-101,biz-228,Worth a Visit,linked review,rev-0137,1,rev-0137
+pjs-coffee,biz-229,Local Favorite,linked review,rev-0057,1,rev-0057
+proud-pie,biz-230,Would Go Again,linked review,rev-0143,1,rev-0143
+pueblo-viejo,biz-231,Highly Recommend,linked review,rev-0142,1,rev-0142
+purple-vanilla-frozen-yogurt-and-ice-cream,biz-232,Worth a Visit,linked review,rev-0233,1,rev-0233
+pythagoras-conscious-food-philosophy,biz-233,Local Favorite,linked review,rev-0060,1,rev-0060
+ramen-bar-ichi,biz-234,Worth a Visit,"stars only, no review on file",,0,
+randalls,biz-235,Local Favorite,linked review,rev-0010,1,rev-0010
+red-circle-ice-cream,biz-236,Would Go Again,linked review,rev-0105,1,rev-0105
+red-dessert-dive,biz-237,Would Go Again,linked review,rev-0305,1,rev-0305
+red-mango,biz-238,Would Go Again,linked review,rev-0199,1,rev-0199
+refresqueria-at-rice-village,biz-239,Would Go Again,linked review,rev-0090,1,rev-0090
+rice-university-farmers-market,biz-240,Highly Recommend,linked review,rev-0196,1,rev-0196
+richmond-bone-and-joint-clinic,biz-241,Try at Least Once,linked review,rev-0167,1,rev-0167
+richmonds-air,biz-242,Local Favorite,linked review,rev-0115,1,rev-0115
+roast-and-brew,biz-243,Local Favorite,linked review,rev-0020,1,rev-0020
+rocky-creek-dental-care,biz-244,Try at Least Once,linked review,rev-0055,1,rev-0055
+ruchis-indian-cuisine,biz-245,Would Go Again,linked review,rev-0071,1,rev-0071
+ruggles-caf-bakery,biz-246,Would Go Again,linked review,rev-0287,1,rev-0287
+rustika-cafe-and-bakery,biz-247,Worth a Visit,linked review,rev-0163,1,rev-0163
+sabai-thai-cafe,biz-248,Would Go Again,linked review,rev-0211,1,rev-0211
+saffron-persian-cafe,biz-249,,,,0,
+saigon-pho-and-grill,biz-250,Worth a Visit,linked review,rev-0326,1,rev-0326
+seiwa-market,biz-251,Local Favorite,linked review,rev-0011,1,rev-0011
+sephora-at-kohls,biz-252,Highly Recommend,linked review,rev-0087,1,rev-0087
+sharetea-chinatown,biz-253,Would Go Again,linked review,rev-0135,1,rev-0135
+sharetea-sugar-land,biz-254,Would Go Again,linked review,rev-0138,1,rev-0138
+shipley-do-nuts-memorial,biz-255,Try at Least Once,linked review,rev-0002,1,rev-0002
+shipley-do-nuts-sugar-land,biz-256,Would Go Again,linked review,rev-0152,1,rev-0152
+shogi-hibachi-express,biz-257,Highly Recommend,linked review,rev-0209,1,rev-0209
+six-ping,biz-258,Would Go Again,linked review,rev-0217,1,rev-0217
+slim-chickens,biz-259,Worth a Visit,linked review,rev-0061,1,rev-0061
+slowpokes,biz-260,Would Go Again,"stars only, no review on file",,0,
+soju-bar,biz-261,Try at Least Once,linked review,rev-0030,1,rev-0030
+soliz-casa-de-tacos,biz-262,Try at Least Once,linked review,rev-0104,1,rev-0104
+somisomi,biz-263,Would Go Again,linked review,rev-0075,1,rev-0075
+southern-maid-donuts,biz-264,Would Go Again,linked review,rev-0150,1,rev-0150
+southside-espresso,biz-265,Would Go Again,linked review,rev-0264,1,rev-0264
+sprinkles-houston-westheimer,biz-266,Try at Least Once,linked review,rev-0078,1,rev-0078
+starbucks-meadows-place,biz-267,Local Favorite,linked review,rev-0019,1,rev-0019
+starbucks-sugar-land,biz-268,Local Favorite,linked review,rev-0017,1,rev-0017
+sterling-mccall-nissan,biz-269,Worth a Visit,linked review,rev-0154,1,rev-0154
+sugar-land-memorial-park,biz-270,Local Favorite,linked review,rev-0021,1,rev-0021
+sugar-thai-fine-cuisine,biz-271,Worth a Visit,linked review,rev-0232,1,rev-0232
+sunday-press,biz-272,Local Favorite,linked review,rev-0062,1,rev-0062
+susiecakes,biz-273,Worth a Visit,linked review,rev-0119,1,rev-0119
+sweet-lola-yogurt-bar,biz-274,Highly Recommend,linked review,rev-0218,1,rev-0218
+sweetcup,biz-275,Worth a Visit,linked review,rev-0322,1,rev-0322
+tacos-a-go-go,biz-276,Worth a Visit,linked review,rev-0193,1,rev-0193
+tacos-do-a-lena,biz-277,Local Favorite,linked review,rev-0004,1,rev-0004
+taizzi-sushi,biz-278,Local Favorite,linked review,rev-0031,1,rev-0031
+tasti-d-lite,biz-279,Highly Recommend,linked review,rev-0230,1,rev-0230
+tea-bar-and-organics-chinatown,biz-280,Would Go Again,linked review,rev-0308,1,rev-0308
+tea-bar-and-organics-sugar-land,biz-281,Worth a Visit,linked review,rev-0296,1,rev-0296
+teacake-factory,biz-282,Would Go Again,linked review,rev-0227,1,rev-0227
+teahouse-and-coffee-tapioca-bar,biz-283,Would Go Again,linked review,rev-0203,1,rev-0203
+tealicious-drinks,biz-284,Worth a Visit,linked review,rev-0225,1,rev-0225
+teapresso-bar,biz-285,Local Favorite,linked review,rev-0051,1,rev-0051
+terry-hershey-park,biz-286,Local Favorite,linked review,rev-0032,1,rev-0032
+texas-art-supply,biz-287,Try at Least Once,"stars only, no review on file",,0,
+thai-orchid,biz-288,Local Favorite,linked review,rev-0012,1,rev-0012
+thai-siam,biz-289,Would Go Again,linked review,rev-0197,1,rev-0197
+thai-spice,biz-290,Would Go Again,linked review,rev-0317,1,rev-0317
+the-afghan-village,biz-291,Worth a Visit,linked review,rev-0328,1,rev-0328
+the-cheesecake-factory,biz-292,Would Go Again,linked review,rev-0174,1,rev-0174
+the-grove-donutz-and-deli,biz-293,Worth a Visit,"stars only, no review on file",,0,
+the-moghuls-restaurant-and-m-lounge,biz-294,Would Go Again,linked review,rev-0183,1,rev-0183
+the-oceanaire-seafood-room,biz-295,Worth a Visit,linked review,rev-0063,1,rev-0063
+the-original-marinis-empanada-house,biz-296,Would Go Again,"stars only, no review on file",,0,
+the-port-of-peri-peri,biz-297,Try at Least Once,"stars only, no review on file",,0,
+the-sweet-boutique-bakery,biz-298,Worth a Visit,linked review,rev-0256,1,rev-0256
+the-teahouse-tapioca-and-tea,biz-299,,,,0,
+the-waffle-bus,biz-300,Would Go Again,linked review,rev-0222,1,rev-0222
+thierry-andr-tellier-caf,biz-301,Highly Recommend,linked review,rev-0201,1,rev-0201
+third-gen-coffee,biz-302,Local Favorite,linked review,rev-0046,1,rev-0046
+three-brothers-bakery,biz-303,Would Go Again,linked review,rev-0329,1,rev-0329
+throughgood-coffee,biz-304,Would Go Again,"stars only, no review on file",,0,
+tiffs-treats,biz-305,Try at Least Once,linked review,rev-0253,1,rev-0253
+tim-hortons-katy,biz-306,Local Favorite,linked review,rev-0059,1,rev-0059
+tim-hortons-stafford,biz-307,Would Go Again,linked review,rev-0099,1,rev-0099
+torchys-tacos-sugar-land,biz-308,Try at Least Once,linked review,rev-0149,1,rev-0149
+torchys-tacos-west-university,biz-309,Worth a Visit,linked review,rev-0249,1,rev-0249
+tout-suite,biz-310,Would Go Again,linked review,rev-0297,1,rev-0297
+tree-house,biz-311,Worth a Visit,linked review,rev-0151,1,rev-0151
+turquoise-grill-and-bar,biz-312,Try at Least Once,linked review,rev-0277,1,rev-0277
+tutti-frutti,biz-313,,,,0,
+tutti-frutti-frozen-yogurt-missouri-city,biz-314,Worth a Visit,linked review,rev-0284,1,rev-0284
+tutti-frutti-frozen-yogurt-sugar-land,biz-315,Worth a Visit,"stars only, no review on file",,0,
+t-house-of-tea,biz-316,Would Go Again,linked review,rev-0237,1,rev-0237
+tafia,biz-317,Would Go Again,linked review,rev-0182,1,rev-0182
+universal-bakery-and-snacks,biz-318,Would Go Again,linked review,rev-0134,1,rev-0134
+van-leeuwen-ice-cream,biz-319,Local Favorite,linked review,rev-0037,1,rev-0037
+vasos-little-greek-kitchen,biz-320,Would Go Again,"stars only, no review on file",,0,
+verbena-coffee,biz-321,Local Favorite,linked review,rev-0006,1,rev-0006
+viva-juice-coffee-and-tea,biz-322,Would Go Again,linked review,rev-0315,1,rev-0315
+voodoo-doughnut-washington-corridor,biz-323,Worth a Visit,"stars only, no review on file",,0,
+voodoo-doughnut-downtown,biz-324,Would Go Again,linked review,rev-0127,1,rev-0127
+walmart-supercenter,biz-325,Worth a Visit,"stars only, no review on file",,0,
+west-on-west,biz-326,Would Go Again,linked review,rev-0097,1,rev-0097
+whit-n-wingo,biz-327,Highly Recommend,linked review,rev-0095,1,rev-0095
+whole-foods-market,biz-328,Highly Recommend,linked review,rev-0200,1,rev-0200
+world-market,biz-329,Local Favorite,linked review,rev-0008,1,rev-0008
+yogurtland,biz-330,Local Favorite,linked review,rev-0024,1,rev-0024
+yogurtland-houston,biz-331,Would Go Again,linked review,rev-0244,1,rev-0244
+yomies-rice-x-yogurt,biz-332,Local Favorite,linked review,rev-0015,1,rev-0015
+yummys-hot-chicken,biz-333,Local Favorite,linked review,rev-0009,1,rev-0009
+zeyad-bakery-and-sweets,biz-334,Local Favorite,linked review,rev-0102,1,rev-0102
+zoa-moroccan-kitchen,biz-335,Worth a Visit,linked review,rev-0081,1,rev-0081

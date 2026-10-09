@@ -1,0 +1,321 @@
+review_id,business_id,business_slug,rating_tier,review_date,review_scope,is_primary_review,status,city,state
+rev-0001,biz-015,amy-hieu-hair-salon,Local Favorite,2020-05-31,local,yes,draft,Houston,TX
+rev-0002,biz-255,shipley-do-nuts-memorial,Try at Least Once,2021-04-27,local,yes,draft,Houston,TX
+rev-0004,biz-277,tacos-do-a-lena,Local Favorite,2021-04-28,local,yes,draft,Houston,TX
+rev-0005,biz-127,golden-dumpling-house,Local Favorite,2021-04-29,local,yes,draft,Houston,TX
+rev-0006,biz-321,verbena-coffee,Local Favorite,2021-05-23,local,yes,draft,Houston,TX
+rev-0007,biz-010,al-rabba-world-food,Local Favorite,2020-06-20,local,yes,draft,Sugar Land,TX
+rev-0008,biz-329,world-market,Local Favorite,2020-07-21,local,yes,draft,Stafford,TX
+rev-0009,biz-333,yummys-hot-chicken,Local Favorite,2020-08-16,local,yes,draft,Houston,TX
+rev-0010,biz-235,randalls,Local Favorite,2020-05-20,local,yes,draft,Sugar Land,TX
+rev-0011,biz-251,seiwa-market,Local Favorite,2021-11-04,local,yes,draft,Houston,TX
+rev-0012,biz-288,thai-orchid,Local Favorite,2021-11-15,local,yes,draft,Houston,TX
+rev-0013,biz-173,lamppost-coffee,Local Favorite,2021-06-22,travel,yes,draft,Austin,TX
+rev-0014,,,Local Favorite,2022-02-10,travel,,draft,Tønsberg,
+rev-0015,biz-332,yomies-rice-x-yogurt,Local Favorite,2022-02-22,local,yes,draft,Houston,TX
+rev-0016,biz-090,daiso-sugar-land,Local Favorite,2022-03-08,local,yes,draft,Sugar Land,TX
+rev-0017,biz-268,starbucks-sugar-land,Local Favorite,2022-03-14,local,yes,draft,Sugar Land,TX
+rev-0018,biz-049,blue-willow-bookshop,Try at Least Once,2021-11-16,local,yes,draft,Houston,TX
+rev-0019,biz-267,starbucks-meadows-place,Local Favorite,2022-01-10,local,yes,draft,Meadows Place,TX
+rev-0020,biz-243,roast-and-brew,Local Favorite,2021-10-13,local,yes,draft,Houston,TX
+rev-0021,biz-270,sugar-land-memorial-park,Local Favorite,2022-01-21,local,yes,draft,Sugar Land,TX
+rev-0022,biz-170,la-crawfish,Local Favorite,2022-01-27,local,yes,draft,Houston,TX
+rev-0023,biz-057,buc-ees,Local Favorite,2022-02-04,local,yes,draft,Richmond,TX
+rev-0024,biz-330,yogurtland,Local Favorite,2021-10-25,local,yes,draft,Houston,TX
+rev-0025,biz-189,marble-slab-creamery,Local Favorite,2021-11-30,local,yes,draft,Stafford,TX
+rev-0026,biz-208,nails-by-yen,Local Favorite,2021-12-15,local,yes,draft,Sugar Land,TX
+rev-0028,biz-192,market-place-antiques-and-collectibles,Local Favorite,2021-10-25,local,yes,draft,Houston,TX
+rev-0029,biz-105,dunkin-houston,Local Favorite,2021-11-02,local,yes,draft,Houston,TX
+rev-0030,biz-261,soju-bar,Try at Least Once,2021-11-02,local,yes,draft,Houston,TX
+rev-0031,biz-278,taizzi-sushi,Local Favorite,2022-04-17,local,yes,draft,Katy,TX
+rev-0032,biz-286,terry-hershey-park,Local Favorite,2022-05-25,local,yes,draft,Houston,TX
+rev-0034,biz-162,koffeteria,Local Favorite,2022-06-05,local,yes,draft,Houston,TX
+rev-0036,,,Local Favorite,2022-04-28,travel,,draft,Mobile,AL
+rev-0037,biz-319,van-leeuwen-ice-cream,Local Favorite,2022-04-28,local,yes,draft,Houston,TX
+rev-0038,biz-097,dolce-and-cafe,Try at Least Once,2022-05-02,local,yes,draft,Houston,TX
+rev-0039,biz-144,hteao,Local Favorite,2022-03-20,local,yes,draft,Sugar Land,TX
+rev-0041,,,Worth a Visit,2023-05-17,travel,,draft,St. Paul,MN
+rev-0043,,,Highly Recommend,2023-07-07,travel,,draft,Ely,MN
+rev-0044,,,Highly Recommend,2023-07-07,travel,,draft,Two Harbors,MN
+rev-0045,biz-115,flower-child,Try at Least Once,2022-07-17,local,yes,draft,Houston,TX
+rev-0046,biz-302,third-gen-coffee,Local Favorite,2023-01-02,local,yes,draft,The Woodlands,TX
+rev-0047,biz-036,bevers-kitchen-and-gifts,Would Go Again,2023-03-30,travel,yes,draft,Chappell Hill,TX
+rev-0048,biz-082,cornelius-nursery,Local Favorite,2023-04-17,local,yes,draft,Sugar Land,TX
+rev-0050,,,Worth a Visit,2023-05-03,travel,,draft,Duluth,MN
+rev-0051,biz-285,teapresso-bar,Local Favorite,2023-01-11,local,yes,draft,Sugar Land,TX
+rev-0052,biz-207,naha-thai-restaurant,Local Favorite,2022-07-26,local,yes,draft,Sugar Land,TX
+rev-0053,,,Local Favorite,2023-03-03,travel,,draft,North Palm Springs,CA
+rev-0054,biz-152,jang-guem-tofu-and-bbq-sugar-land,Worth a Visit,2023-03-30,local,yes,draft,Sugar Land,TX
+rev-0055,biz-244,rocky-creek-dental-care,Try at Least Once,2022-08-13,local,yes,draft,Missouri City,TX
+rev-0057,biz-229,pjs-coffee,Local Favorite,2022-09-25,local,yes,draft,Pearland,TX
+rev-0058,biz-147,in-n-out-burger,Local Favorite,2022-10-29,local,yes,draft,Stafford,TX
+rev-0059,biz-306,tim-hortons-katy,Local Favorite,2022-12-05,local,yes,draft,Katy,TX
+rev-0060,biz-233,pythagoras-conscious-food-philosophy,Local Favorite,2022-07-06,local,yes,draft,Sugar Land,TX
+rev-0061,biz-259,slim-chickens,Worth a Visit,2023-07-18,local,yes,draft,Pearland,TX
+rev-0062,biz-272,sunday-press,Local Favorite,2023-09-06,local,yes,draft,Houston,TX
+rev-0063,biz-295,the-oceanaire-seafood-room,Worth a Visit,2023-09-12,local,yes,draft,Houston,TX
+rev-0064,biz-080,coffee-mill,Would Go Again,2023-08-08,local,yes,draft,Houston,TX
+rev-0066,biz-168,la-argentina-gelato-and-coffee,Worth a Visit,2023-08-11,local,yes,draft,Houston,TX
+rev-0067,biz-081,common-bond-bistro-and-bakery,Local Favorite,2024-12-30,local,yes,draft,Houston,TX
+rev-0068,,,Highly Recommend,2024-12-30,local,,draft,Houston,TX
+rev-0069,biz-103,dumplings-and-noodles-by-cooking-girl,Worth a Visit,2025-01-22,local,yes,draft,Houston,TX
+rev-0070,biz-005,acacia-food-mart,Local Favorite,2025-03-06,local,yes,draft,Houston,TX
+rev-0071,biz-245,ruchis-indian-cuisine,Would Go Again,2024-10-06,local,yes,draft,Houston,TX
+rev-0072,,,Worth a Visit,2024-01-16,travel,,draft,Gatlinburg,TN
+rev-0074,biz-128,golems-gate,Highly Recommend,2024-10-30,local,yes,draft,Houston,TX
+rev-0075,biz-263,somisomi,Would Go Again,2024-11-02,local,yes,draft,Katy,TX
+rev-0077,biz-202,mochinut-houston-heights,Local Favorite,2024-08-23,local,yes,draft,Houston,TX
+rev-0078,biz-266,sprinkles-houston-westheimer,Try at Least Once,2024-02-01,local,yes,draft,Houston,TX
+rev-0079,biz-194,mazajj-organic-coffee,Local Favorite,2024-09-17,local,yes,draft,Houston,TX
+rev-0080,biz-065,carters,Highly Recommend,2024-09-26,local,yes,draft,Sugar Land,TX
+rev-0081,biz-335,zoa-moroccan-kitchen,Worth a Visit,2024-02-12,local,yes,draft,Bellaire,TX
+rev-0082,biz-185,magnol-french-baking,Local Favorite,2024-02-12,local,yes,draft,Houston,TX
+rev-0086,biz-060,cafe-marrese,Try at Least Once,2023-08-25,local,yes,draft,Tomball,TX
+rev-0087,biz-252,sephora-at-kohls,Highly Recommend,2023-12-09,local,yes,draft,Houston,TX
+rev-0088,biz-042,black-bear-diner,Would Go Again,2024-01-16,local,yes,draft,Sugar Land,TX
+rev-0090,biz-239,refresqueria-at-rice-village,Would Go Again,2025-07-02,local,yes,draft,Houston,TX
+rev-0091,biz-198,milk-mustache,Would Go Again,2025-07-02,local,yes,draft,Houston,TX
+rev-0093,biz-019,arnaldo-richards-picos,Try at Least Once,2025-08-22,local,yes,draft,Houston,TX
+rev-0094,biz-130,grady-park,Would Go Again,2025-03-15,local,yes,draft,Houston,TX
+rev-0095,biz-327,whit-n-wingo,Highly Recommend,2025-06-08,local,yes,draft,Houston,TX
+rev-0096,biz-029,berings,Highly Recommend,2025-08-30,local,yes,draft,Houston,TX
+rev-0097,biz-326,west-on-west,Would Go Again,2025-08-30,local,yes,draft,Houston,TX
+rev-0098,biz-163,kolache-shoppe-greenway,Would Go Again,2025-09-13,local,yes,draft,Houston,TX
+rev-0099,biz-307,tim-hortons-stafford,Would Go Again,2025-10-07,local,yes,draft,Stafford,TX
+rev-0100,biz-025,bayou-city-seafood-and-pasta,Worth a Visit,2018-01-20,local,yes,draft,Houston,TX
+rev-0101,biz-052,bonchon,Worth a Visit,2017-12-14,local,yes,draft,Sugar Land,TX
+rev-0102,biz-334,zeyad-bakery-and-sweets,Local Favorite,2018-02-20,local,yes,draft,Houston,TX
+rev-0103,biz-111,fanoosh-burgers-and-biryani,Try at Least Once,2018-03-21,local,yes,draft,Sugar Land,TX
+rev-0104,biz-262,soliz-casa-de-tacos,Try at Least Once,2018-04-05,local,yes,draft,Stafford,TX
+rev-0105,biz-236,red-circle-ice-cream,Would Go Again,2018-02-08,local,yes,draft,Houston,TX
+rev-0107,biz-142,houston-livestock-show-and-rodeo,Local Favorite,2018-03-14,local,yes,draft,Houston,TX
+rev-0109,biz-059,cafe-dolce-gelato,Worth a Visit,2018-01-29,local,yes,draft,Houston,TX
+rev-0110,biz-179,luce-ave-coffee-roasters,Would Go Again,2018-01-30,local,yes,draft,Houston,TX
+rev-0112,biz-199,minuti-coffee-galleria-uptown,Local Favorite,2018-02-07,local,yes,draft,Houston,TX
+rev-0113,biz-076,cliffs-hamburger-grill,Would Go Again,2017-12-14,local,yes,draft,Houston,TX
+rev-0114,biz-092,dandelion-cafe,Worth a Visit,2017-12-29,local,yes,draft,Bellaire,TX
+rev-0115,biz-242,richmonds-air,Local Favorite,2018-01-13,local,yes,draft,Houston,TX
+rev-0116,biz-043,black-hole-coffee-house,Would Go Again,2018-01-13,local,yes,draft,Houston,TX
+rev-0117,biz-047,blendin-coffee-club,Local Favorite,2018-01-18,local,yes,draft,Sugar Land,TX
+rev-0118,biz-220,pangea-bar-and-grill,Would Go Again,2018-01-23,local,yes,draft,Houston,TX
+rev-0119,biz-273,susiecakes,Worth a Visit,2017-12-14,local,yes,draft,Houston,TX
+rev-0120,,,Highly Recommend,2017-12-22,travel,,draft,London,
+rev-0121,,,Highly Recommend,2017-12-22,travel,,draft,London,
+rev-0123,biz-121,fresh-off-the-bowl,Try at Least Once,2018-02-20,local,yes,draft,Houston,TX
+rev-0125,biz-204,moxies,Try at Least Once,2018-01-26,local,yes,draft,Houston,TX
+rev-0127,biz-324,voodoo-doughnut-downtown,Would Go Again,2017-12-26,travel,yes,draft,Austin,TX
+rev-0128,biz-069,changs-chinese-restaurant,Would Go Again,2017-12-09,local,yes,draft,Sugar Land,TX
+rev-0129,biz-216,old-saigon-cafe,Local Favorite,2017-12-31,local,yes,draft,Houston,TX
+rev-0130,biz-009,aki-steak-and-sushi,Would Go Again,2017-03-23,local,yes,draft,Sugar Land,TX
+rev-0131,biz-018,anonymous-caf,Would Go Again,2017-01-08,local,yes,draft,Sugar Land,TX
+rev-0132,biz-031,berripop-frozen-yogurt-meyerland,Worth a Visit,2016-02-13,local,yes,draft,Houston,TX
+rev-0133,biz-024,bambu,Worth a Visit,2016-02-19,local,yes,draft,Stafford,TX
+rev-0134,biz-318,universal-bakery-and-snacks,Would Go Again,2016-12-26,local,yes,draft,Sugar Land,TX
+rev-0135,biz-253,sharetea-chinatown,Would Go Again,2016-05-15,local,yes,draft,Houston,TX
+rev-0136,biz-137,haute-pets-mobile-grooming-salon,Would Go Again,2016-06-15,local,yes,draft,Houston,TX
+rev-0137,biz-228,pizza-101,Worth a Visit,2016-08-31,local,yes,draft,Sugar Land,TX
+rev-0138,biz-254,sharetea-sugar-land,Would Go Again,2017-01-02,local,yes,draft,Sugar Land,TX
+rev-0139,,,Would Go Again,2017-03-23,travel,,draft,Glendale,CA
+rev-0140,,,Would Go Again,2017-10-14,travel,,draft,Oslo,
+rev-0141,biz-070,cherrywood-coffeehouse,Would Go Again,2017-12-09,travel,yes,draft,Austin,TX
+rev-0142,biz-231,pueblo-viejo,Highly Recommend,2017-12-09,travel,yes,draft,Austin,TX
+rev-0143,biz-230,proud-pie,Would Go Again,2017-02-13,local,yes,draft,Katy,TX
+rev-0144,biz-011,aldi,Would Go Again,2017-02-17,local,yes,draft,Meadows Place,TX
+rev-0145,biz-006,afandim-restaurant,Would Go Again,2017-03-07,local,yes,draft,Houston,TX
+rev-0146,,,Would Go Again,2017-03-07,travel,,draft,Glendale,CA
+rev-0147,biz-063,campesino-coffee-house,Would Go Again,2016-09-06,local,yes,draft,Houston,TX
+rev-0148,,,Would Go Again,2016-09-06,travel,,draft,San Jose,CA
+rev-0149,biz-308,torchys-tacos-sugar-land,Try at Least Once,2016-10-08,local,yes,draft,Sugar Land,TX
+rev-0150,biz-264,southern-maid-donuts,Would Go Again,2016-10-09,local,yes,draft,Sugar Land,TX
+rev-0151,biz-311,tree-house,Worth a Visit,2016-04-15,local,yes,draft,Houston,TX
+rev-0152,biz-256,shipley-do-nuts-sugar-land,Would Go Again,2016-05-28,local,yes,draft,Sugar Land,TX
+rev-0153,biz-224,pho-ben,Would Go Again,2016-06-22,local,yes,draft,Sugar Land,TX
+rev-0154,biz-269,sterling-mccall-nissan,Worth a Visit,2016-06-22,local,yes,draft,Stafford,TX
+rev-0155,biz-184,magic-cup,Would Go Again,2016-07-07,local,yes,draft,Houston,TX
+rev-0156,,,Would Go Again,2016-04-15,travel,,draft,Las Vegas,NV
+rev-0157,biz-223,path-of-tea,Would Go Again,2016-05-27,local,yes,draft,Houston,TX
+rev-0158,,,Worth a Visit,2016-05-27,travel,,draft,Las Vegas,NV
+rev-0159,biz-167,kung-fu-tea,Would Go Again,2016-03-29,local,yes,draft,Houston,TX
+rev-0160,,,Worth a Visit,2016-03-29,travel,,draft,Las Vegas,NV
+rev-0161,,,Would Go Again,2016-03-31,travel,,draft,Las Vegas,NV
+rev-0162,biz-044,black-walnut-caf,Try at Least Once,2016-04-01,local,yes,draft,Sugar Land,TX
+rev-0163,biz-247,rustika-cafe-and-bakery,Worth a Visit,2016-03-12,local,yes,draft,Houston,TX
+rev-0164,biz-140,house-of-bowls,Would Go Again,2016-03-12,local,yes,draft,Houston,TX
+rev-0165,,,Worth a Visit,2017-03-23,travel,,draft,Los Angeles,CA
+rev-0166,,,Highly Recommend,2017-03-23,travel,,draft,Beverly Hills,CA
+rev-0167,biz-241,richmond-bone-and-joint-clinic,Try at Least Once,2017-01-30,local,yes,draft,Sugar Land,TX
+rev-0168,biz-013,alpha-dessert-juice-cafe,Worth a Visit,2016-07-21,local,yes,draft,Houston,TX
+rev-0169,biz-061,caff-bene,Would Go Again,2016-05-27,local,yes,draft,Houston,TX
+rev-0170,biz-145,ichiban-sushi-and-tapioca,Try at Least Once,2010-04-30,local,yes,draft,Sugar Land,TX
+rev-0171,biz-123,fruity-yogurt,Worth a Visit,2010-04-30,local,yes,draft,Sugar Land,TX
+rev-0172,biz-164,kona-grill,Try at Least Once,2010-04-30,local,yes,draft,Sugar Land,TX
+rev-0173,,,Would Go Again,2010-04-30,local,,draft,Sugar Land,TX
+rev-0174,biz-292,the-cheesecake-factory,Would Go Again,2010-04-30,local,yes,draft,Houston,TX
+rev-0175,biz-102,dulce-tapioca,Would Go Again,2010-04-30,local,yes,draft,Sugar Land,TX
+rev-0176,biz-058,cafe-101,Would Go Again,2010-05-28,local,yes,draft,Houston,TX
+rev-0177,biz-226,phoenicia-specialty-foods,Highly Recommend,2010-05-29,local,yes,draft,Houston,TX
+rev-0178,biz-143,houston-marriott-sugar-land,Would Go Again,2010-05-29,local,yes,draft,Sugar Land,TX
+rev-0179,biz-227,piccomolo-italian-ice-cream,Would Go Again,2010-05-29,local,yes,draft,Sugar Land,TX
+rev-0180,biz-101,droubis-international-imports-and-cafe,Worth a Visit,2010-06-06,local,yes,draft,Sugar Land,TX
+rev-0181,biz-038,bijan-persian-grill-sharpstown,Highly Recommend,2010-05-19,local,yes,draft,Houston,TX
+rev-0182,biz-317,tafia,Would Go Again,2010-08-02,local,yes,draft,Houston,TX
+rev-0183,biz-294,the-moghuls-restaurant-and-m-lounge,Would Go Again,2011-09-23,local,yes,draft,Houston,TX
+rev-0184,biz-126,gigis-cupcakes-of-sugarland,Worth a Visit,2011-10-24,local,yes,draft,Sugarland,TX
+rev-0185,biz-034,berryhill-baja-grill,Would Go Again,2011-10-24,local,yes,draft,Houston,TX
+rev-0186,biz-187,maiberry,Would Go Again,2011-09-23,local,yes,draft,Sugar Land,TX
+rev-0187,biz-007,agha-juice-and-cafe,Would Go Again,2011-09-23,local,yes,draft,Sugar Land,TX
+rev-0188,biz-183,maggie-moos-ice-cream-and-treatery,Would Go Again,2011-09-23,local,yes,draft,Sugar Land,TX
+rev-0189,biz-086,crescent-city-beignets-upper-kirby,Would Go Again,2011-09-23,local,yes,draft,Houston,TX
+rev-0190,biz-073,chipotle-mexican-grill,Would Go Again,2010-07-01,local,yes,draft,Sugar Land,TX
+rev-0191,biz-033,berripop-frozen-yogurt-sugar-land,Highly Recommend,2010-07-26,local,yes,draft,Sugar Land,TX
+rev-0192,biz-201,mission-burrito,Would Go Again,2010-07-26,local,yes,draft,Sugar Land,TX
+rev-0193,biz-276,tacos-a-go-go,Worth a Visit,2010-08-02,local,yes,draft,Houston,TX
+rev-0194,biz-030,berriblends,Would Go Again,2010-06-05,local,yes,draft,Richmond,TX
+rev-0195,biz-100,droubis-bakery-and-deli,Would Go Again,2010-06-06,local,yes,draft,Houston,TX
+rev-0196,biz-240,rice-university-farmers-market,Highly Recommend,2010-05-16,local,yes,draft,Houston,TX
+rev-0197,biz-289,thai-siam,Would Go Again,2010-05-28,local,yes,draft,Sugar Land,TX
+rev-0198,biz-003,a-sweet-factory,Highly Recommend,2010-06-06,local,yes,draft,Houston,TX
+rev-0199,biz-238,red-mango,Would Go Again,2010-06-30,local,yes,draft,Houston,TX
+rev-0200,biz-328,whole-foods-market,Highly Recommend,2010-05-07,local,yes,draft,Sugar Land,TX
+rev-0201,biz-301,thierry-andr-tellier-caf,Highly Recommend,2010-05-19,local,yes,draft,Houston,TX
+rev-0202,biz-064,carmelos-mexican-grill,Would Go Again,2010-05-19,local,yes,draft,Sugar Land,TX
+rev-0203,biz-283,teahouse-and-coffee-tapioca-bar,Would Go Again,2010-05-19,local,yes,draft,Sugar Land,TX
+rev-0204,biz-051,bombay-to-beijing,Would Go Again,2010-05-28,local,yes,draft,Sugar Land,TX
+rev-0205,biz-041,bjs-restaurant-and-brewhouse,Worth a Visit,2010-05-29,local,yes,draft,Sugar Land,TX
+rev-0206,biz-218,paciugo-gelato,Would Go Again,2010-05-29,local,yes,draft,Sugar Land,TX
+rev-0207,biz-200,minuti-coffee-sugar-land,Would Go Again,2010-05-07,local,yes,draft,Sugar Land,TX
+rev-0208,biz-002,59-diner,Would Go Again,2010-05-19,local,yes,draft,Stafford,TX
+rev-0209,biz-257,shogi-hibachi-express,Highly Recommend,2010-05-03,local,yes,draft,Sugar Land,TX
+rev-0210,biz-048,blue-fish-house-ii,Would Go Again,2010-05-09,local,yes,draft,Sugar Land,TX
+rev-0211,biz-248,sabai-thai-cafe,Would Go Again,2010-05-09,local,yes,draft,Sugar Land,TX
+rev-0212,biz-094,diegos-cantina,Worth a Visit,2012-07-02,local,yes,draft,Sugar Land,TX
+rev-0213,biz-027,bella-coffee-and-gelato,Would Go Again,2012-09-12,local,yes,draft,Sugar Land,TX
+rev-0214,biz-050,bombay-pizza-express,Highly Recommend,2012-09-12,local,yes,draft,Sugar Land,TX
+rev-0215,biz-196,menchies-frozen-yogurt,Try at Least Once,2012-09-12,local,yes,draft,Sugar Land,TX
+rev-0216,biz-195,mcalisters-deli,Worth a Visit,2012-03-19,local,yes,draft,Houston,TX
+rev-0217,biz-258,six-ping,Would Go Again,2012-03-20,local,yes,draft,Houston,TX
+rev-0218,biz-274,sweet-lola-yogurt-bar,Highly Recommend,2011-09-26,local,yes,draft,Houston,TX
+rev-0219,biz-023,baklava-cafe,Would Go Again,2011-10-24,local,yes,draft,Sugar Land,TX
+rev-0220,biz-012,all-about-cakes,Local Favorite,2012-03-26,local,yes,draft,Sugar Land,TX
+rev-0221,biz-157,jus-mac-sugar-land,Would Go Again,2012-06-13,local,yes,draft,Sugar Land,TX
+rev-0222,biz-300,the-waffle-bus,Would Go Again,2012-06-13,local,yes,draft,Houston,TX
+rev-0223,biz-083,corner-bakery-cafe,Worth a Visit,2011-09-29,local,yes,draft,Houston,TX
+rev-0224,biz-158,kabob-cafe,Worth a Visit,2011-10-24,local,yes,draft,Sugar Land,TX
+rev-0225,biz-284,tealicious-drinks,Worth a Visit,2012-03-19,local,yes,draft,Houston,TX
+rev-0226,biz-067,celebrity-cupcakes,Try at Least Once,2012-03-19,local,yes,draft,Houston,TX
+rev-0227,biz-282,teacake-factory,Would Go Again,2012-03-19,local,yes,draft,Sugar Land,TX
+rev-0228,biz-046,blenders,Worth a Visit,2011-09-29,local,yes,draft,Houston,TX
+rev-0229,biz-110,fadis-mediterranean-grill,Highly Recommend,2011-10-24,local,yes,draft,Houston,TX
+rev-0230,biz-279,tasti-d-lite,Highly Recommend,2011-10-24,local,yes,draft,Houston,TX
+rev-0231,biz-134,h-e-b,Highly Recommend,2011-09-29,local,yes,draft,Sugar Land,TX
+rev-0232,biz-271,sugar-thai-fine-cuisine,Worth a Visit,2013-06-11,local,yes,draft,Sugar Land,TX
+rev-0233,biz-232,purple-vanilla-frozen-yogurt-and-ice-cream,Worth a Visit,2013-04-06,local,yes,draft,Houston,TX
+rev-0234,biz-122,fruit-frenzy,Would Go Again,2013-02-02,local,yes,draft,Houston,TX
+rev-0235,biz-215,nothing-bundt-cakes,Would Go Again,2012-11-09,local,yes,draft,Sugar Land,TX
+rev-0236,biz-045,blacksmith,Would Go Again,2013-08-21,local,yes,draft,Houston,TX
+rev-0237,biz-316,t-house-of-tea,Would Go Again,2013-08-24,local,yes,draft,Houston,TX
+rev-0238,biz-139,honey-bee-teahouse-and-fast-food,Worth a Visit,2013-09-29,local,yes,draft,Houston,TX
+rev-0239,biz-108,empire-cafe,Would Go Again,2013-09-29,local,yes,draft,Houston,TX
+rev-0240,biz-087,croissant-brioche,Would Go Again,2013-07-26,local,yes,draft,Houston,TX
+rev-0241,biz-118,french-riviera-bakery-cafe,Would Go Again,2013-08-21,local,yes,draft,Houston,TX
+rev-0242,biz-188,mama-yu,Would Go Again,2013-08-21,local,yes,draft,Houston,TX
+rev-0243,biz-148,inside-scoop-frozen-custard-and-yogurt,Would Go Again,2013-08-21,local,yes,draft,Sugar Land,TX
+rev-0244,biz-331,yogurtland-houston,Would Go Again,2013-02-02,local,yes,draft,Houston,TX
+rev-0245,biz-210,nazifs,Would Go Again,2013-04-06,local,yes,draft,Houston,TX
+rev-0246,biz-098,don-cafe,Would Go Again,2013-06-11,local,yes,draft,Stafford,TX
+rev-0247,biz-182,mandm-grill,Would Go Again,2012-11-09,local,yes,draft,Houston,TX
+rev-0248,biz-150,jambetos-bakery-and-cafe,Try at Least Once,2013-07-24,local,yes,draft,Stafford,TX
+rev-0249,biz-309,torchys-tacos-west-university,Worth a Visit,2013-07-25,local,yes,draft,Houston,TX
+rev-0250,biz-136,harvest-organic-grille,Would Go Again,2013-07-26,local,yes,draft,Houston,TX
+rev-0251,biz-106,damicos-italian-market-cafe,Would Go Again,2013-04-06,local,yes,draft,Houston,TX
+rev-0252,biz-084,cravers-corner,Worth a Visit,2013-01-04,local,yes,draft,Sugar Land,TX
+rev-0253,biz-305,tiffs-treats,Try at Least Once,2013-02-03,local,yes,draft,Houston,TX
+rev-0254,biz-039,bijan-persian-grill-sugar-land,Try at Least Once,2013-06-11,local,yes,draft,Sugar Land,TX
+rev-0255,biz-211,nikoz-fusion-grill,Try at Least Once,2013-06-11,local,yes,draft,Sugar Land,TX
+rev-0256,biz-298,the-sweet-boutique-bakery,Worth a Visit,2013-02-04,local,yes,draft,Sugar Land,TX
+rev-0257,biz-117,freebirds-world-burrito,Would Go Again,2012-09-23,local,yes,draft,Sugar Land,TX
+rev-0258,biz-028,bellagreen,Would Go Again,2013-01-06,local,yes,draft,Sugar Land,TX
+rev-0259,biz-212,nom-mi-street,Would Go Again,2013-02-04,local,yes,draft,Houston,TX
+rev-0260,biz-203,monster-dessert-bar,Worth a Visit,2013-02-02,local,yes,draft,Sugar Land,TX
+rev-0261,biz-131,guru-burgers-and-bowls,Would Go Again,2012-09-23,local,yes,draft,Sugar Land,TX
+rev-0262,biz-099,double-trouble-caffeine-and-cocktails,Worth a Visit,2013-11-10,local,yes,draft,Houston,TX
+rev-0263,biz-190,marcos-pizza,Would Go Again,2013-12-10,local,yes,draft,Sugar Land,TX
+rev-0264,biz-265,southside-espresso,Would Go Again,2014-01-09,local,yes,draft,Houston,TX
+rev-0265,biz-053,boomtown-coffee,Would Go Again,2015-01-26,local,yes,draft,Houston,TX
+rev-0266,biz-112,fellini-caff,Would Go Again,2013-11-10,local,yes,draft,Houston,TX
+rev-0267,biz-159,kabob-korner,Worth a Visit,2013-12-07,local,yes,draft,Houston,TX
+rev-0268,biz-077,cloud-10-creamery,Would Go Again,2013-09-29,local,yes,draft,Houston,TX
+rev-0269,biz-032,berripop-frozen-yogurt-west-university,Would Go Again,2014-01-02,local,yes,draft,Houston,TX
+rev-0270,biz-091,dandanah-cafe-and-grill,Worth a Visit,2013-12-07,local,yes,draft,Houston,TX
+rev-0271,biz-169,la-baguette-french-bakery,Worth a Visit,2013-12-07,local,yes,draft,Houston,TX
+rev-0272,biz-209,naseeb-indian-restaurant,Would Go Again,2015-01-26,local,yes,draft,Sugar Land,TX
+rev-0273,biz-107,elevation-burger,Worth a Visit,2014-01-09,local,yes,draft,Houston,TX
+rev-0274,biz-166,kublai-khan-stir-fry,Try at Least Once,2014-01-09,local,yes,draft,Sugar Land,TX
+rev-0275,biz-113,fish-city-grill,Worth a Visit,2014-01-02,local,yes,draft,Sugar Land,TX
+rev-0276,biz-161,keepers-japanese-restaurant-and-bar,Worth a Visit,2015-05-02,local,yes,draft,Sugar Land,TX
+rev-0277,biz-312,turquoise-grill-and-bar,Try at Least Once,2015-03-27,local,yes,draft,Sugar Land,TX
+rev-0278,biz-008,agora,Would Go Again,2015-01-26,local,yes,draft,Houston,TX
+rev-0279,biz-225,pho-saigon,Try at Least Once,2015-05-16,local,yes,draft,Houston,TX
+rev-0280,biz-178,lopez-mexican-restaurant,Worth a Visit,2015-01-26,local,yes,draft,Houston,TX
+rev-0281,biz-035,best-donuts,Would Go Again,2013-11-30,local,yes,draft,Sugar Land,TX
+rev-0282,biz-193,masala-munchies,Would Go Again,2015-05-16,local,yes,draft,Houston,TX
+rev-0283,biz-149,inversion-coffee-house,Would Go Again,2014-01-20,local,yes,draft,Houston,TX
+rev-0284,biz-314,tutti-frutti-frozen-yogurt-missouri-city,Worth a Visit,2015-03-01,local,yes,draft,Missouri City,TX
+rev-0285,,,Would Go Again,2015-02-26,travel,,draft,Albany,NY
+rev-0286,biz-175,les-givrals-sandwich-and-caf,Would Go Again,2015-02-25,local,yes,draft,Houston,TX
+rev-0287,biz-246,ruggles-caf-bakery,Would Go Again,2015-02-20,local,yes,draft,Houston,TX
+rev-0288,biz-125,george-bush-intercontinental-airport-iah,Try at Least Once,2015-05-04,local,yes,draft,Houston,TX
+rev-0289,,,Worth a Visit,2015-05-16,travel,,draft,San Francisco,CA
+rev-0290,,,Highly Recommend,2015-05-16,travel,,draft,San Francisco,CA
+rev-0291,,,Would Go Again,2015-05-16,travel,,draft,Anaheim,CA
+rev-0292,biz-221,paper-co-cafe,Would Go Again,2015-05-21,local,yes,draft,Houston,TX
+rev-0293,biz-138,hippo-ice,Would Go Again,2015-08-11,local,yes,draft,Sugar Land,TX
+rev-0294,,,Would Go Again,2015-08-17,travel,,draft,Oslo,
+rev-0295,biz-135,harvest-express,Would Go Again,2015-08-17,local,yes,draft,Houston,TX
+rev-0296,biz-281,tea-bar-and-organics-sugar-land,Worth a Visit,2015-08-28,local,yes,draft,Sugar Land,TX
+rev-0297,biz-310,tout-suite,Would Go Again,2015-08-03,local,yes,draft,Houston,TX
+rev-0298,biz-017,anatolia-intl-foods,Would Go Again,2015-05-28,local,yes,draft,Sugar Land,TX
+rev-0299,biz-056,british-isles,Would Go Again,2015-07-17,local,yes,draft,Houston,TX
+rev-0300,biz-180,luna-pizzeria,Would Go Again,2015-08-04,local,yes,draft,Houston,TX
+rev-0301,biz-165,koryo-bakery,Worth a Visit,2015-08-11,local,yes,draft,Houston,TX
+rev-0302,biz-120,fresh-dental-care,Would Go Again,2015-08-11,local,yes,draft,Houston,TX
+rev-0303,biz-155,juicy-box,Worth a Visit,2015-08-02,local,yes,draft,Houston,TX
+rev-0304,biz-068,chai-shai,Worth a Visit,2015-05-30,local,yes,draft,Houston,TX
+rev-0305,biz-237,red-dessert-dive,Would Go Again,2015-08-02,local,yes,draft,Houston,TX
+rev-0306,biz-074,cillies-cakes,Worth a Visit,2015-08-02,local,yes,draft,Stafford,TX
+rev-0307,,,Highly Recommend,2015-05-16,travel,,draft,Burlingame,CA
+rev-0308,biz-280,tea-bar-and-organics-chinatown,Would Go Again,2015-06-02,local,yes,draft,Houston,TX
+rev-0309,biz-109,epicure-caf,Would Go Again,2015-06-02,local,yes,draft,Houston,TX
+rev-0310,biz-093,darband-shishkabob,Try at Least Once,2015-07-16,local,yes,draft,Houston,TX
+rev-0311,biz-066,casian-king-food-truck,Worth a Visit,2015-05-16,local,yes,draft,Houston,TX
+rev-0312,biz-217,orange-nail-spa-and-facial,Highly Recommend,2015-10-17,local,yes,draft,Sugar Land,TX
+rev-0313,biz-197,mercantile,Would Go Again,2015-09-07,local,yes,draft,Houston,TX
+rev-0314,biz-146,imperial-farmers-market,Would Go Again,2015-10-17,local,yes,draft,Sugar Land,TX
+rev-0315,biz-322,viva-juice-coffee-and-tea,Would Go Again,2015-11-01,local,yes,draft,Houston,TX
+rev-0316,biz-181,loccitane-en-provence,Try at Least Once,2015-11-15,local,yes,draft,Houston,TX
+rev-0317,biz-290,thai-spice,Would Go Again,2015-09-09,local,yes,draft,Pearland,TX
+rev-0318,biz-176,ln-beauty-express,Worth a Visit,2015-10-03,local,yes,draft,Sugar Land,TX
+rev-0319,biz-186,mai-colachi,Would Go Again,2015-10-06,local,yes,draft,Sugar Land,TX
+rev-0320,biz-213,nordstrom-ebar-artisan-coffee,Would Go Again,2015-09-07,local,yes,draft,Houston,TX
+rev-0321,biz-096,dish-society,Worth a Visit,2015-09-07,local,yes,draft,Houston,TX
+rev-0322,biz-275,sweetcup,Worth a Visit,2015-12-03,local,yes,draft,Houston,TX
+rev-0323,biz-078,coco-crepes-waffles-and-coffee,Would Go Again,2016-02-03,local,yes,draft,Houston,TX
+rev-0324,biz-078,coco-crepes-waffles-and-coffee,Would Go Again,2015-12-02,local,no,draft,Houston,TX
+rev-0325,biz-071,chez-beignets-quan-ong-tre,Worth a Visit,2016-02-08,local,yes,draft,Houston,TX
+rev-0326,biz-250,saigon-pho-and-grill,Worth a Visit,2016-02-11,local,yes,draft,Sugar Land,TX
+rev-0327,biz-119,fresh-boba,Worth a Visit,2016-02-13,local,yes,draft,Sugar Land,TX
+rev-0328,biz-291,the-afghan-village,Worth a Visit,2016-01-25,local,yes,draft,Houston,TX
+rev-0329,biz-303,three-brothers-bakery,Would Go Again,2016-01-26,local,yes,draft,Houston,TX
+rev-0330,biz-154,jl-foot-spa,Would Go Again,2016-02-02,local,yes,draft,Houston,TX
+rev-0331,biz-132,gyro-king,Would Go Again,2016-02-03,local,yes,draft,Houston,TX
+rev-0332,biz-079,cocos-cafe,Worth a Visit,2015-12-06,local,yes,draft,Sugar Land,TX
+rev-0333,biz-022,asia-market-thai-lao-food,Would Go Again,2015-12-13,local,yes,draft,Houston,TX
+rev-0334,biz-160,kamalan-bakery,Would Go Again,2016-01-04,local,yes,draft,Houston,TX
+rev-0335,biz-219,paciugo-gelato-and-caff,Worth a Visit,2016-01-19,local,yes,draft,Houston,TX
+rev-0336,biz-001,24-hour-fitness-sugar-land,Try at Least Once,2016-01-19,local,yes,draft,Sugar Land,TX
+rev-0337,biz-104,dunkin-river-oaks,Worth a Visit,2015-12-06,local,yes,draft,Houston,TX
+rev-0338,biz-026,beans-cafe-coffeehouse,Worth a Visit,2015-12-06,local,yes,draft,Houston,TX
+rev-0339,biz-075,cinnamons-bakery,Worth a Visit,2015-11-15,local,yes,draft,Sugar Land,TX
+rev-0340,biz-177,local-foods,Would Go Again,2015-12-12,local,yes,draft,Houston,TX
+rev-0341,biz-129,got-banh-mi-and-pho,Would Go Again,2015-12-12,local,yes,draft,Houston,TX
+rev-0342,biz-085,crescent-city-beignets-houston,Worth a Visit,2015-12-02,local,yes,draft,Houston,TX
