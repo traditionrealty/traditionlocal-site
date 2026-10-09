@@ -268,9 +268,11 @@ for _, r in b.iterrows():
                 "harMarket": nan(r["HAR Geo Market"]), "area": area})
 biz.sort(key=lambda x: x["name"].lower())
 
-# Sara and Dillon's rating tier (Try at Least Once / Worth a Visit / Would Go Again / Highly
-# Recommend / Local Favorite) and Sara's Pick aren't in the spreadsheet; both live in data/ratings.json
-# and data/yelp-stars.json instead. See ratings.json's own _readme for exactly how these combine.
+# Rating tiers (Try at Least Once / Worth a Visit / Would Go Again / Highly Recommend / Local Favorite)
+# now come from data/raw/business-rating-tiers.csv, which applies the rating rules to Sara's
+# reviews. data/ratings.json still holds the hand-curated Sara's Pick list and any manual "rating"
+# override, which always wins. The star lookup below is kept only as a fallback for a business
+# the tiers file has no tier for.
 #
 # "saraPick" here means Sara's Pick, the small hand-curated list from ratings.json. It is NOT the
 # spreadsheet's own "Sara Pick" column (that just means she's reviewed it at all, 265 businesses, far
@@ -279,7 +281,9 @@ RATINGS_FILE = ROOT / "data" / "ratings.json"
 STARS_FILE = ROOT / "data" / "yelp-stars.json"
 overrides = json.load(open(RATINGS_FILE)) if RATINGS_FILE.exists() else {}
 yelp_stars = json.load(open(STARS_FILE)) if STARS_FILE.exists() else {}
-STAR_TIER = {5: "recommend", 4: "return", 3: "visit"}  # 1-2 star Yelp reviews get no public tier
+STAR_TIER = {5: "recommend", 4: "return", 3: "visit"}  # fallback only; the tiers file takes over below
+TIER_TOKEN = {"Try at Least Once": "try-once", "Worth a Visit": "visit", "Would Go Again": "return",
+              "Highly Recommend": "recommend", "Local Favorite": "favorite"}
 for x in biz:
     o = overrides.get(x["slug"], {})
     stars = yelp_stars.get(x["slug"])  # internal only; never rendered on the site
@@ -289,7 +293,7 @@ for x in biz:
     x["reviewAuthor"] = o.get("reviewAuthor") or "Sara Loren"
 print("businesses", len(biz), "linked to an area guide:", sum(1 for x in biz if x["area"]),
       "| Sara's Pick:", sum(1 for x in biz if x["saraPick"]),
-      "| rated from Yelp stars:", sum(1 for x in biz if x["rating"]))
+      "| star fallback tiers:", sum(1 for x in biz if x["rating"]))
 
 # Master CMS research pass (Oct 2026): verified closures, and real website/phone/address
 # where the research turned them up. Only ever adds fields; never removes or overrides
@@ -312,6 +316,49 @@ if MASTER_CMS.exists():
                 x[field] = v
                 contact_n += 1
     print("master CMS merge: verified closed", closed_n, ", contact fields added", contact_n)
+
+# ---------- rating tiers and review links (data/raw CSVs) ----------
+# business-rating-tiers.csv: one row per business with its tier and the reviews that back it.
+# sara-reviews.csv: one row per review (text is not stored here, only ids, tier, date and place).
+# A manual "rating" in data/ratings.json still wins; "Sara's Pick" in the CSV counts as a pick.
+TIERS_CSV = RAW / "business-rating-tiers.csv"
+if TIERS_CSV.exists():
+    tr = pd.read_csv(TIERS_CSV, dtype=str)
+    tier_by_slug = {r["slug"]: r for _, r in tr.iterrows() if nan(r["slug"])}
+    tier_n = 0
+    for x in biz:
+        r = tier_by_slug.get(x["slug"])
+        if r is None:
+            continue
+        t = nan(r.get("rating_tier"))
+        if t == "Sara's Pick":
+            x["saraPick"] = True
+        elif t in TIER_TOKEN and not overrides.get(x["slug"], {}).get("rating"):
+            x["rating"] = TIER_TOKEN[t]
+            tier_n += 1
+        ids = nan(r.get("sara_review_ids"))
+        x["reviewIds"] = str(ids).split("|") if ids else []
+        x["primaryReviewId"] = nan(r.get("primary_review_id"))
+    print("rating tiers from business-rating-tiers.csv:", tier_n)
+
+reviews = []
+REVIEWS_CSV = RAW / "sara-reviews.csv"
+if REVIEWS_CSV.exists():
+    rs = pd.read_csv(REVIEWS_CSV, dtype=str)
+    for _, r in rs.iterrows():
+        if not nan(r.get("review_id")):
+            continue
+        reviews.append({
+            "id": r["review_id"], "businessSlug": nan(r.get("business_slug")),
+            "reviewer": nan(r.get("reviewer")), "date": nan(r.get("review_date")),
+            "text": nan(r.get("review_text")), "tier": TIER_TOKEN.get(nan(r.get("rating_tier"))),
+            "scope": nan(r.get("review_scope")), "primary": nan(r.get("is_primary_review")) == "yes",
+            "status": nan(r.get("status")) or "draft", "category": nan(r.get("category")),
+            "neighborhood": nan(r.get("neighborhood_area")), "city": nan(r.get("city")), "state": nan(r.get("state")),
+        })
+    reviews.sort(key=lambda x: (x["date"] or ""), reverse=True)
+    print("reviews", len(reviews), "linked to a business:", sum(1 for x in reviews if x["businessSlug"]),
+          "| travel:", sum(1 for x in reviews if x["scope"] == "travel"))
 
 # ---------- subdivisions (master CMS, linked to an existing neighborhood guide) ----------
 # Subdivisions sit a level under a neighborhood (e.g. Cinco Ranch is inside Katy). We only keep
@@ -422,7 +469,7 @@ new_and_notable = (json.load(open(nn_file)).get("items", []) if nn_file.exists()
 
 for name, obj in [("posts", posts), ("categories", categories), ("events", events), ("neighborhoods", hoods),
                   ("areas", areas), ("businesses", biz), ("pages", generic), ("site", site), ("images", images),
-                  ("new-and-notable", new_and_notable), ("subdivisions", subdivisions)]:
+                  ("new-and-notable", new_and_notable), ("subdivisions", subdivisions), ("reviews", reviews)]:
     json.dump(obj, open(OUT / f"{name}.json", "w"), ensure_ascii=False)
 if not (OUT / "image-map.json").exists():
     json.dump({}, open(OUT / "image-map.json", "w"))
