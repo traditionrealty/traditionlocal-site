@@ -1,0 +1,242 @@
+---
+import Base from '../../layouts/Base.astro';
+import businesses from '../../data/businesses.json';
+import areas from '../../data/areas.json';
+import subdivisions from '../../data/subdivisions.json';
+import { url, img } from '../../lib/util';
+import { config } from '../../config';
+
+export function getStaticPaths() {
+  return businesses.map((b) => ({ params: { slug: b.slug }, props: { b } }));
+}
+const { b } = Astro.props;
+const area = areas.find((a) => a.slug === b.area);
+const place = b.neighborhood || area?.name || b.city;
+const placeCrumb = place && place !== b.city ? place : null;
+const hasReview = Boolean(b.review);
+const nearbySub = subdivisions.find((s) => s.area === b.area);
+const firstName = (b.reviewAuthor || 'Sara Loren').split(' ')[0];
+const ld = { '@context': 'https://schema.org', '@type': 'LocalBusiness', name: b.name,
+  address: b.address || undefined, telephone: b.phone || undefined, url: b.website || undefined };
+---
+<Base title={`${b.name}, ${place}`} description={b.description}>
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify(ld)} />
+
+  <section class="band">
+    <div class="wrap">
+      <p class="crumb">
+        <a href={url('/')}>{b.city}</a> <span aria-hidden="true">&rsaquo;</span>
+        {placeCrumb && <><a href={area ? url(`/cities/${area.slug}`) : url('/cities')}>{placeCrumb}</a> <span aria-hidden="true">&rsaquo;</span></>}
+        Business profile
+      </p>
+      <p class="kicker">Local Directory &middot; {b.categories[0]}</p>
+      <h1>{b.name}</h1>
+      <p class="lede">{b.categories[0]} in {placeCrumb ? `${placeCrumb}, ${b.city}` : b.city}</p>
+      <p class="lede small">{b.description}</p>
+      <div class="pill-row">
+        <span class="place-pill">{place}</span>
+        <span class="muted small">{b.categories.join(', ')}</span>
+      </div>
+      <div class="band-actions">
+        {hasReview && <a class="btn gold" href={url(`/eat/${b.slug}`)}>Read our review &rarr;</a>}
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="hero-photo">
+        <svg aria-hidden="true" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 11l8-7 8 7"/><path d="M6 10v9a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-9"/></svg>
+        <span>A glimpse inside &middot; business cover photo</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap layout">
+      <div class="prose">
+        {b.closed && <p class="closed-note">This business is no longer operating. The profile below is kept for reference.</p>}
+
+        <p class="eyebrow">At a glance</p>
+        <h2>What is {b.name}?</h2>
+        <p>{b.description}</p>
+        <div class="tag-row">
+          {b.categories.map((c: string) => <span class="tag">{c}</span>)}
+          <span class="tag">{b.city}{place !== b.city ? ` \u00b7 ${place}` : ''}</span>
+        </div>
+        <p class="muted small verify-note">Business summary from our records. Hours and amenities below are shown as verified or awaiting verification.</p>
+
+        <h2>What you'll find here</h2>
+        <p class="muted">Browse what {b.name} offers, and use its current menu or site to plan your visit.</p>
+        {b.website
+          ? <a class="ext-link" href={b.website} target="_blank" rel="noopener">View the current menu or site &#8599;</a>
+          : <p class="ph-text">[Link to the current menu once available.]</p>}
+
+        {hasReview && (
+          <div class="review-card">
+            <p class="eyebrow">From Tradition Local</p>
+            <div class="review-card-inner">
+              <div class="review-thumb">
+                <svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 10h18M6 10V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v4M4 10v9a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-9"/></svg>
+              </div>
+              <div>
+                <p class="eyebrow small">Independent review</p>
+                <h3 class="review-card-title">{b.reviewAuthor || 'Sara Loren'}'s visit to {b.name}</h3>
+                <p class="muted small">By {b.reviewAuthor || 'Sara Loren'} &middot; {b.description}</p>
+                <a class="side-link" href={url(`/eat/${b.slug}`)}>Read {firstName}'s review &rarr;</a>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <h2>Questions before you go</h2>
+        <div class="faq-list">
+          <details class="faq-item" open>
+            <summary>Where is {b.name} located?</summary>
+            <p>{b.name} is in {place}{place !== b.city ? `, ${b.city}` : ''}, Texas. {b.address ? <>The address is {b.address}.</> : <span class="ph-text">[The verified street address and ZIP code would appear in Plan your visit.]</span>}</p>
+          </details>
+          <details class="faq-item">
+            <summary>What does {b.name} serve or offer?</summary>
+            <p class="ph-text">[A short list of what's on the menu or in stock, once confirmed.]</p>
+          </details>
+          <details class="faq-item">
+            <summary>Is parking available, and is it accessible?</summary>
+            <p class="ph-text">[Parking and accessibility notes, once confirmed on a visit.]</p>
+          </details>
+          <details class="faq-item">
+            <summary>Has Tradition Local reviewed {b.name}?</summary>
+            <p>{hasReview
+              ? <>Yes, {b.reviewAuthor || 'Sara Loren'} has visited and reviewed {b.name}. <a href={url(`/eat/${b.slug}`)}>Read the full review &rarr;</a></>
+              : <>Not yet. Check back, or <a href={`mailto:${config.contactEmail}?subject=${encodeURIComponent('Suggest a review: ' + b.name)}`}>let us know</a> if you'd like us to.</>}</p>
+          </details>
+        </div>
+
+        {(area || nearbySub) && (
+          <>
+            <h2>Explore more around {place}</h2>
+            <div class="explore-grid">
+              {area && (
+                <div class="explore-card">
+                  <p class="eyebrow small">Neighborhood guide</p>
+                  <h3>Get to know {area.name}</h3>
+                  <p class="muted small">Local businesses, food stops, and neighborhood discoveries.</p>
+                  <a class="side-link" href={url(`/cities/${area.slug}`)}>Explore the {area.name} guide &rarr;</a>
+                </div>
+              )}
+              {nearbySub && (
+                <div class="explore-card">
+                  <p class="eyebrow small">Nearby subdivision</p>
+                  <h3>{nearbySub.name}</h3>
+                  <p class="muted small">Explore the subdivision and businesses nearby.</p>
+                  <a class="side-link" href={url(`/subdivisions/${nearbySub.slug}`)}>Explore {nearbySub.name} &rarr;</a>
+                </div>
+              )}
+            </div>
+          </>
+        )}
+      </div>
+
+      <aside>
+        <div class="side-card">
+          <p class="eyebrow">Plan your visit</p>
+          <p class="plan-label">Location</p>
+          <p class="plan-value">{place}{place !== b.city ? `, ${b.city}` : ''}</p>
+          {b.address || b.phone
+            ? <p class="muted small">{b.address}{b.address && b.phone ? ' \u00b7 ' : ''}{b.phone && <a href={`tel:${b.phone}`}>{b.phone}</a>}</p>
+            : <p class="muted small ph-text">[Street address, ZIP code, phone]</p>}
+
+          <p class="plan-label">Hours</p>
+          <p class="plan-value ph-text">[Current hours: awaiting verification]</p>
+
+          <p class="plan-label">Before you go</p>
+          <p class="muted small ph-text">[Menu &amp; prices, parking, accessibility]</p>
+
+          <div class="side-btn-row">
+            {b.website && <a class="btn ghost small" href={b.website} target="_blank" rel="noopener">Website &#8599;</a>}
+            <a class="btn ghost small" href={`https://www.google.com/maps/search/${encodeURIComponent(`${b.name} ${b.city} TX`)}`} target="_blank" rel="noopener">Directions</a>
+          </div>
+          <a class="side-link suggest" href={`mailto:${config.contactEmail}?subject=${encodeURIComponent('Business info update: ' + b.name)}`}>Suggest an update</a>
+        </div>
+
+        <div class="side-card tint">
+          <p class="eyebrow">Explore its surroundings</p>
+          <p class="plan-label">City</p>
+          <p class="plan-value"><a href={url('/')}>{b.city}</a></p>
+          {area && <><p class="plan-label">Area</p><p class="plan-value"><a href={url(`/cities/${area.slug}`)}>{area.name}</a></p></>}
+          {b.neighborhood && b.neighborhood !== area?.name && <><p class="plan-label">Neighborhood</p><p class="plan-value">{b.neighborhood}</p></>}
+          {nearbySub && <><p class="plan-label">Nearby subdivision</p><p class="plan-value"><a href={url(`/subdivisions/${nearbySub.slug}`)}>{nearbySub.name}</a></p></>}
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  {area && (
+    <section class="section tint">
+      <div class="wrap banner">
+        <div>
+          <p class="eyebrow">Locally &middot; {area.name}</p>
+          <h2>More from this neighborhood</h2>
+          <p class="muted">Local finds, community updates, and nearby discoveries.</p>
+        </div>
+        <a class="btn blue" href={url(`/cities/${area.slug}`)}>Explore Locally &rarr;</a>
+      </div>
+    </section>
+  )}
+</Base>
+<style>
+  .crumb { font-size: 13px; color: var(--muted); margin: 0 0 14px; }
+  .kicker { color: var(--gold); font-weight: 700; text-transform: uppercase; letter-spacing: .04em; font-size: 12px; margin: 0 0 10px; }
+  .lede.small { font-size: 1rem; opacity: .9; margin-top: -8px; }
+  .pill-row { display: flex; align-items: center; gap: 12px; margin: 16px 0 0; flex-wrap: wrap; }
+  .place-pill { display: inline-flex; align-items: center; padding: 4px 14px; border-radius: 999px; background: rgba(255,255,255,.15); font-weight: 600; font-size: 14px; }
+  .band-actions { margin-top: 20px; }
+  .btn.small { padding: 8px 18px; font-size: 14px; }
+  .btn.ghost { border: 1.5px solid var(--blue); color: var(--blue); background: transparent; }
+  .closed-note { background: var(--cream); border: 1px solid var(--line); border-radius: 6px; padding: 10px 14px; margin: 0 0 20px; font-size: 14px; color: var(--muted); }
+
+  .hero-photo { aspect-ratio: 16 / 7; background: var(--cream); border: 1.5px dashed var(--line); border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: var(--muted); }
+
+  .eyebrow { color: #1e7a43; font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; margin: 0 0 6px; }
+  .eyebrow.small { margin-bottom: 4px; }
+  .tag-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; }
+  .tag { display: inline-flex; align-items: center; padding: 6px 14px; border-radius: 999px; background: var(--cream); font-size: 14px; font-weight: 600; color: var(--navy); }
+  .verify-note { font-size: 13px; margin-top: 10px; }
+  .ext-link { font-weight: 600; }
+
+  .review-card { background: var(--cream); border-radius: 10px; padding: 22px; margin: 24px 0; }
+  .review-card-inner { display: flex; gap: 16px; align-items: flex-start; }
+  .review-thumb { flex: none; width: 56px; height: 56px; border-radius: 8px; background: var(--gold-soft); display: flex; align-items: center; justify-content: center; color: var(--brown); }
+  .review-card-title { margin: 2px 0 6px; font-size: 1.2rem; }
+
+  .faq-list { border-top: 1px solid var(--line); }
+  .faq-item { border-bottom: 1px solid var(--line); padding: 14px 0; }
+  .faq-item summary { cursor: pointer; font-weight: 600; color: var(--navy); list-style: none; }
+  .faq-item summary::-webkit-details-marker { display: none; }
+  .faq-item p { margin: 10px 0 0; }
+
+  .explore-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+  .explore-card { background: var(--cream); padding: 20px; border-radius: 8px; }
+  .explore-card h3 { margin: 4px 0 8px; font-size: 1.1rem; }
+
+  dd a { color: var(--blue); }
+  .layout { display: grid; grid-template-columns: 1fr 320px; gap: 40px; align-items: start; }
+
+  aside { display: flex; flex-direction: column; gap: 16px; align-self: start; }
+  .side-card { background: var(--cream); padding: 22px; border-radius: 8px; }
+  .side-card.tint { background: #fff; border: 1px solid var(--line); }
+  .plan-label { font-size: 12px; color: var(--brown); margin: 16px 0 2px; text-transform: uppercase; letter-spacing: .03em; }
+  .plan-label:first-of-type { margin-top: 4px; }
+  .plan-value { margin: 0; font-weight: 600; color: var(--navy); }
+  .side-link { display: block; font-weight: 600; font-size: 14px; margin-top: 10px; }
+  .side-btn-row { display: flex; gap: 8px; margin-top: 18px; flex-wrap: wrap; }
+  .suggest { margin-top: 14px; color: var(--muted); font-weight: 500; }
+  .ph-text { color: var(--muted); font-style: italic; }
+
+  .banner { display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+  .banner h2 { margin: 2px 0 6px; }
+
+  @media (max-width: 860px) {
+    .layout { grid-template-columns: 1fr; }
+    .explore-grid { grid-template-columns: 1fr; }
+  }
+</style>
