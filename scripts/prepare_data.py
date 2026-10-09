@@ -396,6 +396,33 @@ if PAGES_CSV.exists():
             x["reviewVisitedDate"] = r["visited_date"]
     print("review page content from reviews_pages.csv:", page_n)
 
+# ---------- real visit photos (data/raw/reviews_image_manifest.csv) ----------
+# Sara's own photos from each visit, already placed at public/images/reviews/<slug>/NN.jpg.
+# This just tells each business which ones it has, in order; the first becomes the hero image.
+IMAGE_MANIFEST_CSV = RAW / "reviews_image_manifest.csv"
+if IMAGE_MANIFEST_CSV.exists():
+    im = pd.read_csv(IMAGE_MANIFEST_CSV, dtype=str)
+    images_by_slug: dict = {}
+    for _, r in im.iterrows():
+        if r.get("connection_status") != "matched":
+            continue
+        slug = nan(r.get("matched_slug"))
+        path = nan(r.get("website_image_path"))
+        if not slug or not path:
+            continue
+        images_by_slug.setdefault(slug, []).append({"path": path, "alt": nan(r.get("image_alt")) or ""})
+    img_n = 0
+    for x in biz:
+        imgs = images_by_slug.get(x["slug"])
+        if not imgs:
+            continue
+        imgs.sort(key=lambda i: i["path"])
+        x["images"] = imgs
+        x["heroImage"] = imgs[0]["path"]
+        img_n += 1
+    print("businesses with real photos from reviews_image_manifest.csv:", img_n,
+          "| total photos:", sum(len(v) for v in images_by_slug.values()))
+
 reviews = []
 REVIEWS_CSV = RAW / "sara-reviews.csv"
 if REVIEWS_CSV.exists():
