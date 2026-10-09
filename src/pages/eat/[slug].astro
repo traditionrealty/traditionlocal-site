@@ -91,23 +91,31 @@ const pullQuote = pullQuoteCandidate.length < (b.review || '').length * 0.75 ? p
         {pullQuote && <blockquote class="pull-quote">&ldquo;{pullQuote}&rdquo;</blockquote>}
 
         <h2>What we tried</h2>
-        <p class="review-text">{b.review}</p>
+        <p class="review-text">{b.reviewPage?.whatWeTried || b.review}</p>
         {story && <p>Read the full story: <a href={url(story.path)}>{story.title}</a></p>}
 
         <h2>The experience</h2>
-        <p class="ph-text">[What the space, service, and overall visit felt like.]</p>
+        {b.reviewPage?.theExperience
+          ? <p>{b.reviewPage.theExperience}</p>
+          : <p class="ph-text">[What the space, service, and overall visit felt like.]</p>}
 
         <h2>Who might enjoy it?</h2>
-        <p class="ph-text">[Who this is a good fit for, and when we'd choose it.]</p>
+        {b.reviewPage?.whoMightEnjoyIt
+          ? <p>{b.reviewPage.whoMightEnjoyIt}</p>
+          : <p class="ph-text">[Who this is a good fit for, and when we'd choose it.]</p>}
 
         <h2>Would we go again?</h2>
-        <p class="ph-text">[A short, personal conclusion on whether we'd return.]</p>
+        {b.reviewPage?.wouldWeGoAgain
+          ? <p>{b.reviewPage.wouldWeGoAgain}</p>
+          : <p class="ph-text">[A short, personal conclusion on whether we'd return.]</p>}
 
         <h2>Your review questions, answered</h2>
         <div class="faq-list">
           <details class="faq-item" open>
             <summary>What did {(b.reviewAuthor || 'Sara').split(' ')[0]} order?</summary>
-            <p class="ph-text">[The specific items ordered, and the price paid on the visit date.]</p>
+            {b.reviewPage?.whatWeOrdered
+              ? <p>{b.reviewPage.whatWeOrdered}</p>
+              : <p class="ph-text">[The specific items ordered, and the price paid on the visit date.]</p>}
           </details>
           {badge && (
             <details class="faq-item">
