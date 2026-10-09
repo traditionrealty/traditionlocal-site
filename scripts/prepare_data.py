@@ -341,6 +341,61 @@ if TIERS_CSV.exists():
         x["primaryReviewId"] = nan(r.get("primary_review_id"))
     print("rating tiers from business-rating-tiers.csv:", tier_n)
 
+# ---------- business profile gap-fill (data/raw/reviews_business_profiles.csv) ----------
+# Structural facts only (name, city, categories, neighborhood, closed/open status). Never
+# overwrites a field that already has a real value from the master CMS merge above; this file's
+# own address/phone/website/hours are blank for every row, so this only ever adds information,
+# it never blanks out something better we already had.
+PROFILES_CSV = RAW / "reviews_business_profiles.csv"
+if PROFILES_CSV.exists():
+    pr = pd.read_csv(PROFILES_CSV, dtype=str)
+    profile_by_slug = {r["slug"]: r for _, r in pr.iterrows() if nan(r["slug"])}
+    filled_n = status_n = 0
+    for x in biz:
+        r = profile_by_slug.get(x["slug"])
+        if r is None:
+            continue
+        for field, key in [("neighborhood", "neighborhood"), ("address", "address"),
+                            ("phone", "phone"), ("website", "website")]:
+            if not x.get(field) and nan(r.get(key)):
+                x[field] = r[key]
+                filled_n += 1
+        status = nan(r.get("current_status"))
+        if status and status.lower() == "closed" and not x.get("closed"):
+            x["closed"] = True
+            status_n += 1
+    print("business profile gaps filled from reviews_business_profiles.csv:", filled_n,
+          "| newly marked closed:", status_n)
+
+# ---------- review page content (data/raw/reviews_pages.csv) ----------
+# The structured sections of the review page itself: what we tried, the experience, who might
+# enjoy it, would we go again, what we ordered. Original write-ups grounded in the real visit,
+# not the review source text (which only ever lands in data/raw for internal reference, never
+# in src/data, never in the page output). A business with no row here still falls back to the
+# page's own bracketed placeholders, same as before.
+PAGES_CSV = RAW / "reviews_pages.csv"
+if PAGES_CSV.exists():
+    pg = pd.read_csv(PAGES_CSV, dtype=str)
+    page_by_slug = {r["slug"]: r for _, r in pg.iterrows() if nan(r["slug"])}
+    page_n = 0
+    for x in biz:
+        r = page_by_slug.get(x["slug"])
+        if r is None:
+            continue
+        section = {}
+        for field, key in [("whatWeTried", "what_we_tried"), ("theExperience", "the_experience"),
+                            ("whoMightEnjoyIt", "who_might_enjoy_it"), ("wouldWeGoAgain", "would_we_go_again"),
+                            ("whatWeOrdered", "what_we_ordered")]:
+            v = nan(r.get(key))
+            if v:
+                section[field] = v
+        if section:
+            x["reviewPage"] = section
+            page_n += 1
+        if nan(r.get("visited_date")):
+            x["reviewVisitedDate"] = r["visited_date"]
+    print("review page content from reviews_pages.csv:", page_n)
+
 reviews = []
 REVIEWS_CSV = RAW / "sara-reviews.csv"
 if REVIEWS_CSV.exists():
