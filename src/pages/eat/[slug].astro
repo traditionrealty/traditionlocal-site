@@ -12,33 +12,57 @@ const { b } = Astro.props;
 const area = areas.find((a) => a.slug === b.area);
 const brand = b.name.toLowerCase().replace(/[’']/g, '').split(/[\s–-]+/).slice(0, 2).join(' ');
 const story = posts.find((p) => p.title.toLowerCase().replace(/[’']/g, '').startsWith(brand));
-const otherLocations = businesses.filter((x) => x.name === b.name && x.slug !== b.slug);
-const nearby = businesses.filter((x) => x.slug !== b.slug && x.area && x.area === b.area).slice(0, 6);
 const place = b.neighborhood || area?.name || b.city;
 const ld = { '@context': 'https://schema.org', '@type': 'Review', itemReviewed: { '@type': 'LocalBusiness', name: b.name },
   author: { '@type': 'Person', name: b.reviewAuthor || 'Sara Loren' } };
 
-// Real data we have: the actual visit writeup (b.review), who wrote it and when (reviewAuthor,
-// reviewYear), category, location, contact info. That real writeup goes in "What we tried" below,
-// unedited. The structured breakdown this layout adds (a short quick-take verdict, what stood out,
-// what to consider, whether we'd return, FAQ) isn't something we have written per business yet, so
-// those stay honest bracketed placeholders, same convention used across the rest of the site.
+// This page is Sara's firsthand review, written in her voice. Anything that's really about the
+// business itself rather than her visit -- address, phone, hours, categories, other locations --
+// now points to the business profile page at /business/[slug] instead of living inline here.
+const TIERS: Record<string, { label: string; desc: string; icon: string }> = {
+  'try-once': { label: 'Try at Least Once', desc: "Worth experiencing to see if it's your thing.", icon: 'compass' },
+  visit: { label: 'Worth a Visit', desc: "A good option when you're nearby or curious.", icon: 'pin' },
+  return: { label: 'Would Go Again', desc: "An enjoyable experience we'd return for.", icon: 'refresh' },
+  recommend: { label: 'Highly Recommend', desc: "A standout we'd recommend to friends.", icon: 'thumb' },
+  favorite: { label: 'Local Favorite', desc: 'A go-to spot that keeps us coming back.', icon: 'heart' },
+};
+const ICONS: Record<string, string> = {
+  compass: '<circle cx="12" cy="12" r="9"/><path d="M15 9l-2 6-6 2 2-6 6-2z"/>',
+  pin: '<path d="M12 21s7-6.5 7-11.5A7 7 0 0 0 5 9.5C5 14.5 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',
+  refresh: '<path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/>',
+  thumb: '<path d="M7 11v9H4a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h3zm0 0l4-8a2 2 0 0 1 2 2v4h5a2 2 0 0 1 2 2.2l-1.2 7A2 2 0 0 1 17 20H9a2 2 0 0 1-2-2z"/>',
+  heart: '<path d="M12 21s-7-4.6-9.5-8.8C.8 9 2 5.5 5.3 4.6 7.6 4 9.9 5 12 7.5 14.1 5 16.4 4 18.7 4.6 22 5.5 23.2 9 21.5 12.2 19 16.4 12 21 12 21z"/>',
+  ribbon: '<circle cx="12" cy="8" r="5"/><path d="M9 12.5L7 21l5-3 5 3-2-8.5"/>',
+};
+const badge = b.saraPick ? { label: "Sara's Pick", desc: "Sara's personal top choice, deserving a special trip.", icon: 'ribbon' } : (b.rating ? TIERS[b.rating] : null);
+// Only a crumb for the neighborhood/area if it's actually different from the city crumb already shown.
+const placeCrumb = place && place !== b.city ? place : null;
+// A short pull quote from the real review text, the first sentence or two -- but skip it when the
+// review itself is this short, so the same couple of sentences don't appear twice back to back.
+const pullQuoteCandidate = (b.review || '').split(/(?<=[.!?])\s+/).slice(0, 2).join(' ');
+const pullQuote = pullQuoteCandidate.length < (b.review || '').length * 0.75 ? pullQuoteCandidate : null;
 ---
-<Base title={`${b.name} review, ${place}`} description={b.description}>
+<Base title={`${b.name} review`} description={b.description}>
   <script type="application/ld+json" slot="head" set:html={JSON.stringify(ld)} />
+
   <section class="band">
     <div class="wrap">
       <p class="crumb">
-        <a href={url('/food')}>Home</a> <span aria-hidden="true">&rsaquo;</span>
-        <a href={url('/food')}>Eat</a> <span aria-hidden="true">&rsaquo;</span>
+        <a href={url('/')}>{b.city}</a> <span aria-hidden="true">&rsaquo;</span>
+        {placeCrumb && <><a href={area ? url(`/cities/${area.slug}`) : url('/cities')}>{placeCrumb}</a> <span aria-hidden="true">&rsaquo;</span></>}
         <a href={url(`/eat/${b.slug}`)}>{b.name}</a> <span aria-hidden="true">&rsaquo;</span> Review
       </p>
-      <p class="kicker">Firsthand review &middot; {place} &middot; {b.city}</p>
+      <p class="kicker">{b.categories[0]} review</p>
       <h1>{b.name} review</h1>
-      <p class="lede">{b.description}</p>
-      <p class="byline">By {b.reviewAuthor || 'Sara Loren'} &middot; Visited {b.reviewYear}</p>
-      {b.saraPick && <span class="badge">Sara's pick</span>}
-      {b.closed && <span class="badge closed-badge">Closed</span>}
+      <p class="lede">{b.categories[0]} in {placeCrumb ? `${placeCrumb}, ${b.city}` : b.city}</p>
+      <p class="lede small">{b.description}</p>
+      <div class="byline-row">
+        <span class="byline-pill">{b.reviewAuthor || 'Sara Loren'}</span>
+        <span class="muted small">Visited {b.reviewYear}</span>
+      </div>
+      <div class="band-actions">
+        <a class="btn ghost-light" href={url(`/business/${b.slug}`)}>View business profile &rarr;</a>
+      </div>
     </div>
   </section>
 
@@ -46,9 +70,8 @@ const ld = { '@context': 'https://schema.org', '@type': 'Review', itemReviewed: 
     <div class="wrap">
       <div class="hero-photo">
         <svg aria-hidden="true" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="6" width="18" height="14" rx="2"/><circle cx="12" cy="13" r="3.5"/><path d="M9 6l1-2h4l1 2"/></svg>
-        <span>Hero: your own {b.categories[0].toLowerCase()} photograph</span>
+        <span>From our visit &middot; {b.categories[0].toLowerCase()} photograph</span>
       </div>
-      <p class="muted small photo-caption">Original visit photography &middot; specific order identified in caption</p>
     </div>
   </section>
 
@@ -56,72 +79,89 @@ const ld = { '@context': 'https://schema.org', '@type': 'Review', itemReviewed: 
     <div class="wrap layout">
       <div class="prose">
         {b.closed && <p class="closed-note">This business is no longer operating. The review below is kept for reference.</p>}
-        <div class="quick-take">
-          <p class="eyebrow">Our quick take</p>
-          <p class="ph-text">[A short verdict: who this fits and when we'd choose it again.]</p>
-        </div>
+
+        <p class="eyebrow">Sara's review</p>
+        <h2 class="review-h2">The full review</h2>
+        {badge && (
+          <span class="tier-badge">
+            <span class="tier-icon" set:html={`<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICONS[badge.icon]}</svg>`}></span>
+            {badge.label}
+          </span>
+        )}
+        {pullQuote && <blockquote class="pull-quote">&ldquo;{pullQuote}&rdquo;</blockquote>}
 
         <h2>What we tried</h2>
-        <blockquote>{b.review}<footer>Visited {b.reviewYear}</footer></blockquote>
+        <p class="review-text">{b.review}</p>
         {story && <p>Read the full story: <a href={url(story.path)}>{story.title}</a></p>}
 
-        <h2>What worked, and what to consider</h2>
-        <div class="worked-grid">
-          <div>
-            <h3>What stood out</h3>
-            <p class="ph-text">[Specific observation about flavor, texture, presentation, or value.]</p>
-          </div>
-          <div>
-            <h3>Before you go</h3>
-            <p class="ph-text">[A practical consideration: seating, parking, wait times, or similar.]</p>
-          </div>
-        </div>
+        <h2>The experience</h2>
+        <p class="ph-text">[What the space, service, and overall visit felt like.]</p>
 
-        <h2>Would we return?</h2>
-        <p class="ph-text">[A short, personal conclusion on who would enjoy this and when we'd choose it again.]</p>
+        <h2>Who might enjoy it?</h2>
+        <p class="ph-text">[Who this is a good fit for, and when we'd choose it.]</p>
 
-        <h2>Before your visit</h2>
+        <h2>Would we go again?</h2>
+        <p class="ph-text">[A short, personal conclusion on whether we'd return.]</p>
+
+        <h2>Your review questions, answered</h2>
         <div class="faq-list">
-          <details class="faq-item">
-            <summary>Is this a good place to work?</summary>
-            <p class="ph-text">[Seating, noise, wifi, and outlet notes.]</p>
+          <details class="faq-item" open>
+            <summary>What did {(b.reviewAuthor || 'Sara').split(' ')[0]} order?</summary>
+            <p class="ph-text">[The specific items ordered, and the price paid on the visit date.]</p>
           </details>
+          {badge && (
+            <details class="faq-item">
+              <summary>What does {badge.label} mean?</summary>
+              <p>{badge.desc} <a href={url('/about-our-reviews')}>See the full rating scale &rarr;</a></p>
+            </details>
+          )}
           <details class="faq-item">
-            <summary>What should I budget?</summary>
-            <p class="ph-text">[Typical spend for one or two people.]</p>
+            <summary>Where can I find current hours and the menu?</summary>
+            <p>{b.website
+              ? <>The business's own site has the most current information: <a href={b.website} target="_blank" rel="noopener">{b.website.replace(/^https?:\/\//, '').replace(/\/$/, '')}</a>.</>
+              : <span class="ph-text">[Link to current hours and menu once available.]</span>}</p>
           </details>
         </div>
       </div>
+
       <aside>
-        <p class="eyebrow">Plan your visit</p>
-        <h2 class="side-name">{b.name}</h2>
-        <dl>
-          <dt>Area</dt><dd>{place}, {b.city}</dd>
-          <dt>Known for</dt><dd>{b.categories.join(', ')}</dd>
-          <dt>What we ordered</dt><dd class="ph-text">[What we ordered]</dd>
-          <dt>Sample spend</dt><dd class="ph-text">[$00 before tax and tip]</dd>
-          {b.harMarket && (<><dt>HAR market</dt><dd>{b.harMarket}</dd></>)}
-          {b.address && (<><dt>Address</dt><dd>{b.address}</dd></>)}
-          {b.phone && (<><dt>Phone</dt><dd><a href={`tel:${b.phone}`}>{b.phone}</a></dd></>)}
-          {b.website && (<><dt>Website</dt><dd><a href={b.website} target="_blank" rel="noopener">{b.website.replace(/^https?:\/\//, '').replace(/\/$/, '')}</a></dd></>)}
-        </dl>
-        <a class="btn blue" href={`https://www.google.com/maps/search/${encodeURIComponent(`${b.name} ${b.city} TX`)}`}>Get directions</a>
-        <div class="side-links">
-          <a href={url(`/eat/${b.slug}`)}>Full business profile &rarr;</a>
-          {area && <a href={url(`/cities/${area.slug}`)}>Explore the {area.name} guide &rarr;</a>}
+        <div class="side-card">
+          <p class="eyebrow">Meet the reviewer</p>
+          <h3 class="side-name">{b.reviewAuthor || 'Sara Loren'}</h3>
+          <p class="ph-text">[A short reviewer bio.]</p>
+          <a class="side-link" href={url('/about-our-reviews')}>How we review local places &rarr;</a>
+          <a class="side-link" href={url('/food')}>More food reviews by {(b.reviewAuthor || 'Sara Loren').split(' ')[0]} &rarr;</a>
         </div>
-        {otherLocations.length > 0 && (
-          <div class="also"><p><strong>Other locations</strong></p><ul>{otherLocations.map((o) => <li><a href={url(`/eat/${o.slug}`)}>{o.neighborhood || o.city}</a></li>)}</ul></div>
+
+        <div class="side-card">
+          <p class="eyebrow">The business behind this review</p>
+          <h3 class="side-name">{b.name}</h3>
+          <p class="muted small">{b.categories.join(', ')} &middot; {place}</p>
+          <p class="muted small">Find contact details, hours, photos, and more coverage in the business profile.</p>
+          <a class="btn gold small" href={url(`/business/${b.slug}`)}>View business profile &rarr;</a>
+        </div>
+
+        {area && (
+          <div class="side-card tint">
+            <p class="eyebrow">Explore beyond the visit</p>
+            <h3 class="side-name">{area.name}, Houston</h3>
+            <p class="muted small">Discover the neighborhood and nearby subdivisions through the business profile.</p>
+            <a class="side-link" href={url(`/cities/${area.slug}`)}>Explore the {area.name} guide &rarr;</a>
+          </div>
         )}
       </aside>
     </div>
   </section>
 
-  {nearby.length > 0 && (
+  {area && (
     <section class="section tint">
-      <div class="wrap">
-        <div class="section-head"><h2>More nearby</h2>{area && <a href={url(`/cities/${area.slug}`)}>{area.name} guide</a>}</div>
-        <ul class="nearby">{nearby.map((n) => <li><a href={url(`/eat/${n.slug}`)}><strong>{n.name}</strong><span>{n.categories[0]}</span></a></li>)}</ul>
+      <div class="wrap banner">
+        <div>
+          <p class="eyebrow">Locally &middot; {area.name}</p>
+          <h2>More from this neighborhood</h2>
+          <p class="muted">Local finds, community updates, and nearby discoveries.</p>
+        </div>
+        <a class="btn blue" href={url(`/cities/${area.slug}`)}>Explore Locally &rarr;</a>
       </div>
     </section>
   )}
@@ -129,41 +169,43 @@ const ld = { '@context': 'https://schema.org', '@type': 'Review', itemReviewed: 
 <style>
   .crumb { font-size: 13px; color: var(--muted); margin: 0 0 14px; }
   .kicker { color: var(--gold); font-weight: 700; text-transform: uppercase; letter-spacing: .04em; font-size: 12px; margin: 0 0 10px; }
-  .byline { color: var(--muted); font-size: 14px; margin: 10px 0 0; }
-  .closed-badge { margin-left: 10px; background: #fff; color: var(--brown); border: 1px solid var(--brown); }
+  .lede.small { font-size: 1rem; opacity: .9; margin-top: -8px; }
+  .byline-row { display: flex; align-items: center; gap: 12px; margin: 16px 0 0; }
+  .byline-pill { display: inline-flex; align-items: center; padding: 4px 14px; border-radius: 999px; background: rgba(255,255,255,.15); font-weight: 600; font-size: 14px; }
+  .band-actions { margin-top: 20px; }
+  .btn.ghost-light { border: 1.5px solid rgba(255,255,255,.6); color: #fff; background: transparent; }
+  .btn.ghost-light:hover { background: rgba(255,255,255,.12); }
+  .btn.small { padding: 8px 18px; font-size: 14px; }
   .closed-note { background: var(--cream); border: 1px solid var(--line); border-radius: 6px; padding: 10px 14px; margin: 0 0 20px; font-size: 14px; color: var(--muted); }
 
   .hero-photo { aspect-ratio: 16 / 7; background: var(--cream); border: 1.5px dashed var(--line); border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: var(--muted); }
-  .photo-caption { margin: 10px 0 0; font-style: italic; }
 
-  .eyebrow { color: var(--green, #1e7a43); font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; margin: 0 0 6px; }
-  .quick-take { background: var(--cream); border-radius: 8px; padding: 20px 24px; margin-bottom: 8px; }
-  .quick-take p.ph-text { margin: 0; font-size: 1.05rem; }
+  .eyebrow { color: #1e7a43; font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; margin: 0 0 6px; }
+  .review-h2 { margin: 0 0 12px; }
+  .tier-badge { display: inline-flex; align-items: center; gap: 7px; background: var(--gold-soft); color: var(--brown); font-weight: 700; font-size: 14px; padding: 6px 14px; border-radius: 999px; margin-bottom: 22px; }
+  .tier-icon { display: flex; }
+  .pull-quote { font-family: var(--serif); font-size: 1.5rem; font-weight: 400; color: var(--navy); border-left: 4px solid var(--gold); padding: 2px 0 2px 22px; margin: 0 0 28px; line-height: 1.4; }
+  .review-text { white-space: pre-line; }
 
   dd a { color: var(--blue); }
-  .layout { display: grid; grid-template-columns: 1fr 320px; gap: 56px; align-items: start; }
-  blockquote footer { font-family: var(--sans); font-size: 14px; color: var(--muted); margin-top: 10px; }
-  .worked-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
-  .worked-grid h3 { margin: 0 0 8px; font-size: 1.1rem; }
+  .layout { display: grid; grid-template-columns: 1fr 320px; gap: 40px; align-items: start; }
   .faq-list { border-top: 1px solid var(--line); }
   .faq-item { border-bottom: 1px solid var(--line); padding: 14px 0; }
   .faq-item summary { cursor: pointer; font-weight: 600; color: var(--navy); list-style: none; }
   .faq-item summary::-webkit-details-marker { display: none; }
   .faq-item p { margin: 10px 0 0; }
 
-  aside { background: var(--cream); padding: 24px; align-self: start; border-radius: 8px; }
-  .side-name { margin: 0 0 14px; }
-  dl { margin: 0 0 20px; } dt { font-size: 13px; color: var(--brown); margin-top: 12px; } dd { margin: 2px 0 0; }
-  .side-links { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
-  .side-links a { font-weight: 600; font-size: 14px; }
-  .also { margin-top: 20px; } .also ul { padding-left: 18px; }
-  .nearby { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
-  .nearby a { display: flex; flex-direction: column; background: #fff; padding: 16px; text-decoration: none; border-left: 4px solid var(--gold); }
-  .nearby strong { font-family: var(--serif); font-weight: 400; font-size: 1.15rem; }
+  aside { display: flex; flex-direction: column; gap: 16px; align-self: start; }
+  .side-card { background: var(--cream); padding: 22px; border-radius: 8px; }
+  .side-card.tint { background: #fff; border: 1px solid var(--line); }
+  .side-name { margin: 0 0 8px; font-size: 1.3rem; }
+  .side-link { display: block; font-weight: 600; font-size: 14px; margin-top: 10px; }
   .ph-text { color: var(--muted); font-style: italic; }
+
+  .banner { display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+  .banner h2 { margin: 2px 0 6px; }
 
   @media (max-width: 860px) {
     .layout { grid-template-columns: 1fr; }
-    .worked-grid { grid-template-columns: 1fr; }
   }
 </style>
