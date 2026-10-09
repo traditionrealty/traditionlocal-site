@@ -45,10 +45,21 @@ const ld = { '@context': 'https://schema.org', '@type': 'LocalBusiness', name: b
 
   <section class="section">
     <div class="wrap">
-      <div class="hero-photo">
-        <svg aria-hidden="true" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 11l8-7 8 7"/><path d="M6 10v9a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-9"/></svg>
-        <span>A glimpse inside &middot; business cover photo</span>
-      </div>
+      {b.heroImage ? (
+        <img class="hero-real" src={url(b.heroImage)} alt={b.images?.[0]?.alt || `${b.name} photo`} width="1200" height="525" loading="eager" />
+      ) : (
+        <div class="hero-photo">
+          <svg aria-hidden="true" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 11l8-7 8 7"/><path d="M6 10v9a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-9"/></svg>
+          <span>A glimpse inside &middot; business cover photo</span>
+        </div>
+      )}
+      {b.images && b.images.length > 1 && (
+        <div class="gallery-strip">
+          {b.images.slice(1, 6).map((im: { path: string; alt: string }) => (
+            <img src={url(im.path)} alt={im.alt || `${b.name} photo`} loading="lazy" width="200" height="150" />
+          ))}
+        </div>
+      )}
     </div>
   </section>
 
@@ -195,6 +206,9 @@ const ld = { '@context': 'https://schema.org', '@type': 'LocalBusiness', name: b
   .closed-note { background: var(--cream); border: 1px solid var(--line); border-radius: 6px; padding: 10px 14px; margin: 0 0 20px; font-size: 14px; color: var(--muted); }
 
   .hero-photo { aspect-ratio: 16 / 7; background: var(--cream); border: 1.5px dashed var(--line); border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: var(--muted); }
+  .hero-real { width: 100%; aspect-ratio: 16 / 7; object-fit: cover; border-radius: 10px; display: block; }
+  .gallery-strip { display: flex; gap: 10px; margin-top: 10px; overflow-x: auto; }
+  .gallery-strip img { width: 160px; height: 120px; object-fit: cover; border-radius: 8px; flex: none; }
 
   .eyebrow { color: #1e7a43; font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; margin: 0 0 6px; }
   .eyebrow.small { margin-bottom: 4px; }
