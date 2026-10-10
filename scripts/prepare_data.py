@@ -396,32 +396,63 @@ if PAGES_CSV.exists():
             x["reviewVisitedDate"] = r["visited_date"]
     print("review page content from reviews_pages.csv:", page_n)
 
-# ---------- real visit photos (data/raw/reviews_image_manifest.csv) ----------
-# Sara's own photos from each visit, already placed at public/images/reviews/<slug>/NN.jpg.
-# This just tells each business which ones it has, in order; the first becomes the hero image.
+# ---------- real visit photos (public/images/BATCH 1-8) ----------
+# Build the complete slug-to-batch mapping from the uploaded image folders.
+IMAGE_ROOT = ROOT / "public" / "images"
+SLUG_TO_BATCH = {
+    folder.name: int(batch.name.split(" ", 1)[1])
+    for batch in sorted(IMAGE_ROOT.glob("BATCH [1-8]"))
+    if batch.is_dir()
+    for folder in batch.iterdir()
+    if folder.is_dir()
+}
+
+def _image_norm(value):
+    return re.sub(r"[^a-z0-9]", "", str(value).lower())
+
+batch_by_norm = {_image_norm(slug): slug for slug in SLUG_TO_BATCH}
+images_by_slug = {}
 IMAGE_MANIFEST_CSV = RAW / "reviews_image_manifest.csv"
 if IMAGE_MANIFEST_CSV.exists():
-    im = pd.read_csv(IMAGE_MANIFEST_CSV, dtype=str)
-    images_by_slug: dict = {}
-    for _, r in im.iterrows():
-        if r.get("connection_status") != "matched":
+    im = pd.read_csv(IMAGE_MANIFEST_CSV, dtype=str).fillna("")
+    for _, row in im.iterrows():
+        if row.get("connection_status") != "matched":
             continue
-        slug = nan(r.get("matched_slug"))
-        path = nan(r.get("website_image_path"))
-        if not slug or not path:
+        slug = batch_by_norm.get(_image_norm(row.get("matched_slug", "")))
+        filename = row.get("target_filename", "").strip()
+        if not slug or not filename or Path(filename).name != filename:
             continue
-        images_by_slug.setdefault(slug, []).append({"path": path, "alt": nan(r.get("image_alt")) or ""})
-    img_n = 0
-    for x in biz:
-        imgs = images_by_slug.get(x["slug"])
-        if not imgs:
-            continue
-        imgs.sort(key=lambda i: i["path"])
-        x["images"] = imgs
-        x["heroImage"] = imgs[0]["path"]
+        local_file = IMAGE_ROOT / f"BATCH {SLUG_TO_BATCH[slug]}" / slug / filename
+        if local_file.is_file():
+            images_by_slug.setdefault(slug, []).append({
+                "path": f"/images/BATCH {SLUG_TO_BATCH[slug]}/{slug}/{filename}",
+                "alt": row.get("image_alt", "").strip()
+            })
+
+# Use photos already checked into the repository even without a manifest CSV.
+for slug, batch_number in SLUG_TO_BATCH.items():
+    if slug in images_by_slug:
+        continue
+    folder = IMAGE_ROOT / f"BATCH {batch_number}" / slug
+    files = sorted(p for p in folder.iterdir()
+                   if p.is_file() and p.suffix.lower() in {".jpg", ".jpeg", ".png", ".webp", ".avif"})
+    if files:
+        images_by_slug[slug] = [
+            {"path": f"/images/BATCH {batch_number}/{slug}/{p.name}",
+             "alt": slug.replace("-", " ") + " photo"}
+            for p in files
+        ]
+
+img_n = 0
+for business in biz:
+    slug = batch_by_norm.get(_image_norm(business["slug"]))
+    imgs = images_by_slug.get(slug) if slug else None
+    if imgs:
+        business["images"] = imgs
+        business["heroImage"] = imgs[0]["path"]
         img_n += 1
-    print("businesses with real photos from reviews_image_manifest.csv:", img_n,
-          "| total photos:", sum(len(v) for v in images_by_slug.values()))
+print("businesses with local visit photos:", img_n,
+      "| total photos:", sum(len(v) for v in images_by_slug.values()))
 
 reviews = []
 REVIEWS_CSV = RAW / "sara-reviews.csv"
