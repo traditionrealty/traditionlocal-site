@@ -254,6 +254,41 @@ areas = [{"slug": r["Slug"], "name": r["Name"], "type": r["Type"], "region": r["
 areas.sort(key=lambda x: x["name"])
 print("areas", len(areas))
 
+# ---------- market snapshot (HAR MLS, by neighborhood) ----------
+# Name aliases: the HAR Matrix area name doesn't always match our area name exactly.
+MARKET_NAME_ALIASES = {
+    "Meyerland Area": "Meyerland",
+    "Upper Kirby": "Upper Kirby and Greenway",
+    "Royden Oaks / Afton Oaks": "Afton Oaks and Highland Village",
+    "River Oaks / River Oaks Shopping Area": "River Oaks",
+    "Washington East / Sabine / Rice Military / Washington Corridor": "Washington Corridor",
+    "West University / Southside Area": "West University / Southside",
+    "Medical Center Area": "Medical Center",
+    "East End Revitalized": "East End",
+    "Westchase Area": "Westchase",
+    "Knollwood / Woodside Area": "Knollwood / Woodside",
+}
+market_path = RAW / "market-snapshot.csv"
+if market_path.exists():
+    m = pd.read_csv(market_path)
+    area_by_name = {a["name"]: a for a in areas}
+    matched, skipped = 0, []
+    for _, r in m.iterrows():
+        csv_name = str(r["neighborhood_name"]).strip()
+        target_name = MARKET_NAME_ALIASES.get(csv_name, csv_name)
+        area = area_by_name.get(target_name)
+        if not area:
+            skipped.append(csv_name)
+            continue
+        area["market"] = {
+            "medianSalePrice": int(r["median_sale_price"]), "medianDom": int(r["median_dom"]),
+            "activeCount": int(r["active_count"]), "medianActiveListPrice": int(r["median_active_list_price"]),
+            "soldCount": int(r["sold_count"]), "periodStart": nan(r["period_start"]), "periodEnd": nan(r["period_end"]),
+            "source": r["source"], "pulledDate": r["pulled_date"],
+        }
+        matched += 1
+    print("market snapshot", matched, "matched,", len(skipped), "skipped:", skipped)
+
 # ---------- businesses (spreadsheet) ----------
 b = pd.read_excel(RAW / "tradition_local_texas_businesses_CLAUDE.xlsx")
 area_by_name = {x["name"].lower(): x["slug"] for x in areas}
