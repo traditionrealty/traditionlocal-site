@@ -58,7 +58,7 @@ const pullQuote = pullQuoteCandidate.length < (b.review || '').length * 0.75 ? p
       <p class="lede small">{b.description}</p>
       <div class="byline-row">
         <span class="byline-pill">{b.reviewAuthor || 'Sara Loren'}</span>
-        <span class="muted small">Visited {b.reviewYear}</span>
+        <span class="muted small">Visited {b.reviewVisitedDate || b.reviewYear}</span>
       </div>
       <div class="band-actions">
         <a class="btn ghost-light" href={url(`/business/${b.slug}`)}>View business profile &rarr;</a>
@@ -115,29 +115,35 @@ const pullQuote = pullQuoteCandidate.length < (b.review || '').length * 0.75 ? p
         )}
         {story && <p>Read the related story: <a href={url(story.path)}>{story.title}</a></p>}
 
-        <h2>The experience</h2>
-        {b.reviewPage?.theExperience
-          ? <p>{b.reviewPage.theExperience}</p>
-          : <p class="ph-text">[What the space, service, and overall visit felt like.]</p>}
+        {b.reviewPage?.theExperience && (
+          <>
+            <h2>The experience</h2>
+            <p class="review-text">{b.reviewPage.theExperience}</p>
+          </>
+        )}
 
-        <h2>Who might enjoy it?</h2>
-        {b.reviewPage?.whoMightEnjoyIt
-          ? <p>{b.reviewPage.whoMightEnjoyIt}</p>
-          : <p class="ph-text">[Who this is a good fit for, and when we'd choose it.]</p>}
+        {b.reviewPage?.whoMightEnjoyIt && (
+          <>
+            <h2>Who might enjoy it?</h2>
+            <p class="review-text">{b.reviewPage.whoMightEnjoyIt}</p>
+          </>
+        )}
 
-        <h2>Would we go again?</h2>
-        {b.reviewPage?.wouldWeGoAgain
-          ? <p>{b.reviewPage.wouldWeGoAgain}</p>
-          : <p class="ph-text">[A short, personal conclusion on whether we'd return.]</p>}
+        {b.reviewPage?.wouldWeGoAgain && (
+          <>
+            <h2>Would we go again?</h2>
+            <p class="review-text">{b.reviewPage.wouldWeGoAgain}</p>
+          </>
+        )}
 
         <h2>Your review questions, answered</h2>
         <div class="faq-list">
-          <details class="faq-item" open>
-            <summary>What did {(b.reviewAuthor || 'Sara').split(' ')[0]} order?</summary>
-            {b.reviewPage?.whatWeOrdered
-              ? <p>{b.reviewPage.whatWeOrdered}</p>
-              : <p class="ph-text">[The specific items ordered, and the price paid on the visit date.]</p>}
-          </details>
+          {b.reviewPage?.whatWeOrdered && (
+            <details class="faq-item" open>
+              <summary>What did {(b.reviewAuthor || 'Sara').split(' ')[0]} order?</summary>
+              <p class="review-text">{b.reviewPage.whatWeOrdered}</p>
+            </details>
+          )}
           {badge && (
             <details class="faq-item">
               <summary>What does {badge.label} mean?</summary>
