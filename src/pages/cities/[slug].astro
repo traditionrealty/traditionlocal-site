@@ -172,14 +172,25 @@ const sameRegion = areas.filter((x) => x.region === a.region && x.slug !== a.slu
           <p class="eyebrow">Market</p>
           <h2>{a.name} this month</h2>
         </div>
-        <p class="muted small source-note">Sample figures, not live data. Replace with HAR MLS monthly.</p>
+        {a.market
+          ? <p class="muted small source-note">Based on closed HAR MLS sales, {a.market.periodStart?.slice(0, 7)} to {a.market.periodEnd?.slice(0, 7)}. Independently verify before relying on these figures.</p>
+          : <p class="muted small source-note">Sample figures, not live data. Replace with HAR MLS monthly.</p>}
       </div>
-      <div class="market-grid">
-        <div class="market-card"><strong class="ph-text">[$000,000]</strong><span>Median sale price, last 30 days</span><span class="trend ph-text">[Down/Up 0.0% from last year]</span></div>
-        <div class="market-card"><strong class="ph-text">[00]</strong><span>Median days on market</span><span class="trend ph-text">[Down/Up 00 from last year]</span></div>
-        <div class="market-card"><strong class="ph-text">[000]</strong><span>Homes for sale</span><span class="trend ph-text">[Down/Up 0.0% from last year]</span></div>
-        <div class="market-card"><strong class="ph-text">[$000K]</strong><span>Typical home value</span><span class="trend ph-text">[Down/Up 0.0% from last year]</span></div>
-      </div>
+      {a.market ? (
+        <div class="market-grid">
+          <div class="market-card"><strong>${a.market.medianSalePrice.toLocaleString()}</strong><span>Median sale price</span></div>
+          <div class="market-card"><strong>{a.market.medianDom}</strong><span>Median days on market</span></div>
+          <div class="market-card"><strong>{a.market.activeCount}</strong><span>Homes for sale</span></div>
+          <div class="market-card"><strong>${a.market.medianActiveListPrice.toLocaleString()}</strong><span>Typical asking price</span></div>
+        </div>
+      ) : (
+        <div class="market-grid">
+          <div class="market-card"><strong class="ph-text">[$000,000]</strong><span>Median sale price, last 30 days</span><span class="trend ph-text">[Down/Up 0.0% from last year]</span></div>
+          <div class="market-card"><strong class="ph-text">[00]</strong><span>Median days on market</span><span class="trend ph-text">[Down/Up 00 from last year]</span></div>
+          <div class="market-card"><strong class="ph-text">[000]</strong><span>Homes for sale</span><span class="trend ph-text">[Down/Up 0.0% from last year]</span></div>
+          <div class="market-card"><strong class="ph-text">[$000K]</strong><span>Typical home value</span><span class="trend ph-text">[Down/Up 0.0% from last year]</span></div>
+        </div>
+      )}
       <div class="market-banner">
         <p>Get the {a.name} market report every month</p>
         <a class="btn blue" href={url('/neighborhood-info-request')}>Send it to me</a>
