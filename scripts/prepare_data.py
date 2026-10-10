@@ -396,6 +396,29 @@ if PAGES_CSV.exists():
             x["reviewVisitedDate"] = r["visited_date"]
     print("review page content from reviews_pages.csv:", page_n)
 
+# ---------- photo-backed business profiles missing from the original spreadsheet ----------
+# Supplement only adds missing businesses; existing spreadsheet profiles always win.
+PHOTO_SUPPLEMENT = RAW / "photo-business-supplement.json"
+if PHOTO_SUPPLEMENT.exists():
+    supplemental = json.loads(PHOTO_SUPPLEMENT.read_text(encoding="utf-8"))
+    known_slugs = {x["slug"] for x in biz}
+    area_lookup = {a["name"].strip().lower(): a["slug"] for a in areas}
+    added = 0
+    for entry in supplemental:
+        slug = entry.get("slug")
+        if not slug or slug in known_slugs:
+            continue
+        profile = dict(entry)
+        area_name = profile.pop("areaName", None)
+        profile["area"] = area_lookup.get(str(area_name).strip().lower()) if area_name else None
+        profile.setdefault("rating", None)
+        profile.setdefault("stars", None)
+        known_slugs.add(slug)
+        biz.append(profile)
+        added += 1
+    biz.sort(key=lambda x: x["name"].lower())
+    print("photo-backed supplemental business profiles added:", added)
+
 # ---------- real visit photos (public/images/BATCH 1-8) ----------
 # Build the complete slug-to-batch mapping from the uploaded image folders.
 IMAGE_ROOT = ROOT / "public" / "images"
