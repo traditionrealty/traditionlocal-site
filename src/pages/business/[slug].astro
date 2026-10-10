@@ -32,7 +32,6 @@ const ld = { '@context': 'https://schema.org', '@type': 'LocalBusiness', name: b
       <p class="kicker">Local Directory &middot; {b.categories[0]}</p>
       <h1>{b.name}</h1>
       <p class="lede">{b.categories[0]} in {placeCrumb ? `${placeCrumb}, ${b.city}` : b.city}</p>
-      <p class="lede small">{b.description}</p>
       <div class="pill-row">
         <span class="place-pill">{place}</span>
         <span class="muted small">{b.categories.join(', ')}</span>
@@ -104,7 +103,7 @@ const ld = { '@context': 'https://schema.org', '@type': 'LocalBusiness', name: b
         <div class="faq-list">
           <details class="faq-item" open>
             <summary>Where is {b.name} located?</summary>
-            <p>{b.name} is in {place}{place !== b.city ? `, ${b.city}` : ''}, Texas. {b.address ? <>The address is {b.address}.</> : <span class="ph-text">[The verified street address and ZIP code would appear in Plan your visit.]</span>}</p>
+            <p>{b.name} is in {place}{place !== b.city ? `, ${b.city}` : ''}. {b.address ? <>The address is {b.address}.</> : <span class="ph-text">[The verified street address and ZIP code would appear in Plan your visit.]</span>}</p>
           </details>
           <details class="faq-item">
             <summary>What does {b.name} serve or offer?</summary>
