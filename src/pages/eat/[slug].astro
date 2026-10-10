@@ -92,7 +92,7 @@ const pullQuote = pullQuoteCandidate.length < (b.review || '').length * 0.75 ? p
         {b.closed && <p class="closed-note">This business is no longer operating. The review below is kept for reference.</p>}
 
         <p class="eyebrow">Sara's review</p>
-        <h2 class="review-h2">The full review</h2>
+        <h2 class="review-h2">Our visit and review</h2>
         {badge && (
           <span class="tier-badge">
             <span class="tier-icon" set:html={`<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICONS[badge.icon]}</svg>`}></span>
@@ -101,9 +101,19 @@ const pullQuote = pullQuoteCandidate.length < (b.review || '').length * 0.75 ? p
         )}
         {pullQuote && <blockquote class="pull-quote">&ldquo;{pullQuote}&rdquo;</blockquote>}
 
-        <h2>What we tried</h2>
-        <p class="review-text">{b.reviewPage?.whatWeTried || b.review}</p>
-        {story && <p>Read the full story: <a href={url(story.path)}>{story.title}</a></p>}
+        {b.review && (
+          <div class="original-review">
+            <h2>Sara's full firsthand review</h2>
+            <div class="review-text">{b.review}</div>
+          </div>
+        )}
+        {b.reviewPage?.whatWeTried && (
+          <>
+            <h2>What we tried</h2>
+            <p class="review-text">{b.reviewPage.whatWeTried}</p>
+          </>
+        )}
+        {story && <p>Read the related story: <a href={url(story.path)}>{story.title}</a></p>}
 
         <h2>The experience</h2>
         {b.reviewPage?.theExperience
@@ -207,7 +217,9 @@ const pullQuote = pullQuoteCandidate.length < (b.review || '').length * 0.75 ? p
   .tier-badge { display: inline-flex; align-items: center; gap: 7px; background: var(--gold-soft); color: var(--brown); font-weight: 700; font-size: 14px; padding: 6px 14px; border-radius: 999px; margin-bottom: 22px; }
   .tier-icon { display: flex; }
   .pull-quote { font-family: var(--serif); font-size: 1.5rem; font-weight: 400; color: var(--navy); border-left: 4px solid var(--gold); padding: 2px 0 2px 22px; margin: 0 0 28px; line-height: 1.4; }
-  .review-text { white-space: pre-line; }
+  .review-text { white-space: pre-line; line-height: 1.8; overflow-wrap: anywhere; }
+  .original-review { margin: 20px 0 32px; }
+  .original-review h2 { margin-bottom: 14px; }
 
   dd a { color: var(--blue); }
   .layout { display: grid; grid-template-columns: 1fr 320px; gap: 40px; align-items: start; }
