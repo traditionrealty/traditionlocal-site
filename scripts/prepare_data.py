@@ -419,6 +419,32 @@ if PHOTO_SUPPLEMENT.exists():
     biz.sort(key=lambda x: x["name"].lower())
     print("photo-backed supplemental business profiles added:", added)
 
+# ---------- updated business and review writing (user-supplied October 2026 CSVs) ----------
+# Applied after the photo-profile supplement so both original and newly added businesses
+# receive the same source copy. Existing contact details, photos, and manual rating rules remain.
+COPY_FILE = RAW / "review-text-updates.json"
+if COPY_FILE.exists():
+    updated_copy = json.loads(COPY_FILE.read_text(encoding="utf-8"))
+    copy_by_slug = {item["slug"]: item for item in updated_copy if item.get("slug")}
+    updated_count = 0
+    for business in biz:
+        item = copy_by_slug.get(business["slug"])
+        if item is None:
+            continue
+        if item.get("description"):
+            business["description"] = item["description"]
+        if item.get("review"):
+            business["review"] = item["review"]
+        if item.get("reviewer"):
+            business["reviewAuthor"] = item["reviewer"]
+        if item.get("visitedDate"):
+            business["reviewVisitedDate"] = item["visitedDate"]
+        sections = {key: value for key, value in item.get("sections", {}).items() if value}
+        if sections:
+            business["reviewPage"] = {**business.get("reviewPage", {}), **sections}
+        updated_count += 1
+    print("businesses updated with supplied profile and review writing:", updated_count)
+
 # ---------- real visit photos (public/images/BATCH 1-8) ----------
 # Build the complete slug-to-batch mapping from the uploaded image folders.
 IMAGE_ROOT = ROOT / "public" / "images"
