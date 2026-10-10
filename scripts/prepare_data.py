@@ -419,16 +419,42 @@ if PHOTO_SUPPLEMENT.exists():
     biz.sort(key=lambda x: x["name"].lower())
     print("photo-backed supplemental business profiles added:", added)
 
+# ---------- additional business profiles sourced from supplied CSVs ----------
+# Only records not already represented in the spreadsheet or photo supplement are added.
+ADDITIONAL_PROFILES = RAW / "additional-business-profiles.json"
+if ADDITIONAL_PROFILES.exists():
+    candidates = json.loads(ADDITIONAL_PROFILES.read_text(encoding="utf-8"))
+    known = {re.sub(r"[^a-z0-9]", "", x["slug"].lower()) for x in biz}
+    area_lookup = {a["name"].strip().lower(): a["slug"] for a in areas}
+    additional_count = 0
+    for source in candidates:
+        slug = source.get("slug", "")
+        normalized = re.sub(r"[^a-z0-9]", "", slug.lower())
+        if not normalized or normalized in known:
+            continue
+        profile = dict(source)
+        area_name = profile.pop("areaName", None)
+        profile["area"] = area_lookup.get(str(area_name).strip().lower()) if area_name else None
+        profile.setdefault("rating", None)
+        profile.setdefault("stars", None)
+        known.add(normalized)
+        biz.append(profile)
+        additional_count += 1
+    biz.sort(key=lambda x: x["name"].lower())
+    print("additional non-event business profiles from CSVs:", additional_count)
+
 # ---------- updated business and review writing (user-supplied October 2026 CSVs) ----------
 # Applied after the photo-profile supplement so both original and newly added businesses
 # receive the same source copy. Existing contact details, photos, and manual rating rules remain.
 COPY_FILE = RAW / "review-text-updates.json"
 if COPY_FILE.exists():
     updated_copy = json.loads(COPY_FILE.read_text(encoding="utf-8"))
-    copy_by_slug = {item["slug"]: item for item in updated_copy if item.get("slug")}
+    def _copy_slug(value):
+        return re.sub(r"[^a-z0-9]", "", str(value).lower())
+    copy_by_slug = {_copy_slug(item["slug"]): item for item in updated_copy if item.get("slug")}
     updated_count = 0
     for business in biz:
-        item = copy_by_slug.get(business["slug"])
+        item = copy_by_slug.get(_copy_slug(business["slug"]))
         if item is None:
             continue
         if item.get("description"):
@@ -439,6 +465,9 @@ if COPY_FILE.exists():
             business["reviewAuthor"] = item["reviewer"]
         if item.get("visitedDate"):
             business["reviewVisitedDate"] = item["visitedDate"]
+            year_match = re.match(r"^(\d{4})", item["visitedDate"])
+            if year_match:
+                business["reviewYear"] = int(year_match.group(1))
         sections = {key: value for key, value in item.get("sections", {}).items() if value}
         if sections:
             business["reviewPage"] = {**business.get("reviewPage", {}), **sections}
