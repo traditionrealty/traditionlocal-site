@@ -35,8 +35,12 @@ const sameRegion = areas.filter((x) => x.region === a.region && x.slug !== a.slu
       <h1>{a.name}</h1>
       <p class="lede">{a.vibe}</p>
       <div class="hero-stats">
-        <div><strong class="ph-text">[~$000K]</strong><span>Typical home value</span></div>
-        <div><strong class="ph-text">[00 to 00 min]</strong><span>To the Galleria</span></div>
+        {a.market
+          ? <div><strong>${Math.round(a.market.medianSalePrice / 1000)}K</strong><span>Typical home value</span></div>
+          : <div><strong class="ph-text">[~$000K]</strong><span>Typical home value</span></div>}
+        {a.commute
+          ? <div><strong>{a.commute.galleriaMin} to {a.commute.galleriaMax} min</strong><span>To the Galleria</span></div>
+          : <div><strong class="ph-text">[00 to 00 min]</strong><span>To the Galleria</span></div>}
         <div><strong>{a.schools || '[District]'}</strong><span>School district</span></div>
         <div><strong class="ph-text">[~000,000]</strong><span>Residents</span></div>
       </div>
@@ -147,13 +151,13 @@ const sameRegion = areas.filter((x) => x.region === a.region && x.slug !== a.slu
         <h2>What it's like to live here</h2>
         <dl class="live-stats">
           <div><dt>Typical homes</dt><dd>{a.homes || <span class="ph-text">[Home type]</span>}</dd></div>
-          <div><dt>Price range</dt><dd class="ph-text">[About $000K to $0.0M+]</dd></div>
+          <div><dt>Price range</dt><dd>{a.priceRange || <span class="ph-text">[About $000K to $0.0M+]</span>}</dd></div>
           <div><dt>School district</dt><dd>{a.schools || <span class="ph-text">[District]</span>}</dd></div>
-          <div><dt>To the Galleria</dt><dd class="ph-text">[00 to 00 min]</dd></div>
-          <div><dt>To the Medical Center</dt><dd class="ph-text">[00 to 00 min]</dd></div>
-          <div><dt>To Downtown</dt><dd class="ph-text">[00 to 00 min, about 00 miles]</dd></div>
-          <div><dt>Flood notes</dt><dd class="ph-text">[Flood zone and drainage notes. Verify by address.]</dd></div>
-          <div><dt>Property tax</dt><dd class="ph-text">[About 0.00% to 0.00%]</dd></div>
+          <div><dt>To the Galleria</dt><dd>{a.commute ? `${a.commute.galleriaMin} to ${a.commute.galleriaMax} min` : <span class="ph-text">[00 to 00 min]</span>}</dd></div>
+          <div><dt>To the Medical Center</dt><dd>{a.commute ? `${a.commute.medicalCenterMin} to ${a.commute.medicalCenterMax} min` : <span class="ph-text">[00 to 00 min]</span>}</dd></div>
+          <div><dt>To Downtown</dt><dd>{a.commute ? `${a.commute.downtownMin} to ${a.commute.downtownMax} min, about ${a.commute.downtownMiles} miles` : <span class="ph-text">[00 to 00 min, about 00 miles]</span>}</dd></div>
+          <div><dt>Flood notes</dt><dd>{a.flood?.note || <span class="ph-text">[Flood zone and drainage notes. Verify by address.]</span>}</dd></div>
+          <div><dt>Property tax</dt><dd>{a.tax?.ratePct ? `About ${a.tax.ratePct}% combined rate` : <span class="ph-text">[About 0.00% to 0.00%]</span>}</dd></div>
         </dl>
       </div>
       <div class="take-card">
@@ -256,7 +260,9 @@ const sameRegion = areas.filter((x) => x.region === a.region && x.slug !== a.slu
         </details>
         <details class="faq-item">
           <summary>How far is {a.name} from downtown Houston?</summary>
-          <p class="ph-text">[00 to 00 min, about 00 miles]</p>
+          {a.commute
+            ? <p>{a.commute.downtownMin} to {a.commute.downtownMax} min, about {a.commute.downtownMiles} miles.</p>
+            : <p class="ph-text">[00 to 00 min, about 00 miles]</p>}
         </details>
         <details class="faq-item">
           <summary>What school district serves {a.name}?</summary>
@@ -264,7 +270,9 @@ const sameRegion = areas.filter((x) => x.region === a.region && x.slug !== a.slu
         </details>
         <details class="faq-item">
           <summary>Does {a.name} flood?</summary>
-          <p class="ph-text">[Flood zone and drainage notes. Verify by address.]</p>
+          {a.flood?.note
+            ? <p>{a.flood.note}</p>
+            : <p class="ph-text">[Flood zone and drainage notes. Verify by address.]</p>}
         </details>
       </div>
       <div class="community-bar">
