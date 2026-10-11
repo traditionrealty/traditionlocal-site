@@ -1,0 +1,6 @@
+neighborhood_name,galleria_min_minutes,galleria_max_minutes,galleria_miles,medical_center_min_minutes,medical_center_max_minutes,medical_center_miles,downtown_min_minutes,downtown_max_minutes,downtown_miles,flood_watershed,flood_note
+Spring Branch,17,18,11.5,25,27,19.3,25,25,18.7,Buffalo Bayou,Sample address checked was outside the mapped 100-year floodplain; Buttermilk Creek and Spring Branch Creek floodplains run through parts of the area. Verify by address.
+The Heights,17,17,8.3,17,17,9.2,14,14,6.3,White Oak Bayou,Sample address checked was outside the mapped 100-year floodplain; areas nearer White Oak Bayou on the north side carry floodplain exposure. Verify by address.
+River Oaks,8,9,2.3,14,18,7.4,14,16,6.8,Buffalo Bayou,Significant 100-year floodplain exposure along the Buffalo Bayou corridor that runs through the neighborhood. Verify by address.
+Montrose,14,15,4.0,11,13,3.5,15,15,3.3,Buffalo Bayou,Sample address checked was outside the mapped 100-year floodplain; the bayou corridor along the northern edge of the area carries floodplain exposure. Verify by address.
+Bellaire,9,10,2.7,14,14,4.6,16,19,9.5,Brays Bayou,Significant mapped 100-year and 500-year floodplain across much of the surrounding area near Brays Bayou; this part of Houston flooded substantially during Harvey. Verify by address.
