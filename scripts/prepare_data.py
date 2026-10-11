@@ -289,6 +289,35 @@ if market_path.exists():
         matched += 1
     print("market snapshot", matched, "matched,", len(skipped), "skipped:", skipped)
 
+# ---------- commute times, flood notes, and property tax rate (by neighborhood) ----------
+cft_path = RAW / "commute-flood-tax.csv"
+if cft_path.exists():
+    c = pd.read_csv(cft_path)
+    area_by_name2 = {a["name"]: a for a in areas}
+    cft_matched, cft_skipped = 0, []
+    for _, r in c.iterrows():
+        csv_name = str(r["neighborhood_name"]).strip()
+        target_name = MARKET_NAME_ALIASES.get(csv_name, csv_name)
+        area = area_by_name2.get(target_name)
+        if not area:
+            cft_skipped.append(csv_name)
+            continue
+        area["commute"] = {
+            "galleriaMin": int(r["galleria_min_minutes"]), "galleriaMax": int(r["galleria_max_minutes"]),
+            "galleriaMiles": float(r["galleria_miles"]),
+            "medicalCenterMin": int(r["medical_center_min_minutes"]), "medicalCenterMax": int(r["medical_center_max_minutes"]),
+            "medicalCenterMiles": float(r["medical_center_miles"]),
+            "downtownMin": int(r["downtown_min_minutes"]), "downtownMax": int(r["downtown_max_minutes"]),
+            "downtownMiles": float(r["downtown_miles"]),
+        }
+        area["flood"] = {"watershed": nan(r["flood_watershed"]), "note": nan(r["flood_note"])}
+        area["tax"] = {
+            "ratePct": float(r["tax_rate_pct"]), "jurisdictions": nan(r["tax_jurisdictions"]),
+            "source": r["tax_source"], "pulledDate": r["pulled_date"],
+        }
+        cft_matched += 1
+    print("commute/flood/tax", cft_matched, "matched,", len(cft_skipped), "skipped:", cft_skipped)
+
 # ---------- businesses (spreadsheet) ----------
 b = pd.read_excel(RAW / "tradition_local_texas_businesses_CLAUDE.xlsx")
 area_by_name = {x["name"].lower(): x["slug"] for x in areas}
@@ -649,6 +678,25 @@ if MASTER_CMS.exists():
     subdivisions.sort(key=lambda x: x["name"].lower())
     print("subdivisions", len(subdivisions), "linked to a neighborhood guide, skipped (no matching area):", skipped,
           ", duplicate (same name + zip) dropped:", dupes_dropped, ", enriched with price/HOA/schools data:", enriched)
+
+    # ---------- area price range (rolled up from its subdivisions' real price ranges) ----------
+    subs_by_area = {}
+    for s in subdivisions:
+        subs_by_area.setdefault(s["area"], []).append(s)
+    area_range_n = 0
+    for a in areas:
+        lo_vals, hi_vals = [], []
+        for s in subs_by_area.get(a["slug"], []):
+            nums = re.findall(r"[\d,]+", s.get("priceRange") or "")
+            if len(nums) >= 2:
+                lo_vals.append(int(nums[0].replace(",", "")))
+                hi_vals.append(int(nums[-1].replace(",", "")))
+        if lo_vals:
+            lo, hi = min(lo_vals), max(hi_vals)
+            fmt = lambda v: f"${v/1_000_000:.1f}M" if v >= 1_000_000 else f"${round(v/1000)}K"
+            a["priceRange"] = f"{fmt(lo)} to {fmt(hi)}"
+            area_range_n += 1
+    print("area price ranges computed from subdivisions:", area_range_n)
 
 # ---------- generic pages ----------
 CUSTOM = {"/", "/food", "/living", "/cities", "/all-articles"}
