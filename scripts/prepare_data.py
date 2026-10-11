@@ -289,18 +289,18 @@ if market_path.exists():
         matched += 1
     print("market snapshot", matched, "matched,", len(skipped), "skipped:", skipped)
 
-# ---------- commute times, flood notes, and property tax rate (by neighborhood) ----------
-cft_path = RAW / "commute-flood-tax.csv"
-if cft_path.exists():
-    c = pd.read_csv(cft_path)
-    area_by_name2 = {a["name"]: a for a in areas}
-    cft_matched, cft_skipped = 0, []
+# ---------- commute times and flood notes (by neighborhood) ----------
+area_by_name2 = {a["name"]: a for a in areas}
+cf_path = RAW / "commute-flood.csv"
+if cf_path.exists():
+    c = pd.read_csv(cf_path)
+    cf_matched, cf_skipped = 0, []
     for _, r in c.iterrows():
         csv_name = str(r["neighborhood_name"]).strip()
         target_name = MARKET_NAME_ALIASES.get(csv_name, csv_name)
         area = area_by_name2.get(target_name)
         if not area:
-            cft_skipped.append(csv_name)
+            cf_skipped.append(csv_name)
             continue
         area["commute"] = {
             "galleriaMin": int(r["galleria_min_minutes"]), "galleriaMax": int(r["galleria_max_minutes"]),
@@ -311,12 +311,27 @@ if cft_path.exists():
             "downtownMiles": float(r["downtown_miles"]),
         }
         area["flood"] = {"watershed": nan(r["flood_watershed"]), "note": nan(r["flood_note"])}
+        cf_matched += 1
+    print("commute/flood", cf_matched, "matched,", len(cf_skipped), "skipped:", cf_skipped)
+
+# ---------- property tax rate (by neighborhood) ----------
+tax_path = RAW / "property-tax-rates.csv"
+if tax_path.exists():
+    t = pd.read_csv(tax_path)
+    tax_matched, tax_skipped = 0, []
+    for _, r in t.iterrows():
+        csv_name = str(r["neighborhood_name"]).strip()
+        target_name = MARKET_NAME_ALIASES.get(csv_name, csv_name)
+        area = area_by_name2.get(target_name)
+        if not area:
+            tax_skipped.append(csv_name)
+            continue
         area["tax"] = {
             "ratePct": float(r["tax_rate_pct"]), "jurisdictions": nan(r["tax_jurisdictions"]),
             "source": r["tax_source"], "pulledDate": r["pulled_date"],
         }
-        cft_matched += 1
-    print("commute/flood/tax", cft_matched, "matched,", len(cft_skipped), "skipped:", cft_skipped)
+        tax_matched += 1
+    print("property tax", tax_matched, "matched,", len(tax_skipped), "skipped:", tax_skipped)
 
 # ---------- businesses (spreadsheet) ----------
 b = pd.read_excel(RAW / "tradition_local_texas_businesses_CLAUDE.xlsx")
