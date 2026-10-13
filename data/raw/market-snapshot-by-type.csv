@@ -1,0 +1,2 @@
+location_id,neighborhood_name,sf_min_sale_price,sf_max_sale_price,sf_sold_count,condo_min_sale_price,condo_max_sale_price,condo_sold_count
+loc-007,Spring Branch,85000,3700000,2141,50000,780000,211
