@@ -285,7 +285,13 @@ if market_path.exists():
             "activeCount": int(r["active_count"]), "medianActiveListPrice": int(r["median_active_list_price"]),
             "soldCount": int(r["sold_count"]), "periodStart": nan(r["period_start"]), "periodEnd": nan(r["period_end"]),
             "source": r["source"], "pulledDate": r["pulled_date"],
+            "minSalePrice": int(r["min_sale_price"]) if nan(r.get("min_sale_price")) else None,
+            "maxSalePrice": int(r["max_sale_price"]) if nan(r.get("max_sale_price")) else None,
         }
+        lo, hi = area["market"]["minSalePrice"], area["market"]["maxSalePrice"]
+        if lo and hi:
+            fmt = lambda v: f"${v/1_000_000:.1f}M" if v >= 1_000_000 else f"${round(v/1000)}K"
+            area["priceRange"] = f"{fmt(lo)} to {fmt(hi)}"
         matched += 1
     print("market snapshot", matched, "matched,", len(skipped), "skipped:", skipped)
 
@@ -700,6 +706,8 @@ if MASTER_CMS.exists():
         subs_by_area.setdefault(s["area"], []).append(s)
     area_range_n = 0
     for a in areas:
+        if a.get("priceRange"):
+            continue  # already set from real sold-price min/max in the market snapshot; more current than subdivision listings
         lo_vals, hi_vals = [], []
         for s in subs_by_area.get(a["slug"], []):
             nums = re.findall(r"[\d,]+", s.get("priceRange") or "")
