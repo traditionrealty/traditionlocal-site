@@ -152,6 +152,12 @@ const sameRegion = areas.filter((x) => x.region === a.region && x.slug !== a.slu
         <dl class="live-stats">
           <div><dt>Typical homes</dt><dd>{a.homes || <span class="ph-text">[Home type]</span>}</dd></div>
           <div><dt>Price range</dt><dd>{a.priceRange || <span class="ph-text">[About $000K to $0.0M+]</span>}</dd></div>
+          {a.priceRangeByType && (
+            <>
+              <div><dt>Single-family range</dt><dd>{a.priceRangeByType.singleFamily}</dd></div>
+              <div><dt>Townhome/condo range</dt><dd>{a.priceRangeByType.condo}</dd></div>
+            </>
+          )}
           <div><dt>School district</dt><dd>{a.schools || <span class="ph-text">[District]</span>}</dd></div>
           <div><dt>To the Galleria</dt><dd>{a.commute ? `${a.commute.galleriaMin} to ${a.commute.galleriaMax} min` : <span class="ph-text">[00 to 00 min]</span>}</dd></div>
           <div><dt>To the Medical Center</dt><dd>{a.commute ? `${a.commute.medicalCenterMin} to ${a.commute.medicalCenterMax} min` : <span class="ph-text">[00 to 00 min]</span>}</dd></div>
