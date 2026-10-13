@@ -36,7 +36,7 @@ const sameRegion = areas.filter((x) => x.region === a.region && x.slug !== a.slu
       <p class="lede">{a.vibe}</p>
       <div class="hero-stats">
         {a.market
-          ? <div><strong>${Math.round(a.market.medianSalePrice / 1000)}K</strong><span>Typical home value</span></div>
+          ? <div><strong>{a.market.medianSalePrice >= 1_000_000 ? `$${(a.market.medianSalePrice / 1_000_000).toFixed(1)}M` : `$${Math.round(a.market.medianSalePrice / 1000)}K`}</strong><span>Typical home value</span></div>
           : <div><strong class="ph-text">[~$000K]</strong><span>Typical home value</span></div>}
         {a.commute
           ? <div><strong>{a.commute.galleriaMin} to {a.commute.galleriaMax} min</strong><span>To the Galleria</span></div>
