@@ -361,6 +361,35 @@ if tax_path.exists():
         tax_matched += 1
     print("property tax", tax_matched, "matched,", len(tax_skipped), "skipped:", tax_skipped)
 
+# ---------- base (Harris County-wide) property tax rate fallback ----------
+# These 5 jurisdictions are the same for every Harris County property regardless of school
+# district or city/MUD, confirmed from HCAD samples (Houston ISD, Alief ISD areas alike).
+# Not applied to the Coast region areas, which sit in Galveston/Brazoria county, not Harris.
+HARRIS_BASE_RATE_PCT = 0.63
+base_tax_n = 0
+for a in areas:
+    if a.get("region") == "Coast":
+        continue
+    if a.get("tax"):
+        continue
+    a["tax"] = {
+        "ratePct": HARRIS_BASE_RATE_PCT, "isBaseOnly": True,
+        "jurisdictions": "Harris County, Harris Co Flood Control, Harris Co Hospital Dist, Harris Co Education Dept, Port of Houston Authority (base only; school district and city/MUD rate not yet included)",
+        "source": "HCAD Jurisdictions table (Harris County base rate only)", "pulledDate": "2026-10-10",
+    }
+    base_tax_n += 1
+print("base Harris County tax rate applied to", base_tax_n, "areas without a full rate")
+
+# ---------- coastal flood risk fallback ----------
+# These areas sit in the Coast region (Galveston/Brazoria coastline); flag the general
+# coastal flood exposure when no address-specific flood lookup has been done yet.
+coastal_flood_n = 0
+for a in areas:
+    if a.get("region") == "Coast" and not a.get("flood"):
+        a["flood"] = {"watershed": None, "note": "Coastal region, possible flood risk. Verify by address with FEMA flood maps and the local flood control district."}
+        coastal_flood_n += 1
+print("coastal flood risk note applied to", coastal_flood_n, "areas")
+
 # ---------- businesses (spreadsheet) ----------
 b = pd.read_excel(RAW / "tradition_local_texas_businesses_CLAUDE.xlsx")
 area_by_name = {x["name"].lower(): x["slug"] for x in areas}
