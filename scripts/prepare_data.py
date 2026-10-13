@@ -321,26 +321,27 @@ if cf_path.exists():
     print("commute/flood", cf_matched, "matched,", len(cf_skipped), "skipped:", cf_skipped)
 
 # ---------- sold price range split by property type (Single-Family vs Townhouse/Condo) ----------
-by_type_path = RAW / "market-snapshot-by-type.csv"
-if by_type_path.exists():
-    bt = pd.read_csv(by_type_path)
-    bt_matched, bt_skipped = 0, []
-    fmt_price = lambda v: f"${v/1_000_000:.1f}M" if v >= 1_000_000 else f"${round(v/1000)}K"
-    for _, r in bt.iterrows():
-        csv_name = str(r["neighborhood_name"]).strip()
-        target_name = MARKET_NAME_ALIASES.get(csv_name, csv_name)
-        area = area_by_name.get(target_name)
-        if not area:
-            bt_skipped.append(csv_name)
-            continue
-        area["priceRangeByType"] = {
-            "singleFamily": f'{fmt_price(int(r["sf_min_sale_price"]))} to {fmt_price(int(r["sf_max_sale_price"]))}',
-            "singleFamilyCount": int(r["sf_sold_count"]),
-            "condo": f'{fmt_price(int(r["condo_min_sale_price"]))} to {fmt_price(int(r["condo_max_sale_price"]))}',
-            "condoCount": int(r["condo_sold_count"]),
-        }
+# Lives in the main market-snapshot.csv now, as extra columns. A row can have either side,
+# both, or neither (e.g. Downtown Houston is condo-only; Rivercrest is single-family-only).
+fmt_price = lambda v: f"${v/1_000_000:.1f}M" if v >= 1_000_000 else f"${round(v/1000)}K"
+bt_matched = 0
+for _, r in m.iterrows():
+    csv_name = str(r["neighborhood_name"]).strip()
+    target_name = MARKET_NAME_ALIASES.get(csv_name, csv_name)
+    area = area_by_name.get(target_name)
+    if not area:
+        continue
+    by_type = {}
+    sf_lo, sf_hi = r.get("single_family_min_sale_price"), r.get("single_family_max_sale_price")
+    if nan(sf_lo) and nan(sf_hi):
+        by_type["singleFamily"] = f"{fmt_price(int(sf_lo))} to {fmt_price(int(sf_hi))}"
+    condo_lo, condo_hi = r.get("townhouse_condo_min_sale_price"), r.get("townhouse_condo_max_sale_price")
+    if nan(condo_lo) and nan(condo_hi):
+        by_type["condo"] = f"{fmt_price(int(condo_lo))} to {fmt_price(int(condo_hi))}"
+    if by_type:
+        area["priceRangeByType"] = by_type
         bt_matched += 1
-    print("price range by property type", bt_matched, "matched,", len(bt_skipped), "skipped:", bt_skipped)
+print("price range by property type", bt_matched, "matched")
 
 # ---------- property tax rate (by neighborhood) ----------
 tax_path = RAW / "property-tax-rates.csv"
