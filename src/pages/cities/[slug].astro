@@ -188,7 +188,7 @@ const sameRegion = areas.filter((x) => x.region === a.region && x.slug !== a.slu
           <h2>{a.name} this month</h2>
         </div>
         {a.market
-          ? <p class="muted small source-note">Based on closed HAR MLS sales, {a.market.periodStart?.slice(0, 7)} to {a.market.periodEnd?.slice(0, 7)}. Independently verify before relying on these figures.</p>
+          ? <p class="muted small source-note">Based on closed HAR MLS sales{a.market.periodStart && a.market.periodEnd ? `, ${a.market.periodStart.slice(0, 7)} to ${a.market.periodEnd.slice(0, 7)}` : ''}. Independently verify before relying on these figures.</p>
           : <p class="muted small source-note">Sample figures, not live data. Replace with HAR MLS monthly.</p>}
       </div>
       {a.market ? (
