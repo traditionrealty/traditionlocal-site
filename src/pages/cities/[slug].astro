@@ -151,19 +151,24 @@ const sameRegion = areas.filter((x) => x.region === a.region && x.slug !== a.slu
         <h2>What it's like to live here</h2>
         <dl class="live-stats">
           <div><dt>Typical homes</dt><dd>{a.homes || <span class="ph-text">[Home type]</span>}</dd></div>
-          <div><dt>Price range</dt><dd>{a.priceRange || <span class="ph-text">[About $000K to $0.0M+]</span>}</dd></div>
-          {a.priceRangeByType && (
+          {a.priceRangeByType ? (
             <>
               <div><dt>Single-family range</dt><dd>{a.priceRangeByType.singleFamily}</dd></div>
               <div><dt>Townhome/condo range</dt><dd>{a.priceRangeByType.condo}</dd></div>
             </>
+          ) : (
+            <div><dt>Price range</dt><dd>{a.priceRange || <span class="ph-text">[About $000K to $0.0M+]</span>}</dd></div>
           )}
           <div><dt>School district</dt><dd>{a.schools || <span class="ph-text">[District]</span>}</dd></div>
           <div><dt>To the Galleria</dt><dd>{a.commute ? `${a.commute.galleriaMin} to ${a.commute.galleriaMax} min` : <span class="ph-text">[00 to 00 min]</span>}</dd></div>
           <div><dt>To the Medical Center</dt><dd>{a.commute ? `${a.commute.medicalCenterMin} to ${a.commute.medicalCenterMax} min` : <span class="ph-text">[00 to 00 min]</span>}</dd></div>
           <div><dt>To Downtown</dt><dd>{a.commute ? `${a.commute.downtownMin} to ${a.commute.downtownMax} min, about ${a.commute.downtownMiles} miles` : <span class="ph-text">[00 to 00 min, about 00 miles]</span>}</dd></div>
           <div><dt>Flood notes</dt><dd>{a.flood?.note || <span class="ph-text">[Flood zone and drainage notes. Verify by address.]</span>}</dd></div>
-          <div><dt>Property tax</dt><dd>{a.tax?.ratePct ? `About ${a.tax.ratePct}% combined rate` : <span class="ph-text">[About 0.00% to 0.00%]</span>}</dd></div>
+          <div><dt>Property tax</dt><dd>{a.tax?.ratePct
+            ? (a.tax.isBaseOnly
+                ? `At least ${a.tax.ratePct}% (Harris County base only; school district and city/MUD rate not yet included)`
+                : `About ${a.tax.ratePct}% combined rate`)
+            : <span class="ph-text">[About 0.00% to 0.00%]</span>}</dd></div>
         </dl>
       </div>
       <div class="take-card">
