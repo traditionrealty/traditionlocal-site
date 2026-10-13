@@ -153,8 +153,8 @@ const sameRegion = areas.filter((x) => x.region === a.region && x.slug !== a.slu
           <div><dt>Typical homes</dt><dd>{a.homes || <span class="ph-text">[Home type]</span>}</dd></div>
           {a.priceRangeByType ? (
             <>
-              <div><dt>Single-family range</dt><dd>{a.priceRangeByType.singleFamily}</dd></div>
-              <div><dt>Townhome/condo range</dt><dd>{a.priceRangeByType.condo}</dd></div>
+              {a.priceRangeByType.singleFamily && <div><dt>Single-family range</dt><dd>{a.priceRangeByType.singleFamily}</dd></div>}
+              {a.priceRangeByType.condo && <div><dt>Townhome/condo range</dt><dd>{a.priceRangeByType.condo}</dd></div>}
             </>
           ) : (
             <div><dt>Price range</dt><dd>{a.priceRange || <span class="ph-text">[About $000K to $0.0M+]</span>}</dd></div>
