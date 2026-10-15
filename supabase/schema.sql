@@ -105,37 +105,3 @@ create table if not exists public.poll_votes (
 alter table public.poll_votes enable row level security;
 create policy "Anyone can vote" on public.poll_votes for insert to anon, authenticated with check (true);
 grant insert on public.poll_votes to anon, authenticated;
-
--- 7. Admin read access for the Poll and Inquiry Hub. is_admin is a flag on a member's own
--- profile row, set directly in the Table Editor (never through the website's own forms, see
--- the column grant below, which deliberately leaves is_admin out of what members can update).
--- Once set, that one account can read poll votes, RSVPs, and the member list; nobody else can,
--- signed in or not. This does not change who can vote or RSVP, only who can see the results.
-alter table public.profiles add column if not exists is_admin boolean not null default false;
-
-create or replace function public.is_admin()
-returns boolean
-language sql
-security definer
-set search_path = ''
-stable
-as $$
-  select coalesce((select is_admin from public.profiles where id = auth.uid()), false);
-$$;
-
-drop policy if exists "Admins can read every profile" on public.profiles;
-create policy "Admins can read every profile"
-  on public.profiles for select to authenticated
-  using (public.is_admin());
-
-drop policy if exists "Admins can read poll votes" on public.poll_votes;
-create policy "Admins can read poll votes"
-  on public.poll_votes for select to authenticated
-  using (public.is_admin());
-grant select on public.poll_votes to authenticated;
-
-drop policy if exists "Admins can read RSVPs" on public.rsvps;
-create policy "Admins can read RSVPs"
-  on public.rsvps for select to authenticated
-  using (public.is_admin());
-grant select on public.rsvps to authenticated;
