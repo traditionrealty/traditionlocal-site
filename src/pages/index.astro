@@ -202,7 +202,7 @@ const basePath = url('/').replace(/\/$/, '');
 
   <section class="section">
     <div class="wrap">
-      <div class="section-head"><h2>Sara's picks</h2><a href={url('/food')}>Browse all {businesses.length} places</a></div>
+      <div class="section-head"><h2>Sara's picks</h2><a href={url('/about-our-reviews')}>See all our reviews</a></div>
       <div class="picks">
         {picks.map((b) => (
           <a class="pick" href={url(`/eat/${b.slug}`)}>
