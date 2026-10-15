@@ -333,7 +333,7 @@ const basePath = url('/').replace(/\/$/, '');
           <div data-poll-vote>
             <p class="eyebrow small">This week's reader poll</p>
             <h3>{currentPoll.question}</h3>
-            <form class="poll-form" id="poll-form">
+            <form class="poll-form" id="poll-form" data-poll-question={currentPoll.question}>
               {currentPoll.options.map((opt: string) => (
                 <label class="poll-option"><input type="radio" name="poll" required /> <span>{opt}</span></label>
               ))}
@@ -409,7 +409,7 @@ const basePath = url('/').replace(/\/$/, '');
 </Base>
 
 <script>
-  import { membersReady, currentUser } from '../lib/members';
+  import { membersReady, currentUser, supabase } from '../lib/members';
   const form = document.getElementById('poll-form') as HTMLFormElement | null;
   const voteBox = document.querySelector<HTMLElement>('[data-poll-vote]');
   const thanksBox = document.querySelector<HTMLElement>('[data-poll-thanks]');
@@ -418,11 +418,24 @@ const basePath = url('/').replace(/\/$/, '');
   if (form && voteBox && thanksBox && guestBox && memberBox) {
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
+      const selected = (form.querySelector('input[name="poll"]:checked') as HTMLInputElement | null)?.nextElementSibling?.textContent?.trim() || '';
+      const user = membersReady ? await currentUser() : null;
       voteBox.hidden = true;
       thanksBox.hidden = false;
-      const isMember = membersReady && Boolean(await currentUser());
-      guestBox.hidden = isMember;
-      memberBox.hidden = !isMember;
+      guestBox.hidden = Boolean(user);
+      memberBox.hidden = !user;
+      // Recording the vote is best-effort: if the poll_votes table hasn't been created yet
+      // (see supabase/schema.sql) or the insert fails for any other reason, the thank-you
+      // message above has already shown, so a voter never sees an error for this.
+      if (membersReady && selected) {
+        try {
+          await supabase().from('poll_votes').insert({
+            poll_question: form.dataset.pollQuestion || '',
+            selected_option: selected,
+            user_id: user?.id ?? null,
+          });
+        } catch { /* best-effort only, see comment above */ }
+      }
     });
   }
 </script>
