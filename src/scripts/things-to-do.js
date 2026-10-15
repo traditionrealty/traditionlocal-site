@@ -62,7 +62,7 @@
   }
   function detailBtn(e, sm) {
     var cls = 'td-pill line' + (sm ? ' sm' : '');
-    var inner = 'View details' + srcTag(e);
+    var inner = 'View details' + (e.src === 'tl' ? srcTag(e) : '');
     return e.src === 'tl' ? '<a class="' + cls + '" href="' + esc(e.url) + '">' + inner + '</a>' : '<button class="' + cls + '" type="button" data-ev="' + esc(e.id) + '">' + inner + '</button>';
   }
   function srcTag(e) { return '<span class="td-src ' + e.src + '">' + (e.src === 'tl' ? 'Tradition Local' : (e.source || 'Visit Houston')) + '</span>'; }
@@ -211,7 +211,8 @@
   function openEvent(id) {
     var ev = ALL.filter(function (x) { return x.id === id; })[0]; if (!ev) return;
     var yr = ev.date.slice(0, 4);
-    openDlg(ev.title, ev.venue + ' · ' + (isRange(ev) ? md(ev.date) + ' to ' + md(ev.end) + ', ' + yr : md(ev.date) + ', ' + yr), (ev.note || '') + ' Confirm dates and times with the organizer before you go.',
+    var srcLabel = ev.src === 'tl' ? 'Tradition Local' : (ev.source || 'Visit Houston');
+    openDlg(ev.title, ev.venue + ' · ' + (isRange(ev) ? md(ev.date) + ' to ' + md(ev.end) + ', ' + yr : md(ev.date) + ', ' + yr) + ' · ' + srcLabel, (ev.note || '') + ' Confirm dates and times with the organizer before you go.',
       '<a class="td-pill gold sm" href="' + esc(ev.url) + '" target="_blank" rel="noopener">See the source listing</a><button class="td-pill line sm" type="button" data-close>Close</button>');
   }
   function openIdea(ix) {
