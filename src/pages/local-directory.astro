@@ -1,9 +1,8 @@
 ---
 import Base from '../layouts/Base.astro';
 import areas from '../data/areas.json';
-import posts from '../data/posts.json';
 import { config } from '../config';
-import { url, img, RATING_LABELS } from '../lib/util';
+import { url, RATING_LABELS } from '../lib/util';
 import { directoryListings, GROUPS, GROUP_LABEL } from '../lib/directory';
 
 const listings = directoryListings();
@@ -22,20 +21,6 @@ const guideSlug: Record<string, string> = {};
 const cols = wnames.filter((w) => guideSlug[w.toLowerCase()]).slice(0, 6).map((w) => ({ w, slug: guideSlug[w.toLowerCase()] }));
 const count = (w: string, g: string) => listings.filter((b) => b.where === w && (!g || b.group === g)).length;
 const near = cols.map((c) => ({ ...c, biz: listings.find((b) => b.where === c.w) })).filter((c) => c.biz);
-
-// Real partner spotlights come from posts titled "Business Spotlight: <name> in <area>".
-const spotlights = (posts as any[]).filter((p) => /^business spotlight:/i.test(p.title)).map((p) => {
-  const t = String(p.title).replace(/^business spotlight:\s*/i, '');
-  const m = t.match(/^(.*?)\s+in\s+(.+?)(?:\s+neighborhood)?$/i);
-  const name = (m && m[1]) || t;
-  const area = (m && m[2]) || '';
-  const d = String(p.description || '').replace(/\s+/g, ' ').replace(/\.([A-Z])/g, '. $1');
-  const k = d.indexOf(name + ' is');
-  const sents = (k > -1 ? d.slice(k) : d).split(/(?<=[.!?])\s/);
-  return { name, area, path: p.path as string, image: p.image as string | undefined, blurb: sents.slice(0, 2).join(' ') };
-});
-// A real review to point to: the newest rated listing outside food and drink.
-const sample = listings.filter((b) => b.group !== 'food' && b.rating).sort((a, b) => Number(b.pick) - Number(a.pick) || b.year - a.year)[0];
 
 const SV = 'fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"';
 const PATHS: Record<string, string> = {
@@ -57,10 +42,10 @@ const tips = [
   { t: 'Notice small changes early', d: 'Pay attention to concerns before they become familiar.' },
   { t: 'Plan the next right step', d: 'Turn a concern into a clear request for help.' },
 ];
-const bar = [['spotlight', 'Spotlight'], ['find', 'Find help'], ['suggest', 'Suggest'], ['care', 'Home care'], ['reviews', 'Reviews'], ['vendors', 'Vendors'], ['near', 'Near you'], ['areas', 'By area']];
+const bar = [['find', 'Find help'], ['suggest', 'Suggest'], ['care', 'Home care'], ['vendors', 'Vendors'], ['near', 'Near you'], ['areas', 'By area']];
 const areaItems = [['', 'All local businesses'], ['food', 'Food & coffee'], ['shops', 'Shops & everyday services'], ['home', 'Home services & maintenance']];
 ---
-<Base title="Local Directory" description="Restaurants, cafes, shops, and services across Greater Houston, with our reviews, partner spotlights, and helpful guides in one place.">
+<Base title="Local Directory" description="Restaurants, cafes, shops, and services across Greater Houston, with business profiles and helpful guides in one place.">
   <section class="band dr-band">
     <div class="wrap">
       <p class="dr-crumb"><a href={url('/')}>Home</a> <span aria-hidden="true">&rsaquo;</span> Local Directory</p>
@@ -82,7 +67,7 @@ const areaItems = [['', 'All local businesses'], ['food', 'Food & coffee'], ['sh
     <section class="dr-blk wrap">
       <div class="dr-gate">
         <h2>This directory is for members</h2>
-        <p>Sign in or join free to browse the full directory, partner spotlights, and helpful guides.</p>
+        <p>Sign in or join free to browse the full directory and helpful guides.</p>
         <p><a class="dr-pill gold" href={url('/sign-in')}>Sign in</a> <a class="dr-pill line" href={url('/join')}>Join free</a></p>
       </div>
     </section>
@@ -95,26 +80,6 @@ const areaItems = [['', 'All local businesses'], ['food', 'Food & coffee'], ['sh
         <span class="dr-best">Best for: Finding help, meeting local owners, and caring for your home</span>
       </div>
     </div>
-
-    {spotlights.length > 0 && (
-      <section class="dr-blk wrap" id="spotlight">
-        <div class="dr-sechead"><div><h2>Business spotlight</h2></div>{spotlights.length > 1 && <button class="dr-linkbtn" type="button" id="dr-spotnext">See another &rarr;</button>}</div>
-        {spotlights.map((s, i) => (
-          <div class="dr-spot" hidden={i > 0} data-spot>
-            <div class="tile">
-              {s.image ? <img src={img(s.image, 700)} alt="" /> : <><span aria-hidden="true" set:html={icon('shops', 34)}></span><h3>{s.name}</h3><span class="ph">[Business photo]</span></>}
-            </div>
-            <div class="body">
-              <span class="tg">Meet your local</span>
-              <h3 class="t">Every storefront has a story.</h3>
-              <p>{s.blurb}</p>
-              <p class="meta">Partner spotlight{s.area ? ' · ' + s.area : ''}. Partner spotlights are paid features, always labeled. Our reviews are never for sale.</p>
-              <div class="acts"><a class="dr-pill gold" href={url(s.path)}>Read the spotlight</a></div>
-            </div>
-          </div>
-        ))}
-      </section>
-    )}
 
     <section class="dr-blk wrap" id="find">
       <span id="trending"></span>
@@ -182,15 +147,6 @@ const areaItems = [['', 'All local businesses'], ['food', 'Food & coffee'], ['sh
           ))}
         </div>
         <p class="fine">Guides are in progress. Each one will connect a practical checklist with the relevant service category.</p>
-      </div>
-    </section>
-
-    <section class="dr-blk wrap" id="reviews">
-      <div class="dr-sechead"><div><h2>Reviews with a local perspective.</h2></div><span class="dr-badge">Firsthand experience comes first</span></div>
-      <div class="dr-rv">
-        <div class="dr-rcard"><span class="tg">Tradition Local reviews</span><h3>What was the experience like?</h3><p>Our visit or service experience, original evidence, useful observations, and who it might suit.</p>{sample ? <a class="dr-pill line sm" href={url('/eat/' + sample.slug)}>Read a sample review</a> : <a class="dr-pill line sm" href={url('/about-our-reviews')}>How we review</a>}</div>
-        <div class="dr-rcard"><span class="tg fut">Member reviews &middot; Future feature</span><h3>Hear from the community.</h3><p>Clearly attributed experiences with dates, moderation, and a way for businesses to respond.</p><button class="dr-pill line sm" type="button" data-dlg="member">Preview member review</button></div>
-        <div class="dr-rcard"><span class="tg">Keep the distinction clear</span><h3>Profile. Spotlight. Review.</h3><p>Facts help you plan. A spotlight tells a story. A review helps you decide.</p><button class="dr-pill line sm" type="button" data-dlg="types">Explore content types</button></div>
       </div>
     </section>
 
@@ -287,8 +243,6 @@ const areaItems = [['', 'All local businesses'], ['food', 'Food & coffee'], ['sh
     ];
     function dlg(t, m, h) { var d = $('dr-dlg'); if (typeof d.showModal !== 'function') return; $('dr-dT').textContent = t; $('dr-dM').textContent = m; $('dr-dB').innerHTML = h; d.showModal(); }
     var DLG = {
-      member: function () { dlg('Member reviews', 'Future feature. This is a layout preview, not a real review.', '<p><b>Sample member, Sugar Land</b> · Visited [date] · <i>Member review</i></p><p>[A member\'s own words about their experience would appear here, with the date of the visit.]</p><p><b>Response from the business</b> · [date]<br>[The business can reply here.]</p><p class="note">Reviews would be moderated, clearly attributed, and kept separate from Tradition Local reviews.</p>'); },
-      types: function () { dlg('Profile. Spotlight. Review.', 'Three kinds of content, kept clearly separate.', '<ul><li><b>Profile.</b> The facts that help you plan: what the business is, where it is, and how to reach it.</li><li><b>Spotlight.</b> A story about the people behind a business. Partner spotlights are paid features and are always labeled.</li><li><b>Review.</b> Our own firsthand experience, to help you decide. Our reviews are never for sale.</li></ul>'); },
       select: function () { dlg('How we select preferred vendors', 'What a provider needs before we list them.', '<ul><li>We have used the service ourselves, or evaluated it through a clear process.</li><li>We record why a provider is included, and the date we last reviewed them.</li><li>We disclose any commercial relationship on the provider\'s profile.</li><li>A directory listing alone never makes a business a preferred vendor.</li></ul>'); },
       vendor: function () { dlg('Preferred profile preview', 'Layout only. No provider is named here.', '<p><b>[Provider name]</b> · [Home services category]</p><ul><li><b>Services:</b> [what they do]</li><li><b>Service area:</b> [neighborhoods served]</li><li><b>Selection basis:</b> [how we evaluated them]</li><li><b>Last review date:</b> [date]</li><li><b>Commercial relationship:</b> [disclosure, or none]</li></ul>'); }
     };
@@ -310,10 +264,6 @@ const areaItems = [['', 'All local businesses'], ['food', 'Food & coffee'], ['sh
       toast('Opening your email app');
       window.location.href = 'mailto:' + sf.getAttribute('data-email') + '?subject=' + encodeURIComponent('Business suggestion') + '&body=' + encodeURIComponent('Business name: ' + n + '\n\nWhy it is worth knowing:\n');
     });
-
-    // spotlights
-    var spots = [].slice.call(document.querySelectorAll('[data-spot]')), nx = $('dr-spotnext'), si = 0;
-    if (nx && spots.length > 1) nx.addEventListener('click', function () { spots[si].hidden = true; si = (si + 1) % spots.length; spots[si].hidden = false; });
 
     // keep the section bar in sync while scrolling
     var links = [].slice.call(document.querySelectorAll('.dr-bar a[data-sec]'));
