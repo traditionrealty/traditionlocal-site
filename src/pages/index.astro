@@ -330,13 +330,32 @@ const basePath = url('/').replace(/\/$/, '');
       <h2>Join the conversation</h2>
       <div class="join-grid">
         <div class="join-card">
-          <p class="eyebrow small">This week's reader poll</p>
-          <h3>{currentPoll.question}</h3>
-          <form class="poll-form" onsubmit="return false;">
-            {currentPoll.options.map((opt: string) => (
-              <label class="poll-option"><input type="radio" name="poll" /> <span>{opt}</span></label>
-            ))}
-          </form>
+          <div data-poll-vote>
+            <p class="eyebrow small">This week's reader poll</p>
+            <h3>{currentPoll.question}</h3>
+            <form class="poll-form" id="poll-form">
+              {currentPoll.options.map((opt: string) => (
+                <label class="poll-option"><input type="radio" name="poll" required /> <span>{opt}</span></label>
+              ))}
+              <button class="btn blue" type="submit">Vote</button>
+            </form>
+          </div>
+          <div data-poll-thanks hidden>
+            <p class="eyebrow small">Thanks for voting</p>
+            <h3>Thank you for contributing to the poll!</h3>
+            <div data-poll-guest hidden>
+              <p class="muted">Create a free account to vote every week, save your favorite spots, and get member perks and local events first.</p>
+              <a class="btn blue" href={url('/join')}>Create my free account &rarr;</a>
+            </div>
+            <div data-poll-member hidden>
+              <p class="muted">Good to see you. Where would you like to go next?</p>
+              <div class="poll-member-links">
+                <a class="btn outline small" href={url('/food')}>Food &rarr;</a>
+                <a class="btn outline small" href={url('/cities')}>Neighborhoods &rarr;</a>
+                <a class="btn outline small" href={url('/living')}>Things To Do &rarr;</a>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="join-card">
           <p class="eyebrow small">Suggest a spot</p>
@@ -388,6 +407,25 @@ const basePath = url('/').replace(/\/$/, '');
     </div>
   </section>
 </Base>
+
+<script>
+  import { membersReady, currentUser } from '../lib/members';
+  const form = document.getElementById('poll-form') as HTMLFormElement | null;
+  const voteBox = document.querySelector<HTMLElement>('[data-poll-vote]');
+  const thanksBox = document.querySelector<HTMLElement>('[data-poll-thanks]');
+  const guestBox = document.querySelector<HTMLElement>('[data-poll-guest]');
+  const memberBox = document.querySelector<HTMLElement>('[data-poll-member]');
+  if (form && voteBox && thanksBox && guestBox && memberBox) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      voteBox.hidden = true;
+      thanksBox.hidden = false;
+      const isMember = membersReady && Boolean(await currentUser());
+      guestBox.hidden = isMember;
+      memberBox.hidden = !isMember;
+    });
+  }
+</script>
 
 <style>
   .finder { padding: 64px 0 72px; }
@@ -488,6 +526,11 @@ const basePath = url('/').replace(/\/$/, '');
   .join-card h3 { margin: 0 0 18px; font-size: 1.3rem; }
   .eyebrow.small { font-size: 11px; margin: 0 0 6px; }
   .poll-form { display: flex; flex-direction: column; gap: 12px; }
+  [data-poll-thanks] .btn { margin-top: 10px; }
+  .poll-member-links { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+  .btn.outline { background: transparent; border: 1.5px solid var(--blue); color: var(--blue); }
+  .btn.outline:hover { background: var(--blue); color: #fff; }
+  .btn.small { padding: 8px 16px; font-size: 14px; }
   .poll-option { display: flex; align-items: center; gap: 12px; background: #fff; border: 1.5px solid var(--blue); border-radius: 8px; padding: 14px 18px; cursor: pointer; font-size: 1rem; }
   .poll-option input { accent-color: var(--blue); width: 16px; height: 16px; flex-shrink: 0; }
   .suggest-form { display: flex; flex-direction: column; gap: 16px; margin-top: 18px; }
