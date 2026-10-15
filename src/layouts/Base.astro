@@ -19,10 +19,9 @@ const next = events.find((e) => e.date && e.date >= today);
 const path = Astro.url.pathname.replace(import.meta.env.BASE_URL.replace(/\/$/, ''), '') || '/';
 const nav = [
   {
+    // Trending pulled from the submenu and hidden for now.
     id: 'food', label: 'Food', href: '/food', match: ['/food', '/eat'],
-    sub: [
-      { label: 'Trending', href: '/food#trending' },
-    ],
+    sub: [],
   },
   {
     // Make It Home, Find Your Fit, and Design & Style are pulled back behind coming-soon for
