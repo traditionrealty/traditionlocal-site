@@ -157,6 +157,7 @@ for f in (sorted(x for x in CMS_DIR.glob("*.md") if x.name != "README.md") if CM
         "image": fm.get("image") or None,
         "imageAlt": strip_closed_tag(fm.get("imageAlt") or fm["title"]) if is_closed else (fm.get("imageAlt") or fm["title"]),
         "html": body_html, "categories": [str(c).lower() for c in cats],
+        "postType": fm.get("postType") or None,
         "readMin": max(1, round(len(text.split()) / 230)),
         "closed": is_closed,
         "source": "cms",
