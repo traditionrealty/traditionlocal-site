@@ -1,8 +1,14 @@
 ---
 import Base from '../layouts/Base.astro';
 import { url } from '../lib/util';
+import ComingSoon from '../components/ComingSoon.astro';
+
+// Pulled back from the Neighborhoods submenu and hidden behind coming-soon for now.
+const ready = false;
 ---
-<Base title="Make It Home" description="Explore Houston neighborhoods, understand your options, and take your next step at your own pace.">
+<Base title={ready ? 'Make It Home' : 'Coming soon'} description="Explore Houston neighborhoods, understand your options, and take your next step at your own pace.">
+{ready ? (
+<>
   <section class="band">
     <div class="wrap mih-hero">
       <div class="mih-intro">
@@ -112,7 +118,6 @@ import { url } from '../lib/util';
       </a>
     </div>
   </section>
-</Base>
 
 <script>
   const PAIRS = [
@@ -139,6 +144,11 @@ import { url } from '../lib/util';
     }, 3500);
   }
 </script>
+</>
+) : (
+<ComingSoon />
+)}
+</Base>
 <style>
   .kicker { color: var(--gold); font-weight: 700; text-transform: uppercase; letter-spacing: .04em; font-size: 12px; margin: 0 0 12px; }
   .kicker.light { color: rgba(255,255,255,.75); }
