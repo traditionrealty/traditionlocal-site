@@ -1,11 +1,920 @@
 [
-  {"area":"The Heights","int":"Outdoors","kind":"anytime","icon":"tree","t":"A slower afternoon in the Heights","b":"A neighborhood walk with room for a coffee stop and a local shop.","d":"Start on the trail, wander the side streets, and end with something warm. Good for a quiet afternoon with a friend or on your own."},
-  {"area":"Spring Branch","int":"Food & coffee","kind":"anytime","icon":"cup","t":"Find your next coffee corner","b":"Make time for a good cup, a conversation, and somewhere new.","d":"Pick one neighborhood and try a cafe you have not been to. Bring a book or a friend and stay a while."},
-  {"area":"Downtown","int":"Arts & culture","kind":"weekend","icon":"art","t":"Add a little art to your weekend","b":"Explore a gallery, a creative space, or a new perspective.","d":"Pair a gallery or exhibit with a walk and lunch nearby. Many downtown and museum spots offer free or low cost days."},
-  {"area":"Oak Forest","int":"Markets & shopping","kind":"weekend","icon":"cart","t":"Saturday morning, market style","b":"Pick up something fresh, then wander the blocks nearby.","d":"Start early, bring a bag, and plan a stop for coffee. A good way to meet the people behind local food and goods."},
-  {"area":"Sugar Land","int":"Outdoors","kind":"weekend","icon":"tree","t":"A lakeside loop and a long brunch","b":"Get outside first, then settle in somewhere comfortable.","d":"Walk or bike a loop, then take your time over brunch. Easy to do with kids or visiting family."},
-  {"area":"Bellaire","int":"Family","kind":"weekend","icon":"family","t":"A family morning at the park","b":"Playground time, a picnic, and an easy ice cream stop.","d":"Keep it simple. Pack snacks, pick a park, and leave room for a treat on the way home."},
-  {"area":"Memorial","int":"Outdoors","kind":"anytime","icon":"tree","t":"Follow the bayou trails","b":"Long paths, shaded stretches, and room to think.","d":"Choose a trail section, walk until you want to turn around, and finish at a cafe close to the trailhead."},
-  {"area":"Downtown","int":"Live music","kind":"weekend","icon":"music","t":"An evening of live music","b":"Dinner first, then a show with friends.","d":"Check the calendar for free and ticketed shows, then book a table nearby so the whole night is easy."},
-  {"area":"Katy","int":"Markets & shopping","kind":"anytime","icon":"cart","t":"A main street day in Katy","b":"Independent shops, a good lunch, and a slower pace.","d":"Browse a few small stores, take a long lunch, and let the afternoon decide the rest."}
+ {
+  "area": "The Heights",
+  "int": "Outdoors",
+  "kind": "anytime",
+  "icon": "tree",
+  "t": "A slower afternoon in the Heights",
+  "b": "A neighborhood walk with room for a coffee stop and a local shop.",
+  "d": "Start on the trail, wander the side streets, and end with something warm. Good for a quiet afternoon with a friend or on your own."
+ },
+ {
+  "area": "Spring Branch",
+  "int": "Food & coffee",
+  "kind": "anytime",
+  "icon": "cup",
+  "t": "Find your next coffee corner",
+  "b": "Make time for a good cup, a conversation, and somewhere new.",
+  "d": "Pick one neighborhood and try a cafe you have not been to. Bring a book or a friend and stay a while."
+ },
+ {
+  "area": "Downtown",
+  "int": "Arts & culture",
+  "kind": "weekend",
+  "icon": "art",
+  "t": "Add a little art to your weekend",
+  "b": "Explore a gallery, a creative space, or a new perspective.",
+  "d": "Pair a gallery or exhibit with a walk and lunch nearby. Many downtown and museum spots offer free or low cost days."
+ },
+ {
+  "area": "Oak Forest",
+  "int": "Markets & shopping",
+  "kind": "weekend",
+  "icon": "cart",
+  "t": "Saturday morning, market style",
+  "b": "Pick up something fresh, then wander the blocks nearby.",
+  "d": "Start early, bring a bag, and plan a stop for coffee. A good way to meet the people behind local food and goods."
+ },
+ {
+  "area": "Sugar Land",
+  "int": "Outdoors",
+  "kind": "weekend",
+  "icon": "tree",
+  "t": "A lakeside loop and a long brunch",
+  "b": "Get outside first, then settle in somewhere comfortable.",
+  "d": "Walk or bike a loop, then take your time over brunch. Easy to do with kids or visiting family."
+ },
+ {
+  "area": "Bellaire",
+  "int": "Family",
+  "kind": "weekend",
+  "icon": "family",
+  "t": "A family morning at the park",
+  "b": "Playground time, a picnic, and an easy ice cream stop.",
+  "d": "Keep it simple. Pack snacks, pick a park, and leave room for a treat on the way home."
+ },
+ {
+  "area": "Memorial",
+  "int": "Outdoors",
+  "kind": "anytime",
+  "icon": "tree",
+  "t": "Follow the bayou trails",
+  "b": "Long paths, shaded stretches, and room to think.",
+  "d": "Choose a trail section, walk until you want to turn around, and finish at a cafe close to the trailhead."
+ },
+ {
+  "area": "Downtown",
+  "int": "Live music",
+  "kind": "weekend",
+  "icon": "music",
+  "t": "An evening of live music",
+  "b": "Dinner first, then a show with friends.",
+  "d": "Check the calendar for free and ticketed shows, then book a table nearby so the whole night is easy."
+ },
+ {
+  "area": "Katy",
+  "int": "Markets & shopping",
+  "kind": "anytime",
+  "icon": "cart",
+  "t": "A main street day in Katy",
+  "b": "Independent shops, a good lunch, and a slower pace.",
+  "d": "Browse a few small stores, take a long lunch, and let the afternoon decide the rest."
+ },
+ {
+  "area": "Spring Branch",
+  "int": "Outdoors",
+  "kind": "anytime",
+  "icon": "tree",
+  "t": "A lakeside loop and a long brunch in Spring Branch",
+  "b": "Get outside first, then settle in somewhere comfortable.",
+  "d": "Walk or bike a loop, then take your time over brunch. Easy to do with kids or visiting family."
+ },
+ {
+  "area": "Oak Forest",
+  "int": "Outdoors",
+  "kind": "anytime",
+  "icon": "tree",
+  "t": "A morning walk around Oak Forest",
+  "b": "Fresh air first, then wherever the morning takes you.",
+  "d": "Pick a route with some shade, bring water, and build in a stop for coffee on the way back."
+ },
+ {
+  "area": "Garden Oaks",
+  "int": "Outdoors",
+  "kind": "anytime",
+  "icon": "tree",
+  "t": "Green space and a slow Saturday in Garden Oaks",
+  "b": "A park, a bench, and nowhere to be.",
+  "d": "Bring a blanket or a book and let the morning stretch out. A nearby cafe makes a good bookend."
+ },
+ {
+  "area": "Timbergrove / Lazybrook",
+  "int": "Outdoors",
+  "kind": "anytime",
+  "icon": "tree",
+  "t": "A slower afternoon in Timbergrove / Lazybrook",
+  "b": "A neighborhood walk with room for a coffee stop and a local shop.",
+  "d": "Start on the trail, wander the side streets, and end with something warm. Good for a quiet afternoon with a friend or on your own."
+ },
+ {
+  "area": "Memorial Park",
+  "int": "Outdoors",
+  "kind": "anytime",
+  "icon": "tree",
+  "t": "Follow the trails through Memorial Park",
+  "b": "Long paths, shaded stretches, and room to think.",
+  "d": "Choose a trail section, walk until you want to turn around, and finish at a cafe close to the trailhead."
+ },
+ {
+  "area": "Memorial Villages",
+  "int": "Outdoors",
+  "kind": "anytime",
+  "icon": "tree",
+  "t": "A lakeside loop and a long brunch in Memorial Villages",
+  "b": "Get outside first, then settle in somewhere comfortable.",
+  "d": "Walk or bike a loop, then take your time over brunch. Easy to do with kids or visiting family."
+ },
+ {
+  "area": "Cypress",
+  "int": "Outdoors",
+  "kind": "anytime",
+  "icon": "tree",
+  "t": "Green space and a slow Saturday in Cypress",
+  "b": "A park, a bench, and nowhere to be.",
+  "d": "Bring a blanket or a book and let the morning stretch out. A nearby cafe makes a good bookend."
+ },
+ {
+  "area": "The Woodlands",
+  "int": "Outdoors",
+  "kind": "anytime",
+  "icon": "tree",
+  "t": "A slower afternoon in The Woodlands",
+  "b": "A neighborhood walk with room for a coffee stop and a local shop.",
+  "d": "Start on the trail, wander the side streets, and end with something warm. Good for a quiet afternoon with a friend or on your own."
+ },
+ {
+  "area": "Clear Lake",
+  "int": "Outdoors",
+  "kind": "anytime",
+  "icon": "tree",
+  "t": "Follow the trails through Clear Lake",
+  "b": "Long paths, shaded stretches, and room to think.",
+  "d": "Choose a trail section, walk until you want to turn around, and finish at a cafe close to the trailhead."
+ },
+ {
+  "area": "Kingwood",
+  "int": "Outdoors",
+  "kind": "anytime",
+  "icon": "tree",
+  "t": "A lakeside loop and a long brunch in Kingwood",
+  "b": "Get outside first, then settle in somewhere comfortable.",
+  "d": "Walk or bike a loop, then take your time over brunch. Easy to do with kids or visiting family."
+ },
+ {
+  "area": "Tanglewood",
+  "int": "Outdoors",
+  "kind": "anytime",
+  "icon": "tree",
+  "t": "A morning walk around Tanglewood",
+  "b": "Fresh air first, then wherever the morning takes you.",
+  "d": "Pick a route with some shade, bring water, and build in a stop for coffee on the way back."
+ },
+ {
+  "area": "River Oaks",
+  "int": "Outdoors",
+  "kind": "anytime",
+  "icon": "tree",
+  "t": "Green space and a slow Saturday in River Oaks",
+  "b": "A park, a bench, and nowhere to be.",
+  "d": "Bring a blanket or a book and let the morning stretch out. A nearby cafe makes a good bookend."
+ },
+ {
+  "area": "Montrose",
+  "int": "Outdoors",
+  "kind": "anytime",
+  "icon": "tree",
+  "t": "A slower afternoon in Montrose",
+  "b": "A neighborhood walk with room for a coffee stop and a local shop.",
+  "d": "Start on the trail, wander the side streets, and end with something warm. Good for a quiet afternoon with a friend or on your own."
+ },
+ {
+  "area": "Pearland",
+  "int": "Outdoors",
+  "kind": "anytime",
+  "icon": "tree",
+  "t": "Follow the trails through Pearland",
+  "b": "Long paths, shaded stretches, and room to think.",
+  "d": "Choose a trail section, walk until you want to turn around, and finish at a cafe close to the trailhead."
+ },
+ {
+  "area": "Katy",
+  "int": "Outdoors",
+  "kind": "anytime",
+  "icon": "tree",
+  "t": "A lakeside loop and a long brunch in Katy",
+  "b": "Get outside first, then settle in somewhere comfortable.",
+  "d": "Walk or bike a loop, then take your time over brunch. Easy to do with kids or visiting family."
+ },
+ {
+  "area": "The Heights",
+  "int": "Food & coffee",
+  "kind": "anytime",
+  "icon": "cup",
+  "t": "A slow brunch in The Heights",
+  "b": "No rush, just good food and good company.",
+  "d": "Pick a spot with outdoor seating if the weather allows, and leave the rest of the day open."
+ },
+ {
+  "area": "Montrose",
+  "int": "Food & coffee",
+  "kind": "anytime",
+  "icon": "cup",
+  "t": "An evening of good food in Montrose",
+  "b": "Dinner somewhere new, with time to linger after.",
+  "d": "Make a reservation if you can, and plan a short walk afterward to close out the night."
+ },
+ {
+  "area": "Rice / Museum District",
+  "int": "Food & coffee",
+  "kind": "anytime",
+  "icon": "cup",
+  "t": "A casual lunch stop in Rice / Museum District",
+  "b": "Something easy on a weekday or weekend.",
+  "d": "Good for a quick break or a longer catch up, depending on how the day is going."
+ },
+ {
+  "area": "Midtown Houston",
+  "int": "Food & coffee",
+  "kind": "anytime",
+  "icon": "cup",
+  "t": "Coffee and a quiet corner in Midtown Houston",
+  "b": "Somewhere to sit, think, and watch the neighborhood go by.",
+  "d": "Bring your laptop or just your thoughts. A good midweek reset."
+ },
+ {
+  "area": "Downtown",
+  "int": "Food & coffee",
+  "kind": "anytime",
+  "icon": "cup",
+  "t": "Find your next coffee corner in Downtown Houston",
+  "b": "Make time for a good cup, a conversation, and somewhere new.",
+  "d": "Pick one neighborhood and try a cafe you have not been to. Bring a book or a friend and stay a while."
+ },
+ {
+  "area": "Upper Kirby and Greenway",
+  "int": "Food & coffee",
+  "kind": "anytime",
+  "icon": "cup",
+  "t": "A slow brunch in Upper Kirby and Greenway",
+  "b": "No rush, just good food and good company.",
+  "d": "Pick a spot with outdoor seating if the weather allows, and leave the rest of the day open."
+ },
+ {
+  "area": "Washington Corridor",
+  "int": "Food & coffee",
+  "kind": "anytime",
+  "icon": "cup",
+  "t": "An evening of good food in Washington Corridor",
+  "b": "Dinner somewhere new, with time to linger after.",
+  "d": "Make a reservation if you can, and plan a short walk afterward to close out the night."
+ },
+ {
+  "area": "Garden Oaks",
+  "int": "Food & coffee",
+  "kind": "anytime",
+  "icon": "cup",
+  "t": "A casual lunch stop in Garden Oaks",
+  "b": "Something easy on a weekday or weekend.",
+  "d": "Good for a quick break or a longer catch up, depending on how the day is going."
+ },
+ {
+  "area": "Oak Forest",
+  "int": "Food & coffee",
+  "kind": "anytime",
+  "icon": "cup",
+  "t": "Coffee and a quiet corner in Oak Forest",
+  "b": "Somewhere to sit, think, and watch the neighborhood go by.",
+  "d": "Bring your laptop or just your thoughts. A good midweek reset."
+ },
+ {
+  "area": "Sugar Land",
+  "int": "Food & coffee",
+  "kind": "anytime",
+  "icon": "cup",
+  "t": "Find your next coffee corner in Sugar Land",
+  "b": "Make time for a good cup, a conversation, and somewhere new.",
+  "d": "Pick one neighborhood and try a cafe you have not been to. Bring a book or a friend and stay a while."
+ },
+ {
+  "area": "Katy",
+  "int": "Food & coffee",
+  "kind": "anytime",
+  "icon": "cup",
+  "t": "A slow brunch in Katy",
+  "b": "No rush, just good food and good company.",
+  "d": "Pick a spot with outdoor seating if the weather allows, and leave the rest of the day open."
+ },
+ {
+  "area": "Bellaire",
+  "int": "Food & coffee",
+  "kind": "anytime",
+  "icon": "cup",
+  "t": "An evening of good food in Bellaire",
+  "b": "Dinner somewhere new, with time to linger after.",
+  "d": "Make a reservation if you can, and plan a short walk afterward to close out the night."
+ },
+ {
+  "area": "Meyerland",
+  "int": "Food & coffee",
+  "kind": "anytime",
+  "icon": "cup",
+  "t": "A casual lunch stop in Meyerland",
+  "b": "Something easy on a weekday or weekend.",
+  "d": "Good for a quick break or a longer catch up, depending on how the day is going."
+ },
+ {
+  "area": "West University / Southside",
+  "int": "Food & coffee",
+  "kind": "anytime",
+  "icon": "cup",
+  "t": "Coffee and a quiet corner in West University / Southside",
+  "b": "Somewhere to sit, think, and watch the neighborhood go by.",
+  "d": "Bring your laptop or just your thoughts. A good midweek reset."
+ },
+ {
+  "area": "Galleria",
+  "int": "Food & coffee",
+  "kind": "anytime",
+  "icon": "cup",
+  "t": "Find your next coffee corner in Galleria",
+  "b": "Make time for a good cup, a conversation, and somewhere new.",
+  "d": "Pick one neighborhood and try a cafe you have not been to. Bring a book or a friend and stay a while."
+ },
+ {
+  "area": "Tanglewood",
+  "int": "Food & coffee",
+  "kind": "anytime",
+  "icon": "cup",
+  "t": "A slow brunch in Tanglewood",
+  "b": "No rush, just good food and good company.",
+  "d": "Pick a spot with outdoor seating if the weather allows, and leave the rest of the day open."
+ },
+ {
+  "area": "Spring",
+  "int": "Food & coffee",
+  "kind": "anytime",
+  "icon": "cup",
+  "t": "An evening of good food in Spring",
+  "b": "Dinner somewhere new, with time to linger after.",
+  "d": "Make a reservation if you can, and plan a short walk afterward to close out the night."
+ },
+ {
+  "area": "Downtown",
+  "int": "Arts & culture",
+  "kind": "weekend",
+  "icon": "art",
+  "t": "Add a little art to your weekend in Downtown Houston",
+  "b": "Explore a gallery, a creative space, or a new perspective.",
+  "d": "Pair a gallery or exhibit with a walk and lunch nearby. Many spots offer free or low cost days."
+ },
+ {
+  "area": "Midtown Houston",
+  "int": "Arts & culture",
+  "kind": "weekend",
+  "icon": "art",
+  "t": "An afternoon of art in Midtown Houston",
+  "b": "Small galleries, local makers, and a different way to see the neighborhood.",
+  "d": "Check hours ahead of time, and leave room to wander into whatever catches your eye."
+ },
+ {
+  "area": "Montrose",
+  "int": "Arts & culture",
+  "kind": "weekend",
+  "icon": "art",
+  "t": "A museum morning in Montrose",
+  "b": "Take it slow and let one or two exhibits be enough.",
+  "d": "Arrive early to beat the crowds, then find lunch nearby once you are ready for a break."
+ },
+ {
+  "area": "Rice / Museum District",
+  "int": "Arts & culture",
+  "kind": "weekend",
+  "icon": "art",
+  "t": "Live art and local makers in Rice / Museum District",
+  "b": "A studio tour, a pop up, or a small gallery worth the stop.",
+  "d": "Great for an easy weekend outing, especially paired with coffee or a casual lunch."
+ },
+ {
+  "area": "Washington Corridor",
+  "int": "Arts & culture",
+  "kind": "weekend",
+  "icon": "art",
+  "t": "Add a little art to your weekend in Washington Corridor",
+  "b": "Explore a gallery, a creative space, or a new perspective.",
+  "d": "Pair a gallery or exhibit with a walk and lunch nearby. Many spots offer free or low cost days."
+ },
+ {
+  "area": "East End",
+  "int": "Arts & culture",
+  "kind": "weekend",
+  "icon": "art",
+  "t": "An afternoon of art in East End",
+  "b": "Small galleries, local makers, and a different way to see the neighborhood.",
+  "d": "Check hours ahead of time, and leave room to wander into whatever catches your eye."
+ },
+ {
+  "area": "Sugar Land",
+  "int": "Arts & culture",
+  "kind": "weekend",
+  "icon": "art",
+  "t": "A museum morning in Sugar Land",
+  "b": "Take it slow and let one or two exhibits be enough.",
+  "d": "Arrive early to beat the crowds, then find lunch nearby once you are ready for a break."
+ },
+ {
+  "area": "Katy",
+  "int": "Arts & culture",
+  "kind": "weekend",
+  "icon": "art",
+  "t": "Live art and local makers in Katy",
+  "b": "A studio tour, a pop up, or a small gallery worth the stop.",
+  "d": "Great for an easy weekend outing, especially paired with coffee or a casual lunch."
+ },
+ {
+  "area": "The Woodlands",
+  "int": "Arts & culture",
+  "kind": "weekend",
+  "icon": "art",
+  "t": "Add a little art to your weekend in The Woodlands",
+  "b": "Explore a gallery, a creative space, or a new perspective.",
+  "d": "Pair a gallery or exhibit with a walk and lunch nearby. Many spots offer free or low cost days."
+ },
+ {
+  "area": "Spring Branch",
+  "int": "Arts & culture",
+  "kind": "weekend",
+  "icon": "art",
+  "t": "An afternoon of art in Spring Branch",
+  "b": "Small galleries, local makers, and a different way to see the neighborhood.",
+  "d": "Check hours ahead of time, and leave room to wander into whatever catches your eye."
+ },
+ {
+  "area": "Upper Kirby and Greenway",
+  "int": "Arts & culture",
+  "kind": "weekend",
+  "icon": "art",
+  "t": "A museum morning in Upper Kirby and Greenway",
+  "b": "Take it slow and let one or two exhibits be enough.",
+  "d": "Arrive early to beat the crowds, then find lunch nearby once you are ready for a break."
+ },
+ {
+  "area": "Westchase",
+  "int": "Arts & culture",
+  "kind": "weekend",
+  "icon": "art",
+  "t": "Live art and local makers in Westchase",
+  "b": "A studio tour, a pop up, or a small gallery worth the stop.",
+  "d": "Great for an easy weekend outing, especially paired with coffee or a casual lunch."
+ },
+ {
+  "area": "Energy Corridor",
+  "int": "Arts & culture",
+  "kind": "weekend",
+  "icon": "art",
+  "t": "Add a little art to your weekend in Energy Corridor",
+  "b": "Explore a gallery, a creative space, or a new perspective.",
+  "d": "Pair a gallery or exhibit with a walk and lunch nearby. Many spots offer free or low cost days."
+ },
+ {
+  "area": "Pearland",
+  "int": "Arts & culture",
+  "kind": "weekend",
+  "icon": "art",
+  "t": "An afternoon of art in Pearland",
+  "b": "Small galleries, local makers, and a different way to see the neighborhood.",
+  "d": "Check hours ahead of time, and leave room to wander into whatever catches your eye."
+ },
+ {
+  "area": "Memorial",
+  "int": "Arts & culture",
+  "kind": "weekend",
+  "icon": "art",
+  "t": "A museum morning in Memorial",
+  "b": "Take it slow and let one or two exhibits be enough.",
+  "d": "Arrive early to beat the crowds, then find lunch nearby once you are ready for a break."
+ },
+ {
+  "area": "Bellaire",
+  "int": "Arts & culture",
+  "kind": "weekend",
+  "icon": "art",
+  "t": "Live art and local makers in Bellaire",
+  "b": "A studio tour, a pop up, or a small gallery worth the stop.",
+  "d": "Great for an easy weekend outing, especially paired with coffee or a casual lunch."
+ },
+ {
+  "area": "Rice / Museum District",
+  "int": "Markets & shopping",
+  "kind": "weekend",
+  "icon": "cart",
+  "t": "An afternoon of small shops in Rice / Museum District",
+  "b": "No list, no rush, just see what you find.",
+  "d": "Good for gift hunting or just browsing. Pair it with a coffee stop halfway through."
+ },
+ {
+  "area": "Galleria",
+  "int": "Markets & shopping",
+  "kind": "weekend",
+  "icon": "cart",
+  "t": "Farmers market and a slow morning in Galleria",
+  "b": "Fresh produce, local vendors, and time to browse.",
+  "d": "Go early for the best selection, then make a late breakfast out of what you find."
+ },
+ {
+  "area": "Rivercrest",
+  "int": "Markets & shopping",
+  "kind": "weekend",
+  "icon": "cart",
+  "t": "Saturday morning, market style in Rivercrest",
+  "b": "Pick up something fresh, then wander the blocks nearby.",
+  "d": "Start early, bring a bag, and plan a stop for coffee. A good way to meet the people behind local food and goods."
+ },
+ {
+  "area": "Garden Oaks",
+  "int": "Markets & shopping",
+  "kind": "weekend",
+  "icon": "cart",
+  "t": "A main street day in Garden Oaks",
+  "b": "Independent shops, a good lunch, and a slower pace.",
+  "d": "Browse a few small stores, take a long lunch, and let the afternoon decide the rest."
+ },
+ {
+  "area": "The Heights",
+  "int": "Markets & shopping",
+  "kind": "weekend",
+  "icon": "cart",
+  "t": "An afternoon of small shops in The Heights",
+  "b": "No list, no rush, just see what you find.",
+  "d": "Good for gift hunting or just browsing. Pair it with a coffee stop halfway through."
+ },
+ {
+  "area": "Sugar Land",
+  "int": "Markets & shopping",
+  "kind": "weekend",
+  "icon": "cart",
+  "t": "Farmers market and a slow morning in Sugar Land",
+  "b": "Fresh produce, local vendors, and time to browse.",
+  "d": "Go early for the best selection, then make a late breakfast out of what you find."
+ },
+ {
+  "area": "Westchase",
+  "int": "Markets & shopping",
+  "kind": "weekend",
+  "icon": "cart",
+  "t": "Saturday morning, market style in Westchase",
+  "b": "Pick up something fresh, then wander the blocks nearby.",
+  "d": "Start early, bring a bag, and plan a stop for coffee. A good way to meet the people behind local food and goods."
+ },
+ {
+  "area": "Upper Kirby and Greenway",
+  "int": "Markets & shopping",
+  "kind": "weekend",
+  "icon": "cart",
+  "t": "A main street day in Upper Kirby and Greenway",
+  "b": "Independent shops, a good lunch, and a slower pace.",
+  "d": "Browse a few small stores, take a long lunch, and let the afternoon decide the rest."
+ },
+ {
+  "area": "Midtown Houston",
+  "int": "Markets & shopping",
+  "kind": "weekend",
+  "icon": "cart",
+  "t": "An afternoon of small shops in Midtown Houston",
+  "b": "No list, no rush, just see what you find.",
+  "d": "Good for gift hunting or just browsing. Pair it with a coffee stop halfway through."
+ },
+ {
+  "area": "Spring",
+  "int": "Markets & shopping",
+  "kind": "weekend",
+  "icon": "cart",
+  "t": "Farmers market and a slow morning in Spring",
+  "b": "Fresh produce, local vendors, and time to browse.",
+  "d": "Go early for the best selection, then make a late breakfast out of what you find."
+ },
+ {
+  "area": "Cypress",
+  "int": "Markets & shopping",
+  "kind": "weekend",
+  "icon": "cart",
+  "t": "Saturday morning, market style in Cypress",
+  "b": "Pick up something fresh, then wander the blocks nearby.",
+  "d": "Start early, bring a bag, and plan a stop for coffee. A good way to meet the people behind local food and goods."
+ },
+ {
+  "area": "Pearland",
+  "int": "Markets & shopping",
+  "kind": "weekend",
+  "icon": "cart",
+  "t": "A main street day in Pearland",
+  "b": "Independent shops, a good lunch, and a slower pace.",
+  "d": "Browse a few small stores, take a long lunch, and let the afternoon decide the rest."
+ },
+ {
+  "area": "Tomball",
+  "int": "Markets & shopping",
+  "kind": "weekend",
+  "icon": "cart",
+  "t": "An afternoon of small shops in Tomball",
+  "b": "No list, no rush, just see what you find.",
+  "d": "Good for gift hunting or just browsing. Pair it with a coffee stop halfway through."
+ },
+ {
+  "area": "Meyerland",
+  "int": "Markets & shopping",
+  "kind": "weekend",
+  "icon": "cart",
+  "t": "Farmers market and a slow morning in Meyerland",
+  "b": "Fresh produce, local vendors, and time to browse.",
+  "d": "Go early for the best selection, then make a late breakfast out of what you find."
+ },
+ {
+  "area": "Sugar Land",
+  "int": "Family",
+  "kind": "weekend",
+  "icon": "family",
+  "t": "A kid friendly afternoon in Sugar Land",
+  "b": "Easy activities, short walks, and plenty of breaks.",
+  "d": "Plan around nap schedules and snack breaks, and keep the itinerary loose."
+ },
+ {
+  "area": "Katy",
+  "int": "Family",
+  "kind": "weekend",
+  "icon": "family",
+  "t": "A family outing in Katy",
+  "b": "Something for every age, without too much planning.",
+  "d": "Pick one anchor activity and let the rest of the day stay flexible."
+ },
+ {
+  "area": "Pearland",
+  "int": "Family",
+  "kind": "weekend",
+  "icon": "family",
+  "t": "A family morning at the park in Pearland",
+  "b": "Playground time, a picnic, and an easy ice cream stop.",
+  "d": "Keep it simple. Pack snacks, pick a park, and leave room for a treat on the way home."
+ },
+ {
+  "area": "Cypress",
+  "int": "Family",
+  "kind": "weekend",
+  "icon": "family",
+  "t": "A kid friendly afternoon in Cypress",
+  "b": "Easy activities, short walks, and plenty of breaks.",
+  "d": "Plan around nap schedules and snack breaks, and keep the itinerary loose."
+ },
+ {
+  "area": "The Woodlands",
+  "int": "Family",
+  "kind": "weekend",
+  "icon": "family",
+  "t": "A family outing in The Woodlands",
+  "b": "Something for every age, without too much planning.",
+  "d": "Pick one anchor activity and let the rest of the day stay flexible."
+ },
+ {
+  "area": "Kingwood",
+  "int": "Family",
+  "kind": "weekend",
+  "icon": "family",
+  "t": "A family morning at the park in Kingwood",
+  "b": "Playground time, a picnic, and an easy ice cream stop.",
+  "d": "Keep it simple. Pack snacks, pick a park, and leave room for a treat on the way home."
+ },
+ {
+  "area": "Memorial Villages",
+  "int": "Family",
+  "kind": "weekend",
+  "icon": "family",
+  "t": "A kid friendly afternoon in Memorial Villages",
+  "b": "Easy activities, short walks, and plenty of breaks.",
+  "d": "Plan around nap schedules and snack breaks, and keep the itinerary loose."
+ },
+ {
+  "area": "Meyerland",
+  "int": "Family",
+  "kind": "weekend",
+  "icon": "family",
+  "t": "A family outing in Meyerland",
+  "b": "Something for every age, without too much planning.",
+  "d": "Pick one anchor activity and let the rest of the day stay flexible."
+ },
+ {
+  "area": "Spring",
+  "int": "Family",
+  "kind": "weekend",
+  "icon": "family",
+  "t": "A family morning at the park in Spring",
+  "b": "Playground time, a picnic, and an easy ice cream stop.",
+  "d": "Keep it simple. Pack snacks, pick a park, and leave room for a treat on the way home."
+ },
+ {
+  "area": "Missouri City",
+  "int": "Family",
+  "kind": "weekend",
+  "icon": "family",
+  "t": "A kid friendly afternoon in Missouri City",
+  "b": "Easy activities, short walks, and plenty of breaks.",
+  "d": "Plan around nap schedules and snack breaks, and keep the itinerary loose."
+ },
+ {
+  "area": "Clear Lake",
+  "int": "Family",
+  "kind": "weekend",
+  "icon": "family",
+  "t": "A family outing in Clear Lake",
+  "b": "Something for every age, without too much planning.",
+  "d": "Pick one anchor activity and let the rest of the day stay flexible."
+ },
+ {
+  "area": "Tomball",
+  "int": "Family",
+  "kind": "weekend",
+  "icon": "family",
+  "t": "A family morning at the park in Tomball",
+  "b": "Playground time, a picnic, and an easy ice cream stop.",
+  "d": "Keep it simple. Pack snacks, pick a park, and leave room for a treat on the way home."
+ },
+ {
+  "area": "Jersey Village",
+  "int": "Family",
+  "kind": "weekend",
+  "icon": "family",
+  "t": "A kid friendly afternoon in Jersey Village",
+  "b": "Easy activities, short walks, and plenty of breaks.",
+  "d": "Plan around nap schedules and snack breaks, and keep the itinerary loose."
+ },
+ {
+  "area": "West University / Southside",
+  "int": "Family",
+  "kind": "weekend",
+  "icon": "family",
+  "t": "A family outing in West University / Southside",
+  "b": "Something for every age, without too much planning.",
+  "d": "Pick one anchor activity and let the rest of the day stay flexible."
+ },
+ {
+  "area": "Champions",
+  "int": "Family",
+  "kind": "weekend",
+  "icon": "family",
+  "t": "A family morning at the park in Champions",
+  "b": "Playground time, a picnic, and an easy ice cream stop.",
+  "d": "Keep it simple. Pack snacks, pick a park, and leave room for a treat on the way home."
+ },
+ {
+  "area": "Downtown",
+  "int": "Live music",
+  "kind": "weekend",
+  "icon": "music",
+  "t": "An evening of live music in Downtown Houston",
+  "b": "Dinner first, then a show with friends.",
+  "d": "Check the calendar for free and ticketed shows, then book a table nearby so the whole night is easy."
+ },
+ {
+  "area": "Midtown Houston",
+  "int": "Live music",
+  "kind": "weekend",
+  "icon": "music",
+  "t": "A night out for live music in Midtown Houston",
+  "b": "Good sound, good company, and no early alarm the next day.",
+  "d": "Look up the lineup ahead of time and plan dinner around the set times."
+ },
+ {
+  "area": "Washington Corridor",
+  "int": "Live music",
+  "kind": "weekend",
+  "icon": "music",
+  "t": "An evening of live music in Washington Corridor",
+  "b": "Dinner first, then a show with friends.",
+  "d": "Check the calendar for free and ticketed shows, then book a table nearby so the whole night is easy."
+ },
+ {
+  "area": "Montrose",
+  "int": "Live music",
+  "kind": "weekend",
+  "icon": "music",
+  "t": "A night out for live music in Montrose",
+  "b": "Good sound, good company, and no early alarm the next day.",
+  "d": "Look up the lineup ahead of time and plan dinner around the set times."
+ },
+ {
+  "area": "East End",
+  "int": "Live music",
+  "kind": "weekend",
+  "icon": "music",
+  "t": "An evening of live music in East End",
+  "b": "Dinner first, then a show with friends.",
+  "d": "Check the calendar for free and ticketed shows, then book a table nearby so the whole night is easy."
+ },
+ {
+  "area": "The Heights",
+  "int": "Live music",
+  "kind": "weekend",
+  "icon": "music",
+  "t": "A night out for live music in The Heights",
+  "b": "Good sound, good company, and no early alarm the next day.",
+  "d": "Look up the lineup ahead of time and plan dinner around the set times."
+ },
+ {
+  "area": "Rice / Museum District",
+  "int": "Live music",
+  "kind": "weekend",
+  "icon": "music",
+  "t": "An evening of live music in Rice / Museum District",
+  "b": "Dinner first, then a show with friends.",
+  "d": "Check the calendar for free and ticketed shows, then book a table nearby so the whole night is easy."
+ },
+ {
+  "area": "Sugar Land",
+  "int": "Live music",
+  "kind": "weekend",
+  "icon": "music",
+  "t": "A night out for live music in Sugar Land",
+  "b": "Good sound, good company, and no early alarm the next day.",
+  "d": "Look up the lineup ahead of time and plan dinner around the set times."
+ },
+ {
+  "area": "Katy",
+  "int": "Live music",
+  "kind": "weekend",
+  "icon": "music",
+  "t": "An evening of live music in Katy",
+  "b": "Dinner first, then a show with friends.",
+  "d": "Check the calendar for free and ticketed shows, then book a table nearby so the whole night is easy."
+ },
+ {
+  "area": "The Woodlands",
+  "int": "Live music",
+  "kind": "weekend",
+  "icon": "music",
+  "t": "A night out for live music in The Woodlands",
+  "b": "Good sound, good company, and no early alarm the next day.",
+  "d": "Look up the lineup ahead of time and plan dinner around the set times."
+ },
+ {
+  "area": "Spring",
+  "int": "Live music",
+  "kind": "weekend",
+  "icon": "music",
+  "t": "An evening of live music in Spring",
+  "b": "Dinner first, then a show with friends.",
+  "d": "Check the calendar for free and ticketed shows, then book a table nearby so the whole night is easy."
+ },
+ {
+  "area": "Upper Kirby and Greenway",
+  "int": "Live music",
+  "kind": "weekend",
+  "icon": "music",
+  "t": "A night out for live music in Upper Kirby and Greenway",
+  "b": "Good sound, good company, and no early alarm the next day.",
+  "d": "Look up the lineup ahead of time and plan dinner around the set times."
+ },
+ {
+  "area": "Energy Corridor",
+  "int": "Live music",
+  "kind": "weekend",
+  "icon": "music",
+  "t": "An evening of live music in Energy Corridor",
+  "b": "Dinner first, then a show with friends.",
+  "d": "Check the calendar for free and ticketed shows, then book a table nearby so the whole night is easy."
+ },
+ {
+  "area": "Westchase",
+  "int": "Live music",
+  "kind": "weekend",
+  "icon": "music",
+  "t": "A night out for live music in Westchase",
+  "b": "Good sound, good company, and no early alarm the next day.",
+  "d": "Look up the lineup ahead of time and plan dinner around the set times."
+ },
+ {
+  "area": "Galleria",
+  "int": "Live music",
+  "kind": "weekend",
+  "icon": "music",
+  "t": "An evening of live music in Galleria",
+  "b": "Dinner first, then a show with friends.",
+  "d": "Check the calendar for free and ticketed shows, then book a table nearby so the whole night is easy."
+ },
+ {
+  "area": "Memorial",
+  "int": "Live music",
+  "kind": "weekend",
+  "icon": "music",
+  "t": "A night out for live music in Memorial",
+  "b": "Good sound, good company, and no early alarm the next day.",
+  "d": "Look up the lineup ahead of time and plan dinner around the set times."
+ }
 ]
