@@ -62,17 +62,18 @@
   }
   function detailBtn(e, sm) {
     var cls = 'td-pill line' + (sm ? ' sm' : '');
-    var inner = 'View details' + (e.src === 'tl' ? srcTag(e) : '');
+    var inner = 'View details';
     return e.src === 'tl' ? '<a class="' + cls + '" href="' + esc(e.url) + '">' + inner + '</a>' : '<button class="' + cls + '" type="button" data-ev="' + esc(e.id) + '">' + inner + '</button>';
   }
   function srcTag(e) { return '<span class="td-src ' + e.src + '">' + (e.src === 'tl' ? 'Tradition Local' : (e.source || 'Visit Houston')) + '</span>'; }
+  function cornerTag(e) { return e.src === 'tl' ? '<span class="td-src tl corner">Tradition Local</span>' : ''; }
   function eventRow(e) {
     var through = isRange(e);
-    return '<div class="td-evrow"><div class="td-date">' + badge(e) + '</div><div><h3>' + esc(e.title) + srcTag(e) + '</h3><div class="td-meta">' + esc(e.venue) + (through ? ' · ' + md(e.date) + ' to ' + md(e.end) : '') + '</div></div>' + detailBtn(e, true) + '</div>';
+    return '<div class="td-evrow"><div class="td-date">' + badge(e) + '</div><div><h3>' + esc(e.title) + '</h3><div class="td-meta">' + esc(e.venue) + (through ? ' · ' + md(e.date) + ' to ' + md(e.end) : '') + '</div></div>' + detailBtn(e, true) + '</div>';
   }
   function eventTile(e) {
     var through = isRange(e);
-    return '<article class="td-tile"><div class="td-date">' + badge(e) + '</div><h3>' + esc(e.title) + '</h3><div class="td-meta">' + esc(e.venue) + (through ? ' · ' + md(e.date) + ' to ' + md(e.end) : '') + '</div>' + detailBtn(e, true) + '</article>';
+    return '<article class="td-tile">' + cornerTag(e) + '<div class="td-date">' + badge(e) + '</div><h3>' + esc(e.title) + '</h3><div class="td-meta">' + esc(e.venue) + (through ? ' · ' + md(e.date) + ' to ' + md(e.end) : '') + '</div>' + detailBtn(e, true) + '</article>';
   }
   function ideaCard(r) {
     var on = saved.indexOf(r.ix) > -1;
@@ -127,7 +128,7 @@
     var html = '';
     function item(e, label) {
       var isPast = (e.end || e.date) < todayS;
-      return '<div class="td-dayitem"><h4>' + esc(e.title) + '</h4><div class="td-meta">' + (label ? '<span class="td-lab">' + label + '</span>' : '') + esc(e.venue) + (isPast && e.src === 'tl' ? ' · Past event' : '') + '</div>' + detailBtn(e, true) + '</div>';
+      return '<div class="td-dayitem">' + cornerTag(e) + '<h4>' + esc(e.title) + '</h4><div class="td-meta">' + (label ? '<span class="td-lab">' + label + '</span>' : '') + esc(e.venue) + (isPast && e.src === 'tl' ? ' · Past event' : '') + '</div>' + detailBtn(e, true) + '</div>';
     }
     single.forEach(function (e) { html += item(e, ''); });
     opens.forEach(function (e) { html += item(e, 'Opens'); });
@@ -163,7 +164,7 @@
     var rows = list.filter(function (e) { return ongoCat === 'All' || e.cat === ongoCat; }).sort(function (a, b) { return a.end < b.end ? -1 : a.end > b.end ? 1 : 0; });
     var shown = ongoExpanded ? rows : rows.slice(0, ONGO_CAP);
     var cards = shown.map(function (e) {
-      return '<article class="td-ocard"><span class="td-through">Through ' + md(e.end) + '</span><h3>' + esc(e.title) + '</h3><div class="td-meta">' + esc(e.venue) + '</div><div class="td-meta"><span class="td-src vh" style="margin-left:0">' + esc(e.cat) + '</span></div><div class="td-orow">' + detailBtn(e, true) + '</div></article>';
+      return '<article class="td-ocard">' + cornerTag(e) + '<span class="td-through">Through ' + md(e.end) + '</span><h3>' + esc(e.title) + '</h3><div class="td-meta">' + esc(e.venue) + '</div><div class="td-meta"><span class="td-src vh" style="margin-left:0">' + esc(e.cat) + '</span></div><div class="td-orow">' + detailBtn(e, true) + '</div></article>';
     }).join('') || '<div class="td-empty">Nothing is running right now in this group.</div>';
     var more = (!ongoExpanded && rows.length > ONGO_CAP)
       ? '<div class="td-seeall"><button class="td-pill line" type="button" id="td-ongoMore">See all ' + rows.length + ' &rarr;</button></div>'
@@ -203,17 +204,17 @@
   }
 
   // ---------- dialogs ----------
-  function openDlg(title, meta, body, actions) {
+  function openDlg(title, meta, body, actions, srcHtml) {
     var dlg = $('td-dlg'); if (!dlg || typeof dlg.showModal !== 'function') return;
     $('td-dT').textContent = title; $('td-dM').textContent = meta; $('td-dB').textContent = body; $('td-dX').innerHTML = actions;
+    $('td-dSrc').innerHTML = srcHtml || '';
     dlg.showModal();
   }
   function openEvent(id) {
     var ev = ALL.filter(function (x) { return x.id === id; })[0]; if (!ev) return;
     var yr = ev.date.slice(0, 4);
-    var srcLabel = ev.src === 'tl' ? 'Tradition Local' : (ev.source || 'Visit Houston');
-    openDlg(ev.title, ev.venue + ' · ' + (isRange(ev) ? md(ev.date) + ' to ' + md(ev.end) + ', ' + yr : md(ev.date) + ', ' + yr) + ' · ' + srcLabel, (ev.note || '') + ' Confirm dates and times with the organizer before you go.',
-      '<a class="td-pill gold sm" href="' + esc(ev.url) + '" target="_blank" rel="noopener">See the source listing</a><button class="td-pill line sm" type="button" data-close>Close</button>');
+    openDlg(ev.title, ev.venue + ' · ' + (isRange(ev) ? md(ev.date) + ' to ' + md(ev.end) + ', ' + yr : md(ev.date) + ', ' + yr), (ev.note || '') + ' Confirm dates and times with the organizer before you go.',
+      '<a class="td-pill gold sm" href="' + esc(ev.url) + '" target="_blank" rel="noopener">See the source listing</a><button class="td-pill line sm" type="button" data-close>Close</button>', srcTag(ev));
   }
   function openIdea(ix) {
     var r = IDEAS[ix];
