@@ -16,19 +16,28 @@ const today = new Date().toISOString().slice(0, 10);
 const upcoming = events.filter((e) => e.date && e.date >= today).slice(0, 3);
 const upcomingAll = events.filter((e) => e.date && e.date >= today).sort((a, b) => a.date.localeCompare(b.date));
 const dayOfWeek = (dateStr: string) => new Date(`${dateStr}T12:00:00`).getDay();
-// "This week" (Monday through Thursday) and "This weekend" (Fri/Sat/Sun) pull from every event we have,
-// past or future, since the real event list is sparse; each picks the soonest upcoming
-// match for its day(s), falling back to the most recent past one, so the section always
-// shows real events where any exist rather than leaving an honest gap unnecessarily.
+// "This week" is the real calendar Monday-Thursday of the current week: one slot per day,
+// showing a real event if one is scheduled that exact date, a checkmark if the day has
+// already passed with nothing scheduled, or an honest placeholder if the day hasn't
+// happened yet. "This weekend" still picks the best available Fri/Sat/Sun event, since
+// the real event list is sparse enough that strict date-matching there would stay empty.
+const todayCT = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Chicago' }).format(new Date());
+const todayCTDate = new Date(`${todayCT}T12:00:00`);
+const mondayOffset = (todayCTDate.getDay() + 6) % 7;
+const monday = new Date(todayCTDate);
+monday.setDate(todayCTDate.getDate() - mondayOffset);
+const weekdaySlots = ['Mon', 'Tue', 'Wed', 'Thu'].map((label, i) => {
+  const d = new Date(monday);
+  d.setDate(monday.getDate() + i);
+  const dateStr = d.toISOString().slice(0, 10);
+  const event = events.find((e) => e.date === dateStr) || null;
+  return { label, dateStr, event, passed: dateStr < todayCT };
+});
 const byRecency = (a: typeof events[number], b: typeof events[number]) => {
   const aUp = a.date >= today, bUp = b.date >= today;
   if (aUp !== bUp) return aUp ? -1 : 1;
   return aUp ? a.date.localeCompare(b.date) : b.date.localeCompare(a.date);
 };
-const weekdayEvents = events
-  .filter((e) => { const d = dayOfWeek(e.date); return d >= 1 && d <= 4; })
-  .sort(byRecency)
-  .slice(0, 5);
 const pickForDay = (targetDay: number) => {
   const pool = events.filter((e) => dayOfWeek(e.date) === targetDay);
   if (!pool.length) return null;
@@ -221,16 +230,16 @@ const basePath = url('/').replace(/\/$/, '');
         <p class="eyebrow">Updated every Thursday</p>
         <h2>This week</h2>
         <div class="weekend-grid">
-          {weekdayEvents.map((e) => (
+          {weekdaySlots.map((slot) => (
             <div class="weekend-card">
-              <p class="day">{fmtDate(e.date, { weekday: 'short' })}</p>
-              <strong><a href={url(e.path)}>{e.title.replace(/\s*\[.*?\]\s*$/, '')}</a></strong>
-            </div>
-          ))}
-          {Array.from({ length: Math.max(0, 5 - weekdayEvents.length) }).map(() => (
-            <div class="weekend-card">
-              <p class="day ph-text">[Day]</p>
-              <strong class="ph-text">[Event or activity]</strong>
+              <p class="day">{slot.label}</p>
+              {slot.event ? (
+                <strong><a href={url(slot.event.path)}>{slot.event.title.replace(/\s*\[.*?\]\s*$/, '')}</a></strong>
+              ) : slot.passed ? (
+                <span class="day-done"><svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> Nothing scheduled</span>
+              ) : (
+                <strong class="ph-text">[Event or activity]</strong>
+              )}
             </div>
           ))}
         </div>
@@ -424,6 +433,8 @@ const basePath = url('/').replace(/\/$/, '');
   .weekend-card .day { font-size: 12px; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; color: var(--blue); margin: 0; width: 72px; flex-shrink: 0; }
   .weekend-card strong { font-weight: 400; font-size: 1rem; color: var(--navy); }
   .weekend-card strong a { color: var(--blue); text-decoration: none; }
+  .day-done { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 14px; }
+  .day-done svg { flex-shrink: 0; color: var(--green, #1e7a43); }
   .editor-split { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 14px; }
   .editor-card { background: #fff; border-radius: 10px; padding: 18px; }
   .editor-card h3 { margin: 0 0 8px; font-size: 1.1rem; }
