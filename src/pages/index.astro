@@ -148,34 +148,16 @@ const basePath = url('/').replace(/\/$/, '');
       )}
       <div>
         <div class="section-head"><h2>Our events</h2><a href={url('/living')}>View all things to do</a></div>
-        <div class="events-split">
-          <div>
-            <h3>This week</h3>
-            {weekdayEvents.length ? (
-              <ul class="event-list">
-                {weekdayEvents.map((e) => (
-                  <li>
-                    <span class="date"><b>{fmtDate(e.date, { day: 'numeric' })}</b>{fmtDate(e.date, { month: 'short' })}</span>
-                    <span><a href={url(e.path)}>{e.title}</a><br /><span class="muted">{e.venue}</span></span>
-                  </li>
-                ))}
-              </ul>
-            ) : <p class="muted small">New weekday events are posted monthly. <a href={url('/living')}>See past events</a>.</p>}
-          </div>
-          <div>
-            <h3>This weekend</h3>
-            {weekendEvents.length ? (
-              <ul class="event-list">
-                {weekendEvents.map((e) => (
-                  <li>
-                    <span class="date"><b>{fmtDate(e.date, { day: 'numeric' })}</b>{fmtDate(e.date, { month: 'short' })}</span>
-                    <span><a href={url(e.path)}>{e.title}</a><br /><span class="muted">{e.venue}</span></span>
-                  </li>
-                ))}
-              </ul>
-            ) : <p class="muted small">New weekend events are posted monthly. <a href={url('/living')}>See past events</a>.</p>}
-          </div>
-        </div>
+        {upcoming.length ? (
+          <ul class="event-list">
+            {upcoming.map((e) => (
+              <li>
+                <span class="date"><b>{fmtDate(e.date, { day: 'numeric' })}</b>{fmtDate(e.date, { month: 'short' })}</span>
+                <span><a href={url(e.path)}>{e.title}</a><br /><span class="muted">{e.venue}</span></span>
+              </li>
+            ))}
+          </ul>
+        ) : <p>New events are posted monthly. <a href={url('/living')}>See past events</a>.</p>}
       </div>
     </div>
   </section>
@@ -221,55 +203,54 @@ const basePath = url('/').replace(/\/$/, '');
       <div>
         <p class="eyebrow">Updated every Thursday</p>
         <h2>This weekend in Houston</h2>
-        <div class="weekend-grid">
-          <div class="weekend-card">
-            <p class="day">Friday</p>
-            <strong class="ph-text">[Live music or night market, area]</strong>
+        <div class="week-weekend-split">
+          <div>
+            <h3>This week</h3>
+            {weekdayEvents.length ? (
+              <div class="weekend-grid">
+                {weekdayEvents.map((e) => (
+                  <div class="weekend-card">
+                    <p class="day">{fmtDate(e.date, { weekday: 'short' })}</p>
+                    <strong><a href={url(e.path)}>{e.title.replace(/\s*\[.*?\]\s*$/, '')}</a></strong>
+                  </div>
+                ))}
+              </div>
+            ) : <p class="muted small">New weekday events are posted monthly.</p>}
           </div>
-          <div class="weekend-card">
-            <p class="day">{ccDay || 'Saturday'}</p>
-            {ccEvent ? (
-              <strong><a href={url(ccEvent.path)}>Coffee &amp; Conversations at {ccEvent.venue}</a></strong>
-            ) : (
-              <strong class="ph-text">[Coffee shop meetup]</strong>
-            )}
-          </div>
-          <div class="weekend-card">
-            <p class="day">Saturday</p>
-            <strong class="ph-text">[Farmers market or festival, area]</strong>
-          </div>
-          <div class="weekend-card">
-            <p class="day">Sunday</p>
-            <strong class="ph-text">[Family pick: park event or free activity]</strong>
+          <div>
+            <h3>This weekend</h3>
+            {weekendEvents.length ? (
+              <div class="weekend-grid">
+                {weekendEvents.map((e) => (
+                  <div class="weekend-card">
+                    <p class="day">{fmtDate(e.date, { weekday: 'short' })}</p>
+                    <strong><a href={url(e.path)}>{e.title.replace(/\s*\[.*?\]\s*$/, '')}</a></strong>
+                  </div>
+                ))}
+              </div>
+            ) : <p class="muted small">New weekend events are posted monthly.</p>}
           </div>
         </div>
         <a class="see-more" href={url('/living')}>See the full weekend list &rarr;</a>
       </div>
       <div>
         <p class="eyebrow">Meet your neighbors</p>
-        <h2>Tradition Local events</h2>
-        <div class="event-list">
-          {upcoming.length > 0 ? upcoming.map((e) => (
-            <div class="event-row">
-              <div class="event-date"><span class="mon">{fmtDate(e.date, { month: 'short' })}</span><span class="day-num">{fmtDate(e.date, { day: 'numeric' })}</span></div>
-              <div class="event-body">
-                <strong><a href={url(e.path)}>{e.title.replace(/\s*\[.*?\]\s*$/, '')}</a></strong>
-                <span class="muted small">{e.venue}</span>
-              </div>
-              <a class="btn gold small-btn" href={url(e.path)}>RSVP</a>
-            </div>
-          )) : null}
-          {Array.from({ length: Math.max(0, 3 - upcoming.length) }).map(() => (
-            <div class="event-row ph">
-              <div class="event-date ph-badge"><span class="mon">[MON]</span><span class="day-num">[00]</span></div>
-              <div class="event-body">
-                <strong class="ph-text">[Area and venue]</strong>
-              </div>
-              <a class="btn gold small-btn" href={url('/living')}>RSVP</a>
-            </div>
-          ))}
+        <h2>Meet the editors</h2>
+        <div class="editor-split">
+          <div class="editor-card">
+            <p class="tag">Writing &middot; Food &middot; Community</p>
+            <h3>Sara Loren</h3>
+            <p>Sara leads Tradition Local, bringing her background in writing, culinary school, teaching, and holistic health coaching to stories about food, people, and local life.</p>
+            <a class="mlink-light" href={url('/all-articles')}>Explore Sara's stories &rarr;</a>
+          </div>
+          <div class="editor-card">
+            <p class="tag">Neighborhoods &middot; Real estate &middot; Personal service</p>
+            <h3>Dillon Loren</h3>
+            <p>Dillon is a Houston Realtor with {config.brokerage.name}. He connects local discovery with practical guidance for people buying, selling, renting, or investing.</p>
+            <a class="mlink-light" href={url('/neighborhood-info-request')}>Meet your real estate concierge &rarr;</a>
+          </div>
         </div>
-        <a class="see-more" href={url('/living')}>See all upcoming events &rarr;</a>
+        <a class="see-more" href={url('/about')}>More about Tradition Local &rarr;</a>
       </div>
     </div>
   </section>
@@ -429,11 +410,19 @@ const basePath = url('/').replace(/\/$/, '');
   .eyebrow { color: var(--green, #1e7a43); font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; margin: 0 0 6px; }
   .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; }
   .grid2 h2 { margin-bottom: 18px; }
+  .week-weekend-split { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 14px; }
+  .week-weekend-split h3 { font-family: var(--serif); font-size: 1rem; color: var(--navy); margin: 0 0 10px; }
   .weekend-grid { display: flex; flex-direction: column; gap: 10px; }
   .weekend-card { background: #fff; border-radius: 999px; padding: 14px 22px; display: flex; align-items: center; gap: 16px; }
   .weekend-card .day { font-size: 12px; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; color: var(--blue); margin: 0; width: 72px; flex-shrink: 0; }
   .weekend-card strong { font-weight: 400; font-size: 1rem; color: var(--navy); }
   .weekend-card strong a { color: var(--blue); text-decoration: none; }
+  .editor-split { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 14px; }
+  .editor-card { background: #fff; border-radius: 10px; padding: 18px; }
+  .editor-card h3 { margin: 0 0 8px; font-size: 1.1rem; }
+  .editor-card p { font-size: 14px; }
+  .mlink-light { color: var(--blue); font-weight: 600; text-decoration: none; }
+  .tag { font-size: 12px; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; color: var(--brown); margin: 0 0 8px; }
   .see-more { display: inline-block; margin-top: 16px; font-weight: 600; font-size: 14px; }
   .event-list { display: flex; flex-direction: column; gap: 10px; }
   .event-row { background: #fff; border-radius: 10px; padding: 14px 18px; display: flex; align-items: center; gap: 16px; }
@@ -471,7 +460,7 @@ const basePath = url('/').replace(/\/$/, '');
   .join-card .btn.blue { align-self: flex-start; margin-top: 4px; }
 
   @media (max-width: 860px) {
-    .grid2, .series-grid, .join-grid { grid-template-columns: 1fr; }
+    .grid2, .series-grid, .join-grid, .week-weekend-split, .editor-split { grid-template-columns: 1fr; }
     .series-grid { grid-template-columns: repeat(2, 1fr); }
   }
   @media (max-width: 560px) {
