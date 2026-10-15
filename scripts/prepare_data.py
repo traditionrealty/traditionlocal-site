@@ -669,6 +669,25 @@ for business in biz:
 print("businesses with local visit photos:", img_n,
       "| total photos:", sum(len(v) for v in images_by_slug.values()))
 
+# ---------- weekly reader poll schedule (data/raw/reader-polls.csv) ----------
+# One row per week (week_start is a Monday), question, and its three options. The homepage
+# picks whichever week's range contains today at render time; this just gets the schedule
+# into JSON so it can be updated by editing the CSV, no code changes needed.
+POLLS_CSV = RAW / "reader-polls.csv"
+polls = []
+if POLLS_CSV.exists():
+    pl = pd.read_csv(POLLS_CSV, dtype=str)
+    for _, r in pl.iterrows():
+        start = nan(r.get("week_start"))
+        question = nan(r.get("question"))
+        if not start or not question:
+            continue
+        options = [nan(r.get(f"option_{n}")) for n in (1, 2, 3)]
+        options = [o for o in options if o]
+        polls.append({"start": start, "question": question, "options": options})
+    polls.sort(key=lambda p: p["start"])
+print("reader polls from reader-polls.csv:", len(polls))
+
 reviews = []
 REVIEWS_CSV = RAW / "sara-reviews.csv"
 if REVIEWS_CSV.exists():
@@ -818,7 +837,8 @@ new_and_notable = (json.load(open(nn_file)).get("items", []) if nn_file.exists()
 
 for name, obj in [("posts", posts), ("categories", categories), ("events", events), ("neighborhoods", hoods),
                   ("areas", areas), ("businesses", biz), ("pages", generic), ("site", site), ("images", images),
-                  ("new-and-notable", new_and_notable), ("subdivisions", subdivisions), ("reviews", reviews)]:
+                  ("new-and-notable", new_and_notable), ("subdivisions", subdivisions), ("reviews", reviews),
+                  ("polls", polls)]:
     json.dump(obj, open(OUT / f"{name}.json", "w"), ensure_ascii=False)
 if not (OUT / "image-map.json").exists():
     json.dump({}, open(OUT / "image-map.json", "w"))
