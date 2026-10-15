@@ -700,5 +700,33 @@
       "whatWeOrdered": "bread"
     },
     "saraPick": false
+  },
+  {
+    "slug": "kumos-wanderland",
+    "name": "Kumo's Wanderland",
+    "city": "Richmond",
+    "categories": [
+      "Playgrounds"
+    ],
+    "description": "Kumo's Wanderland in Richmond is a colorful indoor play destination for families, with imaginative play areas, a cafe, and a private room for birthday parties.",
+    "review": "My husband and I visited Kumo’s Wanderland on a Saturday afternoon with our two-year-old son, and we had a great time! We met up with our friends who brought their children, making it a nice spot for families to gather while the kids played. Located in Richmond, Texas, and conveniently surrounded by many neighborhoods, Kumo’s Wanderland is a colorful play place destination for families. It was quite busy, which was understandable for a weekend, but our little boy still had so much fun exploring. The space is beautiful, welcoming, and thoughtfully designed for toddlers and young children. There is also an indoor café serving light bites, iced coffee, and refreshing drinks, with a connected seating area where parents and children can relax and enjoy their food. They even have a private room available for hosting children’s birthday parties. Kumo’s Wanderland has an air conditioned indoor play area that is appreciated by all here in Texas. They have something for the whole family and I would definitely recommend visiting this whimsical spot.",
+    "reviewYear": 2026,
+    "reviewAuthor": "Sara Loren",
+    "neighborhood": "Richmond / Rosenberg",
+    "areaName": "Richmond / Rosenberg",
+    "address": null,
+    "phone": null,
+    "website": "https://kumoswanderland.com/",
+    "hours": null,
+    "closed": false,
+    "reviewVisitedDate": "2026-10-15",
+    "reviewPage": {
+      "whatWeTried": "A Saturday afternoon visit with a two-year-old and friends, exploring the indoor play areas and the connected cafe.",
+      "theExperience": "Busy, as expected for a weekend, but the space felt beautiful, welcoming, and thoughtfully designed for toddlers and young children. The air conditioned indoor play area was a welcome relief from the Texas heat.",
+      "whoMightEnjoyIt": "Families with young children, especially toddlers, and anyone planning a kid's birthday party.",
+      "wouldWeGoAgain": "Yes. A fun and welcoming spot worth visiting again.",
+      "whatWeOrdered": "light bites and iced coffee from the indoor cafe"
+    },
+    "saraPick": false
   }
 ]
