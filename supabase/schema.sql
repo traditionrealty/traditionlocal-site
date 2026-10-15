@@ -90,3 +90,18 @@ create unique index if not exists rsvps_event_email_key on public.rsvps (event_s
 alter table public.rsvps enable row level security;
 create policy "Anyone can RSVP" on public.rsvps for insert to anon, authenticated with check (true);
 grant insert on public.rsvps to anon, authenticated;
+
+-- 6. Weekly reader poll votes. Anyone can vote, signed in or not; nobody can read results
+-- from the website itself. View and export them in the Supabase Table Editor. user_id is set
+-- when the voter is signed in and left null for anonymous votes; it is not a foreign key to
+-- auth.users on purpose, so a vote still has a record even if that account is later deleted.
+create table if not exists public.poll_votes (
+  id uuid primary key default gen_random_uuid(),
+  poll_question text not null,
+  selected_option text not null,
+  user_id uuid,
+  created_at timestamptz not null default now()
+);
+alter table public.poll_votes enable row level security;
+create policy "Anyone can vote" on public.poll_votes for insert to anon, authenticated with check (true);
+grant insert on public.poll_votes to anon, authenticated;
