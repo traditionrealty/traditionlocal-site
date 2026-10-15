@@ -5,6 +5,7 @@ import posts from '../data/posts.json';
 import events from '../data/events.json';
 import areaEvents from '../data/area-events.json';
 import site from '../data/site.json';
+import polls from '../data/polls.json';
 import areas from '../data/areas.json';
 import businesses from '../data/businesses.json';
 import { url, img, fmtDate } from '../lib/util';
@@ -31,6 +32,11 @@ const pickFromPool = (pool: UnifiedEvent[]): UnifiedEvent | null => {
   if (!pool.length) return null;
   return [...pool].sort((a, b) => Number(b.feat) - Number(a.feat))[0];
 };
+// Picks whichever week's row in data/polls.json (sourced from data/raw/reader-polls.csv)
+// contains today, falling back to the first entry if today is before the schedule starts.
+const todayISO = new Date().toISOString().slice(0, 10);
+const currentPoll = [...(polls as { start: string; question: string; options: string[] }[])].reverse().find((p) => p.start <= todayISO) || polls[0];
+
 const todayCT = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Chicago' }).format(new Date());
 const todayCTDate = new Date(`${todayCT}T12:00:00`);
 const mondayOffset = (todayCTDate.getDay() + 6) % 7;
@@ -325,11 +331,11 @@ const basePath = url('/').replace(/\/$/, '');
       <div class="join-grid">
         <div class="join-card">
           <p class="eyebrow small">This week's reader poll</p>
-          <h3 class="ph-text">[This week's poll question]</h3>
+          <h3>{currentPoll.question}</h3>
           <form class="poll-form" onsubmit="return false;">
-            <label class="poll-option"><input type="radio" name="poll" /> <span class="ph-text">[Option A]</span></label>
-            <label class="poll-option"><input type="radio" name="poll" /> <span class="ph-text">[Option B]</span></label>
-            <label class="poll-option"><input type="radio" name="poll" /> <span class="ph-text">[Option C]</span></label>
+            {currentPoll.options.map((opt: string) => (
+              <label class="poll-option"><input type="radio" name="poll" /> <span>{opt}</span></label>
+            ))}
           </form>
         </div>
         <div class="join-card">
