@@ -2,6 +2,10 @@
 import Base from '../layouts/Base.astro';
 import areas from '../data/areas.json';
 import { url } from '../lib/util';
+import ComingSoon from '../components/ComingSoon.astro';
+
+// Pulled back from the Neighborhoods submenu and hidden behind coming-soon for now.
+const ready = false;
 
 const compareData = areas.map((a) => ({
   slug: a.slug,
@@ -19,7 +23,9 @@ const PRIORITIES = [
   { key: 'costs', label: 'Costs to check' },
 ];
 ---
-<Base title="Find Your Fit" description="Compare Houston neighborhoods side by side: home styles, daily routes, local life, and costs to check.">
+<Base title={ready ? 'Find Your Fit' : 'Coming soon'} description="Compare Houston neighborhoods side by side: home styles, daily routes, local life, and costs to check.">
+{ready ? (
+<>
   <section class="band">
     <div class="wrap">
       <p class="crumb"><a href={url('/make-it-home')}>Make It Home</a> <span aria-hidden="true">/</span> Compare Neighborhoods</p>
@@ -84,6 +90,10 @@ const PRIORITIES = [
       <a class="btn outline" href={url('/neighborhood-info-request')}>Talk with Dillon &rarr;</a>
     </div>
   </section>
+</>
+) : (
+<ComingSoon />
+)}
 </Base>
 
 <script define:vars={{ compareData, url: url('/cities/') }}>
