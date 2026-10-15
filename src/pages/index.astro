@@ -16,14 +16,27 @@ const today = new Date().toISOString().slice(0, 10);
 const upcoming = events.filter((e) => e.date && e.date >= today).slice(0, 3);
 const upcomingAll = events.filter((e) => e.date && e.date >= today).sort((a, b) => a.date.localeCompare(b.date));
 const dayOfWeek = (dateStr: string) => new Date(`${dateStr}T12:00:00`).getDay();
-const isRecurring = (title: string) => title.includes('Coffee & Conversations');
-const weekdayEvents = upcomingAll
-  .filter((e) => { const d = dayOfWeek(e.date); return d >= 1 && d <= 5; })
-  .sort((a, b) => Number(isRecurring(a.title)) - Number(isRecurring(b.title)))
-  .slice(0, 3);
-const weekendEvents = upcomingAll
-  .filter((e) => { const d = dayOfWeek(e.date); return d === 0 || d === 6; })
-  .slice(0, 3);
+// "This week" (Monday through Thursday) and "This weekend" (Fri/Sat/Sun) pull from every event we have,
+// past or future, since the real event list is sparse; each picks the soonest upcoming
+// match for its day(s), falling back to the most recent past one, so the section always
+// shows real events where any exist rather than leaving an honest gap unnecessarily.
+const byRecency = (a: typeof events[number], b: typeof events[number]) => {
+  const aUp = a.date >= today, bUp = b.date >= today;
+  if (aUp !== bUp) return aUp ? -1 : 1;
+  return aUp ? a.date.localeCompare(b.date) : b.date.localeCompare(a.date);
+};
+const weekdayEvents = events
+  .filter((e) => { const d = dayOfWeek(e.date); return d >= 1 && d <= 4; })
+  .sort(byRecency)
+  .slice(0, 5);
+const pickForDay = (targetDay: number) => {
+  const pool = events.filter((e) => dayOfWeek(e.date) === targetDay);
+  if (!pool.length) return null;
+  return [...pool].sort(byRecency)[0];
+};
+const fridayPick = pickForDay(5);
+const saturdayPick = pickForDay(6);
+const sundayPick = pickForDay(0);
 const picks = businesses.filter((b) => b.saraPick).sort((a, b) => b.reviewYear - a.reviewYear).slice(0, 8);
 const featuredAreas = ['sugar-land', 'the-heights', 'katy', 'memorial-villages', 'montrose', 'bellaire']
   .map((s) => areas.find((a) => a.slug === s)).filter(Boolean);
@@ -207,31 +220,45 @@ const basePath = url('/').replace(/\/$/, '');
       <div>
         <p class="eyebrow">Updated every Thursday</p>
         <h2>This week</h2>
-        {weekdayEvents.length ? (
-          <div class="weekend-grid">
-            {weekdayEvents.map((e) => (
-              <div class="weekend-card">
-                <p class="day">{fmtDate(e.date, { weekday: 'short' })}</p>
-                <strong><a href={url(e.path)}>{e.title.replace(/\s*\[.*?\]\s*$/, '')}</a></strong>
-              </div>
-            ))}
-          </div>
-        ) : <p class="muted small">New weekday events are posted monthly.</p>}
+        <div class="weekend-grid">
+          {weekdayEvents.map((e) => (
+            <div class="weekend-card">
+              <p class="day">{fmtDate(e.date, { weekday: 'short' })}</p>
+              <strong><a href={url(e.path)}>{e.title.replace(/\s*\[.*?\]\s*$/, '')}</a></strong>
+            </div>
+          ))}
+          {Array.from({ length: Math.max(0, 5 - weekdayEvents.length) }).map(() => (
+            <div class="weekend-card">
+              <p class="day ph-text">[Day]</p>
+              <strong class="ph-text">[Event or activity]</strong>
+            </div>
+          ))}
+        </div>
         <a class="see-more" href={url('/living')}>See the full weekend list &rarr;</a>
       </div>
       <div>
         <p class="eyebrow">Updated every Thursday</p>
         <h2>This weekend</h2>
-        {weekendEvents.length ? (
-          <div class="weekend-grid">
-            {weekendEvents.map((e) => (
-              <div class="weekend-card">
-                <p class="day">{fmtDate(e.date, { weekday: 'short' })}</p>
-                <strong><a href={url(e.path)}>{e.title.replace(/\s*\[.*?\]\s*$/, '')}</a></strong>
-              </div>
-            ))}
+        <div class="weekend-grid">
+          <div class="weekend-card">
+            <p class="day">Fri</p>
+            {fridayPick ? (
+              <strong><a href={url(fridayPick.path)}>{fridayPick.title.replace(/\s*\[.*?\]\s*$/, '')}</a></strong>
+            ) : <strong class="ph-text">[Live music or night market, area]</strong>}
           </div>
-        ) : <p class="muted small">New weekend events are posted monthly.</p>}
+          <div class="weekend-card">
+            <p class="day">Sat</p>
+            {saturdayPick ? (
+              <strong><a href={url(saturdayPick.path)}>{saturdayPick.title.replace(/\s*\[.*?\]\s*$/, '')}</a></strong>
+            ) : <strong class="ph-text">[Farmers market or festival, area]</strong>}
+          </div>
+          <div class="weekend-card">
+            <p class="day">Sun</p>
+            {sundayPick ? (
+              <strong><a href={url(sundayPick.path)}>{sundayPick.title.replace(/\s*\[.*?\]\s*$/, '')}</a></strong>
+            ) : <strong class="ph-text">[Family pick: park event or free activity]</strong>}
+          </div>
+        </div>
         <a class="see-more" href={url('/living')}>See the full weekend list &rarr;</a>
       </div>
     </div>
