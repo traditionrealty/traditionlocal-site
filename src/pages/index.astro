@@ -3,6 +3,7 @@ import Base from '../layouts/Base.astro';
 import PostCard from '../components/PostCard.astro';
 import posts from '../data/posts.json';
 import events from '../data/events.json';
+import areaEvents from '../data/area-events.json';
 import site from '../data/site.json';
 import areas from '../data/areas.json';
 import businesses from '../data/businesses.json';
@@ -19,8 +20,17 @@ const dayOfWeek = (dateStr: string) => new Date(`${dateStr}T12:00:00`).getDay();
 // "This week" is the real calendar Monday-Thursday of the current week: one slot per day,
 // showing a real event if one is scheduled that exact date, a checkmark if the day has
 // already passed with nothing scheduled, or an honest placeholder if the day hasn't
-// happened yet. "This weekend" still picks the best available Fri/Sat/Sun event, since
-// the real event list is sparse enough that strict date-matching there would stay empty.
+// happened yet. "This weekend" picks the best Fri/Sat/Sun event. Both pull from a combined
+// pool of Tradition Local's own events and the public Houston-area event calendar, since
+// the Tradition Local list alone is too sparse to reliably cover a given week.
+type UnifiedEvent = { date: string; title: string; href: string; external: boolean; feat: boolean };
+const allLocalEvents: UnifiedEvent[] = events.map((e) => ({ date: e.date, title: e.title, href: url(e.path), external: false, feat: false }));
+const allAreaEvents: UnifiedEvent[] = (areaEvents as any[]).map((e) => ({ date: e.date, title: e.title, href: e.url, external: true, feat: !!e.feat }));
+const eventPool: UnifiedEvent[] = [...allLocalEvents, ...allAreaEvents];
+const pickFromPool = (pool: UnifiedEvent[]): UnifiedEvent | null => {
+  if (!pool.length) return null;
+  return [...pool].sort((a, b) => Number(b.feat) - Number(a.feat))[0];
+};
 const todayCT = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Chicago' }).format(new Date());
 const todayCTDate = new Date(`${todayCT}T12:00:00`);
 const mondayOffset = (todayCTDate.getDay() + 6) % 7;
@@ -30,18 +40,20 @@ const weekdaySlots = ['Mon', 'Tue', 'Wed', 'Thu'].map((label, i) => {
   const d = new Date(monday);
   d.setDate(monday.getDate() + i);
   const dateStr = d.toISOString().slice(0, 10);
-  const event = events.find((e) => e.date === dateStr) || null;
+  const event = pickFromPool(eventPool.filter((e) => e.date === dateStr));
   return { label, dateStr, event, passed: dateStr < todayCT };
 });
-const byRecency = (a: typeof events[number], b: typeof events[number]) => {
+const byRecency = (a: UnifiedEvent, b: UnifiedEvent) => {
   const aUp = a.date >= today, bUp = b.date >= today;
   if (aUp !== bUp) return aUp ? -1 : 1;
   return aUp ? a.date.localeCompare(b.date) : b.date.localeCompare(a.date);
 };
 const pickForDay = (targetDay: number) => {
-  const pool = events.filter((e) => dayOfWeek(e.date) === targetDay);
+  const pool = eventPool.filter((e) => dayOfWeek(e.date) === targetDay);
   if (!pool.length) return null;
-  return [...pool].sort(byRecency)[0];
+  const sorted = [...pool].sort(byRecency);
+  const nearestDate = sorted[0].date;
+  return pickFromPool(sorted.filter((e) => e.date === nearestDate));
 };
 const fridayPick = pickForDay(5);
 const saturdayPick = pickForDay(6);
@@ -234,7 +246,7 @@ const basePath = url('/').replace(/\/$/, '');
             <div class="weekend-card">
               <p class="day">{slot.label}</p>
               {slot.event ? (
-                <strong><a href={url(slot.event.path)}>{slot.event.title.replace(/\s*\[.*?\]\s*$/, '')}</a></strong>
+                <strong><a href={slot.event.href} target={slot.event.external ? '_blank' : undefined} rel={slot.event.external ? 'noopener' : undefined}>{slot.event.title.replace(/\s*\[.*?\]\s*$/, '')}</a></strong>
               ) : slot.passed ? (
                 <span class="day-done"><svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> Nothing scheduled</span>
               ) : (
@@ -252,19 +264,19 @@ const basePath = url('/').replace(/\/$/, '');
           <div class="weekend-card">
             <p class="day">Fri</p>
             {fridayPick ? (
-              <strong><a href={url(fridayPick.path)}>{fridayPick.title.replace(/\s*\[.*?\]\s*$/, '')}</a></strong>
+              <strong><a href={fridayPick.href} target={fridayPick.external ? '_blank' : undefined} rel={fridayPick.external ? 'noopener' : undefined}>{fridayPick.title.replace(/\s*\[.*?\]\s*$/, '')}</a></strong>
             ) : <strong class="ph-text">[Live music or night market, area]</strong>}
           </div>
           <div class="weekend-card">
             <p class="day">Sat</p>
             {saturdayPick ? (
-              <strong><a href={url(saturdayPick.path)}>{saturdayPick.title.replace(/\s*\[.*?\]\s*$/, '')}</a></strong>
+              <strong><a href={saturdayPick.href} target={saturdayPick.external ? '_blank' : undefined} rel={saturdayPick.external ? 'noopener' : undefined}>{saturdayPick.title.replace(/\s*\[.*?\]\s*$/, '')}</a></strong>
             ) : <strong class="ph-text">[Farmers market or festival, area]</strong>}
           </div>
           <div class="weekend-card">
             <p class="day">Sun</p>
             {sundayPick ? (
-              <strong><a href={url(sundayPick.path)}>{sundayPick.title.replace(/\s*\[.*?\]\s*$/, '')}</a></strong>
+              <strong><a href={sundayPick.href} target={sundayPick.external ? '_blank' : undefined} rel={sundayPick.external ? 'noopener' : undefined}>{sundayPick.title.replace(/\s*\[.*?\]\s*$/, '')}</a></strong>
             ) : <strong class="ph-text">[Family pick: park event or free activity]</strong>}
           </div>
         </div>
