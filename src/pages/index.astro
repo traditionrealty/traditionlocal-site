@@ -187,19 +187,31 @@ const basePath = url('/').replace(/\/$/, '');
         </div>
       )}
       <div>
-        <div class="section-head"><h2>Meet the editors</h2><a href={url('/about')}>More about Tradition Local</a></div>
+        <div class="editors-head">
+          <div>
+            <a class="kicker-link" href={url('/about')}>The people behind Tradition Local</a>
+            <h2>A local perspective.<br />A personal welcome.</h2>
+          </div>
+          <p class="editors-intro">We're Sara and Dillon. We share a curiosity for Houston and a simple belief: feeling at home starts with connection.</p>
+        </div>
         <div class="editor-split">
           <div class="editor-card">
-            <p class="tag">Writing &middot; Food &middot; Community</p>
+            <div class="editor-top">
+              <span class="avatar" data-tone="warm">SL</span>
+              <p class="tag">Food, Stories &amp; Community</p>
+            </div>
             <h3>Sara Loren</h3>
-            <p>Sara leads Tradition Local, bringing her background in writing, culinary school, teaching, and holistic health coaching to stories about food, people, and local life.</p>
-            <a class="mlink-light" href={url('/all-articles')}>Explore Sara's stories &rarr;</a>
+            <p>Discover the people behind the places through Sara's firsthand reviews, local stories, and conversations.</p>
+            <a class="btn-meet" href={url('/about') + '#sara'}>Meet Sara &nearr;</a>
           </div>
           <div class="editor-card">
-            <p class="tag">Neighborhoods &middot; Real estate &middot; Personal service</p>
+            <div class="editor-top">
+              <span class="avatar" data-tone="cool">DL</span>
+              <p class="tag">Neighborhoods, Homes &amp; Connection</p>
+            </div>
             <h3>Dillon Loren</h3>
-            <p>Dillon is a Houston Realtor with {config.brokerage.name}. He connects local discovery with practical guidance for people buying, selling, renting, or investing.</p>
-            <a class="mlink-light" href={url('/neighborhood-info-request')}>Meet your real estate concierge &rarr;</a>
+            <p>Explore Houston with Dillon's neighborhood curiosity and thoughtful guidance for your next real estate chapter.</p>
+            <a class="btn-meet" href={url('/about') + '#dillon'}>Meet Dillon &nearr;</a>
           </div>
         </div>
       </div>
@@ -504,12 +516,24 @@ const basePath = url('/').replace(/\/$/, '');
   .weekend-card strong a { color: var(--blue); text-decoration: none; }
   .day-done { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 14px; }
   .day-done svg { flex-shrink: 0; color: var(--green, #1e7a43); }
+  .editors-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 28px; flex-wrap: wrap; margin-bottom: 24px; }
+  .kicker-link { display: inline-block; color: var(--gold); font-weight: 700; text-transform: uppercase; letter-spacing: .04em; font-size: 12px; text-decoration: none; margin-bottom: 10px; }
+  .kicker-link:hover { text-decoration: underline; }
+  .editors-head h2 { margin: 0; line-height: 1.15; }
+  .editors-intro { max-width: 34ch; color: var(--muted); margin: 0; }
   .editor-split { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 14px; }
-  .editor-card { background: #fff; border-radius: 10px; padding: 18px; }
-  .editor-card h3 { margin: 0 0 8px; font-size: 1.1rem; }
-  .editor-card p { font-size: 14px; }
+  .editor-card { background: var(--navy); border-radius: 10px; padding: 24px; display: flex; flex-direction: column; gap: 12px; }
+  .editor-top { display: flex; align-items: center; gap: 14px; }
+  .avatar { flex: none; width: 52px; height: 52px; border-radius: 16px 16px 16px 2px; display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-size: 1.1rem; color: var(--gold-soft); }
+  .avatar[data-tone="warm"] { background: rgba(157,105,63,.35); }
+  .avatar[data-tone="cool"] { background: rgba(0,74,173,.35); }
+  .editor-card h3 { margin: 0; font-size: 1.3rem; color: #fff; font-family: var(--serif); }
+  .editor-card p { font-size: 14px; color: rgba(255,255,255,.78); margin: 0; }
+  .btn-meet { align-self: flex-start; background: var(--blue); color: #fff; font-weight: 700; text-decoration: none; padding: 10px 20px; border-radius: 8px; font-size: 14px; margin-top: 4px; }
+  .btn-meet:hover { background: var(--blue-deep); }
   .mlink-light { color: var(--blue); font-weight: 600; text-decoration: none; }
-  .tag { font-size: 12px; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; color: var(--brown); margin: 0 0 8px; }
+  .tag { font-size: 12px; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; color: var(--brown); margin: 0; }
+  .editor-card .tag { color: var(--gold-soft); }
   .see-more { display: inline-block; margin-top: 16px; font-weight: 600; font-size: 14px; }
   .event-list { display: flex; flex-direction: column; gap: 10px; }
   .event-row { background: #fff; border-radius: 10px; padding: 14px 18px; display: flex; align-items: center; gap: 16px; }
