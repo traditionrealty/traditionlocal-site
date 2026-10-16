@@ -1,0 +1,71 @@
+---
+import Base from '../layouts/Base.astro';
+import { url } from '../lib/util';
+---
+<Base title="Meet Sara" description="Sara Loren leads Tradition Local, writing firsthand reviews and local stories across Greater Houston.">
+  <section class="band tone-warm">
+    <div class="wrap hero">
+      <span class="initials">SL</span>
+      <div>
+        <p class="kicker">The storyteller</p>
+        <h1>Sara Loren</h1>
+        <p class="lede">Every place has a story. Sara looks for the people in it.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap narrow">
+      <p>A writer with a background in culinary school, teaching, and holistic health coaching, Sara leads Tradition Local with curiosity and a thoughtful eye for everyday experiences.</p>
+      <p>Through firsthand reviews, conversations, and community gatherings, she invites you to look a little closer, and find something worth sharing. Whether it's a neighborhood coffee shop, a family run restaurant, or a weekend event, Sara writes about the people and details that make a place feel like somewhere you'd want to return to.</p>
+    </div>
+  </section>
+
+  <section class="section tint">
+    <div class="wrap">
+      <p class="eyebrow">Explore with Sara</p>
+      <h2>Food discoveries, local stories, and community connections.</h2>
+      <div class="topic-grid">
+        <a class="topic-card" href={url('/food')}>
+          <h3>Food discoveries</h3>
+          <p>Firsthand reviews of restaurants, cafes, and local spots worth trying.</p>
+        </a>
+        <a class="topic-card" href={url('/all-articles')}>
+          <h3>Local stories</h3>
+          <p>Conversations and features about the people behind Houston's places.</p>
+        </a>
+        <a class="topic-card" href={url('/cities')}>
+          <h3>Community connections</h3>
+          <p>Neighborhood guides and events that bring people together.</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap explore-more">
+      <a class="mlink-light" href={url('/about')}>&larr; Back to About Us</a>
+      <a class="mlink-light" href={url('/meet-dillon')}>Meet Dillon &rarr;</a>
+    </div>
+  </section>
+</Base>
+<style>
+  .hero { display: flex; align-items: center; gap: 28px; }
+  .initials { flex: none; width: 96px; height: 96px; border-radius: 28px 28px 28px 4px; background: rgba(255,255,255,.14); display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-size: 2.6rem; color: var(--gold-soft); }
+  .tone-warm { background: var(--brown); }
+  .kicker { color: rgba(255,255,255,.75); font-weight: 700; text-transform: uppercase; letter-spacing: .05em; font-size: 12px; margin: 0 0 8px; }
+  .lede { font-size: 1.1rem; max-width: 46ch; margin: 14px 0 0; color: rgba(255,255,255,.9); }
+  .narrow { max-width: 68ch; }
+  .narrow p { font-size: 1.05rem; line-height: 1.7; }
+  .eyebrow { color: var(--green, #1e7a43); font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; margin: 0 0 8px; }
+  .topic-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 24px; }
+  .topic-card { display: block; background: #fff; border-radius: 10px; padding: 22px; text-decoration: none; color: var(--ink); border-top: 4px solid var(--brown); }
+  .topic-card h3 { margin: 0 0 8px; font-size: 1.1rem; }
+  .topic-card p { margin: 0; color: var(--muted); font-size: 14px; }
+  .mlink-light { color: var(--blue); font-weight: 600; text-decoration: none; }
+  .explore-more { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+  @media (max-width: 760px) {
+    .hero { flex-direction: column; align-items: flex-start; }
+    .topic-grid { grid-template-columns: 1fr; }
+  }
+</style>
