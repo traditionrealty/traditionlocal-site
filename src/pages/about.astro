@@ -80,7 +80,7 @@ import { url } from '../lib/util';
             <span class="muted small">Sara exploring a cafe or interviewing a local owner</span>
           </div>
           <p class="tag">Writing &middot; Food &middot; Community</p>
-          <h3>Sara Loren</h3>
+          <h3 id="sara">Sara Loren</h3>
           <p>Sara leads Tradition Local, bringing her background in writing, culinary school, teaching, and holistic health coaching to stories about food, people, and local life.</p>
           <p>Through reviews, conversations, and community experiences, she helps readers look closer at the places around them.</p>
           <a class="mlink-light" href={url('/all-articles')}>Explore Sara's stories &rarr;</a>
@@ -91,7 +91,7 @@ import { url } from '../lib/util';
             <span class="muted small">Dillon walking a neighborhood or welcoming visitors</span>
           </div>
           <p class="tag">Neighborhoods &middot; Real estate &middot; Personal service</p>
-          <h3>Dillon Loren</h3>
+          <h3 id="dillon">Dillon Loren</h3>
           <p>Dillon is a Houston Realtor with {config.brokerage.name}. He connects local discovery with practical guidance for people buying, selling, renting, or investing.</p>
           <p>His approach centers on thoughtful preparation, clear communication, and helping clients feel supported through each decision.</p>
           <a class="mlink-light" href={url('/neighborhood-info-request')}>Meet your real estate concierge &rarr;</a>
@@ -101,6 +101,7 @@ import { url } from '../lib/util';
   </section>
 </Base>
 <style>
+  .guide-card h3[id] { scroll-margin-top: 110px; }
   .hero-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 48px; align-items: center; }
   .kicker { color: var(--gold); font-weight: 700; text-transform: uppercase; letter-spacing: .04em; font-size: 12px; margin: 0 0 12px; }
   .lede { max-width: 56ch; }
