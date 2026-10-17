@@ -323,7 +323,7 @@ const popularSearches = ['coffee', 'brunch', 'Sugar Land', 'new builds', 'events
   h1 { font-size: clamp(2.2rem, 5vw, 3.6rem); letter-spacing: -0.01em; }
   h2 { font-size: clamp(1.6rem, 3vw, 2.2rem); }
   h3 { font-size: 1.3rem; }
-  .wrap { max-width: var(--wrap); margin: 0 auto; padding: 0 24px; }
+  :where(.wrap) { max-width: var(--wrap); margin: 0 auto; padding: 0 24px; }
   .skip { position: absolute; left: -999px; top: 0; background: var(--gold); padding: 8px 12px; z-index: 10; }
   .skip:focus { left: 8px; }
 
@@ -355,6 +355,12 @@ const popularSearches = ['coffee', 'brunch', 'Sugar Land', 'new builds', 'events
   .eventbar a { color: var(--navy); }
   .eventbar .rsvp { font-weight: 700; letter-spacing: .15em; }
   .eventbar .all { border-left: 1px solid var(--navy); padding-left: 18px; text-decoration: none; }
+  @media (max-width: 760px) {
+    .eventbar .wrap { flex-direction: column; gap: 4px; padding-top: 10px; padding-bottom: 10px; text-align: center; }
+    .eventbar strong { display: none; }
+    .eventbar-title { font-size: 14px; }
+    .eventbar .all { border-left: 0; padding-left: 0; }
+  }
 
   .site-header { background: var(--cream); border-bottom: 1px solid var(--line); }
   .header-inner { display: flex; align-items: center; justify-content: space-between; min-height: 104px; gap: 16px; flex-wrap: wrap; }
@@ -407,23 +413,23 @@ const popularSearches = ['coffee', 'brunch', 'Sugar Land', 'new builds', 'events
   .sub-list a:active { background: var(--gold-soft); }
   .sub-list a[aria-current] { color: var(--navy); font-weight: 700; }
 
-  .band { background: var(--blue-deep); color: #fff; padding: 72px 0 64px; }
-  .band h1, .band h2 { color: #fff; }
-  .band .kicker { color: var(--gold); font-size: 15px; margin: 0 0 12px; }
-  .band p.lede { font-size: 1.25rem; max-width: 40ch; margin: 0 0 28px; }
-  .section { padding: 56px 0; }
+  :where(.band) { background: var(--blue-deep); color: #fff; padding: 72px 0 64px; }
+  :where(.band) h1, :where(.band) h2 { color: #fff; }
+  :where(.band) .kicker { color: var(--gold); font-size: 15px; margin: 0 0 12px; }
+  :where(.band) p.lede { font-size: 1.25rem; max-width: 40ch; margin: 0 0 28px; }
+  :where(.section) { padding: 56px 0; }
   .section.tint { background: var(--cream); }
   .section-head { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; margin-bottom: 24px; border-bottom: 2px solid var(--blue); padding-bottom: 8px; }
   .section-head h2 { margin: 0; }
   .section-head a { font-weight: 600; text-decoration: none; }
 
-  .btn { display: inline-block; padding: 12px 26px; border-radius: 999px; font-family: var(--serif); font-weight: 600; text-decoration: none; border: 0; cursor: pointer; font-size: 16px; }
+  :where(.btn) { display: inline-block; padding: 12px 26px; border-radius: 999px; font-family: var(--serif); font-weight: 600; text-decoration: none; border: 0; cursor: pointer; font-size: 16px; }
   .btn.gold { background: var(--gold); color: var(--blue); }
   .btn.blue { background: var(--blue); color: #fff; }
   .btn.small { padding: 8px 18px; font-size: 15px; }
   .btn.ghost { border: 2px solid var(--blue); color: var(--blue); background: transparent; }
 
-  .grid { display: grid; gap: 28px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+  :where(.grid) { display: grid; gap: 28px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
   .chip { display: inline-block; border: 1.5px solid var(--blue); border-radius: 999px; padding: 4px 14px; font-size: 14px; color: var(--blue); text-decoration: none; background: #fff; cursor: pointer; font-family: var(--sans); }
   .chip[aria-pressed="true"] { background: var(--blue); color: #fff; }
   .chips { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -459,15 +465,15 @@ const popularSearches = ['coffee', 'brunch', 'Sugar Land', 'new builds', 'events
        more specific than ".top-nav" alone, so the gap has to be set here instead. */
     .site-header nav.top-nav { gap: 0; width: 100%; }
     .top-link {
-      flex: 1; justify-content: center;
-      font-size: 13.5px; padding: 10px 2px; gap: 2px; min-height: 44px; white-space: nowrap;
+      flex: 1; justify-content: center; text-align: center;
+      font-size: 13.5px; padding: 10px 2px; gap: 2px; min-height: 44px;
     }
     .top-link .chev { width: 8px; height: 6px; }
     /* Submenu: smaller than the main menu above it, not bigger. */
     .sub-list a { font-size: 13px; padding: 0 10px; }
     .site-search { order: 1; margin-left: auto; }
     .site-search + .account { margin-left: 0; }
-    .band { padding: 48px 0; }
+    :where(.band) { padding: 48px 0; }
   }
   @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; transition: none !important; } }
 </style>
