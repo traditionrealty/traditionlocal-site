@@ -24,7 +24,7 @@ const youtubeUrl = site.social?.youtube || 'https://www.youtube.com/@traditionlo
     </div>
   </section>
 
-  <section class="band tone-cool no-top">
+  <section class="section">
     <div class="wrap narrow">
       <h2>Local perspective.<br />Personal attention.</h2>
       <p>I'm interested in the people, economics, and everyday details that shape a neighborhood. My approach starts with listening, careful preparation, and clear communication.</p>
@@ -39,7 +39,7 @@ const youtubeUrl = site.social?.youtube || 'https://www.youtube.com/@traditionlo
       </div>
       <h3>A quick hello.</h3>
       <p class="muted">Get to know the person behind the guidance.</p>
-      <a class="mlink-dark" href={youtubeUrl} target="_blank" rel="noopener">Explore Dillon's videos &nearr;</a>
+      <a class="mlink-light" href={youtubeUrl} target="_blank" rel="noopener">Explore Dillon's videos &nearr;</a>
     </div>
   </section>
 
@@ -141,13 +141,13 @@ const youtubeUrl = site.social?.youtube || 'https://www.youtube.com/@traditionlo
   .brokerage-line { color: rgba(255,255,255,.6); font-size: 14px; margin: 0 0 32px; }
   .photo-ph { aspect-ratio: 16 / 9; max-width: 560px; background: rgba(255,255,255,.08); border: 1.5px dashed rgba(255,255,255,.25); border-radius: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: rgba(255,255,255,.6); }
   .narrow { max-width: 64ch; }
-  .narrow h2 { margin: 0 0 20px; }
-  .narrow p { font-size: 1.05rem; line-height: 1.7; color: rgba(255,255,255,.85); }
+  .narrow h2 { margin: 0 0 20px; color: var(--navy); }
+  .narrow p { font-size: 1.05rem; line-height: 1.7; color: var(--ink); }
   .video-card { margin: 28px 0; }
-  .video-link { display: inline-flex; align-items: center; gap: 12px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.18); border-radius: 10px; padding: 14px 20px; text-decoration: none; color: #fff; }
-  .play-btn { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,.14); display: flex; align-items: center; justify-content: center; flex: none; }
+  .video-link { display: inline-flex; align-items: center; gap: 12px; background: var(--cream); border: 1px solid var(--line); border-radius: 10px; padding: 14px 20px; text-decoration: none; color: var(--navy); }
+  .play-btn { width: 36px; height: 36px; border-radius: 50%; background: var(--navy); color: #fff; display: flex; align-items: center; justify-content: center; flex: none; }
   .video-label { font-weight: 600; }
-  .narrow h3 { color: #fff; margin: 32px 0 6px; font-size: 1.3rem; }
+  .narrow h3 { color: var(--navy); margin: 32px 0 6px; font-size: 1.3rem; }
   .eyebrow { color: var(--green, #1e7a43); font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; margin: 0 0 8px; }
   .lede-dark { color: var(--muted); max-width: 54ch; margin: 0 0 28px; }
   .help-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
