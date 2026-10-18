@@ -81,6 +81,7 @@ const rotationPoolHome = areas.filter((a) => (picksByAreaHome[a.slug]?.length ||
 const dayIndexHome = Math.floor(Date.now() / 86400000);
 const todaysArea = rotationPoolHome.length > 0 ? rotationPoolHome[dayIndexHome % rotationPoolHome.length] : null;
 const currentMonthName = new Date().toLocaleDateString('en-US', { month: 'long', timeZone: 'America/Chicago' });
+const worthTheDrivePick = (businesses as any[]).filter((b) => b.rating === 'visit').sort((a, b) => b.reviewYear - a.reviewYear)[0];
 
 // "Where should we go?" homepage finder
 const finderCatCounts: Record<string, number> = {};
@@ -305,7 +306,7 @@ const basePath = url('/').replace(/\/$/, '');
         <div class="series-card gold">
           <h3>Worth the Drive</h3>
           <p>One spot a week that's worth leaving your neighborhood for.</p>
-          <a class="latest ph-text" href={url('/food')}>Latest: [Spot name] &rarr;</a>
+          {worthTheDrivePick ? (<a class="latest" href={url(`/eat/${worthTheDrivePick.slug}`)}>Latest: {worthTheDrivePick.name} &rarr;</a>) : (<a class="latest ph-text" href={url('/food')}>Latest: [Spot name] &rarr;</a>)}
         </div>
         <div class="series-card green">
           <h3>The Perfect Saturday</h3>
