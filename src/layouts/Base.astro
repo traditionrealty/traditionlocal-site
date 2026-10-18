@@ -88,7 +88,7 @@ const popularSearches = ['coffee', 'brunch', 'Sugar Land', 'new builds', 'events
     <div class="eventbar">
       <div class="wrap">
         <strong>Upcoming events</strong>
-        <span class="eventbar-title">{next.title.replace(/\s*\[.*?\]\s*/g, ' ').trim()}, {fmtDate(next.date, { weekday: 'short', month: 'short', day: 'numeric' })}</span>
+        <span class="eventbar-title">{next.title.replace(/\s*\[.*?\]\s*/g, ' ').trim()}<span class="eventbar-date">{fmtDate(next.date, { weekday: 'short', month: 'short', day: 'numeric' })}</span></span>
         <a class="rsvp" href={url(next.path)}>RSVP</a>
         <a class="all" href={url('/living#featured')}>See all events</a>
       </div>
@@ -352,6 +352,7 @@ const popularSearches = ['coffee', 'brunch', 'Sugar Land', 'new builds', 'events
   .eventbar { background: var(--gold); color: var(--navy); font-size: 15px; }
   .eventbar .wrap { display: flex; gap: 18px; align-items: center; justify-content: center; padding-top: 8px; padding-bottom: 8px; flex-wrap: wrap; }
   .eventbar strong { color: #1d2d7a; letter-spacing: .04em; }
+  .eventbar-date::before { content: ", "; }
   .eventbar a { color: var(--navy); }
   .eventbar .rsvp { font-weight: 700; letter-spacing: .15em; }
   .eventbar .all { border-left: 1px solid var(--navy); padding-left: 18px; text-decoration: none; }
@@ -359,6 +360,8 @@ const popularSearches = ['coffee', 'brunch', 'Sugar Land', 'new builds', 'events
     .eventbar .wrap { flex-direction: column; gap: 4px; padding-top: 10px; padding-bottom: 10px; text-align: center; }
     .eventbar strong { display: none; }
     .eventbar-title { font-size: 14px; }
+    .eventbar-date { display: block; margin-top: 2px; }
+    .eventbar-date::before { content: ""; }
     .eventbar .all { border-left: 0; padding-left: 0; }
   }
 
@@ -396,15 +399,16 @@ const popularSearches = ['coffee', 'brunch', 'Sugar Land', 'new builds', 'events
     box-shadow: 0 10px 24px rgba(32, 69, 94, .1);
   }
   .subheader .wrap { padding-top: 0; padding-bottom: 0; }
-  /* Spread the links across the full bar as equal-width columns instead of clustering
-     them on the left. The <li> wrappers are the actual flex children here, not the <a>
-     tags inside them, so the equal-width growth has to go on the <li> (and it needs
-     display:flex itself so its own <a> child can then stretch to fill it). */
-  .sub-list { display: flex; flex-wrap: wrap; gap: 6px; padding: 14px 0; margin: 0; list-style: none; }
+  /* Natural-width links, centered as a group. These sit at a different count than the
+     4 items in the main nav above, so stretching them into their own equal-width columns
+     only made the two rows look like they were trying (and failing) to line up with each
+     other. Sizing to content and centering the whole row reads as its own, clearly
+     secondary level instead. */
+  .sub-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; padding: 14px 0; margin: 0; list-style: none; }
   .sub-list[hidden] { display: none; }
-  .sub-list li { flex: 1; display: flex; }
+  .sub-list li { display: flex; }
   .sub-list a {
-    display: flex; align-items: center; justify-content: center; min-height: 44px; flex: 1;
+    display: flex; align-items: center; justify-content: center; min-height: 44px; white-space: nowrap;
     padding: 0 16px; border-radius: 8px; background: transparent;
     font-weight: 600; font-size: 15px; color: var(--blue); text-decoration: none;
   }
