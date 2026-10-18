@@ -15,6 +15,8 @@ const RATING_LABEL: Record<string, string> = { stop: 'Worth a Stop', drive: 'Wor
 const eats = businesses.filter((b) => b.area === a.slug).sort((x, y) => Number(y.saraPick) - Number(x.saraPick));
 const topEats = eats.slice(0, 3);
 const coffeePick = eats.find((b) => b.categories.includes('Coffee & Tea'));
+const LUNCH_CATEGORIES = ['Sandwiches', 'Mexican', 'Tex-Mex', 'American', 'Mediterranean', 'Vietnamese', 'Indian', 'Chinese', 'Halal', 'Middle Eastern', 'Cajun/Creole', 'Breakfast & Brunch'];
+const lunchPick = eats.find((b) => b.slug !== coffeePick?.slug && LUNCH_CATEGORIES.some((c) => b.categories.includes(c)));
 const stories = posts.filter((p) => p.title.toLowerCase().includes(a.name.toLowerCase())).slice(0, 3);
 const parent = a.parent ? areas.find((x) => x.slug === a.parent) : null;
 const children = areas.filter((x) => x.parent === a.slug);
@@ -123,8 +125,7 @@ const sameRegion = areas.filter((x) => x.region === a.region && x.slug !== a.slu
         <div class="sat-card">
           <div class="sat-img blue"></div>
           <p class="time">1 PM</p>
-          <strong class="ph-text">[Lunch and a stroll]</strong>
-          <span class="muted small ph-text">[Shopping area]</span>
+{lunchPick ? (<><strong>Lunch</strong><span class="muted small">{lunchPick.name}</span></>) : (<><strong class="ph-text">[Lunch and a stroll]</strong><span class="muted small ph-text">[Shopping area]</span></>)}
         </div>
         <div class="sat-card">
           <div class="sat-img blue"></div>
