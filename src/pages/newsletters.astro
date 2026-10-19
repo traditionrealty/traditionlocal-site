@@ -2,6 +2,13 @@
 import Base from '../layouts/Base.astro';
 import { config } from '../config';
 import { url } from '../lib/util';
+import NewsletterEdition from '../components/NewsletterEdition.astro';
+import NewsletterArchive from '../components/NewsletterArchive.astro';
+import newsletters from '../data/newsletters.json';
+
+// The newest published edition shows in full; the rest go in the archive below it.
+const latest = newsletters[0];
+const earlier = newsletters.slice(1);
 
 const neighborhoods = [
   { label: 'Bellaire', slug: 'bellaire' },
@@ -53,6 +60,22 @@ const neighborhoods = [
       </div>
     </div>
   </section>
+
+  {latest && (
+    <section class="section" id="latest-issue">
+      <div class="wrap">
+        <div class="latest-head">
+          <div>
+            <p class="latest-kicker">This week's In the Loop</p>
+            <h2>Read the latest issue</h2>
+          </div>
+          <a class="latest-link" href={url(`/newsletters/${latest.slug}`)}>Open this edition on its own page &rarr;</a>
+        </div>
+        <NewsletterEdition edition={latest} />
+        <NewsletterArchive editions={earlier} />
+      </div>
+    </section>
+  )}
 
   <section class="section tint">
     <div class="wrap two-cards">
@@ -113,6 +136,11 @@ const neighborhoods = [
   .signup-form label span:first-child { display: block; font-size: 13px; margin-bottom: 4px; }
   .signup-form input[type=email] { padding: 12px 16px; border-radius: 999px; border: 0; font-size: 15px; min-width: 240px; }
   #nl-msg-2 { width: 100%; margin: 8px 0 0; font-size: 14px; color: var(--gold); }
+
+  .latest-head { display: flex; justify-content: space-between; align-items: end; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
+  .latest-head h2 { margin: 0; }
+  .latest-kicker { color: #1e7a43; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; margin: 0 0 6px; }
+  .latest-link { font-weight: 600; }
 
   .two-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
   .nl-card { border-radius: 14px; padding: 32px; }
