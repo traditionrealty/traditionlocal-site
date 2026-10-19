@@ -156,7 +156,7 @@ function renderPost(p: any, isOwn: boolean) {
     ${banner}
     <div class="post-actions">
       <button type="button" class="like-btn" data-like-post="${p.id}" data-liked="${p.liked_by_me ? '1' : '0'}">${p.liked_by_me ? '♥ Liked' : '♡ Like'}</button>
-      <span class="mform-note">${p.like_count || 0} likes</span>
+      <span class="mform-note">${p.like_count || 0} ${(p.like_count || 0) === 1 ? 'like' : 'likes'}</span>
       ${trending ? '<span class="feed-trending-badge">🔥 Trending</span>' : ''}
     </div>
   </div>`;
@@ -204,7 +204,7 @@ async function loadFeed() {
     <div class="mcard trending-item">
       <strong>${esc(p.author_name || 'Member')}</strong>
       <p>${esc(p.body.slice(0, 120))}${p.body.length > 120 ? '…' : ''}</p>
-      <span class="mform-note">♥ ${p.like_count} likes</span>
+      <span class="mform-note">♥ ${p.like_count} ${p.like_count === 1 ? 'like' : 'likes'}</span>
     </div>`).join('');
 }
 
