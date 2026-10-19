@@ -38,6 +38,16 @@ function typeTag(p: any) {
     </section>
 
     <section class="sh-section">
+      <div class="wrap">
+        <div class="sh-sechead"><div><p class="sh-eyebrow">From our members</p><h2>Community Conversations</h2></div><a class="sh-btn outline" href={url('/members/community')}>Join the conversation &rarr;</a></div>
+        <p class="sh-lede-sm">What neighbors are sharing right now, posted by Tradition Local members.</p>
+        <div class="sh-community-feed" data-community-feed>
+          <p class="muted small">Loading&hellip;</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="sh-section">
       <div class="wrap sh-feat-grid">
         {featured && (
           <a class="sh-feat-card" href={url(featured.path)}>
@@ -225,6 +235,41 @@ function typeTag(p: any) {
   q.addEventListener('input', apply);
 </script>
 
+<script>
+import { membersReady, supabase } from '../../lib/members';
+
+function esc(s: string) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+async function loadCommunityFeed() {
+  const box = document.querySelector('[data-community-feed]') as HTMLElement;
+  if (!box) return;
+  if (!membersReady) { box.innerHTML = ''; box.closest('section')?.remove(); return; }
+  const { data, error } = await supabase()
+    .from('posts')
+    .select('id, body, neighborhood, created_at, profiles!posts_author_id_fkey(first_name,last_name)')
+    .eq('visibility', 'public')
+    .order('created_at', { ascending: false })
+    .limit(4);
+  if (error || !data || !data.length) { box.closest('section')?.remove(); return; }
+  box.innerHTML = data.map((p: any) => {
+    const name = [p.profiles?.first_name, p.profiles?.last_name].filter(Boolean).join(' ') || 'Member';
+    const initials = name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase() || '?';
+    const when = new Date(p.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    return `<div class="sh-cf-row">
+      <span class="sh-cf-ic">${esc(initials)}</span>
+      <div class="sh-cf-body">
+        <p class="sh-byline-sm">${esc(name)}${p.neighborhood ? ' &middot; ' + esc(p.neighborhood) : ''} &middot; ${when}</p>
+        <p>${esc(p.body)}</p>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+loadCommunityFeed();
+</script>
+
 <style>
   .sh-eyebrow { color: #1e7a43; font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; margin: 0 0 10px; }
   .sh-eyebrow.small { font-size: 11px; margin: 0 0 6px; }
@@ -295,6 +340,13 @@ function typeTag(p: any) {
   .sh-recent-body { flex: 1; min-width: 0; }
   .sh-recent-body h4 { font-size: 1.05rem; margin: 6px 0 2px; }
   .sh-recent-body h4 a { color: var(--blue); text-decoration: none; }
+
+  .sh-community-feed { display: flex; flex-direction: column; margin-top: 16px; }
+  .sh-cf-row { display: flex; align-items: flex-start; gap: 16px; padding: 16px 0; border-top: 1px solid var(--line); }
+  .sh-cf-row:first-child { border-top: none; padding-top: 0; }
+  .sh-cf-ic { width: 40px; height: 40px; border-radius: 50%; background: var(--navy); color: var(--gold); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-family: var(--serif); font-size: .9rem; }
+  .sh-cf-body { flex: 1; min-width: 0; }
+  .sh-cf-body p:last-child { color: var(--ink); margin: 4px 0 0; }
 
   .sh-filters { display: flex; gap: 8px; flex-wrap: wrap; margin: 18px 0 16px; }
   .sh-chip { background: #fff; border: 1.5px solid var(--line); color: var(--navy); border-radius: 999px; padding: 8px 16px; font-size: 13px; font-weight: 600; cursor: pointer; }
