@@ -536,7 +536,7 @@ init();
 .pwallpaper-edit { position: absolute; right: 16px; bottom: 16px; background: rgba(23,31,43,.85); border: 1px solid #2c3647; color: #fff; border-radius: 8px; padding: 8px 14px; font-size: 13px; text-decoration: none; font-weight: 600; }
 
 .pheader { text-align: center; padding: 0 16px 24px; }
-.pavatar-lg { width: 96px; height: 96px; border-radius: 50%; background: #3a4a3a; color: var(--gold); display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-size: 2rem; margin: 0 auto 16px; border: 4px solid #171f2b; }
+.pavatar-lg { width: 96px; height: 96px; border-radius: 50%; background: #3a4a3a; color: var(--gold); display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-size: 2rem; margin: 0 auto 16px; border: 5px solid #171f2b; box-shadow: 0 2px 14px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.06); position: relative; z-index: 2; }
 .pbioline { color: #cfd3da; max-width: 50ch; margin: 0 auto 6px; }
 .pmeta { color: #8f96a3; margin: 0 0 14px; }
 .pheader .btn { margin: 4px 0 10px; }
@@ -561,6 +561,8 @@ init();
 .pchip { background: #161d29; border: 1px solid #2c3647; border-radius: 999px; padding: 6px 14px; font-size: 13px; color: #cfd3da; }
 .plink { color: var(--gold); font-weight: 600; text-decoration: none; }
 .mform-note { font-size: 13px; color: #8f96a3; margin: 6px 0 0; }
+.mform-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
+.mform-field textarea { width: 100%; box-sizing: border-box; background: #161d29; border: 1px solid #2c3647; border-radius: 8px; padding: 11px 14px; color: #fff; font: inherit; resize: vertical; }
 
 .composer-row { display: flex; align-items: center; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
 .composer-row .btn { margin-left: auto; }
