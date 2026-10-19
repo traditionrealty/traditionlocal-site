@@ -1,33 +1,245 @@
 {
-  "_readme": "The Food Feature section on /food shows these as \"Opened this month.\" Edit this list by hand, or ask Claude to. Each entry needs name, category, and area. Leave \"placeholder\": true on an entry until it's a real opening, that flag is what gives it the dashed, grayed-out look so nobody mistakes it for a real listing. Delete entries once they're no longer new, there's no automatic expiry.",
+  "_readme": "The Food page shows these under Openings and closings. Each entry needs name, category, and area. Set status to open (default), closed, or soon (announced, not open yet). Optional: when (short text such as Opened Oct 2 or Expected summer 2027), source, and url for the article it came from. Closed entries also take a date (the last day). Leave placeholder true until it is a real listing. Delete entries once they are no longer new, there is no automatic expiry.",
   "items": [
+    {
+      "name": "Majestic Kitchen",
+      "category": "Indian",
+      "area": "Sugar Land Town Square",
+      "status": "open",
+      "when": "Grand opening Oct 17",
+      "source": "CultureMap Houston",
+      "url": "https://houston.culturemap.com/news/restaurants-bars/majestic-kitchen-sugar-land-opening/",
+      "placeholder": false
+    },
+    {
+      "name": "Bar Bludorn",
+      "category": "American tavern",
+      "area": "The Woodlands Waterway",
+      "status": "open",
+      "when": "Opened Oct 2",
+      "source": "CultureMap Houston",
+      "url": "https://houston.culturemap.com/news/restaurants-bars/bistro-le-cep-black-magic/",
+      "placeholder": false
+    },
+    {
+      "name": "Spectators Bar & Grill",
+      "category": "Sports bar and grill",
+      "area": "Conroe",
+      "status": "open",
+      "when": "Opened this month",
+      "source": "What Now Houston",
+      "url": "https://whatnow.com/houston/restaurants/spectators-bar-grill-now-open-in-conroe/",
+      "placeholder": false
+    },
+    {
+      "name": "New Bridge Fusion Steakhouse",
+      "category": "Steakhouse",
+      "area": "Montgomery",
+      "status": "open",
+      "when": "Now open",
+      "source": "Community Impact",
+      "url": "https://communityimpact.com/sugar-land-missouri-city/dining/new-bridge-fusion-steakhouse-bar-bludorn-6-greater-houston-area-dining-updates/",
+      "placeholder": false
+    },
+    {
+      "name": "Cold Start Coffee",
+      "category": "Coffee",
+      "area": "Spring",
+      "status": "open",
+      "when": "Grand opening this month",
+      "source": "Community Impact",
+      "url": "https://communityimpact.com/sugar-land-missouri-city/dining/new-bridge-fusion-steakhouse-bar-bludorn-6-greater-houston-area-dining-updates/",
+      "placeholder": false
+    },
+    {
+      "name": "Koyo Hand Roll Bar",
+      "category": "Japanese",
+      "area": "The Heights",
+      "status": "open",
+      "when": "On The Hit List",
+      "source": "The Infatuation",
+      "url": "https://www.theinfatuation.com/houston/guides/best-new-houston-restaurants-hit-list",
+      "placeholder": false
+    },
+    {
+      "name": "Eastwood Station",
+      "category": "Pizza and pasta",
+      "area": "East End",
+      "status": "open",
+      "when": "On The Hit List",
+      "source": "The Infatuation",
+      "url": "https://www.theinfatuation.com/houston/guides/best-new-houston-restaurants-hit-list",
+      "placeholder": false
+    },
+    {
+      "name": "Xeo Yum",
+      "category": "Vietnamese",
+      "area": "Spring Branch",
+      "status": "open",
+      "when": "On The Hit List",
+      "source": "The Infatuation",
+      "url": "https://www.theinfatuation.com/houston/guides/best-new-houston-restaurants-hit-list",
+      "placeholder": false
+    },
+    {
+      "name": "One Roast",
+      "category": "Chinese roast meats",
+      "area": "Chinatown",
+      "status": "open",
+      "when": "On The Hit List",
+      "source": "The Infatuation",
+      "url": "https://www.theinfatuation.com/houston/guides/best-new-houston-restaurants-hit-list",
+      "placeholder": false
+    },
+    {
+      "name": "Moderno Tacos & Tex Mex",
+      "category": "Tex-Mex",
+      "area": "Westchase",
+      "status": "closed",
+      "date": "2026-10-24",
+      "when": "Last day Oct 24, after 12 years",
+      "source": "CultureMap Houston",
+      "url": "https://houston.culturemap.com/news/restaurants-bars/moderno-tacos-restaurant-closing/",
+      "placeholder": false
+    },
+    {
+      "name": "Bistro le Cep",
+      "category": "French",
+      "area": "Westchase",
+      "status": "closed",
+      "date": "2026-09-30",
+      "when": "Closed after 25 years",
+      "source": "CultureMap Houston",
+      "url": "https://houston.culturemap.com/news/restaurants-bars/bistro-le-cep-black-magic/",
+      "placeholder": false
+    },
+    {
+      "name": "The Waffle Bus (Cypress location)",
+      "category": "Sandwiches",
+      "area": "Cypress",
+      "status": "closed",
+      "date": "2026-09-30",
+      "when": "Cypress closed. Heights and Montrose remain open",
+      "source": "CultureMap Houston",
+      "url": "https://houston.culturemap.com/news/restaurants-bars/bistro-le-cep-black-magic/",
+      "placeholder": false
+    },
+    {
+      "name": "Qin Dynasty",
+      "category": "Chinese American",
+      "area": "West University",
+      "status": "closed",
+      "date": "2026-09-11",
+      "when": "Quietly closed, open since 2001",
+      "source": "CultureMap Houston",
+      "url": "https://houston.culturemap.com/news/restaurants-bars/food-news-comfort-foodies-qin-dynasty/",
+      "placeholder": false
+    },
+    {
+      "name": "Donatos Pizza",
+      "category": "Pizza",
+      "area": "Humble (Atascocita)",
+      "status": "soon",
+      "when": "Expected by the end of 2026",
+      "source": "What Now Houston",
+      "url": "https://whatnow.com/houston/restaurants/donatos-booming-pizza-chain-to-open-its-first-houston-storefront/",
+      "placeholder": false
+    },
+    {
+      "name": "Maison Chinoise",
+      "category": "Contemporary Chinese",
+      "area": "River Oaks Shopping Center",
+      "status": "soon",
+      "when": "Expected this winter",
+      "source": "CultureMap Houston",
+      "url": "https://houston.culturemap.com/news/city-life/popular-stories-eculent-restaurant-kemah/",
+      "placeholder": false
+    },
+    {
+      "name": "Sal e Brasa",
+      "category": "Brazilian steakhouse",
+      "area": "Westheimer Road",
+      "status": "soon",
+      "when": "Aiming to open by the end of 2026",
+      "source": "CultureMap Houston",
+      "url": "https://houston.culturemap.com/news/restaurants-bars/food-news-sal-brasa-insomnia/",
+      "placeholder": false
+    },
+    {
+      "name": "Sushi REV",
+      "category": "Revolving sushi",
+      "area": "Midtown",
+      "status": "soon",
+      "when": "Expected next year",
+      "source": "What Now Houston",
+      "url": "https://whatnow.com/houston/restaurants/sushi-rev-california-based-revolving-sushi-eatery-to-debut-in-houston/",
+      "placeholder": false
+    },
+    {
+      "name": "Grit and Grind Coffee Shop",
+      "category": "Coffee",
+      "area": "Montgomery (April Sound)",
+      "status": "soon",
+      "when": "Expected early next year",
+      "source": "What Now Houston",
+      "url": "https://whatnow.com/houston/restaurants/grit-and-grind-coffee-shop-to-open-its-second-lone-star-state-cafe/",
+      "placeholder": false
+    },
+    {
+      "name": "CasaGela",
+      "category": "Gelato and coffee",
+      "area": "Kingwood",
+      "status": "soon",
+      "when": "U.S. debut expected in 2027",
+      "source": "What Now Houston",
+      "url": "https://whatnow.com/houston/restaurants/casagela-to-open-first-us-flagship-gelato-and-coffee-house-in-greater-houston/",
+      "placeholder": false
+    },
+    {
+      "name": "Bafang Dumpling",
+      "category": "Taiwanese dumplings",
+      "area": "The Heights",
+      "status": "soon",
+      "when": "Expected summer 2027",
+      "source": "Houston Chronicle",
+      "url": "https://www.chron.com/food/article/taiwanese-dumplings-first-location-houston-22472438.php",
+      "placeholder": false
+    },
     {
       "name": "Thai Thai Restaurant",
       "category": "Thai",
       "area": "Katy",
       "placeholder": false,
-      "source": "https://www.thehouston.org/news/thai-thai-restaurant-now-open-in-katy-katy-fulshear"
+      "source": "thehouston.org",
+      "status": "open",
+      "url": "https://www.thehouston.org/news/thai-thai-restaurant-now-open-in-katy-katy-fulshear"
     },
     {
       "name": "Bari Ristorante",
       "category": "Italian",
       "area": "The Woodlands",
       "placeholder": false,
-      "source": "https://www.houstonchronicle.com/food-restaurants/article/bari-ristorante-woodlands-opening-22445380.php"
+      "source": "Houston Chronicle",
+      "status": "open",
+      "url": "https://www.houstonchronicle.com/food-restaurants/article/bari-ristorante-woodlands-opening-22445380.php"
     },
     {
       "name": "Tapestry",
       "category": "Cafe",
       "area": "Montrose",
       "placeholder": false,
-      "source": "https://www.houstonchronicle.com/food-restaurants/article/tapestry-montrose-opening.php"
+      "source": "Houston Chronicle",
+      "status": "open",
+      "url": "https://www.houstonchronicle.com/food-restaurants/article/tapestry-montrose-opening.php"
     },
     {
       "name": "Trill Burgers",
       "category": "Burgers",
       "area": "Galleria / Westheimer",
       "placeholder": false,
-      "source": "https://www.houstonchronicle.com/news/houston-texas/trending/article/trill-burger-westheimer-22448748.php"
+      "source": "Houston Chronicle",
+      "status": "open",
+      "url": "https://www.houstonchronicle.com/news/houston-texas/trending/article/trill-burger-westheimer-22448748.php"
     }
   ]
 }
