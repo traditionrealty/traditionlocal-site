@@ -1,0 +1,97 @@
+---
+import { url, img, fixHtml } from '../lib/util';
+
+interface Section { id: string; heading: string | null; eyebrow: string | null; nav: string; html: string; }
+interface Props {
+  edition: {
+    slug: string; weekLabel: string; title: string; summary: string; image: string | null; imageAlt: string;
+    sections: Section[];
+    event: { label: string; title: string; when: string; html: string; buttonLabel: string; url: string } | null;
+  };
+  asPage?: boolean;
+}
+const { edition, asPage = false } = Astro.props;
+const H = asPage ? 'h1' : 'h2';
+---
+<article class="edition" id="this-edition">
+  <header class="ed-hero">
+    <p class="ed-week">Week of {edition.weekLabel}</p>
+    <H class="ed-title">{edition.title}</H>
+    {edition.summary && <p class="ed-summary">{edition.summary}</p>}
+    {edition.image && <img class="ed-hero-img" src={img(edition.image)} alt={edition.imageAlt} />}
+  </header>
+
+  <div class="ed-grid">
+    <div class="ed-main">
+      <p class="ed-note">{edition.weekLabel} edition. Read the newsletter's articles in full below. Details reflect the original coverage period.</p>
+      {edition.sections.map((s) => (
+        <section class="ed-section" id={s.id}>
+          {s.eyebrow && <p class="ed-eyebrow">{s.eyebrow}</p>}
+          {s.heading && <h3>{s.heading}</h3>}
+          <div class="ed-prose" set:html={fixHtml(s.html)} />
+        </section>
+      ))}
+      {edition.event && (
+        <section class="ed-section" id="event">
+          <p class="ed-eyebrow">{edition.event.label}</p>
+          <div class="ed-event">
+            <h3>{edition.event.title}</h3>
+            {edition.event.when && <p class="ed-when">{edition.event.when}</p>}
+            <div class="ed-prose" set:html={fixHtml(edition.event.html)} />
+            <a class="btn gold" href={url(edition.event.url)}>{edition.event.buttonLabel} &rarr;</a>
+          </div>
+        </section>
+      )}
+    </div>
+
+    <aside class="ed-side" aria-label="In this edition">
+      <p class="ed-side-title">In this edition</p>
+      <ul>
+        {edition.sections.map((s) => <li><a href={`#${s.id}`}>{s.nav}</a></li>)}
+        {edition.event && <li><a href="#event">{edition.event.label}</a></li>}
+      </ul>
+    </aside>
+  </div>
+</article>
+
+<style>
+  .edition { margin: 0; }
+  .ed-hero { background: var(--navy); color: #fff; border-radius: 16px; padding: 40px 40px 0; text-align: center; overflow: hidden; }
+  .ed-week { color: var(--gold); font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; margin: 0 0 14px; }
+  .ed-title { color: #fff; font-size: clamp(1.9rem, 4.2vw, 3rem); max-width: 22ch; margin: 0 auto 16px; }
+  .ed-summary { color: rgba(255,255,255,.8); max-width: 52ch; margin: 0 auto 28px; }
+  .ed-hero-img { display: block; width: calc(100% + 80px); max-width: none; margin: 8px -40px 0; height: auto; max-height: 460px; object-fit: cover; }
+  .ed-hero:not(:has(.ed-hero-img)) { padding-bottom: 36px; }
+
+  .ed-grid { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 48px; align-items: start; margin-top: 36px; }
+  .ed-note { background: var(--cream); border-radius: 8px; padding: 14px 18px; font-size: 14px; color: var(--muted); margin: 0 0 8px; }
+  .ed-section { padding: 36px 0 8px; border-top: 1px solid var(--line); margin-top: 28px; scroll-margin-top: 90px; }
+  .ed-section:first-of-type { border-top: 0; margin-top: 8px; padding-top: 24px; }
+  .ed-eyebrow { color: #1e7a43; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; margin: 0 0 8px; }
+  .ed-section h3 { font-size: clamp(1.5rem, 3vw, 2rem); margin: 0 0 14px; }
+  .ed-prose :global(p) { margin: 0 0 1.1em; line-height: 1.75; }
+  .ed-prose :global(ol) { margin: 0 0 1.1em; padding-left: 1.4em; }
+  .ed-prose :global(ol li) { margin: 0 0 1em; padding-left: .3em; line-height: 1.75; }
+  .ed-prose :global(img) { max-width: 100%; height: auto; border-radius: 10px; margin: 6px 0 18px; }
+  .ed-prose :global(a) { font-weight: 600; }
+
+  .ed-event { background: #e8f3ec; border-radius: 14px; padding: 32px; }
+  .ed-event h3 { margin-top: 0; }
+  .ed-when { font-weight: 700; color: var(--navy); margin: 0 0 14px; }
+
+  .ed-side { position: sticky; top: 96px; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 22px 24px; }
+  .ed-side-title { font-family: var(--serif); color: var(--blue); font-size: 1.35rem; margin: 0 0 8px; }
+  .ed-side ul { list-style: none; margin: 0; padding: 0; }
+  .ed-side li { border-top: 1px solid var(--line); }
+  .ed-side li:first-child { border-top: 0; }
+  .ed-side a { display: block; padding: 12px 0; text-decoration: none; font-weight: 600; font-size: 15px; }
+  .ed-side a:hover { text-decoration: underline; }
+
+  @media (max-width: 860px) {
+    .ed-hero { padding: 32px 22px 0; }
+    .ed-hero-img { width: calc(100% + 44px); margin: 8px -22px 0; }
+    .ed-grid { grid-template-columns: 1fr; gap: 8px; }
+    .ed-side { position: static; order: -1; margin-bottom: 8px; }
+    .ed-event { padding: 24px; }
+  }
+</style>

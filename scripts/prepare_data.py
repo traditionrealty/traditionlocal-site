@@ -180,6 +180,74 @@ categories = [{"slug": path.rsplit("/", 1)[1], "name": path.rsplit("/", 1)[1].ca
                "description": cp["description"]}
               for path, cp in cat_pages.items() if "/categories/" in path]
 
+# ---------- weekly newsletters written in Pages CMS (content/newsletters/*.md) ----------
+# The newest edition that is not a draft shows on /newsletters. Older ones fill the archive.
+# In the body, a line starting with "## " begins a new section; everything above the first one is the lead story.
+NL_DIR = ROOT / "content" / "newsletters"
+MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+
+def nl_week_label(start, end):
+    try:
+        a = date.fromisoformat(str(start)[:10])
+        b = date.fromisoformat(str(end)[:10]) if end else None
+    except ValueError:
+        return ""
+    if not b:
+        from datetime import timedelta
+        b = a + timedelta(days=6)
+    if a.year == b.year and a.month == b.month:
+        return f"{MONTH_NAMES[a.month-1]} {a.day} to {b.day}, {a.year}"
+    if a.year == b.year:
+        return f"{MONTH_NAMES[a.month-1]} {a.day} to {MONTH_NAMES[b.month-1]} {b.day}, {a.year}"
+    return f"{MONTH_NAMES[a.month-1]} {a.day}, {a.year} to {MONTH_NAMES[b.month-1]} {b.day}, {b.year}"
+
+def nl_html(md_text):
+    h = markdown.markdown(md_text or "", extensions=["extra", "sane_lists"])
+    return re.sub(r"<img (?![^>]*loading=)", '<img loading="lazy" ', h)
+
+newsletters, nl_drafts = [], 0
+for f in (sorted(NL_DIR.glob("*.md")) if NL_DIR.exists() else []):
+    if f.name == "README.md":
+        continue
+    raw = f.read_text(encoding="utf-8")
+    m = re.match(r"^---\s*\n(.*?)\n---\s*\n?(.*)$", raw, flags=re.S)
+    if not m:
+        print("skipped (no front matter):", f.name); continue
+    fm = yaml.safe_load(m.group(1)) or {}
+    if fm.get("draft"):
+        nl_drafts += 1; continue
+    if not fm.get("title") or not fm.get("weekStart"):
+        print("skipped (needs title and weekStart):", f.name); continue
+    start = iso(fm["weekStart"])[:10]
+    body = fm.get("body") or m.group(2) or ""
+    parts = re.split(r"(?m)^##\s+(.+?)\s*$", body)
+    sections = []
+    lead_label = str(fm.get("leadLabel") or "").strip()
+    sections.append({"id": "lead", "heading": None,
+                     "eyebrow": "The lead story" + (f" / {lead_label}" if lead_label else ""),
+                     "nav": "The lead story", "html": nl_html(parts[0])})
+    for i in range(1, len(parts), 2):
+        heading = parts[i].strip()
+        eyebrow = heading.split(":", 1)[0].strip() if ":" in heading else None
+        sections.append({"id": slugify(heading) or f"section-{i}", "heading": heading, "eyebrow": eyebrow,
+                         "nav": heading.split(":", 1)[0].strip(), "html": nl_html(parts[i + 1])})
+    ev = fm.get("event") or {}
+    event = None
+    if isinstance(ev, dict) and ev.get("title"):
+        event = {"label": ev.get("label") or "Coffee & Conversations", "title": ev["title"], "when": ev.get("when") or "",
+                 "html": nl_html(ev.get("body") or ""), "buttonLabel": ev.get("buttonLabel") or "View event details",
+                 "url": ev.get("url") or "/events"}
+    text = re.sub(r"<[^>]+>", " ", " ".join(s_["html"] for s_ in sections))
+    newsletters.append({
+        "slug": str(fm.get("slug") or start), "weekStart": start, "weekEnd": iso(fm.get("weekEnd"))[:10] if fm.get("weekEnd") else None,
+        "weekLabel": nl_week_label(start, fm.get("weekEnd")),
+        "title": fm["title"], "summary": fm.get("summary") or "", "image": fm.get("image") or None,
+        "imageAlt": fm.get("imageAlt") or fm["title"], "sections": sections, "event": event,
+        "readMin": max(1, round(len(text.split()) / 230)),
+    })
+newsletters.sort(key=lambda n: n["weekStart"], reverse=True)
+print(f"newsletters {len(newsletters)} (drafts skipped {nl_drafts})")
+
 # ---------- events ----------
 FALLBACK_EVENTS = {
     "tenfold-coffee-company-for-coffee-conversations-march-part-1": {
@@ -844,7 +912,7 @@ new_and_notable = (json.load(open(nn_file)).get("items", []) if nn_file.exists()
 for name, obj in [("posts", posts), ("categories", categories), ("events", events), ("neighborhoods", hoods),
                   ("areas", areas), ("businesses", biz), ("pages", generic), ("site", site), ("images", images),
                   ("new-and-notable", new_and_notable), ("subdivisions", subdivisions), ("reviews", reviews),
-                  ("polls", polls)]:
+                  ("polls", polls), ("newsletters", newsletters)]:
     json.dump(obj, open(OUT / f"{name}.json", "w"), ensure_ascii=False)
 if not (OUT / "image-map.json").exists():
     json.dump({}, open(OUT / "image-map.json", "w"))

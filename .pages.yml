@@ -82,3 +82,67 @@ content:
       - name: body
         label: Post
         type: rich-text
+
+  - name: newsletters
+    label: Newsletter editions
+    type: collection
+    path: content/newsletters
+    format: yaml-frontmatter
+    exclude: [README.md]
+    filename: "{weekStart}.md"
+    view:
+      fields: [title, weekStart, draft]
+      primary: title
+      sort: [weekStart]
+      default:
+        sort: weekStart
+        order: desc
+    fields:
+      - name: title
+        label: Headline
+        type: string
+        required: true
+        description: The lead story headline for the week.
+      - name: draft
+        label: Draft (hidden from the site)
+        type: boolean
+        default: true
+        description: Turn this off to publish. The newest edition that is not a draft shows on the Newsletters page.
+      - name: weekStart
+        label: Week starts (Monday)
+        type: date
+        required: true
+        options:
+          format: yyyy-MM-dd
+      - name: weekEnd
+        label: Week ends (Sunday)
+        type: date
+        options:
+          format: yyyy-MM-dd
+      - name: summary
+        label: Intro line under the headline
+        type: text
+      - name: leadLabel
+        label: Lead story label
+        type: string
+        default: Food & Drink
+      - name: image
+        label: Main photo
+        type: image
+      - name: imageAlt
+        label: Photo description
+        type: string
+      - name: event
+        label: Next community event card
+        type: object
+        fields:
+          - { name: label, label: Small label, type: string, default: "Coffee & Conversations" }
+          - { name: title, label: Title, type: string }
+          - { name: when, label: Day and time, type: string }
+          - { name: body, label: Description, type: text }
+          - { name: buttonLabel, label: Button text, type: string, default: "View event details" }
+          - { name: url, label: Button link, type: string, description: "Site path such as /event-details/the-event-name" }
+      - name: body
+        label: Newsletter
+        type: rich-text
+        description: "Write the lead story first. Then start each new section with a Heading 2 (for example Restaurant of the Week: Long Weekend, Market Pulse: Real Estate Update, Things to Do, Sports, Openings & Closings). A colon in a heading puts the part before it in small type above the title."

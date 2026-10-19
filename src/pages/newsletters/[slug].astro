@@ -1,0 +1,36 @@
+---
+import Base from '../../layouts/Base.astro';
+import NewsletterEdition from '../../components/NewsletterEdition.astro';
+import newsletters from '../../data/newsletters.json';
+import { url } from '../../lib/util';
+
+export function getStaticPaths() {
+  return newsletters.map((edition, i) => ({
+    params: { slug: edition.slug },
+    props: { edition, older: newsletters[i + 1] || null, newer: newsletters[i - 1] || null },
+  }));
+}
+const { edition, older, newer } = Astro.props;
+---
+<Base title={`${edition.title} (In the Loop, week of ${edition.weekLabel})`} description={edition.summary || `In the Loop, our weekly note, for the week of ${edition.weekLabel}.`} image={edition.image}>
+  <section class="band">
+    <div class="wrap">
+      <p class="crumb"><a href={url('/')}>Home</a> <span aria-hidden="true">&rsaquo;</span> <a href={url('/newsletters')}>Newsletters</a> <span aria-hidden="true">&rsaquo;</span> In the Loop</p>
+    </div>
+  </section>
+  <section class="section">
+    <div class="wrap">
+      <NewsletterEdition edition={edition} asPage />
+      <nav class="ed-nav" aria-label="More editions">
+        {older ? <a href={url(`/newsletters/${older.slug}`)}>&larr; Previous edition</a> : <span></span>}
+        <a href={url('/newsletters/archive')}>Back to the archive &nearr;</a>
+        {newer ? <a href={url(`/newsletters/${newer.slug}`)}>Next edition &rarr;</a> : <span></span>}
+      </nav>
+    </div>
+  </section>
+</Base>
+<style>
+  .crumb { font-size: 13px; color: rgba(255,255,255,.65); margin: 0; }
+  .crumb a { color: rgba(255,255,255,.65); }
+  .ed-nav { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; border-top: 1px solid var(--line); margin-top: 40px; padding-top: 24px; font-weight: 600; }
+</style>
