@@ -205,6 +205,11 @@ def nl_html(md_text):
     h = markdown.markdown(md_text or "", extensions=["extra", "sane_lists"])
     return re.sub(r"<img (?![^>]*loading=)", '<img loading="lazy" ', h)
 
+def nl_brief(section_html):
+    t = " ".join(re.sub(r"<[^>]+>", " ", section_html or "").split())
+    m = re.match(r"(.{40,170}?[.!?])(\s|$)", t)
+    return (m.group(1) if m else t[:150]).strip()
+
 newsletters, nl_drafts = [], 0
 for f in (sorted(NL_DIR.glob("*.md")) if NL_DIR.exists() else []):
     if f.name == "README.md":
@@ -231,6 +236,12 @@ for f in (sorted(NL_DIR.glob("*.md")) if NL_DIR.exists() else []):
         eyebrow = heading.split(":", 1)[0].strip() if ":" in heading else None
         sections.append({"id": slugify(heading) or f"section-{i}", "heading": heading, "eyebrow": eyebrow,
                          "nav": heading.split(":", 1)[0].strip(), "html": nl_html(parts[i + 1])})
+    briefs = {}
+    for b_ in (fm.get("briefs") or []):
+        if isinstance(b_, dict) and b_.get("section") and b_.get("text"):
+            briefs[str(b_["section"]).strip().lower()] = str(b_["text"]).strip()
+    for s_ in sections:
+        s_["brief"] = briefs.get(s_["nav"].strip().lower()) or nl_brief(s_["html"])
     ev = fm.get("event") or {}
     event = None
     if isinstance(ev, dict) and ev.get("title"):
