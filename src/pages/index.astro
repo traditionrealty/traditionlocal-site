@@ -13,6 +13,8 @@ import { config } from '../config';
 import { houstonToday, weekFor, weekRange, weekendFor, rangeLabel, buildWeek, buildWeekend, rowsFromCards, renderRows, addDays, BIZ_CATS_ALL } from '../lib/weekend';
 import newsletters from '../data/newsletters.json';
 import { mondayOf, pickForWeek, lastWeekEdition, summarizeEdition, renderHeadlines } from '../lib/weekly';
+import ideas from '../data/ideas.json';
+import { readyAreas } from '../lib/saturday';
 
 const [lead, ...rest] = posts;
 const latest = rest.slice(0, 6);
@@ -38,7 +40,7 @@ const hwEvents = [
   ...(areaEvents as any[]).map((e) => ({ id: e.id, cat: e.cat, date: e.date, end: e.end || '', title: e.title, venue: e.venue, href: e.url || '', feat: !!e.feat })),
 ].filter((e) => e.date && (e.end || e.date) >= hwFrom && e.date <= hwTo);
 const hwBiz = (businesses as any[])
-  .filter((b) => (b.categories || []).some((c: string) => BIZ_CATS_ALL.includes(c)) && !CHAINS.some((n) => b.name.indexOf(n) > -1))
+  .filter((b) => (b.categories || []).some((c: string) => BIZ_CATS_ALL.includes(c)) && !CHAINS.some((n) => b.name.indexOf(n) > -1) && !b.closed && !b.temporarilyClosed && !b.renovating)
   .map((b) => ({ slug: b.slug, name: b.name, area: b.neighborhood || b.city || '', cats: (b.categories || []).filter((c: string) => BIZ_CATS_ALL.includes(c)), href: url('/eat/' + b.slug), pick: !!b.saraPick, fav: b.rating === 'favorite' }));
 const hwData = { events: hwEvents, biz: hwBiz, ideas: [] };
 const hwJson = JSON.stringify(hwData).replace(/</g, '\\u003c');
@@ -58,16 +60,17 @@ const featuredAreas = ['sugar-land', 'the-heights', 'katy', 'memorial-villages',
 const ccEvent = upcoming.find((e) => e.title.includes('Coffee & Conversations'));
 const ccDay = ccEvent ? fmtDate(ccEvent.date, { weekday: 'long' }) : null;
 // The Perfect Saturday card features a different area each week, stepping through every area that
-// qualifies before any repeats. An area qualifies when it has a coffee spot and a separate lunch
-// spot among its reviewed businesses and at least five businesses in all, so its Perfect Saturday
-// page is mostly real. The list grows on its own as more areas are reviewed.
-const LUNCH_CATS = ['Sandwiches', 'Mexican', 'Tex-Mex', 'American', 'Mediterranean', 'Vietnamese', 'Indian', 'Chinese', 'Halal', 'Middle Eastern', 'Cajun/Creole', 'Breakfast & Brunch'];
-const psPool = (areas as any[]).map((a) => {
-  const eats = (businesses as any[]).filter((b) => b.area === a.slug).sort((x, y) => Number(y.saraPick) - Number(x.saraPick));
-  const coffee = eats.find((b) => b.categories.includes('Coffee & Tea'));
-  const lunch = eats.find((b) => b.slug !== coffee?.slug && LUNCH_CATS.some((c) => b.categories.includes(c)));
-  return { name: a.name, href: url('/cities/' + a.slug) + '#do', n: eats.length, ok: !!(coffee && lunch), slug: a.slug };
-}).filter((x) => x.ok && x.n >= 5).sort((x, y) => y.n - x.n || x.slug.localeCompare(y.slug));
+// qualifies before any repeats. An area qualifies when its Perfect Saturday page is mostly real:
+// coffee (or breakfast) and lunch from reviewed independent businesses that are open, plus at least
+// one more slot filled from the area's own ideas, businesses, or events. Dated events are left out of
+// this check so the list only changes when the business and idea data does, and the rotation never
+// skips or repeats.
+const psPool = readyAreas(areas as any[], businesses as any[], ideas as any[], [], hwToday, {
+  biz: (b) => url('/eat/' + b.slug),
+  idea: (i) => url('/weekend-ideas?area=' + encodeURIComponent(i.area)),
+  ideasPage: (name) => url('/weekend-ideas?area=' + encodeURIComponent(name)),
+  fallbackEvent: url('/living'),
+}).map((x) => ({ name: x.name, href: url('/cities/' + x.slug) + '#do' }));
 const psArea = pickForWeek(psPool, hwToday);
 const psPoolJson = JSON.stringify(psPool.map((p) => ({ name: p.name, href: p.href })));
 
@@ -77,7 +80,7 @@ const hlEdition = lastWeekEdition(hlList, hwToday);
 const hlHtml = renderHeadlines(hlEdition);
 const hlJson = JSON.stringify(hlList).replace(/</g, '\\u003c');
 const currentMonthName = new Date().toLocaleDateString('en-US', { month: 'long', timeZone: 'America/Chicago' });
-const worthTheDrivePick = (businesses as any[]).filter((b) => b.rating === 'visit').sort((a, b) => b.reviewYear - a.reviewYear)[0];
+const worthTheDrivePick = (businesses as any[]).filter((b) => b.rating === 'visit' && !b.closed && !b.temporarilyClosed && !b.renovating).sort((a, b) => b.reviewYear - a.reviewYear)[0];
 
 // "Where should we go?" homepage finder
 const finderCatCounts: Record<string, number> = {};
