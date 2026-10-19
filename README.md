@@ -63,16 +63,18 @@ Newsletter signup: the footer form posts the email to the Worker. The Worker add
 
 Event RSVPs: the form on each upcoming event page posts to the Worker at /rsvp. The Worker saves the RSVP in the rsvps table in Supabase and sends a confirmation email through Resend. Anyone can add an RSVP, but nobody can read them from the website. View and export them in the Supabase dashboard (Table Editor, rsvps). Signed in members see a one tap RSVP button. Events are free with no guest limit for now. The table has a status column so ticketing can be added later.
 
-Worker settings (Cloudflare, the Worker, Settings, Variables and Secrets): RESEND_API_KEY is a secret and is never stored in this repo. SEGMENT_ID is the Newsletter subscribers segment in Resend. ALLOWED_ORIGINS lists the sites allowed to post, so add the new domain here when it moves. SUPABASE_URL and SUPABASE_KEY hold the same public values as in src/config.ts.
+Neighborhood info requests: the form at /neighborhood-info-request posts to the Worker at /info-request. The Worker saves the request in the info_requests table in Supabase, emails a notification to the NOTIFY_EMAIL address, sends the requester a confirmation, and adds them to the Newsletter subscribers segment if they ticked the In the Loop box. A signed in member’s request is linked to their account and listed under New area requests in My Account, and members can read only their own. Every request can also be viewed in the Supabase dashboard (Table Editor, info_requests).
 
-Email sending: messages come from noreply@mail.traditionlocals.com, which is verified in Resend. When traditionlocal.com moves off Wix, verify mail.traditionlocal.com in Resend and change the from address in the Worker.
+Worker settings (Cloudflare, the Worker, Settings, Variables and Secrets): RESEND_API_KEY is a secret and is never stored in this repo. SEGMENT_ID is the Newsletter subscribers segment in Resend. ALLOWED_ORIGINS lists the sites allowed to post, so add the new domain here when it moves. SUPABASE_URL and SUPABASE_KEY hold the same public values as in src/config.ts. NOTIFY_EMAIL is where info request notifications go (info@traditionhtx.com). ALLOWED_ORIGINS currently lists the GitHub Pages address, traditionlocal.com, www.traditionlocal.com, and the staging site.
+
+Email sending: messages come from noreply@mail.traditionlocals.com, which is verified in Resend. To send from traditionlocal.com instead, verify mail.traditionlocal.com in Resend and change the from address in the Worker.
 
 ## Publishing and member accounts
 
-Publishing posts uses Pages CMS, described above. Member sign in works through Supabase (see supabase/schema.sql for the members table and the rsvps table, which are run once in the Supabase SQL editor).
+Publishing posts uses Pages CMS, described above. Member sign in works through Supabase (see supabase/schema.sql for the members, rsvps, and info_requests tables, which are run once in the Supabase SQL editor).
 
 ## Still to replace from Wix
 
-Contact and info request forms: the pages exist. Add an endpoint to contactFormAction in src/config.ts.
+Contact form: the page exists. Add an endpoint to contactFormAction in src/config.ts. The Neighborhood Info Request form is already built.
 
 Member groups: not built. The Facebook group is linked instead.
