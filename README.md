@@ -55,6 +55,20 @@ npm run data     # rebuild src/data from data/raw (needs python3 with pandas + o
 npm run dev      # http://localhost:4321
 ```
 
+## How the automated sections choose what to show
+
+The This weekend in Houston section on Things To Do, the homepage This week and This weekend lists, the Perfect Saturday card, and Last week's headlines all fill themselves in from data already in this repo. The logic lives in src/lib/weekend.ts, src/lib/weekly.ts, and src/lib/saturday.ts. The homepage and Things To Do page run it again in the browser, so they stay current between rebuilds.
+
+Events: every pick must happen on the exact date shown. Tradition Local events come first, then featured area events, then the best fit by category for that day. Exhibits, tours, and runs longer than four days are skipped. The weekend lists show four plans (one Friday, two Saturday, one Sunday) and the week list shows one plan for each day from Monday to Thursday. From Friday to Sunday the week list looks ahead to next week.
+
+Days with no event: a Sara's Pick or Local Favorite from the right kind of place for that day (coffee on Monday, tacos on Tuesday, sandwiches and noodles on Wednesday, dessert on Thursday, brunch and coffee on weekends). Chains are never picked.
+
+Closed places: a business that is closed, temporarily closed, or being renovated is never picked by any of these sections. The closed flag comes from the spreadsheet and the master CMS. The Openings & Closings sheet in the master CMS adds the rest: a close entry marks a business closed, a temporary close entry marks it temporarily closed, and an entry that mentions a renovation or remodel marks it renovating. A later reopened entry clears a temporary closure or renovation. A duplicate record of a closed business in the same city is flagged too. This runs in scripts/prepare_data.py.
+
+The Perfect Saturday: each area page builds four slots (coffee, something outdoors, lunch, a game or a show) from that area's open reviewed businesses, its ideas, and its events, and says so when something is not local to the area. The homepage card features a different area every Monday, stepping through the areas whose Perfect Saturday page is mostly real before repeating any. Area pages are built when the site deploys, so an event shown there is only as fresh as the last deploy.
+
+Last week's headlines: the homepage card shows the newsletter for the Monday to Sunday week that just ended and changes every Monday. If that edition is not published yet, the newest earlier edition stands in until it is.
+
 ## Newsletter signup and event RSVPs
 
 Both run through one Cloudflare Worker named tl-newsletter-signup. Its workers.dev address is set as newsletterAction in src/config.ts. It does not depend on the traditionlocal.com domain, so moving the domain does not break it. The Worker code lives in Cloudflare (Workers and Pages, tl-newsletter-signup, Edit code).
