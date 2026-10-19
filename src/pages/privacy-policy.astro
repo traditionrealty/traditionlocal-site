@@ -1,7 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import { config } from '../config';
-const updated = 'September 30, 2026';
+const updated = 'October 19, 2026';
 ---
 <Base title="Privacy policy" description="How Tradition Local collects, uses, and protects your information.">
   <section class="section">
@@ -16,6 +16,7 @@ const updated = 'September 30, 2026';
         <li><strong>Member accounts.</strong> When you create an account, we collect your first and last name, email address, and password. You can also choose to give us your phone number and an area of interest.</li>
         <li><strong>Newsletters.</strong> When you subscribe, we collect your email address, your first name if you share it, and which newsletters you want to receive.</li>
         <li><strong>Messages.</strong> If you email us or respond to an event, we keep what you send so we can reply.</li>
+<li><strong>Neighborhood info requests and RSVPs.</strong> When you ask for neighborhood information, we collect your first name, email, the areas and topics you choose, and any address or note you add. When you RSVP to an event, we collect your name, email, and party size. Signed in members can see their past requests in their account.</li>
       </ul>
 
       <h2>Information collected automatically</h2>
@@ -37,9 +38,9 @@ const updated = 'September 30, 2026';
       <h2>Services we use</h2>
       <p>We rely on a few trusted companies to run the site. They only use your information to provide their service to us.</p>
       <ul>
-        <li><strong>Memberstack</strong> runs member accounts and sign in.</li>
+        <li><strong>Supabase</strong> runs member accounts and sign in, and stores member profiles, event RSVPs, and neighborhood info requests.</li>
         <li><strong>Resend</strong> stores our newsletter list and sends our emails.</li>
-        <li><strong>Cloudflare</strong> securely passes newsletter signups to Resend.</li>
+        <li><strong>Cloudflare</strong> securely passes newsletter signups, event RSVPs, and neighborhood info requests along to Resend and Supabase.</li>
         <li><strong>GitHub</strong> hosts the website.</li>
         <li><strong>Google</strong> provides the fonts on our pages, and <strong>YouTube</strong> plays the videos we embed. These load from their servers, so they can see your IP address.</li>
       </ul>
