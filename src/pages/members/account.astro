@@ -197,6 +197,7 @@ const areaNames = [...new Set((areas as any[]).map((a) => a.name))].sort();
   async function loadRequests() {
   const box = document.querySelector('[data-ar-list]') as HTMLElement | null;
   if (!box) return;
+  if (!(await currentUser())) { box.innerHTML = '<p class="mform-note">Sign in to see your requests.</p>'; return; }
   try {
     const user = await currentUser();
     if (!user) return;
