@@ -65,7 +65,14 @@ const areaNames = [...new Set((areas as any[]).map((a) => a.name))].sort();
         </div>
       </div>
 
-      <div class="mcard">
+      <div class="mcard" id="area-requests">
+  <h2>New area requests</h2>
+  <p>Neighborhood info you’ve asked for. Open a request to see the completed form.</p>
+  <div data-ar-list><p class="mform-note">Loading…</p></div>
+  <p><a class="mlink" href={url('/neighborhood-info-request')}>Request info on another area &rarr;</a></p>
+</div>
+
+<div class="mcard">
         <h2>Share</h2>
         <p>Tell a friend about Tradition Local.</p>
         <p><a class="mlink" href={`mailto:?subject=Check%20out%20Tradition%20Local&body=${encodeURIComponent('I thought you might like this: ' + url('/'))}`}>Email a friend &rarr;</a></p>
@@ -187,7 +194,29 @@ const areaNames = [...new Set((areas as any[]).map((a) => a.name))].sort();
     }
   }
 
-  if (membersReady) {
+  async function loadRequests() {
+  const box = document.querySelector('[data-ar-list]') as HTMLElement | null;
+  if (!box) return;
+  try {
+    const user = await currentUser();
+    if (!user) return;
+    const { data, error } = await supabase().from('info_requests').select('id,created_at,areas,address,topics,note,subscribe').order('created_at', { ascending: false });
+    if (error) throw error;
+    if (!data || !data.length) { box.innerHTML = '<p class="mform-note">No requests yet.</p>'; return; }
+    const esc = (s: string) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    const row = (k: string, v: string) => (v ? '<dt>' + k + '</dt><dd>' + esc(v) + '</dd>' : '');
+    box.innerHTML = data.map((r: any) => {
+      const when = new Date(r.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      const list = (r.areas || []).join(', ');
+      return '<details class="ar-item"><summary><strong>' + esc(list || 'Address only') + '</strong><span class="mform-note"> Requested ' + when + '</span></summary><dl class="ar-form">' + row('Areas', list) + row('Address', r.address || '') + row('Topics', (r.topics || []).join(', ')) + row('Your note', r.note || '') + row('In the Loop newsletter', r.subscribe ? 'Yes' : 'No') + '</dl></details>';
+    }).join('');
+  } catch (e) {
+    box.innerHTML = '<p class="mform-note">We couldn’t load your requests right now.</p>';
+  }
+}
+if (membersReady) loadRequests();
+
+if (membersReady) {
     load();
     supabase().auth.onAuthStateChange((event) => { if (event === 'SIGNED_IN') load(); });
   }
@@ -241,4 +270,9 @@ const areaNames = [...new Set((areas as any[]).map((a) => a.name))].sort();
   .acct-tab { background: transparent; border: none; border-bottom: 2px solid transparent; color: #8f96a3; padding: 12px 4px; margin-right: 24px; font-size: 15px; font-weight: 600; cursor: pointer; }
   .acct-tab[aria-selected="true"] { color: #fff; border-bottom-color: var(--gold); }
   .mform-note { font-size: 13px; color: #8f96a3; margin: 6px 0 0; }
+  .ar-item { border-top: 1px solid #2c3647; padding: 12px 0; }
+  .ar-item summary { cursor: pointer; }
+  .ar-form { margin: 12px 0 0; display: grid; gap: 2px; }
+  .ar-form dt { font-size: 13px; color: #8f96a3; margin-top: 8px; }
+  .ar-form dd { margin: 0; }
 </style>
