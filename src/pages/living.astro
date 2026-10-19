@@ -4,19 +4,37 @@ import EventCalendar from '../components/EventCalendar.astro';
 import events from '../data/events.json';
 import areaEvents from '../data/area-events.json';
 import ideas from '../data/ideas.json';
-import { url, fmtDate } from '../lib/util';
+import businesses from '../data/businesses.json';
+import { url } from '../lib/util';
+import { houstonToday, weekendFor, buildWeekend, renderCards, rangeLabel, addDays, BIZ_CATS_ALL } from '../lib/weekend';
 const today = new Date().toISOString().slice(0, 10);
 const upcoming = events.filter((e) => e.date && e.date >= today);
 const upcomingCount = upcoming.length + areaEvents.filter((e) => (e.end || e.date) >= today).length;
 const nowCount = areaEvents.filter((e) => e.end && e.date <= today && e.end >= today).length;
 const areas = [...new Set(ideas.map((i) => i.area))].sort();
 
-// "This weekend" spotlight: our only real, dated recurring content is Coffee & Conversations.
-// We show it under its own real weekday rather than forcing it into a Saturday slot it may not
-// fall on. The other three slots (live music, farmers market, park/trail) have no curated data
-// yet, so they stay honest bracketed placeholders, same convention used across the site.
-const ccEvent = upcoming.find((e) => e.title.includes('Coffee & Conversations'));
-const ccDay = ccEvent ? fmtDate(ccEvent.date, { weekday: 'long' }) : null;
+// "This weekend in Houston" is built from real dated events for the Friday, Saturday and Sunday of
+// the coming weekend (our own events first, then area events). A day with no event falls back to a
+// local business, then to an idea. The picking logic lives in src/lib/weekend.ts and runs again in
+// the browser, so the section stays current even if the site has not been rebuilt this week.
+const CHAINS = ['Starbucks', 'Dunkin', 'Tim Hortons', 'Krispy Kreme', 'Baskin', 'Dairy Queen', 'Cold Stone', 'Marble Slab', 'Crumbl', 'Insomnia', 'Smoothie King', 'Jamba', 'Panera', 'Einstein', 'IHOP', 'Denny', 'Black Bear Diner', 'Nothing Bundt'];
+const wkToday = houstonToday();
+const wkFrom = addDays(wkToday, -2);
+const wkTo = addDays(wkToday, 35);
+const wkEvents = [
+  ...events.map((e) => ({ id: 'tl-' + e.slug, cat: 'Tradition Local', date: e.date, title: e.title.replace(/\s*\[.*?\]\s*/g, ' ').trim(), venue: e.venue, href: url('/event-details/' + e.slug), tl: true })),
+  ...areaEvents.map((e) => ({ id: e.id, cat: e.cat, date: e.date, end: e.end || '', title: e.title, venue: e.venue, href: e.url || '', feat: !!e.feat })),
+].filter((e) => e.date && (e.end || e.date) >= wkFrom && e.date <= wkTo);
+const wkBiz = (businesses as any[])
+  .filter((b) => (b.categories || []).some((c: string) => BIZ_CATS_ALL.includes(c)) && !CHAINS.some((n) => b.name.indexOf(n) > -1))
+  .map((b) => ({ slug: b.slug, name: b.name, area: b.neighborhood || b.city || '', cats: (b.categories || []).filter((c: string) => BIZ_CATS_ALL.includes(c)), href: url('/eat/' + b.slug) }));
+const wkIdeas = (ideas as any[])
+  .filter((i) => i.kind === 'weekend')
+  .map((i) => ({ t: i.t, area: i.area, int: i.int, href: url('/weekend-ideas?area=' + encodeURIComponent(i.area)) }));
+const wkData = { events: wkEvents, biz: wkBiz, ideas: wkIdeas };
+const wkJson = JSON.stringify(wkData).replace(/</g, '\\u003c');
+const wkWeekend = weekendFor(wkToday);
+const wkCards = renderCards(buildWeekend(wkData as any, wkWeekend, wkToday));
 ---
 <Todo
   title="Things to Do"
@@ -36,39 +54,13 @@ const ccDay = ccEvent ? fmtDate(ccEvent.date, { weekday: 'long' }) : null;
   best="Best for: Weekend plans, families, and curious locals"
 >
   <section class="td-blk wrap" id="weekend">
-    <div class="td-sechead">
-      <div><span class="upd">Updated weekly</span><h2>This weekend in Houston</h2></div>
-      <a href={url('/weekend-ideas')}>Plan your weekend &rarr;</a>
-    </div>
-    <div class="weekend-grid">
-      <div class="weekend-card">
-        <p class="day">Friday</p>
-        <strong class="ph-text">[Live music night]</strong>
-        <span class="muted small ph-text">[Venue, area]</span>
-      </div>
-      <div class="weekend-card">
-        <p class="day">{ccDay || 'Saturday'}</p>
-        {ccEvent ? (
-          <>
-            <strong><a href={url(`/event-details/${ccEvent.slug}`)}>Coffee &amp; Conversations</a></strong>
-            <span class="muted small">{ccEvent.venue}</span>
-          </>
-        ) : (
-          <><strong class="ph-text">[Coffee shop meetup]</strong><span class="muted small ph-text">[Venue, area]</span></>
-        )}
-      </div>
-      <div class="weekend-card">
-        <p class="day">Saturday</p>
-        <strong class="ph-text">[Farmers market]</strong>
-        <span class="muted small ph-text">[Market, area]</span>
-      </div>
-      <div class="weekend-card">
-        <p class="day">Sunday</p>
-        <strong class="ph-text">[Park event or trail day]</strong>
-        <span class="muted small ph-text">[Park, area]</span>
-      </div>
-    </div>
-  </section>
+<div class="td-sechead">
+<div><span class="upd">Updated weekly</span><h2>This weekend in Houston</h2><p class="wk-range muted small" id="wk-range">{rangeLabel(wkWeekend)}</p></div>
+<a href={url('/weekend-ideas')}>Plan your weekend &rarr;</a>
+</div>
+<div class="weekend-grid" id="wk-grid" data-fri={wkWeekend.fri} set:html={wkCards}></div>
+<script type="application/json" id="wk-data" is:inline set:html={wkJson}></script>
+</section>
 
   <section class="td-blk wrap" id="featured">
     <span id="events"></span>
@@ -119,13 +111,39 @@ const ccDay = ccEvent ? fmtDate(ccEvent.date, { weekday: 'long' }) : null;
     </div>
   </section>
 </Todo>
-<style>
-  .weekend-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
-  .weekend-card { background: var(--cream); border-radius: 10px; padding: 20px; display: flex; flex-direction: column; gap: 6px; }
-  .weekend-card .day { font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--blue); margin: 0; }
-  .weekend-card strong { font-family: var(--serif); font-weight: 400; font-size: 1.15rem; color: var(--navy); }
-  .weekend-card strong a { color: var(--blue); text-decoration: none; }
-  .ph-text { color: var(--muted); font-style: italic; }
-  @media (max-width: 860px) { .weekend-grid { grid-template-columns: repeat(2, 1fr); } }
-  @media (max-width: 560px) { .weekend-grid { grid-template-columns: 1fr; } }
+<script>
+import { houstonToday, weekendFor, buildWeekend, renderCards, rangeLabel } from '../lib/weekend';
+
+const grid = document.getElementById('wk-grid');
+const dataEl = document.getElementById('wk-data');
+if (grid && dataEl) {
+  try {
+    const today = houstonToday();
+    const w = weekendFor(today);
+    // Re-pick only when the page was built for a different weekend, or the day has moved on.
+    if (grid.dataset.fri !== w.fri || grid.dataset.day !== today) {
+      grid.innerHTML = renderCards(buildWeekend(JSON.parse(dataEl.textContent || '{}'), w, today));
+      grid.dataset.fri = w.fri;
+      grid.dataset.day = today;
+      const range = document.getElementById('wk-range');
+      if (range) range.textContent = rangeLabel(w);
+    }
+  } catch (e) {
+    // Keep the version built with the page.
+  }
+}
+</script>
+
+<style is:global>
+.weekend-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+.weekend-card { background: var(--cream); border-radius: 10px; padding: 20px; display: flex; flex-direction: column; gap: 6px; }
+.weekend-card .day { font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--blue); margin: 0; }
+.weekend-card strong { font-family: var(--serif); font-weight: 400; font-size: 1.15rem; color: var(--navy); }
+.weekend-card strong a { color: var(--blue); text-decoration: none; }
+.weekend-card strong a:hover { text-decoration: underline; }
+.weekend-card .wk-tag { margin-top: auto; padding-top: 6px; font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--green); }
+.wk-range { margin: 4px 0 0; }
+.ph-text { color: var(--muted); font-style: italic; }
+@media (max-width: 860px) { .weekend-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) { .weekend-grid { grid-template-columns: 1fr; } }
 </style>
