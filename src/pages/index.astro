@@ -11,6 +11,8 @@ import businesses from '../data/businesses.json';
 import { url, img, fmtDate } from '../lib/util';
 import { config } from '../config';
 import { houstonToday, weekFor, weekRange, weekendFor, rangeLabel, buildWeek, buildWeekend, rowsFromCards, renderRows, addDays, BIZ_CATS_ALL } from '../lib/weekend';
+import newsletters from '../data/newsletters.json';
+import { mondayOf, pickForWeek, lastWeekEdition, summarizeEdition, renderHeadlines } from '../lib/weekly';
 
 const [lead, ...rest] = posts;
 const latest = rest.slice(0, 6);
@@ -425,8 +427,6 @@ const basePath = url('/').replace(/\/$/, '');
 
 <script>
 import { houstonToday, weekFor, weekRange, weekendFor, rangeLabel, buildWeek, buildWeekend, rowsFromCards, renderRows } from '../lib/weekend';
-import newsletters from '../data/newsletters.json';
-import { mondayOf, pickForWeek, lastWeekEdition, summarizeEdition, renderHeadlines } from '../lib/weekly';
 
 const dataEl = document.getElementById('hw-data');
 const weekEl = document.getElementById('hw-week');
