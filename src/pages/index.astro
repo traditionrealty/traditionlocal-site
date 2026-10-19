@@ -55,11 +55,25 @@ const featuredAreas = ['sugar-land', 'the-heights', 'katy', 'memorial-villages',
 // placeholders everywhere else, same convention used across the rest of the site.
 const ccEvent = upcoming.find((e) => e.title.includes('Coffee & Conversations'));
 const ccDay = ccEvent ? fmtDate(ccEvent.date, { weekday: 'long' }) : null;
-const picksByAreaHome: Record<string, typeof businesses> = {};
-businesses.forEach((b) => { if (b.area && b.saraPick) (picksByAreaHome[b.area] ||= []).push(b); });
-const rotationPoolHome = areas.filter((a) => (picksByAreaHome[a.slug]?.length || 0) >= 2 && a.take && a.vibe && a.schools);
-const dayIndexHome = Math.floor(Date.now() / 86400000);
-const todaysArea = rotationPoolHome.length > 0 ? rotationPoolHome[dayIndexHome % rotationPoolHome.length] : null;
+// The Perfect Saturday card features a different area each week, stepping through every area that
+// qualifies before any repeats. An area qualifies when it has a coffee spot and a separate lunch
+// spot among its reviewed businesses and at least five businesses in all, so its Perfect Saturday
+// page is mostly real. The list grows on its own as more areas are reviewed.
+const LUNCH_CATS = ['Sandwiches', 'Mexican', 'Tex-Mex', 'American', 'Mediterranean', 'Vietnamese', 'Indian', 'Chinese', 'Halal', 'Middle Eastern', 'Cajun/Creole', 'Breakfast & Brunch'];
+const psPool = (areas as any[]).map((a) => {
+  const eats = (businesses as any[]).filter((b) => b.area === a.slug).sort((x, y) => Number(y.saraPick) - Number(x.saraPick));
+  const coffee = eats.find((b) => b.categories.includes('Coffee & Tea'));
+  const lunch = eats.find((b) => b.slug !== coffee?.slug && LUNCH_CATS.some((c) => b.categories.includes(c)));
+  return { name: a.name, href: url('/cities/' + a.slug) + '#do', n: eats.length, ok: !!(coffee && lunch), slug: a.slug };
+}).filter((x) => x.ok && x.n >= 5).sort((x, y) => y.n - x.n || x.slug.localeCompare(y.slug));
+const psArea = pickForWeek(psPool, hwToday);
+const psPoolJson = JSON.stringify(psPool.map((p) => ({ name: p.name, href: p.href })));
+
+// "Last week's headlines" shows the newsletter for the week that just ended and changes every Monday.
+const hlList = (newsletters as any[]).map((e) => summarizeEdition(e, url('/newsletters/' + e.slug)));
+const hlEdition = lastWeekEdition(hlList, hwToday);
+const hlHtml = renderHeadlines(hlEdition);
+const hlJson = JSON.stringify(hlList).replace(/</g, '\\u003c');
 const currentMonthName = new Date().toLocaleDateString('en-US', { month: 'long', timeZone: 'America/Chicago' });
 const worthTheDrivePick = (businesses as any[]).filter((b) => b.rating === 'visit').sort((a, b) => b.reviewYear - a.reviewYear)[0];
 
@@ -268,11 +282,7 @@ const basePath = url('/').replace(/\/$/, '');
         <div class="series-card green">
           <h3>The Perfect Saturday</h3>
           <p>Breakfast, a park, a shop, and dinner, all in one city.</p>
-          {todaysArea ? (
-            <a class="latest" href={url(`/cities/${todaysArea.slug}`)}>Latest: {todaysArea.name} &rarr;</a>
-          ) : (
-            <a class="latest ph-text" href={url('/cities')}>Latest: [Area] &rarr;</a>
-          )}
+          <a class="latest" id="ps-link" data-week={mondayOf(hwToday)} data-pool={psPoolJson} href={psArea ? psArea.href : url('/cities')}>Latest: {psArea ? psArea.name : 'Houston areas'} &rarr;</a>
         </div>
         <div class="series-card light">
           <h3>New and Notable</h3>
@@ -373,34 +383,10 @@ const basePath = url('/').replace(/\/$/, '');
 
   <section class="section">
     <div class="wrap">
-        <p class="eyebrow">Last week's issue</p>
+        <p class="eyebrow">Last week's headlines</p>
         <h2>See what you will get</h2>
-        <div class="issue-card">
-          <div class="issue-head">
-            <span class="muted small">From: Tradition Local</span>
-            <span class="muted small ph-text">[Date]</span>
-          </div>
-          <h3 class="ph-text">In the Loop: coffee, a Saturday meetup, and [new opening]</h3>
-          <p class="ph-text">[One or two lines of first person intro from Dillon or Sara.]</p>
-          <div class="issue-items">
-            <div class="issue-item blue">
-              <p class="eyebrow small">This weekend</p>
-              <strong>Coffee &amp; Conversations</strong>
-              <span class="muted small">Sun, Oct 18 &middot; La Placita Cafe</span>
-            </div>
-            <div class="issue-item gold">
-              <p class="eyebrow small">Worth the drive</p>
-              <strong class="ph-text">[Featured spot]</strong>
-              <span class="muted small ph-text">[Area] &middot; Review by [Sara or Dillon]</span>
-            </div>
-            <div class="issue-item green">
-              <p class="eyebrow small">New near you</p>
-              <strong class="ph-text">[New opening]</strong>
-              <span class="muted small ph-text">[Cuisine] &middot; [Area]</span>
-            </div>
-          </div>
-          <div class="issue-foot"><a class="mlink" href={url('/living')}>Read this week's stories &rarr;</a></div>
-      </div>
+        <div class="issue-card" id="hl-card" data-slug={hlEdition ? hlEdition.slug : ''} set:html={hlHtml}></div>
+        <script type="application/json" id="hl-data" is:inline set:html={hlJson}></script>
     </div>
   </section>
 </Base>
@@ -439,6 +425,8 @@ const basePath = url('/').replace(/\/$/, '');
 
 <script>
 import { houstonToday, weekFor, weekRange, weekendFor, rangeLabel, buildWeek, buildWeekend, rowsFromCards, renderRows } from '../lib/weekend';
+import newsletters from '../data/newsletters.json';
+import { mondayOf, pickForWeek, lastWeekEdition, summarizeEdition, renderHeadlines } from '../lib/weekly';
 
 const dataEl = document.getElementById('hw-data');
 const weekEl = document.getElementById('hw-week');
@@ -468,6 +456,43 @@ if (dataEl && weekEl && weekendEl) {
 }
 </script>
 
+<script>
+import { houstonToday } from '../lib/weekend';
+import { mondayOf, pickForWeek, lastWeekEdition, renderHeadlines } from '../lib/weekly';
+
+const today = houstonToday();
+const ps = document.getElementById('ps-link');
+if (ps) {
+  try {
+    // A new Perfect Saturday area every Monday.
+    if (ps.dataset.week !== mondayOf(today)) {
+      const pick = pickForWeek(JSON.parse(ps.dataset.pool || '[]'), today);
+      if (pick) {
+        ps.setAttribute('href', pick.href);
+        ps.textContent = 'Latest: ' + pick.name + ' \u2192';
+      }
+      ps.dataset.week = mondayOf(today);
+    }
+  } catch (e) {
+    // Keep the version built with the page.
+  }
+}
+const card = document.getElementById('hl-card');
+const hlData = document.getElementById('hl-data');
+if (card && hlData) {
+  try {
+    // The headlines card moves to the previous week's newsletter every Monday.
+    const ed = lastWeekEdition(JSON.parse(hlData.textContent || '[]'), today);
+    if (ed && card.dataset.slug !== ed.slug) {
+      card.innerHTML = renderHeadlines(ed);
+      card.dataset.slug = ed.slug;
+    }
+  } catch (e) {
+    // Keep the version built with the page.
+  }
+}
+</script>
+
 <style is:global>
 .hw-head { max-width: 62ch; margin: 0 0 28px; }
 .hw-head h2 { margin: 0 0 8px; }
@@ -484,6 +509,22 @@ if (dataEl && weekEl && weekendEl) {
 .hw-body strong a:hover { text-decoration: underline; }
 .hw-tag { font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--green, #1e7a43); }
 .hw-done { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 14px; }
+.issue-card h3 { margin: 0 0 8px; font-size: 1.3rem; }
+.issue-card h3 a { color: var(--navy); text-decoration: none; }
+.issue-card h3 a:hover { text-decoration: underline; }
+.hl-head { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+.hl-lead { margin: 0 0 4px; color: #3E4252; }
+.hl-items { display: flex; flex-direction: column; gap: 10px; margin: 16px 0; }
+.hl-item { border-radius: 8px; padding: 14px 16px; }
+.hl-item.blue { background: #E6EEF8; }
+.hl-item.gold { background: var(--gold-soft, #FFE29A); }
+.hl-item.green { background: #E8F5EC; }
+.hl-label { margin: 0 0 4px; color: var(--green, #1e7a43); font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+.hl-item strong { display: block; font-family: var(--serif); font-weight: 400; font-size: 1.1rem; color: var(--navy); margin: 2px 0; }
+.hl-item span { display: block; }
+.hl-foot { text-align: right; margin-top: 16px; }
+.hl-foot a { color: var(--blue); font-weight: 600; text-decoration: none; }
+.hl-foot a:hover { text-decoration: underline; }
 </style>
 
 <style>
@@ -606,14 +647,5 @@ if (dataEl && weekEl && weekendEl) {
   }
 
   .issue-card { background: #fff; border-radius: 10px; padding: 24px; margin-top: 16px; box-shadow: 0 8px 24px rgba(32,69,94,.08); }
-  .issue-head { display: flex; justify-content: space-between; margin-bottom: 10px; }
-  .issue-card h3 { margin: 0 0 10px; font-size: 1.3rem; }
-.issue-foot { text-align: right; margin-top: 16px; }
-  .issue-items { display: flex; flex-direction: column; gap: 10px; margin: 16px 0; }
-  .issue-item { border-radius: 8px; padding: 14px 16px; }
-  .issue-item.blue { background: #e6eef8; }
-  .issue-item.gold { background: var(--gold-soft); }
-  .issue-item.green { background: #e8f5ec; }
-  .issue-item strong { display: block; font-family: var(--serif); font-size: 1.1rem; color: var(--navy); margin: 2px 0; }
   .mlink { color: var(--blue); font-weight: 600; text-decoration: none; }
 </style>
