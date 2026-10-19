@@ -19,6 +19,8 @@ export interface Profile {
   relationship_status?: string | null;
   bio_public?: boolean; birthday_public?: boolean; employment_public?: boolean;
   education_public?: boolean; relationship_status_public?: boolean;
+  username?: string | null; display_name?: string | null; photo_url?: string | null; wallpaper_url?: string | null;
+  interests?: string[];
 }
 
 const BASE_FIELDS = 'first_name,last_name,phone,area_of_interest';
@@ -26,6 +28,8 @@ const BASE_FIELDS = 'first_name,last_name,phone,area_of_interest';
 // the fuller select first and fall back to the base fields alone if the database rejects it,
 // so a missing migration never breaks the whole profile page, just hides the new fields.
 const SOCIAL_FIELDS = 'bio,birthday,employment,education,relationship_status,bio_public,birthday_public,employment_public,education_public,relationship_status_public';
+// Added alongside the community feed: a member's public-profile handle and basics.
+const PUBLIC_PROFILE_FIELDS = 'username,display_name,photo_url,wallpaper_url,interests';
 
 /** Full URL for a page on this site, used for links inside Supabase emails. */
 export function siteUrl(path: string) {
@@ -44,7 +48,7 @@ export async function getProfile(user: User): Promise<Profile> {
     first_name: meta.first_name || '', last_name: meta.last_name || '',
     phone: meta.phone || null, area_of_interest: meta.area_of_interest || null,
   };
-  const full = await supabase().from('profiles').select(`${BASE_FIELDS},${SOCIAL_FIELDS}`).eq('id', user.id).maybeSingle();
+  const full = await supabase().from('profiles').select(`${BASE_FIELDS},${SOCIAL_FIELDS},${PUBLIC_PROFILE_FIELDS}`).eq('id', user.id).maybeSingle();
   if (!full.error) return full.data ?? fallback;
   // The social columns probably do not exist yet; retry with just the original fields.
   const base = await supabase().from('profiles').select(BASE_FIELDS).eq('id', user.id).maybeSingle();
