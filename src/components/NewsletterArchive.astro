@@ -1,0 +1,47 @@
+---
+import { url } from '../lib/util';
+
+interface Props { editions: { slug: string; weekLabel: string; title: string; summary: string; sections: { nav: string; id: string }[] }[]; limit?: number; showAllLink?: boolean; }
+const { editions, limit = 2, showAllLink = true } = Astro.props;
+const list = editions.slice(0, limit);
+---
+{list.length > 0 && (
+  <section class="nl-archive" aria-labelledby="nl-archive-h">
+    <p class="a-kicker">Catch up with In the Loop</p>
+    <h2 id="nl-archive-h">Previous newsletters</h2>
+    <p class="a-sub">Choose a week, explore its featured story, and see what else is inside.</p>
+    <div class="a-grid">
+      {list.map((e) => (
+        <article class="a-card">
+          <p class="a-week">Week of {e.weekLabel}</p>
+          <p class="a-feature">Feature article</p>
+          <h3>{e.title}</h3>
+          {e.summary && <p class="a-summary">{e.summary}</p>}
+          <p class="a-inside">Inside this newsletter</p>
+          <ul>{e.sections.map((s) => <li>{s.nav}</li>)}</ul>
+          <a class="a-link" href={url(`/newsletters/${e.slug}`)}>Preview this edition &nearr;</a>
+        </article>
+      ))}
+    </div>
+    {showAllLink && <p class="a-all"><a class="btn outline" href={url('/newsletters/archive')}>All newsletters &nearr;</a></p>}
+  </section>
+)}
+
+<style>
+  .nl-archive { margin-top: 56px; }
+  .a-kicker { color: #1e7a43; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; margin: 0 0 6px; }
+  .nl-archive h2 { margin: 0 0 8px; }
+  .a-sub { color: var(--muted); margin: 0 0 24px; }
+  .a-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+  .a-card { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 28px; }
+  .a-week { color: var(--blue); font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; margin: 0 0 14px; }
+  .a-feature { color: var(--brown); font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; margin: 0 0 6px; }
+  .a-card h3 { font-size: 1.5rem; margin: 0 0 10px; }
+  .a-summary { color: var(--muted); margin: 0 0 18px; }
+  .a-inside { font-weight: 700; color: var(--navy); margin: 18px 0 6px; border-top: 1px solid var(--line); padding-top: 18px; }
+  .a-card ul { margin: 0 0 18px; padding-left: 1.1em; color: var(--muted); }
+  .a-card li { margin: 4px 0; }
+  .a-link { font-weight: 700; }
+  .a-all { text-align: center; margin: 28px 0 0; }
+  @media (max-width: 860px) { .a-grid { grid-template-columns: 1fr; } }
+</style>
