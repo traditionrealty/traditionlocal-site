@@ -30,6 +30,7 @@ const areaNames = [...new Set((areas as any[]).map((a) => a.name))].sort();
 
     <div data-profile hidden>
       <div class="pwallpaper" data-p-wallpaper>
+        <a class="pwallpaper-edit pwallpaper-edit-left" data-p-own-only href={url('/members/account')} hidden>✏️ Edit profile</a>
         <a class="pwallpaper-edit" data-p-own-only href={url('/members/account')} hidden>📷 Change wallpaper</a>
       </div>
 
@@ -38,7 +39,6 @@ const areaNames = [...new Set((areas as any[]).map((a) => a.name))].sort();
         <h1 data-p-name>Member</h1>
         <p class="pbioline" data-p-bioline hidden></p>
         <p class="pmeta" data-p-meta hidden></p>
-        <a class="btn gold" data-p-own-only href={url('/members/account')} hidden>✏️ Edit profile</a>
         <p class="pview-note" data-p-own-only hidden>Your view &middot; Likes, bookmarks, and event plans are private.</p>
       </div>
 
@@ -533,7 +533,8 @@ init();
 .pshell h1 { font-size: clamp(1.8rem, 3vw, 2.4rem); margin: 0 0 6px; }
 
 .pwallpaper { height: 180px; border-radius: 14px; margin-bottom: -48px; background: linear-gradient(135deg,#2b4530,#1D1A6D); position: relative; }
-.pwallpaper-edit { position: absolute; right: 16px; bottom: 16px; background: rgba(23,31,43,.85); border: 1px solid #2c3647; color: #fff; border-radius: 8px; padding: 8px 14px; font-size: 13px; text-decoration: none; font-weight: 600; }
+.pwallpaper-edit { position: absolute; right: 16px; bottom: 16px; background: rgba(23,31,43,.85); border: 1px solid #2c3647; color: #fff; border-radius: 8px; padding: 6px 11px; font-size: 12px; text-decoration: none; font-weight: 600; }
+.pwallpaper-edit-left { left: 16px; right: auto; }
 
 .pheader { text-align: center; padding: 0 16px 24px; }
 .pavatar-lg { width: 96px; height: 96px; border-radius: 50%; background: #3a4a3a; color: var(--gold); display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-size: 2rem; margin: 0 auto 16px; border: 5px solid #171f2b; box-shadow: 0 2px 14px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.06); position: relative; z-index: 2; }
