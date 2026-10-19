@@ -132,6 +132,14 @@ content:
       - name: imageAlt
         label: Photo description
         type: string
+      - name: briefs
+        label: Section briefs (shown on archive cards)
+        type: object
+        list: true
+        description: One short line per section, so archive cards say what was inside that week. If left empty, the first sentence of each section is used.
+        fields:
+          - { name: section, label: Section name, type: string, description: "Exactly as it appears in the In this edition list, for example Market Pulse" }
+          - { name: text, label: One line brief, type: text }
       - name: event
         label: Next community event card
         type: object
