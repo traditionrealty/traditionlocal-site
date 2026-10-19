@@ -1,0 +1,283 @@
+---
+import Base from '../layouts/Base.astro';
+import { url } from '../lib/util';
+import { config } from '../config';
+const areas = ['Bellaire', 'Cypress', 'Energy Corridor', 'Heights', 'Katy', 'Memorial', 'Memorial Villages', 'Meyerland & Westbury', 'Oak Forest', 'Sugar Land', 'Tanglewood', 'Somewhere else'];
+const topics = [
+  ['Neighborhood guide', 'Get a feel for the area and daily life.'],
+  ['Food & coffee', 'Find your next restaurant or favorite café.'],
+  ['Things to do', 'Explore parks, outings, and local events.'],
+  ['Hidden gems', 'Discover independent shops and local finds.'],
+  ['Homes & market trends', 'Explore home styles, prices, and market updates.'],
+  ['Moving to the area', 'Find practical resources for your next move.'],
+];
+---
+<Base title="Neighborhood Info Request" description="Tell us which Houston neighborhoods you are curious about and what you want to know. We will email local information that fits.">
+<section class="band">
+<div class="wrap">
+<p class="kicker">Neighborhood info request</p>
+<h1>Get to know a neighborhood.</h1>
+<p class="lede">From coffee spots to housing trends, get local information that fits your interests. Choose an area and tell us what you’d like to know.</p>
+</div>
+</section>
+
+<section class="section">
+<div class="wrap nir-wrap">
+<div class="nir-card" data-endpoint={config.newsletterAction} data-contact={config.contactEmail}>
+
+<div id="nir-formarea">
+<form id="nir-form" novalidate>
+<fieldset class="nir-block nir-first" aria-describedby="nir-area-hint">
+<legend>Where are you curious about?</legend>
+<p class="nir-hint" id="nir-area-hint"><strong>Popular picks</strong> Select one or more.</p>
+<div class="nir-chips">
+{areas.map((a) => (
+<label class="nir-chip"><input class="nir-vh" type="checkbox" name="areas" value={a} /><span class="nir-box" aria-hidden="true"></span><span>{a}</span></label>
+))}
+</div>
+<div class="nir-else" id="nir-else" hidden>
+<label class="nir-field" for="nir-else-area">Which area?</label>
+<input class="nir-input" id="nir-else-area" type="text" placeholder="Neighborhood, city, or ZIP code" autocomplete="off" />
+</div>
+<p class="nir-err" id="nir-area-err" role="alert">Choose at least one area, or add an address below.</p>
+</fieldset>
+
+<div class="nir-block">
+<label class="nir-q" for="nir-addr">Looking closer to home? <span class="nir-opt">Optional</span></label>
+<p class="nir-hint">Add an address for information about the neighborhood around it.</p>
+<input class="nir-input" id="nir-addr" type="text" placeholder="Street address, city, and ZIP code" autocomplete="street-address" />
+</div>
+
+<fieldset class="nir-block">
+<legend>What would you like to know?</legend>
+<p class="nir-hint">Choose the topics that interest you.</p>
+<div class="nir-topics">
+{topics.map((t) => (
+<label class="nir-topic"><input class="nir-vh" type="checkbox" name="topics" value={t[0]} /><span class="nir-box" aria-hidden="true"></span><span>{t[0]}<small>{t[1]}</small></span></label>
+))}
+</div>
+</fieldset>
+
+<div class="nir-block">
+<div class="nir-two">
+<div>
+<label class="nir-field" for="nir-fname">First name</label>
+<input class="nir-input" id="nir-fname" type="text" placeholder="Your first name" autocomplete="given-name" required />
+<p class="nir-err" id="nir-fname-err" role="alert">Please add your first name.</p>
+</div>
+<div>
+<label class="nir-field" for="nir-email">Email</label>
+<input class="nir-input" id="nir-email" type="email" placeholder="you@example.com" autocomplete="email" required />
+<p class="nir-err" id="nir-email-err" role="alert">Please enter a valid email address.</p>
+</div>
+</div>
+
+<details class="nir-more">
+<summary>Anything else on your mind? <span class="nir-opt">Optional</span></summary>
+<div class="nir-more-body">
+<label class="nir-vh" for="nir-note">Anything else on your mind?</label>
+<textarea class="nir-input" id="nir-note" placeholder="Schools, commute, budget, timing, or anything else that would help."></textarea>
+</div>
+</details>
+
+<input class="nir-trap" type="text" id="nir-company" tabindex="-1" autocomplete="off" aria-hidden="true" />
+
+<label class="nir-loop">
+<input class="nir-vh" type="checkbox" id="nir-subscribe" />
+<span class="nir-box" aria-hidden="true"></span>
+<span>Keep me <em>In the Loop</em> with local stories, discoveries, and events by email.</span>
+</label>
+
+<p class="nir-err nir-fail" id="nir-fail" role="alert"></p>
+<button class="nir-submit" type="submit" id="nir-submit">
+<span id="nir-submit-text">Send my request</span>
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+</button>
+<p class="nir-fine">We’ll follow up by email with information relevant to your request. Newsletter updates are optional. See our <a href={url('/privacy-policy')}>privacy policy</a>.</p>
+</div>
+</form>
+</div>
+
+<div id="nir-thanks" hidden aria-live="polite">
+<p class="nir-eyebrow">Request received</p>
+<h2 id="nir-thanks-title">Thank you.</h2>
+<p>We’ll email you with information that fits what you asked for. Here is what we have.</p>
+<dl class="nir-summary" id="nir-summary"></dl>
+<p class="nir-acct" id="nir-acct" hidden>You can see this request anytime in <a href={url('/members/account')}>My Account</a>.</p>
+<button class="nir-ghost" type="button" id="nir-again">Start another request</button>
+</div>
+
+<p class="nir-foot">A little local knowledge goes a long way.</p>
+</div>
+</div>
+</section>
+</Base>
+
+<script>
+import { membersReady, supabase, currentUser, getProfile } from '../lib/members';
+
+const card = document.querySelector('.nir-card') as HTMLElement | null;
+const form = document.getElementById('nir-form') as HTMLFormElement | null;
+if (card && form) {
+  const endpoint = String(card.dataset.endpoint || '').replace(/\/$/, '') + '/info-request';
+  const contact = card.dataset.contact || '';
+  const $ = (id: string) => document.getElementById(id) as HTMLInputElement;
+  const areaBoxes = Array.from(form.querySelectorAll('input[name="areas"]')) as HTMLInputElement[];
+  const elseBox = areaBoxes.find((b) => b.value === 'Somewhere else');
+  const elseWrap = document.getElementById('nir-else') as HTMLElement;
+  let token = '';
+
+  elseBox?.addEventListener('change', () => {
+    elseWrap.hidden = !elseBox.checked;
+    if (elseBox.checked) $('nir-else-area').focus();
+  });
+  areaBoxes.forEach((b) => b.addEventListener('change', () => document.getElementById('nir-area-err')?.classList.remove('show')));
+
+  if (membersReady) {
+    currentUser().then(async (user) => {
+      if (!user) return;
+      const p = await getProfile(user);
+      if (!$('nir-fname').value && p.first_name) $('nir-fname').value = p.first_name;
+      if (!$('nir-email').value && user.email) $('nir-email').value = user.email;
+      const sess = await supabase().auth.getSession();
+      token = sess.data.session?.access_token || '';
+    }).catch(() => {});
+  }
+
+  const show = (id: string, on: boolean) => document.getElementById(id)?.classList.toggle('show', on);
+  const esc = (s: string) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const checked = (name: string) => (Array.from(form.querySelectorAll('input[name="' + name + '"]:checked')) as HTMLInputElement[]).map((i) => i.value);
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const picked = checked('areas');
+    const addr = $('nir-addr').value.trim();
+    const elseVal = $('nir-else-area').value.trim();
+    const first = $('nir-fname').value.trim();
+    const em = $('nir-email').value.trim();
+    const areaOk = picked.length > 0 || addr.length > 0;
+    const nameOk = first.length > 0;
+    const at = em.indexOf('@');
+    const emailOk = at > 0 && em.indexOf('.', at) > at + 1 && em.indexOf(' ') < 0;
+    show('nir-area-err', !areaOk); show('nir-fname-err', !nameOk); show('nir-email-err', !emailOk);
+    $('nir-fname').setAttribute('aria-invalid', String(!nameOk));
+    $('nir-email').setAttribute('aria-invalid', String(!emailOk));
+    if (!areaOk) { areaBoxes[0].focus(); return; }
+    if (!nameOk) { $('nir-fname').focus(); return; }
+    if (!emailOk) { $('nir-email').focus(); return; }
+
+    const areaList = picked.filter((a) => a !== 'Somewhere else');
+    if (picked.indexOf('Somewhere else') > -1) areaList.push(elseVal || 'Somewhere else');
+    const topicList = checked('topics');
+    const note = ($('nir-note') as unknown as HTMLTextAreaElement).value.trim();
+    const subscribe = $('nir-subscribe').checked;
+    const payload = { first_name: first, email: em, areas: areaList, address: addr, topics: topicList, note: note, subscribe: subscribe, company: $('nir-company').value };
+
+    const btn = $('nir-submit') as unknown as HTMLButtonElement;
+    const label = document.getElementById('nir-submit-text') as HTMLElement;
+    const fail = document.getElementById('nir-fail') as HTMLElement;
+    fail.classList.remove('show');
+    btn.disabled = true; label.textContent = 'Sending…';
+    try {
+      if (!endpoint.startsWith('http')) throw new Error('not configured');
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (token) headers['X-Member-Token'] = token;
+      const res = await fetch(endpoint, { method: 'POST', headers, body: JSON.stringify(payload) });
+      const out = await res.json();
+      if (!out.ok) throw new Error('rejected');
+      const rows: string[][] = [['Areas', areaList.join(', ') || 'None selected']];
+      if (addr) rows.push(['Address', addr]);
+      rows.push(['Topics', topicList.join(', ') || 'General neighborhood overview']);
+      rows.push(['Email', em]);
+      if (note) rows.push(['Your note', note]);
+      rows.push(['In the Loop newsletter', subscribe ? 'Yes, please' : 'Not right now']);
+      (document.getElementById('nir-summary') as HTMLElement).innerHTML = rows.map((r) => '<dt>' + esc(r[0]) + '</dt><dd>' + esc(r[1]) + '</dd>').join('');
+      (document.getElementById('nir-thanks-title') as HTMLElement).textContent = 'Thank you, ' + first + '.';
+      (document.getElementById('nir-acct') as HTMLElement).hidden = !token;
+      (document.getElementById('nir-formarea') as HTMLElement).hidden = true;
+      (document.getElementById('nir-thanks') as HTMLElement).hidden = false;
+      card.scrollIntoView({ block: 'start' });
+    } catch (err) {
+      fail.textContent = 'We could not send your request. Please try again in a moment' + (contact ? ', or email us at ' + contact : '') + '.';
+      fail.classList.add('show');
+    } finally {
+      btn.disabled = false; label.textContent = 'Send my request';
+    }
+  });
+
+  document.getElementById('nir-again')?.addEventListener('click', () => {
+    form.reset(); elseWrap.hidden = true;
+    (document.getElementById('nir-thanks') as HTMLElement).hidden = true;
+    (document.getElementById('nir-formarea') as HTMLElement).hidden = false;
+    card.scrollIntoView({ block: 'start' });
+  });
+}
+</script>
+
+<style is:global>
+.nir-wrap { max-width: 820px; }
+.nir-card { background: #fff; border: 1px solid #efebe2; border-radius: 12px; padding: 40px; box-shadow: 0 10px 30px rgba(29, 26, 109, .08); }
+.nir-card fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+.nir-card legend, .nir-q { display: block; padding: 0; margin: 0 0 6px; color: #1D1A6D; font-family: var(--serif); font-weight: 600; font-size: 22px; line-height: 1.25; }
+.nir-opt { font-family: var(--sans); font-weight: 400; font-size: 14px; color: #5F6672; margin-left: 8px; }
+.nir-hint { margin: 0 0 16px; font-size: 15px; color: #5F6672; }
+.nir-hint strong { color: #1D1A6D; }
+.nir-block { margin-top: 32px; padding-top: 32px; border-top: 1px solid #efebe2; }
+.nir-first { margin-top: 0; padding-top: 0; border-top: 0; }
+.nir-vh { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.nir-chips { display: flex; flex-wrap: wrap; gap: 12px; }
+.nir-chip { display: inline-flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 18px 0 14px; border: 1.5px solid #8C8778; border-radius: 999px; background: #fff; color: #1D1A6D; font-size: 16px; cursor: pointer; user-select: none; }
+.nir-box { flex: none; width: 22px; height: 22px; border: 1.5px solid #8C8778; border-radius: 6px; display: inline-block; position: relative; background: #fff; }
+.nir-box::after { content: ""; position: absolute; left: 6px; top: 2px; width: 6px; height: 12px; border: solid #1D1A6D; border-width: 0 2.5px 2.5px 0; transform: rotate(45deg); opacity: 0; }
+.nir-chip:has(input:checked) { background: #1D1A6D; color: #fff; border-color: #1D1A6D; }
+.nir-chip:has(input:checked) .nir-box { background: #fff; border-color: #fff; }
+.nir-chip:has(input:checked) .nir-box::after { opacity: 1; }
+.nir-chip:has(input:focus-visible), .nir-topic:has(input:focus-visible), .nir-loop:has(input:focus-visible) { outline: 2px solid #004AAD; outline-offset: 3px; }
+.nir-else { margin-top: 16px; }
+.nir-field { display: block; margin: 0 0 6px; font-size: 14px; font-weight: 700; color: #1D1A6D; }
+.nir-input { width: 100%; min-height: 52px; padding: 12px 16px; border: 1.5px solid #8C8778; border-radius: 8px; background: #fff; color: #1c1c1c; font: inherit; font-size: 16px; box-sizing: border-box; }
+textarea.nir-input { min-height: 110px; resize: vertical; line-height: 1.5; }
+.nir-input::placeholder { color: #5F6672; opacity: 1; }
+.nir-input:focus-visible, .nir-submit:focus-visible, .nir-more summary:focus-visible, .nir-ghost:focus-visible { outline: 2px solid #004AAD; outline-offset: 3px; }
+.nir-input[aria-invalid="true"] { border-color: #B3261E; }
+.nir-err { display: none; margin: 6px 0 0; color: #B3261E; font-size: 14px; font-weight: 700; }
+.nir-err.show { display: block; }
+.nir-topics { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 24px; }
+.nir-topic { display: grid; grid-template-columns: 22px 1fr; column-gap: 14px; align-items: start; padding: 10px 8px; border-radius: 8px; cursor: pointer; color: #1D1A6D; font-size: 17px; line-height: 1.35; }
+.nir-topic .nir-box { margin-top: 2px; }
+.nir-topic:has(input:checked) .nir-box { background: #1D1A6D; border-color: #1D1A6D; }
+.nir-topic:has(input:checked) .nir-box::after, .nir-loop:has(input:checked) .nir-box::after { opacity: 1; border-color: #fff; }
+.nir-topic small { display: block; margin-top: 2px; font-size: 15px; color: #5F6672; line-height: 1.5; }
+.nir-two { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.nir-more { margin-top: 24px; }
+.nir-more summary { cursor: pointer; list-style: none; color: #004AAD; font-weight: 700; padding: 8px 0; display: inline-flex; align-items: center; gap: 10px; }
+.nir-more summary::-webkit-details-marker { display: none; }
+.nir-more summary::before { content: ""; border-left: 8px solid currentColor; border-top: 5px solid transparent; border-bottom: 5px solid transparent; transition: transform .15s; }
+.nir-more[open] summary::before { transform: rotate(90deg); }
+.nir-more .nir-opt { margin-left: 0; }
+.nir-more-body { padding-top: 8px; }
+.nir-trap { position: absolute; left: -9999px; }
+.nir-loop { display: flex; align-items: flex-start; gap: 14px; margin-top: 20px; padding: 8px; border-radius: 8px; cursor: pointer; color: #1D1A6D; }
+.nir-loop .nir-box { margin-top: 2px; }
+.nir-loop:has(input:checked) .nir-box { background: #1D1A6D; border-color: #1D1A6D; }
+.nir-submit { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 56px; margin-top: 24px; padding: 0 24px; border: 0; border-radius: 999px; background: #004AAD; color: #fff; font: inherit; font-size: 17px; font-weight: 700; cursor: pointer; }
+.nir-submit:hover { background: #1D1A6D; }
+.nir-submit:disabled { opacity: .7; cursor: default; }
+.nir-fail { margin-top: 20px; }
+.nir-fine { margin: 14px 0 0; font-size: 14px; color: #5F6672; }
+.nir-foot { margin: 32px -40px -40px; padding: 22px 16px; border-top: 1px solid #efebe2; text-align: center; font-family: var(--serif); font-style: italic; font-size: 19px; color: #1D1A6D; }
+.nir-eyebrow { margin: 0 0 12px; color: #1E7A43; font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
+#nir-thanks h2 { margin: 0 0 12px; color: #1D1A6D; font-family: var(--serif); font-size: clamp(30px, 5vw, 44px); line-height: 1.1; }
+.nir-summary { margin: 20px 0 0; padding: 20px 24px; background: #E8F5EC; border-radius: 12px; }
+.nir-summary dt { font-weight: 700; color: #1D1A6D; font-size: 14px; margin-top: 12px; }
+.nir-summary dt:first-child { margin-top: 0; }
+.nir-summary dd { margin: 2px 0 0; color: #3E4252; }
+.nir-acct { margin: 16px 0 0; }
+.nir-ghost { margin-top: 24px; min-height: 48px; padding: 0 24px; border: 2px solid #004AAD; border-radius: 999px; background: transparent; color: #004AAD; font: inherit; font-weight: 700; cursor: pointer; }
+@media (max-width: 640px) {
+  .nir-card { padding: 28px 20px; }
+  .nir-foot { margin: 28px -20px -28px; }
+  .nir-topics, .nir-two { grid-template-columns: 1fr; }
+  .nir-card legend, .nir-q { font-size: 21px; }
+}
+</style>
