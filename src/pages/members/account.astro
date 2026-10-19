@@ -41,7 +41,7 @@ const areaNames = [...new Set((areas as any[]).map((a) => a.name))].sort();
       <form class="mcard" id="neighborhood-form" novalidate>
         <h2>My neighborhood</h2>
         <p>This is the area used for your Locally page and your custom feed.</p>
-        <p class="msg" data-nb-msg role="alert" tabindex="-1" hidden></p>
+        <p class="msg" data-msg role="alert" tabindex="-1" hidden></p>
         <div class="mform-field">
           <label for="area-of-interest">Current area</label>
           <select id="area-of-interest" name="area-of-interest">
@@ -87,7 +87,7 @@ const areaNames = [...new Set((areas as any[]).map((a) => a.name))].sort();
       <form class="mcard" id="public-profile-form" novalidate>
         <h2>Public profile</h2>
         <p>Shown on your public profile page. Set a username to get your own link.</p>
-        <p class="msg" data-pp-msg role="alert" tabindex="-1" hidden></p>
+        <p class="msg" data-msg role="alert" tabindex="-1" hidden></p>
         <div class="mform-field">
           <label for="username">Username</label>
           <input type="text" id="username" name="username" autocomplete="off" pattern="[a-z0-9_-]{3,30}" placeholder="yourname" />
