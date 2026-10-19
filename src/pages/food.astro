@@ -37,7 +37,12 @@ const hoodNames = Object.keys(byHood).sort((a, b) => a.toLowerCase().localeCompa
 hoodNames.forEach((h) => byHood[h].sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase())));
 
 // Openings come from the new and notable list. Closings are reviews marked closed, plus closed profiles without a review post.
-const openings = (newAndNotable as any[]).filter((o) => !o.placeholder);
+const TODAY = new Date().toISOString().slice(0, 10);
+const listed = (newAndNotable as any[]).filter((o) => !o.placeholder);
+const openings = listed.filter((o) => o.status !== 'closed' && o.status !== 'soon');
+const soon = listed.filter((o) => o.status === 'soon');
+// Closings reported by Houston food media, newest first. A last day in the future reads as closing soon.
+const reportedClosings = listed.filter((o) => o.status === 'closed').sort((a, b) => (String(a.date || '') < String(b.date || '') ? 1 : -1)).map((o) => ({ name: o.name, tag: [o.category, o.area].filter(Boolean).join(' · '), when: (o.when || '') + (o.source ? ' · ' + o.source : ''), href: o.url || '', permanent: false, label: o.date && o.date > TODAY ? 'Closing soon' : 'Closed', external: true }));
 const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const reviewedOn = (d: string) => 'Reviewed ' + MON[Number(d.slice(5, 7)) - 1] + ' ' + d.slice(0, 4);
 const NOT_FOOD = /Salon|Event|Dental|Spa\b|Nail|Hair|Threading|Fitness|Clinic/i;
@@ -47,7 +52,7 @@ const closedPosts = (posts as any[]).filter((p) => p.closed).sort((a, b) => (a.d
 }).filter((c) => !NOT_FOOD.test(c.name) && !NOT_FOOD.test(c.tag));
 const seen = new Set(closedPosts.map((c) => c.name.toLowerCase().replace(/\W/g, '')));
 const closedProfiles = closedFoodPlaces().filter((c) => !seen.has(c.name.toLowerCase().replace(/\W/g, ''))).map((c) => ({ name: c.name, tag: c.cats.join(', '), when: 'Reviewed ' + c.year, href: url('/eat/' + c.slug), permanent: false }));
-const closings = [...closedPosts, ...closedProfiles];
+const closings = [...reportedClosings, ...closedPosts, ...closedProfiles];
 const SHOW = 12;
 
 const SV = 'fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"';
@@ -207,22 +212,34 @@ const bar = [['reviews', 'Reviews'], ['collections', 'Collections'], ['cuisines'
 
   <section class="fd-blk wrap" id="openings">
     <div class="fd-sechead"><div><h2>Openings and closings.</h2></div><a href="mailto:traditionlocal@gmail.com?subject=Opening%20or%20closing%20tip">Tell us about one &rarr;</a></div>
-    <p class="fd-note">New places worth a visit, and the places we have reviewed that have since closed.</p>
+    <p class="fd-note">New places worth a visit, closings reported by Houston food media, announced openings to watch, and the places we have reviewed that have since closed.</p>
     <div class="fd-oc">
       <div class="fd-ocol">
         <h3><i class="fd-dotnew"></i>Now open</h3>
-        {openings.length ? openings.map((o: any) => (
-          <div class="fd-orow"><h4>{o.name}<span class="fd-tagnew">New</span></h4><div class="m">{o.category} &middot; {o.area}</div></div>
+        {openings.length ? openings.map((o: any, i: number) => (
+          <div class="fd-orow" hidden={i >= 8} data-open={i >= 8 ? '1' : '0'}><h4>{o.url ? <a href={o.url} target="_blank" rel="noopener">{o.name}</a> : o.name}<span class="fd-tagnew">New</span></h4><div class="m">{o.category} &middot; {o.area}{o.when ? ' · ' + o.when : ''}{o.source ? ' · ' + o.source : ''}</div></div>
         )) : <p class="fd-note">No new openings logged yet.</p>}
+        <div class="fd-more" style="justify-content:flex-start;padding:10px 0 0"><button class="fd-pill line sm" type="button" id="fd-opmore" hidden={openings.length <= 8}>Show all {openings.length} new places</button></div>
       </div>
       <div class="fd-ocol">
         <h3><i class="fd-dotclosed"></i>Recently closed</h3>
         {closings.map((c, i) => (
-          <div class="fd-orow" hidden={i >= 6} data-closed={i >= 6 ? '1' : '0'}><h4><a href={c.href}>{c.name}</a><span class="fd-tagclosed">{c.permanent ? 'Permanently closed' : 'Closed'}</span></h4><div class="m">{c.when}{c.tag ? ' · ' + c.tag : ''}</div></div>
+          <div class="fd-orow" hidden={i >= 6} data-closed={i >= 6 ? '1' : '0'}><h4><a href={c.href} target={c.external ? '_blank' : undefined} rel={c.external ? 'noopener' : undefined}>{c.name}</a><span class="fd-tagclosed">{c.label ? c.label : (c.permanent ? 'Permanently closed' : 'Closed')}</span></h4><div class="m">{c.when}{c.tag ? ' · ' + c.tag : ''}</div></div>
         ))}
         <div class="fd-more" style="justify-content:flex-start;padding:10px 0 0"><button class="fd-pill line sm" type="button" id="fd-clsmore" hidden={closings.length <= 6}>Show all {closings.length} closed places</button></div>
       </div>
     </div>
+    {soon.length > 0 && (
+      <div class="fd-ocol fd-soon">
+        <h3><i class="fd-dotsoon"></i>Places to watch</h3>
+        <p class="fd-note" style="margin-bottom:6px">Announced and not open yet. These are the reported plans, and dates can change.</p>
+        <div class="fd-soongrid">
+          {soon.map((o: any) => (
+            <div class="fd-orow"><h4>{o.url ? <a href={o.url} target="_blank" rel="noopener">{o.name}</a> : o.name}<span class="fd-tagsoon">Coming soon</span></h4><div class="m">{o.category} &middot; {o.area}{o.when ? ' · ' + o.when : ''}{o.source ? ' · ' + o.source : ''}</div></div>
+          ))}
+        </div>
+      </div>
+    )}
   </section>
 
   <section class="fd-blk wrap" id="videos">
@@ -312,6 +329,8 @@ const bar = [['reviews', 'Reviews'], ['collections', 'Collections'], ['cuisines'
     $('fd-where').addEventListener('change', function () { st.where = this.value; st.limit = SHOW; render(); });
     $('fd-rate').addEventListener('change', function () { st.rate = this.value; st.limit = SHOW; render(); });
     $('fd-cuisine').addEventListener('change', function () { var v = this.value; st.cuisine = v.indexOf('region:') === 0 ? '' : v; st.region = v.indexOf('region:') === 0 ? v.slice(7) : ''; st.limit = SHOW; render(); });
+    var om = $('fd-opmore');
+    if (om) om.addEventListener('click', function () { document.querySelectorAll('[data-open="1"]').forEach(function (r) { r.hidden = false; }); om.hidden = true; });
     var cm = $('fd-clsmore');
     if (cm) cm.addEventListener('click', function () { document.querySelectorAll('[data-closed="1"]').forEach(function (r) { r.hidden = false; }); cm.hidden = true; });
     $('fd-pick').addEventListener('change', function () { st.pick = this.checked; st.limit = SHOW; render(); });
@@ -476,6 +495,11 @@ const bar = [['reviews', 'Reviews'], ['collections', 'Collections'], ['cuisines'
   .fd-orow .m { font-size: 14px; color: var(--muted); }
   .fd-tagnew, .fd-tagclosed { display: inline-block; font: 700 11px var(--sans); letter-spacing: .04em; text-transform: uppercase; border-radius: 99px; padding: 1px 9px; margin-left: 8px; vertical-align: 2px; }
   .fd-tagnew { background: #e3f3e6; color: #18642a; } .fd-tagclosed { background: #fdecea; color: #b3261e; }
+  .fd-dotsoon { display: inline-block; width: 11px; height: 11px; border-radius: 50%; background: #b8860b; }
+  .fd-tagsoon { display: inline-block; font: 700 11px var(--sans); letter-spacing: .04em; text-transform: uppercase; border-radius: 99px; padding: 1px 9px; margin-left: 8px; vertical-align: 2px; background: #fbf1cf; color: #7a5a00; }
+  .fd-soon { margin-top: 22px; }
+  .fd-soongrid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 44px; }
+  @media (max-width: 860px) { .fd-soongrid { grid-template-columns: 1fr; } }
 
   .fd-hcount { font-size: 18px; color: var(--muted); padding-bottom: 2px; }
   .fd-hdesc { font-size: 19px; color: var(--ink); margin: 0 0 34px; max-width: 70ch; }
