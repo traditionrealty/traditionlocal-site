@@ -6,6 +6,11 @@ import businesses from '../../data/businesses.json';
 import posts from '../../data/posts.json';
 import subdivisions from '../../data/subdivisions.json';
 import { url, img } from '../../lib/util';
+import ideas from '../../data/ideas.json';
+import events from '../../data/events.json';
+import areaEvents from '../../data/area-events.json';
+import { houstonToday } from '../../lib/weekend';
+import { perfectSaturday, toSatEvents } from '../../lib/saturday';
 
 export function getStaticPaths() {
   return areas.map((a) => ({ params: { slug: a.slug }, props: { a } }));
@@ -14,9 +19,15 @@ const { a } = Astro.props;
 const RATING_LABEL: Record<string, string> = { stop: 'Worth a Stop', drive: 'Worth the Drive', trip: 'Worth the Trip' };
 const eats = businesses.filter((b) => b.area === a.slug).sort((x, y) => Number(y.saraPick) - Number(x.saraPick));
 const topEats = eats.slice(0, 3);
-const coffeePick = eats.find((b) => b.categories.includes('Coffee & Tea'));
-const LUNCH_CATEGORIES = ['Sandwiches', 'Mexican', 'Tex-Mex', 'American', 'Mediterranean', 'Vietnamese', 'Indian', 'Chinese', 'Halal', 'Middle Eastern', 'Cajun/Creole', 'Breakfast & Brunch'];
-const lunchPick = eats.find((b) => b.slug !== coffeePick?.slug && LUNCH_CATEGORIES.some((c) => b.categories.includes(c)));
+// The Perfect Saturday below is built from this area's reviewed businesses, editorial ideas, and dated
+// events (see src/lib/saturday.ts). Anything that is not local to the area is labeled as such, and
+// businesses that are closed or being renovated are never picked.
+const satPlan = perfectSaturday(a, businesses as any[], ideas as any[], toSatEvents(events as any[], areaEvents as any[], url), houstonToday(), {
+  biz: (b) => url('/eat/' + b.slug),
+  idea: (i) => url('/weekend-ideas?area=' + encodeURIComponent(i.area)),
+  ideasPage: (name) => url('/weekend-ideas?area=' + encodeURIComponent(name)),
+  fallbackEvent: url('/living'),
+});
 const stories = posts.filter((p) => p.title.toLowerCase().includes(a.name.toLowerCase())).slice(0, 3);
 const parent = a.parent ? areas.find((x) => x.slug === a.parent) : null;
 const children = areas.filter((x) => x.parent === a.slug);
@@ -111,36 +122,24 @@ const sameRegion = areas.filter((x) => x.region === a.region && x.slug !== a.slu
         <a href={url('/living')}>This weekend in Houston &rarr;</a>
       </div>
       <div class="sat-grid">
-        <div class="sat-card">
-          <div class="sat-img blue"></div>
-          <p class="time">9 AM</p>
-          {coffeePick ? (<><strong>Coffee</strong><span class="muted small">{coffeePick.name}</span></>) : (<><strong class="ph-text">[Coffee]</strong><span class="muted small ph-text">[Coffee shop]</span></>)}
-        </div>
-        <div class="sat-card">
-          <div class="sat-img blue"></div>
-          <p class="time">10:30 AM</p>
-          <strong class="ph-text">[Trails or outdoor activity]</strong>
-          <span class="muted small ph-text">[Park or trail, area]</span>
-        </div>
-        <div class="sat-card">
-          <div class="sat-img blue"></div>
-          <p class="time">1 PM</p>
-{lunchPick ? (<><strong>Lunch</strong><span class="muted small">{lunchPick.name}</span></>) : (<><strong class="ph-text">[Lunch and a stroll]</strong><span class="muted small ph-text">[Shopping area]</span></>)}
-        </div>
-        <div class="sat-card">
-          <div class="sat-img blue"></div>
-          <p class="time">6 PM</p>
-          <strong class="ph-text">[A game or a show]</strong>
-          <span class="muted small ph-text">[Venue, area]</span>
-        </div>
+        {satPlan.slots.map((s) => (
+          <div class="sat-card">
+            <div class="sat-img blue"></div>
+            <p class="time">{s.time}</p>
+            <strong>{s.label}</strong>
+            <span class="sat-name">{s.href ? <a href={s.href} target={s.ext ? '_blank' : undefined} rel={s.ext ? 'noopener' : undefined}>{s.title}</a> : s.title}</span>
+            {s.sub && <span class="muted small">{s.sub}</span>}
+            {s.tag && <span class="sat-tag">{s.tag}</span>}
+          </div>
+        ))}
       </div>
       <div class="upcoming-bar">
-        <span class="upcoming-date ph-text">[MON]<br/>[00]</span>
+        {satPlan.upcoming && <span class="upcoming-date">{satPlan.upcoming.day}<br />{satPlan.upcoming.num}</span>}
         <div>
-          <p class="eyebrow small">Upcoming in {a.name}</p>
-          <strong class="ph-text">[Next local event]</strong>
+          <p class="eyebrow small">{satPlan.upcoming ? (satPlan.upcoming.local ? 'Upcoming in ' + a.name : 'Upcoming around Houston') : 'This weekend'}</p>
+          <strong>{satPlan.upcoming ? satPlan.upcoming.title : 'See what is happening in Houston'}</strong>
         </div>
-        <a href={url('/living')}>Details &rarr;</a>
+        <a href={satPlan.upcoming ? satPlan.upcoming.href : url('/living')} target={satPlan.upcoming?.ext ? '_blank' : undefined} rel={satPlan.upcoming?.ext ? 'noopener' : undefined}>Details &rarr;</a>
       </div>
     </div>
   </section>
@@ -342,6 +341,11 @@ const sameRegion = areas.filter((x) => x.region === a.region && x.slug !== a.slu
   .sat-img.blue { background: #e6eef8; }
   .sat-card .time { font-size: 12px; font-weight: 700; color: var(--blue); margin: 0 0 4px; }
   .sat-card strong { display: block; font-family: var(--serif); font-size: 1.1rem; color: var(--navy); }
+  .sat-card span { display: block; }
+  .sat-name { font-size: 15px; margin-top: 2px; }
+  .sat-name a { color: var(--blue); font-weight: 600; text-decoration: none; }
+  .sat-name a:hover { text-decoration: underline; }
+  .sat-tag { margin-top: 6px; font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--green, #1e7a43); }
   .upcoming-bar { background: #fff; border-radius: 8px; padding: 16px 20px; display: flex; align-items: center; gap: 18px; }
   .upcoming-date { background: var(--blue); color: #fff; font-size: 12px; font-weight: 700; text-align: center; line-height: 1.3; padding: 6px 12px; border-radius: 6px; }
   .upcoming-bar > div { flex: 1; }
