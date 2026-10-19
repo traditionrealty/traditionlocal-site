@@ -1,0 +1,26 @@
+---
+import Base from '../../layouts/Base.astro';
+import NewsletterArchive from '../../components/NewsletterArchive.astro';
+import newsletters from '../../data/newsletters.json';
+import { url } from '../../lib/util';
+---
+<Base title="All newsletters" description="Every edition of In the Loop, our weekly note from Dillon and Sara.">
+  <section class="band">
+    <div class="wrap">
+      <p class="crumb"><a href={url('/')}>Home</a> <span aria-hidden="true">&rsaquo;</span> <a href={url('/newsletters')}>Newsletters</a> <span aria-hidden="true">&rsaquo;</span> Archive</p>
+      <h1>In the Loop archive</h1>
+      <p class="lede">Every weekly edition, newest first.</p>
+    </div>
+  </section>
+  <section class="section">
+    <div class="wrap">
+      <NewsletterArchive editions={newsletters} limit={500} showAllLink={false} />
+      {newsletters.length === 0 && <p>Editions will appear here once the first newsletter is published.</p>}
+    </div>
+  </section>
+</Base>
+<style>
+  .crumb { font-size: 13px; color: rgba(255,255,255,.65); margin: 0 0 14px; }
+  .crumb a { color: rgba(255,255,255,.65); }
+  .lede { max-width: 62ch; }
+</style>
