@@ -100,7 +100,7 @@ const areaNames = [...new Set((areas as any[]).map((a) => a.name))].sort();
           </div>
 
           <div class="ppanel" data-panel="posts">
-            <div class="pcard" data-p-composer hidden>
+            <div class="pcard" data-p-composer data-p-own-only hidden>
               <h2>Share a little local life</h2>
               <form id="post-form" novalidate>
                 <p class="msg" data-msg role="alert" tabindex="-1" hidden></p>
@@ -567,7 +567,7 @@ init();
 .join-add-wrap, .join-pin-wrap { position: relative; }
 .join-add-btn { width: 40px; height: 40px; border-radius: 50%; border: 1.5px solid #2c3647; background: #161d29; color: #e8e9ec; font-size: 18px; line-height: 1; display: flex; align-items: center; justify-content: center; cursor: pointer; }
 .join-add-btn:hover { border-color: var(--gold); }
-.join-add-menu, .join-pin-menu { display: none; position: absolute; bottom: 48px; left: 0; background: #1d2635; border: 1px solid #2c3647; border-radius: 12px; box-shadow: 0 10px 28px rgba(0,0,0,.4); padding: 10px; width: 220px; max-height: 280px; overflow-y: auto; z-index: 20; }
+.join-add-menu, .join-pin-menu { display: none; position: absolute; top: 48px; left: 0; background: #1d2635; border: 1px solid #2c3647; border-radius: 12px; box-shadow: 0 10px 28px rgba(0,0,0,.4); padding: 10px; width: 220px; max-height: 280px; overflow-y: auto; z-index: 20; }
 .join-add-menu.open, .join-pin-menu.open { display: block; }
 .join-pin-menu button, .join-add-menu .opt-label { display: block; width: 100%; text-align: left; background: none; border: 0; padding: 8px 10px; border-radius: 6px; font-size: 13.5px; color: #e8e9ec; cursor: pointer; }
 .join-pin-menu button:hover { background: #161d29; }
