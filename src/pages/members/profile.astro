@@ -1,17 +1,177 @@
 ---
-// Profile editing moved into the combined My Account page. Redirect anyone with an old link.
+import Base from '../../layouts/Base.astro';
 import { url } from '../../lib/util';
-const dest = url('/members/account');
 ---
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta http-equiv="refresh" content={`0; url=${dest}`} />
-  <meta name="robots" content="noindex, follow" />
-  <link rel="canonical" href={dest} />
-  <title>Redirecting…</title>
-</head>
-<body>
-  <p>This page moved. <a href={dest}>Continue to My Account</a>.</p>
-</body>
-</html>
+<Base title="Profile" description="Member profiles on Tradition Local.">
+<section class="pshell">
+  <div class="wrap">
+    <p class="pback"><a href={url('/members/community')}>&larr; Community</a></p>
+
+    <div data-loading>
+      <p class="mform-note">Loading profile…</p>
+    </div>
+
+    <div data-not-ready hidden>
+      <h1>Member accounts are almost ready</h1>
+      <p>Check back soon.</p>
+    </div>
+
+    <div data-no-username hidden>
+      <h1>No profile to show yet</h1>
+      <p>Set a username in <a class="plink" href={url('/members/account')}>My Account &rarr; Settings</a> to get your own profile link.</p>
+    </div>
+
+    <div data-not-found hidden>
+      <h1>We couldn't find that profile</h1>
+      <p>The link may be out of date, or this member hasn't set up a public profile yet.</p>
+    </div>
+
+    <div data-profile hidden>
+      <div class="phero">
+        <span class="pavatar" data-p-initials>&nbsp;</span>
+        <div>
+          <h1 data-p-name>Member</h1>
+          <p class="pmeta" data-p-meta></p>
+        </div>
+      </div>
+
+      <div class="pgrid">
+        <div class="pcard" data-p-bio-card hidden>
+          <h2>About</h2>
+          <p data-p-bio></p>
+        </div>
+        <div class="pcard" data-p-interests-card hidden>
+          <h2>Interests</h2>
+          <div class="pchips" data-p-interests></div>
+        </div>
+      </div>
+
+      <div class="pcard" data-p-own-note hidden>
+        <p class="mform-note">This is your own public profile. <a class="plink" href={url('/members/account')}>Edit it in Settings &rarr;</a></p>
+      </div>
+
+      <h2 class="psection-title">Posts</h2>
+      <div data-p-posts>
+        <p class="mform-note">Loading…</p>
+      </div>
+    </div>
+  </div>
+</section>
+</Base>
+
+<script>
+import { membersReady, supabase, currentUser } from '../../lib/members';
+
+const loadingEl = document.querySelector('[data-loading]') as HTMLElement;
+const notReadyEl = document.querySelector('[data-not-ready]') as HTMLElement;
+const noUsernameEl = document.querySelector('[data-no-username]') as HTMLElement;
+const notFoundEl = document.querySelector('[data-not-found]') as HTMLElement;
+const profileEl = document.querySelector('[data-profile]') as HTMLElement;
+
+function show(el: HTMLElement) {
+  [loadingEl, notReadyEl, noUsernameEl, notFoundEl, profileEl].forEach((e) => { e.hidden = e !== el; });
+}
+
+function esc(s: string) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function renderProfile(p: any, isOwn: boolean) {
+  const name = p.display_name || [p.first_name, p.last_name].filter(Boolean).join(' ') || 'Member';
+  const initials = name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase() || '?';
+  document.querySelector('[data-p-name]')!.textContent = name;
+  document.querySelector('[data-p-initials]')!.textContent = initials;
+  const metaEl = document.querySelector('[data-p-meta]') as HTMLElement;
+  metaEl.textContent = p.area_of_interest ? p.area_of_interest : '';
+  metaEl.hidden = !p.area_of_interest;
+
+  const bioCard = document.querySelector('[data-p-bio-card]') as HTMLElement;
+  if (p.bio) { bioCard.hidden = false; document.querySelector('[data-p-bio]')!.textContent = p.bio; }
+  else bioCard.hidden = true;
+
+  const interestsCard = document.querySelector('[data-p-interests-card]') as HTMLElement;
+  const interests: string[] = p.interests || [];
+  if (interests.length) {
+    interestsCard.hidden = false;
+    document.querySelector('[data-p-interests]')!.innerHTML = interests.map((i) => `<span class="pchip">${esc(i)}</span>`).join('');
+  } else interestsCard.hidden = true;
+
+  (document.querySelector('[data-p-own-note]') as HTMLElement).hidden = !isOwn;
+  show(profileEl);
+  loadPosts(p.id);
+}
+
+async function loadPosts(authorId: string) {
+  const postsEl = document.querySelector('[data-p-posts]') as HTMLElement;
+  const sb = supabase();
+  const { data, error } = await sb
+    .from('posts')
+    .select('id, body, neighborhood, banner_style, created_at')
+    .eq('author_id', authorId)
+    .eq('visibility', 'public')
+    .order('created_at', { ascending: false })
+    .limit(20);
+  if (error) { postsEl.innerHTML = `<p class="mform-note">${esc(error.message)}</p>`; return; }
+  if (!data || !data.length) { postsEl.innerHTML = '<p class="mform-note">No public posts yet.</p>'; return; }
+  postsEl.innerHTML = data.map((post: any) => {
+    const when = new Date(post.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    return `<div class="pcard">
+      <p class="mform-note">${post.neighborhood ? esc(post.neighborhood) + ' · ' : ''}${when}</p>
+      <p>${esc(post.body)}</p>
+    </div>`;
+  }).join('');
+}
+
+async function init() {
+  if (!membersReady) { show(notReadyEl); return; }
+  const sb = supabase();
+  const hashUsername = decodeURIComponent(location.hash.replace(/^#/, '')).trim().toLowerCase();
+
+  if (hashUsername) {
+    const { data, error } = await sb.from('public_profiles').select('*').eq('username', hashUsername).maybeSingle();
+    if (error || !data) { show(notFoundEl); return; }
+    const user = await currentUser();
+    renderProfile(data, Boolean(user && user.id === data.id));
+    return;
+  }
+
+  const user = await currentUser();
+  if (!user) { show(notFoundEl); return; }
+  const { data, error } = await sb
+    .from('profiles')
+    .select('id, first_name, last_name, username, display_name, bio, interests, area_of_interest')
+    .eq('id', user.id)
+    .maybeSingle();
+  if (error || !data) { show(notFoundEl); return; }
+  if (!data.username) { show(noUsernameEl); return; }
+  renderProfile(data, true);
+}
+
+init();
+</script>
+
+<style is:global>
+.pshell { background: #171f2b; color: #e8e9ec; min-height: 70vh; padding: 48px 24px 72px; }
+.pshell a { color: inherit; }
+.pshell [data-not-ready], .pshell [data-no-username], .pshell [data-not-found], .pshell [data-loading] { max-width: 560px; }
+.pshell [data-not-ready] p, .pshell [data-no-username] p, .pshell [data-not-found] p { color: #aab0bb; }
+.pback { margin: 0 0 24px; }
+.pback a { color: var(--gold); font-weight: 600; text-decoration: none; }
+.pshell h1 { font-size: clamp(1.8rem, 3vw, 2.4rem); margin: 0 0 10px; }
+.phero { display: flex; align-items: center; gap: 20px; margin-bottom: 28px; }
+.pavatar { width: 72px; height: 72px; border-radius: 50%; background: #3a4a3a; color: var(--gold); display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-size: 1.6rem; flex-shrink: 0; }
+.pmeta { color: #8f96a3; margin: 4px 0 0; }
+.pgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+.pcard { background: #1d2635; border: 1px solid #2c3647; border-radius: 10px; padding: 24px 28px; margin-bottom: 16px; color: #e8e9ec; }
+.pcard h2 { color: #fff; font-size: 1.1rem; margin: 0 0 10px; }
+.pcard p { color: #cfd3da; }
+.pchips { display: flex; flex-wrap: wrap; gap: 8px; }
+.pchip { background: #161d29; border: 1px solid #2c3647; border-radius: 999px; padding: 6px 14px; font-size: 13px; color: #cfd3da; }
+.psection-title { color: #fff; font-size: 1.3rem; margin: 8px 0 16px; }
+.plink { color: var(--gold); font-weight: 600; text-decoration: none; }
+.mform-note { font-size: 13px; color: #8f96a3; margin: 6px 0 0; }
+
+@media (max-width: 720px) {
+  .pgrid { grid-template-columns: 1fr; }
+}
+</style>
