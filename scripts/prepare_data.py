@@ -665,6 +665,62 @@ if ADDITIONAL_PROFILES.exists():
     biz.sort(key=lambda x: x["name"].lower())
     print("additional non-event business profiles from CSVs:", additional_count)
 
+# ---------- closed, temporarily closed, or renovating (master CMS Openings & Closings) ----------
+# Runs after every business record is merged, so supplemental profiles are covered too.
+if MASTER_CMS.exists():
+    # Openings & Closings sheet: a reviewed business that closed, is temporarily closed, or is being
+    # renovated is flagged so nothing picks it automatically (closed, temporarilyClosed, renovating).
+    # Matched by slug, or by name when the name is unique. The newest update wins, so a later
+    # "reopened" clears a temporary closure or renovation.
+    try:
+        oc = pd.read_excel(MASTER_CMS, sheet_name="Openings & Closings")
+    except ValueError:
+        oc = None
+    if oc is not None:
+        norm_name = lambda t: re.sub(r"[^a-z0-9]", "", str(t).lower())
+        name_count = {}
+        for x in biz:
+            name_count[norm_name(x["name"])] = name_count.get(norm_name(x["name"]), 0) + 1
+        by_key = {}
+        for x in biz:
+            by_key[x["slug"]] = x
+            if name_count[norm_name(x["name"])] == 1:
+                by_key.setdefault(norm_name(x["name"]), x)
+        newest = {}
+        for i, r in oc.iterrows():
+            x = by_key.get(str(r.get("slug"))) or by_key.get(norm_name(r.get("business_name")))
+            if x is None:
+                continue
+            when = str(nan(r.get("effective_date")) or nan(r.get("announcement_date")) or "")[:10]
+            if x["slug"] not in newest or (when, i) >= newest[x["slug"]][0]:
+                newest[x["slug"]] = ((when, i), r)
+        status_n = 0
+        for slug, (_, r) in newest.items():
+            x = by_key[slug]
+            kind = str(nan(r.get("update_type")) or "").strip().lower()
+            text = f"{nan(r.get('short_summary')) or ''} {nan(r.get('details')) or ''}"
+            if kind in ("close", "location-close", "multi-location-close"):
+                x["closed"] = True
+            elif kind == "temporary-close":
+                x["temporarilyClosed"] = True
+            elif kind != "reopened" and re.search(r"renovat|remodel|under construction", text, re.I):
+                x["renovating"] = True
+            if x.get("closed") or x.get("temporarilyClosed") or x.get("renovating"):
+                status_n += 1
+        # A duplicate record of a closed business (same city, same or longer name, no address of its
+        # own) is the same place, so it is flagged closed too.
+        for c in [x for x in biz if x.get("closed")]:
+            cn = norm_name(c["name"])
+            if len(cn) < 8 or not c.get("city"):
+                continue
+            for d in biz:
+                if d is c or d.get("closed") or d.get("city") != c.get("city") or d.get("address"):
+                    continue
+                if norm_name(d["name"]).startswith(cn):
+                    d["closed"] = True
+                    status_n += 1
+        print("openings and closings: businesses flagged closed, temporarily closed, or renovating:", status_n)
+
 # ---------- updated business and review writing (user-supplied October 2026 CSVs) ----------
 # Applied after the photo-profile supplement so both original and newly added businesses
 # receive the same source copy. Existing contact details, photos, and manual rating rules remain.
