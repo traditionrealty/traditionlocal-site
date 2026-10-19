@@ -84,6 +84,35 @@ const areaNames = [...new Set((areas as any[]).map((a) => a.name))].sort();
       <h1>Settings</h1>
       <p class="lede">Choose what you receive and manage your account.</p>
 
+      <form class="mcard" id="public-profile-form" novalidate>
+        <h2>Public profile</h2>
+        <p>Shown on your public profile page. Set a username to get your own link.</p>
+        <p class="msg" data-pp-msg role="alert" tabindex="-1" hidden></p>
+        <div class="mform-field">
+          <label for="username">Username</label>
+          <input type="text" id="username" name="username" autocomplete="off" pattern="[a-z0-9_-]{3,30}" placeholder="yourname" />
+          <p class="mform-note">Letters, numbers, underscores, and hyphens only.</p>
+        </div>
+        <div class="mform-field">
+          <label for="display-name">Display name</label>
+          <input type="text" id="display-name" name="display-name" placeholder="Shown instead of your first and last name, if you'd rather" />
+        </div>
+        <div class="mform-field">
+          <label for="bio">Short bio</label>
+          <textarea id="bio" name="bio" rows="3" placeholder="A line or two about you"></textarea>
+        </div>
+        <label class="mcheck">
+          <input type="checkbox" id="bio-public" name="bio-public" />
+          <span><strong>Show my bio publicly</strong><p>If off, your bio stays private even though it's saved here.</p></span>
+        </label>
+        <div class="mform-field">
+          <label for="interests">Interests</label>
+          <input type="text" id="interests" name="interests" placeholder="Coffee, Food, Outdoors" />
+          <p class="mform-note">Separate with commas.</p>
+        </div>
+        <button class="btn gold" type="submit">Save profile</button>
+      </form>
+
       <form class="mcard" id="profile-form" novalidate>
         <h2>Name &amp; email</h2>
         <p class="msg" data-msg role="alert" tabindex="-1" hidden></p>
@@ -169,6 +198,7 @@ const areaNames = [...new Set((areas as any[]).map((a) => a.name))].sort();
   if (location.hash === '#settings') activateTab('settings');
 
   const profileForm = document.getElementById('profile-form') as HTMLFormElement | null;
+  const publicProfileForm = document.getElementById('public-profile-form') as HTMLFormElement | null;
   const nbForm = document.getElementById('neighborhood-form') as HTMLFormElement | null;
   const PREF_KEY = 'tl-email-prefs';
 
@@ -183,6 +213,13 @@ const areaNames = [...new Set((areas as any[]).map((a) => a.name))].sort();
     if (profileForm) {
       const set = (name: string, v: string | null) => { (profileForm.elements.namedItem(name) as HTMLInputElement).value = v || ''; };
       set('email', user.email || ''); set('first-name', p.first_name); set('last-name', p.last_name);
+    }
+    if (publicProfileForm) {
+      const setPP = (name: string, v: string | null) => { (publicProfileForm.elements.namedItem(name) as HTMLInputElement).value = v || ''; };
+      setPP('username', p.username ?? null); setPP('display-name', p.display_name ?? null); setPP('bio', p.bio ?? null);
+      setPP('interests', (p.interests || []).join(', '));
+      const bioPublic = publicProfileForm.elements.namedItem('bio-public') as HTMLInputElement | null;
+      if (bioPublic) bioPublic.checked = Boolean(p.bio_public);
     }
     if (nbForm) (nbForm.elements.namedItem('area-of-interest') as HTMLSelectElement).value = p.area_of_interest || '';
     const weeklyGuide = document.getElementById('weekly-guide') as HTMLInputElement | null;
@@ -239,6 +276,29 @@ if (membersReady) {
     if (error) return say(profileForm, friendly(error.message));
     say(profileForm, 'Saved.', 'ok');
     document.querySelector('[data-first-name]')!.textContent = row.first_name || 'neighbor';
+  });
+
+  publicProfileForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    say(publicProfileForm, '');
+    const user = await currentUser();
+    if (!user) return say(publicProfileForm, 'Your session ended. Please sign in again.');
+    const usernameRaw = field(publicProfileForm, 'username').trim().toLowerCase();
+    const interests = field(publicProfileForm, 'interests').split(',').map((s) => s.trim()).filter(Boolean);
+    const bioPublicInput = publicProfileForm.elements.namedItem('bio-public') as HTMLInputElement;
+    const row = {
+      username: usernameRaw || null,
+      display_name: field(publicProfileForm, 'display-name') || null,
+      bio: field(publicProfileForm, 'bio') || null,
+      bio_public: bioPublicInput.checked,
+      interests,
+    };
+    const { error } = await busy(publicProfileForm, 'Saving…', () => supabase().from('profiles').update(row).eq('id', user.id));
+    if (error) {
+      const msg = error.message.toLowerCase().includes('duplicate') ? 'That username is already taken.' : friendly(error.message);
+      return say(publicProfileForm, msg);
+    }
+    say(publicProfileForm, 'Saved.', 'ok');
   });
 
   nbForm?.addEventListener('submit', async (e) => {
