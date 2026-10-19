@@ -29,84 +29,158 @@ const areaNames = [...new Set((areas as any[]).map((a) => a.name))].sort();
     </div>
 
     <div data-profile hidden>
-      <div class="phero">
-        <span class="pavatar" data-p-initials>&nbsp;</span>
-        <div>
-          <h1 data-p-name>Member</h1>
-          <p class="pmeta" data-p-meta></p>
-        </div>
+      <div class="pwallpaper" data-p-wallpaper>
+        <a class="pwallpaper-edit" data-p-own-only href={url('/members/account')} hidden>📷 Change wallpaper</a>
       </div>
 
-      <div class="pgrid">
-        <div class="pcard" data-p-bio-card hidden>
-          <h2>About</h2>
-          <p data-p-bio></p>
-        </div>
-        <div class="pcard" data-p-interests-card hidden>
-          <h2>Interests</h2>
-          <div class="pchips" data-p-interests></div>
-        </div>
+      <div class="pheader">
+        <span class="pavatar-lg" data-p-initials>&nbsp;</span>
+        <h1 data-p-name>Member</h1>
+        <p class="pbioline" data-p-bioline hidden></p>
+        <p class="pmeta" data-p-meta hidden></p>
+        <a class="btn gold" data-p-own-only href={url('/members/account')} hidden>✏️ Edit profile</a>
+        <p class="pview-note" data-p-own-only hidden>Your view &middot; Likes, bookmarks, and event plans are private.</p>
       </div>
 
-      <div class="pcard" data-p-own-note hidden>
-        <p class="mform-note">This is your own profile. <a class="plink" href={url('/members/account')}>Edit it in Settings &rarr;</a></p>
+      <div class="ptabs" role="tablist">
+        <button type="button" class="ptab" data-tab="feed" data-p-own-only hidden>Feed <span class="plock">&#128274;</span></button>
+        <button type="button" class="ptab" data-tab="posts" aria-selected="true">Posts</button>
+        <button type="button" class="ptab" data-tab="about">About</button>
+        <button type="button" class="ptab" data-tab="likes" data-p-own-only hidden>Likes <span class="plock">&#128274;</span></button>
+        <button type="button" class="ptab" data-tab="bookmarks" data-p-own-only hidden>Bookmarks <span class="plock">&#128274;</span></button>
+        <button type="button" class="ptab" data-tab="events" data-p-own-only hidden>Events <span class="plock">&#128274;</span></button>
       </div>
 
-      <div class="pcard" data-p-composer hidden>
-        <h2>Join the conversation</h2>
-        <form id="post-form" novalidate>
-          <p class="msg" data-msg role="alert" tabindex="-1" hidden></p>
-          <div class="mform-field">
-            <textarea id="post-body" name="post-body" rows="2" placeholder="What have you discovered lately?" required></textarea>
+      <div class="pgrid-main">
+        <aside class="psidebar">
+          <div class="pcard">
+            <h2>Intro <span class="pbadge">Public</span></h2>
+            <p data-p-intro-bio hidden></p>
+            <p class="pmeta" data-p-intro-meta hidden></p>
+            <div data-p-interests-wrap hidden>
+              <h3 class="psubhead">Interests</h3>
+              <div class="pchips" data-p-interests></div>
+            </div>
+            <div data-p-hoods-wrap hidden>
+              <h3 class="psubhead">Neighborhoods I follow</h3>
+              <div class="pchips" data-p-hoods></div>
+            </div>
+            <p class="mform-note" data-p-intro-empty hidden>Nothing to show yet.</p>
           </div>
-          <div id="post-banner-preview"></div>
-          <div class="composer-row">
-            <div class="join-pin-wrap">
-              <button type="button" class="join-add-btn" data-pin-toggle aria-label="Add area">📍</button>
-              <div class="join-pin-menu" data-pin-menu>
-                <button type="button" data-area="">No area tag</button>
-                {areaNames.map((n: string) => <button type="button" data-area={n}>{n}</button>)}
+
+          <div class="pcard" data-p-own-only hidden>
+            <h2>My next plan <span class="plock">&#128274;</span></h2>
+            <p class="mform-note">Event RSVPs aren't built yet &mdash; this is a preview of where they'll show up.</p>
+            <a class="plink" href={url('/members/account')}>Manage my events &rarr;</a>
+          </div>
+
+          <p class="mform-note pprivacy-note" data-p-own-only hidden>Likes, bookmarks, and event plans stay in your account. Your interests, bio, and public posts appear on your profile.</p>
+        </aside>
+
+        <div class="pmain">
+          <div class="ppanel" data-panel="feed" hidden>
+            <div class="pcard">
+              <h2>Feed</h2>
+              <p>Public posts from neighbors, newest first.</p>
+              <div class="search-bar">
+                <input type="search" id="feed-search" placeholder="Search posts or neighbors" />
+                <select id="feed-hood-select">
+                  <option value="all">All neighborhoods</option>
+                  {areaNames.map((n: string) => <option value={n}>{n}</option>)}
+                </select>
               </div>
             </div>
-            <select class="vis-select" id="post-visibility" name="post-visibility">
-              <option value="public">🌐 Public post</option>
-              <option value="only_me">🔒 Only me</option>
-            </select>
-            <div class="join-add-wrap">
-              <button type="button" class="join-add-btn" data-banner-toggle aria-label="Add a pre-made banner">+</button>
-              <div class="join-add-menu" data-banner-menu>
-                <div class="opt-label">Pre-made banner</div>
-                <div class="banner-swatches">
-                  <button type="button" class="banner-swatch" data-banner="green" style="background:linear-gradient(135deg,#3a5a40,#2b4530);" aria-label="Green banner"></button>
-                  <button type="button" class="banner-swatch" data-banner="navy" style="background:linear-gradient(135deg,#1D1A6D,#35465c);" aria-label="Navy banner"></button>
-                  <button type="button" class="banner-swatch" data-banner="brown" style="background:linear-gradient(135deg,#9d693f,#6b4328);" aria-label="Brown banner"></button>
-                  <button type="button" class="banner-swatch" data-banner="gold" style="background:linear-gradient(135deg,#E7BC52,#c99a2f);" aria-label="Gold banner"></button>
+            <div class="pcard" data-trending-card hidden>
+              <h2>🔥 Trending</h2>
+              <div class="trending-scroll" data-trending-scroll></div>
+            </div>
+            <div data-feed-posts>
+              <p class="mform-note">Loading&hellip;</p>
+            </div>
+          </div>
+
+          <div class="ppanel" data-panel="posts">
+            <div class="pcard" data-p-composer hidden>
+              <h2>Share a little local life</h2>
+              <form id="post-form" novalidate>
+                <p class="msg" data-msg role="alert" tabindex="-1" hidden></p>
+                <div class="mform-field">
+                  <textarea id="post-body" name="post-body" rows="2" placeholder="What have you discovered lately?" required></textarea>
                 </div>
+                <div id="post-banner-preview"></div>
+                <div class="composer-row">
+                  <div class="join-pin-wrap">
+                    <button type="button" class="join-add-btn" data-pin-toggle aria-label="Add area">📍</button>
+                    <div class="join-pin-menu" data-pin-menu>
+                      <button type="button" data-area="">No area tag</button>
+                      {areaNames.map((n: string) => <button type="button" data-area={n}>{n}</button>)}
+                    </div>
+                  </div>
+                  <select class="vis-select" id="post-visibility" name="post-visibility">
+                    <option value="public">🌐 Public post</option>
+                    <option value="only_me">🔒 Only me</option>
+                  </select>
+                  <div class="join-add-wrap">
+                    <button type="button" class="join-add-btn" data-banner-toggle aria-label="Add a pre-made banner">+</button>
+                    <div class="join-add-menu" data-banner-menu>
+                      <div class="opt-label">Pre-made banner</div>
+                      <div class="banner-swatches">
+                        <button type="button" class="banner-swatch" data-banner="green" style="background:linear-gradient(135deg,#3a5a40,#2b4530);" aria-label="Green banner"></button>
+                        <button type="button" class="banner-swatch" data-banner="navy" style="background:linear-gradient(135deg,#1D1A6D,#35465c);" aria-label="Navy banner"></button>
+                        <button type="button" class="banner-swatch" data-banner="brown" style="background:linear-gradient(135deg,#9d693f,#6b4328);" aria-label="Brown banner"></button>
+                        <button type="button" class="banner-swatch" data-banner="gold" style="background:linear-gradient(135deg,#E7BC52,#c99a2f);" aria-label="Gold banner"></button>
+                      </div>
+                    </div>
+                  </div>
+                  <button class="btn gold" type="submit">Post</button>
+                </div>
+              </form>
+            </div>
+            <div data-own-posts>
+              <p class="mform-note">Loading&hellip;</p>
+            </div>
+          </div>
+
+          <div class="ppanel" data-panel="about" hidden>
+            <div class="pcard">
+              <h2 data-p-about-title>About</h2>
+              <p class="psubhead">Bio</p>
+              <p data-p-about-bio>&nbsp;</p>
+              <p class="psubhead">Neighborhood</p>
+              <p data-p-about-hood>&nbsp;</p>
+              <p class="psubhead">Interests</p>
+              <p data-p-about-interests>&nbsp;</p>
+              <p class="psubhead">Followed neighborhoods</p>
+              <p data-p-about-followed>&nbsp;</p>
+              <p class="mform-note" data-p-own-only hidden>These details are shown in the public profile preview.</p>
+            </div>
+          </div>
+
+          <div class="ppanel" data-panel="likes" hidden>
+            <div class="pcard">
+              <h2>My likes</h2>
+              <div data-likes-posts>
+                <p class="mform-note">Loading&hellip;</p>
               </div>
             </div>
-            <button class="btn gold" type="submit">Post</button>
           </div>
-        </form>
-      </div>
 
-      <div class="pcard" data-p-search hidden>
-        <div class="search-bar">
-          <input type="search" id="feed-search" placeholder="Search posts or neighbors" />
-          <select id="feed-hood-select">
-            <option value="all">All neighborhoods</option>
-            {areaNames.map((n: string) => <option value={n}>{n}</option>)}
-          </select>
+          <div class="ppanel" data-panel="bookmarks" hidden>
+            <div class="pcard">
+              <h2>Bookmarks</h2>
+              <p>Businesses and articles you've bookmarked.</p>
+              <p class="mform-note">Saving bookmarks isn't built yet &mdash; this is a preview of where they'll show up.</p>
+            </div>
+          </div>
+
+          <div class="ppanel" data-panel="events" hidden>
+            <div class="pcard">
+              <h2>My events</h2>
+              <p>Events you're going to or interested in.</p>
+              <p class="mform-note">Event RSVPs aren't built yet &mdash; this is a preview of where they'll show up.</p>
+            </div>
+          </div>
         </div>
-      </div>
-
-      <div class="pcard" data-trending-card hidden>
-        <h2>🔥 Trending</h2>
-        <div class="trending-scroll" data-trending-scroll></div>
-      </div>
-
-      <h2 class="psection-title" data-p-posts-title>Posts</h2>
-      <div data-p-posts>
-        <p class="mform-note">Loading&hellip;</p>
       </div>
     </div>
   </div>
@@ -139,6 +213,7 @@ const BANNER_GRADIENTS: Record<string, string> = {
 
 let myId: string | null = null;
 let viewingOwnId: string | null = null;
+let isOwnView = false;
 let selectedArea = '';
 let selectedBanner = '';
 let currentHood = 'all';
@@ -149,11 +224,28 @@ const bodyInput = document.getElementById('post-body') as HTMLTextAreaElement;
 const visSelect = document.getElementById('post-visibility') as HTMLSelectElement;
 const searchInput = document.getElementById('feed-search') as HTMLInputElement;
 const hoodSelect = document.getElementById('feed-hood-select') as HTMLSelectElement;
-const postsEl = document.querySelector('[data-p-posts]') as HTMLElement;
-const postsTitleEl = document.querySelector('[data-p-posts-title]') as HTMLElement;
+const ownPostsEl = document.querySelector('[data-own-posts]') as HTMLElement;
+const feedPostsEl = document.querySelector('[data-feed-posts]') as HTMLElement;
+const likesPostsEl = document.querySelector('[data-likes-posts]') as HTMLElement;
 const trendingCard = document.querySelector('[data-trending-card]') as HTMLElement;
 const trendingScroll = document.querySelector('[data-trending-scroll]') as HTMLElement;
 
+// ---- Tabs ----
+const tabs = [...document.querySelectorAll<HTMLButtonElement>('.ptab')];
+const panels = [...document.querySelectorAll<HTMLElement>('.ppanel')];
+let feedLoaded = false;
+let likesLoaded = false;
+function activateTab(key: string) {
+  const tab = tabs.find((t) => t.dataset.tab === key);
+  if (!tab || tab.hidden) return;
+  tabs.forEach((t) => t.setAttribute('aria-selected', String(t === tab)));
+  panels.forEach((p) => { p.hidden = p.dataset.panel !== key; });
+  if (key === 'feed' && !feedLoaded) { feedLoaded = true; loadFeedPosts(); }
+  if (key === 'likes' && !likesLoaded) { likesLoaded = true; loadLikes(); }
+}
+tabs.forEach((tab) => tab.addEventListener('click', () => activateTab(tab.dataset.tab!)));
+
+// ---- Composer: pin + banner menus ----
 document.querySelector('[data-pin-toggle]')?.addEventListener('click', () => {
   document.querySelector('[data-banner-menu]')?.classList.remove('open');
   document.querySelector('[data-pin-menu]')?.classList.toggle('open');
@@ -217,20 +309,8 @@ function renderPost(p: any, isOwnPost: boolean) {
   </div>`;
 }
 
-async function loadPosts(mode: 'own' | 'visitor', targetAuthorId: string) {
-  if (!membersReady) { postsEl.innerHTML = ''; return; }
-  const sb = supabase();
-  let query = sb
-    .from('posts')
-    .select('id, body, neighborhood, banner_style, created_at, author_id, profiles!posts_author_id_fkey(first_name,last_name)')
-    .eq('visibility', 'public')
-    .order('created_at', { ascending: false })
-    .limit(mode === 'own' ? 50 : 20);
-  if (mode === 'visitor') query = query.eq('author_id', targetAuthorId);
-  else if (currentHood !== 'all') query = query.eq('neighborhood', currentHood);
-  const { data: posts, error } = await query;
-  if (error) { postsEl.innerHTML = `<p class="mform-note">${esc(friendly(error.message))}</p>`; return; }
-  const ids = (posts || []).map((p: any) => p.id);
+async function attachLikeInfo(sb: any, posts: any[]) {
+  const ids = posts.map((p) => p.id);
   const counts: Record<string, number> = {};
   const likedByMe = new Set<string>();
   if (ids.length) {
@@ -240,30 +320,79 @@ async function loadPosts(mode: 'own' | 'visitor', targetAuthorId: string) {
       if (myId && l.profile_id === myId) likedByMe.add(l.post_id);
     });
   }
-  let rows = (posts || []).map((p: any) => ({
+  return posts.map((p) => ({
     ...p,
     author_name: [p.profiles?.first_name, p.profiles?.last_name].filter(Boolean).join(' '),
     like_count: counts[p.id] || 0,
     liked_by_me: likedByMe.has(p.id),
   }));
-  if (mode === 'own' && searchQuery) {
+}
+
+async function loadOwnPosts() {
+  if (!membersReady || !viewingOwnId) { ownPostsEl.innerHTML = ''; return; }
+  const sb = supabase();
+  const { data: posts, error } = await sb
+    .from('posts')
+    .select('id, body, neighborhood, banner_style, created_at, author_id, visibility, profiles!posts_author_id_fkey(first_name,last_name)')
+    .eq('author_id', viewingOwnId)
+    .order('created_at', { ascending: false })
+    .limit(50);
+  if (error) { ownPostsEl.innerHTML = `<p class="mform-note">${esc(friendly(error.message))}</p>`; return; }
+  let rows = await attachLikeInfo(sb, posts || []);
+  if (!isOwnView) rows = rows.filter((p: any) => p.visibility === 'public');
+  ownPostsEl.innerHTML = rows.length
+    ? rows.map((p: any) => renderPost(p, p.author_id === myId)).join('')
+    : `<div class="pcard"><p class="mform-note">${isOwnView ? 'No posts yet. Be the first to share something.' : 'No public posts yet.'}</p></div>`;
+}
+
+async function loadFeedPosts() {
+  if (!membersReady) { feedPostsEl.innerHTML = ''; return; }
+  const sb = supabase();
+  let query = sb
+    .from('posts')
+    .select('id, body, neighborhood, banner_style, created_at, author_id, profiles!posts_author_id_fkey(first_name,last_name)')
+    .eq('visibility', 'public')
+    .order('created_at', { ascending: false })
+    .limit(50);
+  if (currentHood !== 'all') query = query.eq('neighborhood', currentHood);
+  const { data: posts, error } = await query;
+  if (error) { feedPostsEl.innerHTML = `<p class="mform-note">${esc(friendly(error.message))}</p>`; return; }
+  let rows = await attachLikeInfo(sb, posts || []);
+  if (searchQuery) {
     const q = searchQuery.toLowerCase();
     rows = rows.filter((p: any) => p.body.toLowerCase().includes(q) || p.author_name.toLowerCase().includes(q));
   }
-  postsEl.innerHTML = rows.length
+  feedPostsEl.innerHTML = rows.length
     ? rows.map((p: any) => renderPost(p, p.author_id === myId)).join('')
-    : `<div class="pcard"><p class="mform-note">${mode === 'own' ? 'No public posts yet. Be the first to share something.' : 'No public posts yet.'}</p></div>`;
+    : '<div class="pcard"><p class="mform-note">No public posts yet. Be the first to share something.</p></div>';
 
-  if (mode === 'own') {
-    const trending = rows.filter((p: any) => p.like_count >= 10).slice(0, 6);
-    trendingCard.hidden = trending.length === 0;
-    trendingScroll.innerHTML = trending.map((p: any) => `
-      <div class="pcard trending-item">
-        <strong>${esc(p.author_name || 'Member')}</strong>
-        <p>${esc(p.body.slice(0, 120))}${p.body.length > 120 ? '…' : ''}</p>
-        <span class="mform-note">♥ ${p.like_count} likes</span>
-      </div>`).join('');
-  }
+  const trending = rows.filter((p: any) => p.like_count >= 10).slice(0, 6);
+  trendingCard.hidden = trending.length === 0;
+  trendingScroll.innerHTML = trending.map((p: any) => `
+    <div class="pcard trending-item">
+      <strong>${esc(p.author_name || 'Member')}</strong>
+      <p>${esc(p.body.slice(0, 120))}${p.body.length > 120 ? '…' : ''}</p>
+      <span class="mform-note">♥ ${p.like_count} likes</span>
+    </div>`).join('');
+}
+
+async function loadLikes() {
+  if (!membersReady || !myId) { likesPostsEl.innerHTML = ''; return; }
+  const sb = supabase();
+  const { data: likeRows, error } = await sb.from('post_likes').select('post_id').eq('profile_id', myId).order('created_at', { ascending: false });
+  if (error) { likesPostsEl.innerHTML = `<p class="mform-note">${esc(friendly(error.message))}</p>`; return; }
+  const ids = (likeRows || []).map((l: any) => l.post_id);
+  if (!ids.length) { likesPostsEl.innerHTML = '<p class="mform-note">Like a post to find it here.</p>'; return; }
+  const { data: posts, error: perr } = await sb
+    .from('posts')
+    .select('id, body, neighborhood, banner_style, created_at, author_id, visibility, profiles!posts_author_id_fkey(first_name,last_name)')
+    .in('id', ids)
+    .eq('visibility', 'public');
+  if (perr) { likesPostsEl.innerHTML = `<p class="mform-note">${esc(friendly(perr.message))}</p>`; return; }
+  const rows = await attachLikeInfo(sb, posts || []);
+  likesPostsEl.innerHTML = rows.length
+    ? rows.map((p: any) => renderPost(p, p.author_id === myId)).join('')
+    : '<p class="mform-note">Like a post to find it here.</p>';
 }
 
 document.addEventListener('click', async (e) => {
@@ -275,24 +404,19 @@ document.addEventListener('click', async (e) => {
     const sb = supabase();
     if (likeBtn.dataset.liked === '1') await sb.from('post_likes').delete().eq('post_id', postId).eq('profile_id', user.id);
     else await sb.from('post_likes').insert({ post_id: postId, profile_id: user.id });
-    reloadCurrent();
+    loadOwnPosts(); if (feedLoaded) loadFeedPosts(); if (likesLoaded) loadLikes();
     return;
   }
   const delBtn = (e.target as HTMLElement).closest('[data-delete-post]') as HTMLElement | null;
   if (delBtn) {
     if (!confirm('Delete this post?')) return;
     await supabase().from('posts').delete().eq('id', delBtn.dataset.deletePost);
-    reloadCurrent();
+    loadOwnPosts(); if (feedLoaded) loadFeedPosts(); if (likesLoaded) loadLikes();
   }
 });
 
-searchInput?.addEventListener('input', () => { searchQuery = searchInput.value.trim(); reloadCurrent(); });
-hoodSelect?.addEventListener('change', () => { currentHood = hoodSelect.value; reloadCurrent(); });
-
-function reloadCurrent() {
-  if (viewingOwnId && myId === viewingOwnId) loadPosts('own', viewingOwnId);
-  else if (viewingOwnId) loadPosts('visitor', viewingOwnId);
-}
+searchInput?.addEventListener('input', () => { searchQuery = searchInput.value.trim(); loadFeedPosts(); });
+hoodSelect?.addEventListener('change', () => { currentHood = hoodSelect.value; loadFeedPosts(); });
 
 postForm?.addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -315,38 +439,52 @@ postForm?.addEventListener('submit', async (e) => {
   selectedBanner = '';
   document.getElementById('post-banner-preview')!.innerHTML = '';
   document.querySelectorAll('.banner-swatch').forEach((b) => b.classList.remove('selected'));
-  reloadCurrent();
+  loadOwnPosts(); if (feedLoaded) loadFeedPosts();
 });
 
 function renderProfile(p: any, isOwn: boolean) {
+  isOwnView = isOwn;
+  viewingOwnId = p.id;
   const name = p.display_name || [p.first_name, p.last_name].filter(Boolean).join(' ') || 'Member';
   const initials = name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase() || '?';
   document.querySelector('[data-p-name]')!.textContent = name;
   document.querySelector('[data-p-initials]')!.textContent = initials;
+
+  const bioLineEl = document.querySelector('[data-p-bioline]') as HTMLElement;
+  bioLineEl.hidden = !p.bio; if (p.bio) bioLineEl.textContent = p.bio;
   const metaEl = document.querySelector('[data-p-meta]') as HTMLElement;
-  metaEl.textContent = p.area_of_interest ? p.area_of_interest : '';
-  metaEl.hidden = !p.area_of_interest;
+  metaEl.hidden = !p.area_of_interest; if (p.area_of_interest) metaEl.textContent = p.area_of_interest;
 
-  const bioCard = document.querySelector('[data-p-bio-card]') as HTMLElement;
-  if (p.bio) { bioCard.hidden = false; document.querySelector('[data-p-bio]')!.textContent = p.bio; }
-  else bioCard.hidden = true;
+  document.querySelectorAll<HTMLElement>('[data-p-own-only]').forEach((el) => { el.hidden = !isOwn; });
 
-  const interestsCard = document.querySelector('[data-p-interests-card]') as HTMLElement;
+  const introBio = document.querySelector('[data-p-intro-bio]') as HTMLElement;
+  introBio.hidden = !p.bio; if (p.bio) introBio.textContent = p.bio;
+  const introMeta = document.querySelector('[data-p-intro-meta]') as HTMLElement;
+  introMeta.hidden = !p.area_of_interest; if (p.area_of_interest) introMeta.textContent = '📍 ' + p.area_of_interest;
+
   const interests: string[] = p.interests || [];
-  if (interests.length) {
-    interestsCard.hidden = false;
-    document.querySelector('[data-p-interests]')!.innerHTML = interests.map((i) => `<span class="pchip">${esc(i)}</span>`).join('');
-  } else interestsCard.hidden = true;
+  const interestsWrap = document.querySelector('[data-p-interests-wrap]') as HTMLElement;
+  interestsWrap.hidden = interests.length === 0;
+  if (interests.length) document.querySelector('[data-p-interests]')!.innerHTML = interests.map((i) => `<span class="pchip">${esc(i)}</span>`).join('');
 
-  (document.querySelector('[data-p-own-note]') as HTMLElement).hidden = !isOwn;
-  (document.querySelector('[data-p-composer]') as HTMLElement).hidden = !isOwn;
-  (document.querySelector('[data-p-search]') as HTMLElement).hidden = !isOwn;
-  postsTitleEl.textContent = isOwn ? 'Community' : 'Posts';
-  viewingOwnId = p.id;
+  const hoods: string[] = p.followed_neighborhoods || [];
+  const hoodsWrap = document.querySelector('[data-p-hoods-wrap]') as HTMLElement;
+  hoodsWrap.hidden = hoods.length === 0;
+  if (hoods.length) document.querySelector('[data-p-hoods]')!.innerHTML = hoods.map((h) => `<span class="pchip">${esc(h)}</span>`).join('');
+
+  (document.querySelector('[data-p-intro-empty]') as HTMLElement).hidden = Boolean(p.bio || p.area_of_interest || interests.length || hoods.length);
+
+  (document.querySelector('[data-p-about-title]') as HTMLElement).textContent = isOwn ? 'About you' : `About ${name.split(' ')[0]}`;
+  (document.querySelector('[data-p-about-bio]') as HTMLElement).textContent = p.bio || 'Not shared.';
+  (document.querySelector('[data-p-about-hood]') as HTMLElement).textContent = p.area_of_interest || 'Not shared.';
+  (document.querySelector('[data-p-about-interests]') as HTMLElement).textContent = interests.length ? interests.join(' · ') : 'Not shared.';
+  (document.querySelector('[data-p-about-followed]') as HTMLElement).textContent = hoods.length ? hoods.join(' · ') : 'Not shared.';
 
   show(profileEl);
-  if (isOwn) loadPosts('own', p.id);
-  else loadPosts('visitor', p.id);
+  feedLoaded = false; likesLoaded = false;
+  loadOwnPosts();
+  const activeTab = tabs.find((t) => t.getAttribute('aria-selected') === 'true' && !t.hidden) || tabs.find((t) => !t.hidden);
+  activateTab(activeTab?.dataset.tab || 'posts');
 }
 
 async function init() {
@@ -356,26 +494,30 @@ async function init() {
   myId = user?.id ?? null;
   const hashUsername = decodeURIComponent(location.hash.replace(/^#/, '')).trim().toLowerCase();
 
+  const OWN_FIELDS = 'id, first_name, last_name, username, display_name, bio, interests, area_of_interest';
+
   if (hashUsername) {
     const { data, error } = await sb.from('public_profiles').select('*').eq('username', hashUsername).maybeSingle();
     if (error || !data) { show(notFoundEl); return; }
     if (myId && myId === data.id) {
-      const own = await sb.from('profiles').select('id, first_name, last_name, username, display_name, bio, interests, area_of_interest').eq('id', myId).maybeSingle();
-      if (!own.error && own.data) { renderProfile(own.data, true); return; }
+      const own = await sb.from('profiles').select(OWN_FIELDS).eq('id', myId).maybeSingle();
+      if (!own.error && own.data) {
+        const { data: hoods } = await sb.from('followed_neighborhoods').select('neighborhood').eq('profile_id', myId);
+        renderProfile({ ...own.data, followed_neighborhoods: (hoods || []).map((h: any) => h.neighborhood) }, true);
+        return;
+      }
     }
-    renderProfile(data, false);
+    const { data: pubHoods } = await sb.from('followed_neighborhoods').select('neighborhood').eq('profile_id', data.id).eq('is_public', true);
+    renderProfile({ ...data, followed_neighborhoods: (pubHoods || []).map((h: any) => h.neighborhood) }, false);
     return;
   }
 
   if (!user) { show(notFoundEl); return; }
-  const { data, error } = await sb
-    .from('profiles')
-    .select('id, first_name, last_name, username, display_name, bio, interests, area_of_interest')
-    .eq('id', user.id)
-    .maybeSingle();
+  const { data, error } = await sb.from('profiles').select(OWN_FIELDS).eq('id', user.id).maybeSingle();
   if (error || !data) { show(notFoundEl); return; }
   if (!data.username) { show(noUsernameEl); return; }
-  renderProfile(data, true);
+  const { data: hoods } = await sb.from('followed_neighborhoods').select('neighborhood').eq('profile_id', user.id);
+  renderProfile({ ...data, followed_neighborhoods: (hoods || []).map((h: any) => h.neighborhood) }, true);
 }
 
 init();
@@ -388,17 +530,35 @@ init();
 .pshell [data-not-ready] p, .pshell [data-no-username] p, .pshell [data-not-found] p { color: #aab0bb; }
 .pback { margin: 0 0 24px; }
 .pback a { color: var(--gold); font-weight: 600; text-decoration: none; }
-.pshell h1 { font-size: clamp(1.8rem, 3vw, 2.4rem); margin: 0 0 10px; }
-.phero { display: flex; align-items: center; gap: 20px; margin-bottom: 28px; }
-.pavatar { width: 72px; height: 72px; border-radius: 50%; background: #3a4a3a; color: var(--gold); display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-size: 1.6rem; flex-shrink: 0; }
-.pmeta { color: #8f96a3; margin: 4px 0 0; }
-.pgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+.pshell h1 { font-size: clamp(1.8rem, 3vw, 2.4rem); margin: 0 0 6px; }
+
+.pwallpaper { height: 180px; border-radius: 14px; margin-bottom: -48px; background: linear-gradient(135deg,#2b4530,#1D1A6D); position: relative; }
+.pwallpaper-edit { position: absolute; right: 16px; bottom: 16px; background: rgba(23,31,43,.85); border: 1px solid #2c3647; color: #fff; border-radius: 8px; padding: 8px 14px; font-size: 13px; text-decoration: none; font-weight: 600; }
+
+.pheader { text-align: center; padding: 0 16px 24px; }
+.pavatar-lg { width: 96px; height: 96px; border-radius: 50%; background: #3a4a3a; color: var(--gold); display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-size: 2rem; margin: 0 auto 16px; border: 4px solid #171f2b; }
+.pbioline { color: #cfd3da; max-width: 50ch; margin: 0 auto 6px; }
+.pmeta { color: #8f96a3; margin: 0 0 14px; }
+.pheader .btn { margin: 4px 0 10px; }
+.pview-note { font-size: 13px; color: #8f96a3; margin: 0; }
+
+.ptabs { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; border-bottom: 1px solid #2c3647; margin-bottom: 28px; padding-bottom: 2px; }
+.ptab { background: transparent; border: none; border-bottom: 2px solid transparent; color: #8f96a3; padding: 10px 14px; font-size: 14.5px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 4px; }
+.ptab[aria-selected="true"] { color: #fff; border-bottom-color: var(--gold); }
+.plock { font-size: 11px; opacity: .8; }
+
+.pgrid-main { display: grid; grid-template-columns: 300px 1fr; gap: 24px; align-items: start; }
+.psidebar { display: flex; flex-direction: column; }
+.pprivacy-note { padding: 0 4px; }
+
 .pcard { background: #1d2635; border: 1px solid #2c3647; border-radius: 10px; padding: 24px 28px; margin-bottom: 16px; color: #e8e9ec; }
-.pcard h2 { color: #fff; font-size: 1.1rem; margin: 0 0 10px; }
+.pcard h2 { color: #fff; font-size: 1.1rem; margin: 0 0 10px; display: flex; align-items: center; gap: 8px; }
+.pbadge { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: #8f96a3; background: #161d29; border-radius: 999px; padding: 3px 9px; }
 .pcard p { color: #cfd3da; }
+.psubhead { font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: #8f96a3; margin: 16px 0 6px; }
+.psubhead:first-of-type { margin-top: 0; }
 .pchips { display: flex; flex-wrap: wrap; gap: 8px; }
 .pchip { background: #161d29; border: 1px solid #2c3647; border-radius: 999px; padding: 6px 14px; font-size: 13px; color: #cfd3da; }
-.psection-title { color: #fff; font-size: 1.3rem; margin: 8px 0 16px; }
 .plink { color: var(--gold); font-weight: 600; text-decoration: none; }
 .mform-note { font-size: 13px; color: #8f96a3; margin: 6px 0 0; }
 
@@ -418,7 +578,7 @@ init();
 .join-attachment { margin-top: 10px; border-radius: 8px; height: 60px; position: relative; }
 .join-attachment-remove { position: absolute; top: 4px; right: 4px; width: 22px; height: 22px; border-radius: 50%; background: rgba(0,0,0,.5); color: #fff; border: 0; cursor: pointer; }
 .vis-select { background: #161d29; border: 1px solid #2c3647; border-radius: 8px; padding: 9px 12px; color: #fff; font-size: 13.5px; }
-.search-bar { display: flex; gap: 10px; flex-wrap: wrap; }
+.search-bar { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
 .search-bar input, .search-bar select { background: #161d29; border: 1px solid #2c3647; border-radius: 999px; padding: 10px 16px; color: #fff; font-size: 14px; }
 .search-bar input { flex: 1; min-width: 200px; }
 .trending-scroll { display: flex; gap: 12px; overflow-x: auto; }
@@ -433,9 +593,9 @@ init();
 .like-btn { background: none; border: 0; color: #cfd3da; cursor: pointer; font-size: 14px; font-weight: 600; }
 .like-btn[data-liked="1"] { color: var(--gold); }
 .feed-trending-badge { background: var(--gold); color: #171f2b; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px; }
-[data-p-posts] > .pcard { margin-bottom: 20px; }
+[data-own-posts] > .pcard, [data-feed-posts] > .pcard, [data-likes-posts] > .pcard { margin-bottom: 20px; }
 
-@media (max-width: 720px) {
-  .pgrid { grid-template-columns: 1fr; }
+@media (max-width: 860px) {
+  .pgrid-main { grid-template-columns: 1fr; }
 }
 </style>
