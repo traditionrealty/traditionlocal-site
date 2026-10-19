@@ -26,7 +26,7 @@ const wkEvents = [
   ...areaEvents.map((e) => ({ id: e.id, cat: e.cat, date: e.date, end: e.end || '', title: e.title, venue: e.venue, href: e.url || '', feat: !!e.feat })),
 ].filter((e) => e.date && (e.end || e.date) >= wkFrom && e.date <= wkTo);
 const wkBiz = (businesses as any[])
-  .filter((b) => (b.categories || []).some((c: string) => BIZ_CATS_ALL.includes(c)) && !CHAINS.some((n) => b.name.indexOf(n) > -1))
+  .filter((b) => (b.categories || []).some((c: string) => BIZ_CATS_ALL.includes(c)) && !CHAINS.some((n) => b.name.indexOf(n) > -1) && !b.closed && !b.temporarilyClosed && !b.renovating)
   .map((b) => ({ slug: b.slug, name: b.name, area: b.neighborhood || b.city || '', cats: (b.categories || []).filter((c: string) => BIZ_CATS_ALL.includes(c)), href: url('/eat/' + b.slug), pick: !!b.saraPick, fav: b.rating === 'favorite' }));
 const wkIdeas = (ideas as any[])
   .filter((i) => i.kind === 'weekend')
