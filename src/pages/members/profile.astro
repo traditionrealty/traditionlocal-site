@@ -1,14 +1,16 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { url } from '../../lib/util';
+import areas from '../../data/areas.json';
+const areaNames = [...new Set((areas as any[]).map((a) => a.name))].sort();
 ---
-<Base title="Profile" description="Member profiles on Tradition Local.">
+<Base title="Profile" description="Member profiles and community posts on Tradition Local.">
 <section class="pshell">
   <div class="wrap">
-    <p class="pback"><a href={url('/members/community')}>&larr; Community</a></p>
+    <p class="pback"><a href={url('/members/account')}>&larr; My Account</a></p>
 
     <div data-loading>
-      <p class="mform-note">Loading profile…</p>
+      <p class="mform-note">Loading profile&hellip;</p>
     </div>
 
     <div data-not-ready hidden>
@@ -47,12 +49,64 @@ import { url } from '../../lib/util';
       </div>
 
       <div class="pcard" data-p-own-note hidden>
-        <p class="mform-note">This is your own public profile. <a class="plink" href={url('/members/account')}>Edit it in Settings &rarr;</a></p>
+        <p class="mform-note">This is your own profile. <a class="plink" href={url('/members/account')}>Edit it in Settings &rarr;</a></p>
       </div>
 
-      <h2 class="psection-title">Posts</h2>
+      <div class="pcard" data-p-composer hidden>
+        <h2>Join the conversation</h2>
+        <form id="post-form" novalidate>
+          <p class="msg" data-msg role="alert" tabindex="-1" hidden></p>
+          <div class="mform-field">
+            <textarea id="post-body" name="post-body" rows="2" placeholder="What have you discovered lately?" required></textarea>
+          </div>
+          <div id="post-banner-preview"></div>
+          <div class="composer-row">
+            <div class="join-pin-wrap">
+              <button type="button" class="join-add-btn" data-pin-toggle aria-label="Add area">📍</button>
+              <div class="join-pin-menu" data-pin-menu>
+                <button type="button" data-area="">No area tag</button>
+                {areaNames.map((n: string) => <button type="button" data-area={n}>{n}</button>)}
+              </div>
+            </div>
+            <select class="vis-select" id="post-visibility" name="post-visibility">
+              <option value="public">🌐 Public post</option>
+              <option value="only_me">🔒 Only me</option>
+            </select>
+            <div class="join-add-wrap">
+              <button type="button" class="join-add-btn" data-banner-toggle aria-label="Add a pre-made banner">+</button>
+              <div class="join-add-menu" data-banner-menu>
+                <div class="opt-label">Pre-made banner</div>
+                <div class="banner-swatches">
+                  <button type="button" class="banner-swatch" data-banner="green" style="background:linear-gradient(135deg,#3a5a40,#2b4530);" aria-label="Green banner"></button>
+                  <button type="button" class="banner-swatch" data-banner="navy" style="background:linear-gradient(135deg,#1D1A6D,#35465c);" aria-label="Navy banner"></button>
+                  <button type="button" class="banner-swatch" data-banner="brown" style="background:linear-gradient(135deg,#9d693f,#6b4328);" aria-label="Brown banner"></button>
+                  <button type="button" class="banner-swatch" data-banner="gold" style="background:linear-gradient(135deg,#E7BC52,#c99a2f);" aria-label="Gold banner"></button>
+                </div>
+              </div>
+            </div>
+            <button class="btn gold" type="submit">Post</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="pcard" data-p-search hidden>
+        <div class="search-bar">
+          <input type="search" id="feed-search" placeholder="Search posts or neighbors" />
+          <select id="feed-hood-select">
+            <option value="all">All neighborhoods</option>
+            {areaNames.map((n: string) => <option value={n}>{n}</option>)}
+          </select>
+        </div>
+      </div>
+
+      <div class="pcard" data-trending-card hidden>
+        <h2>🔥 Trending</h2>
+        <div class="trending-scroll" data-trending-scroll></div>
+      </div>
+
+      <h2 class="psection-title" data-p-posts-title>Posts</h2>
       <div data-p-posts>
-        <p class="mform-note">Loading…</p>
+        <p class="mform-note">Loading&hellip;</p>
       </div>
     </div>
   </div>
@@ -60,7 +114,7 @@ import { url } from '../../lib/util';
 </Base>
 
 <script>
-import { membersReady, supabase, currentUser } from '../../lib/members';
+import { membersReady, supabase, currentUser, say, busy, field, friendly } from '../../lib/members';
 
 const loadingEl = document.querySelector('[data-loading]') as HTMLElement;
 const notReadyEl = document.querySelector('[data-not-ready]') as HTMLElement;
@@ -75,6 +129,194 @@ function show(el: HTMLElement) {
 function esc(s: string) {
   return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
+
+const BANNER_GRADIENTS: Record<string, string> = {
+  green: 'linear-gradient(135deg,#3a5a40,#2b4530)',
+  navy: 'linear-gradient(135deg,#1D1A6D,#35465c)',
+  brown: 'linear-gradient(135deg,#9d693f,#6b4328)',
+  gold: 'linear-gradient(135deg,#E7BC52,#c99a2f)',
+};
+
+let myId: string | null = null;
+let viewingOwnId: string | null = null;
+let selectedArea = '';
+let selectedBanner = '';
+let currentHood = 'all';
+let searchQuery = '';
+
+const postForm = document.getElementById('post-form') as HTMLFormElement;
+const bodyInput = document.getElementById('post-body') as HTMLTextAreaElement;
+const visSelect = document.getElementById('post-visibility') as HTMLSelectElement;
+const searchInput = document.getElementById('feed-search') as HTMLInputElement;
+const hoodSelect = document.getElementById('feed-hood-select') as HTMLSelectElement;
+const postsEl = document.querySelector('[data-p-posts]') as HTMLElement;
+const postsTitleEl = document.querySelector('[data-p-posts-title]') as HTMLElement;
+const trendingCard = document.querySelector('[data-trending-card]') as HTMLElement;
+const trendingScroll = document.querySelector('[data-trending-scroll]') as HTMLElement;
+
+document.querySelector('[data-pin-toggle]')?.addEventListener('click', () => {
+  document.querySelector('[data-banner-menu]')?.classList.remove('open');
+  document.querySelector('[data-pin-menu]')?.classList.toggle('open');
+});
+document.querySelector('[data-banner-toggle]')?.addEventListener('click', () => {
+  document.querySelector('[data-pin-menu]')?.classList.remove('open');
+  document.querySelector('[data-banner-menu]')?.classList.toggle('open');
+});
+document.addEventListener('click', (e) => {
+  const t = e.target as HTMLElement;
+  if (!t.closest('.join-pin-wrap')) document.querySelector('[data-pin-menu]')?.classList.remove('open');
+  if (!t.closest('.join-add-wrap')) document.querySelector('[data-banner-menu]')?.classList.remove('open');
+});
+document.querySelectorAll('[data-pin-menu] button').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    selectedArea = (btn as HTMLElement).dataset.area || '';
+    document.querySelector('[data-pin-menu]')?.classList.remove('open');
+  });
+});
+document.querySelectorAll('.banner-swatch').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    const key = (btn as HTMLElement).dataset.banner || '';
+    selectedBanner = selectedBanner === key ? '' : key;
+    document.querySelectorAll('.banner-swatch').forEach((b) => b.classList.toggle('selected', b === btn && selectedBanner !== ''));
+    const preview = document.getElementById('post-banner-preview')!;
+    preview.innerHTML = selectedBanner
+      ? `<div class="join-attachment" style="background:${BANNER_GRADIENTS[selectedBanner]};"><button type="button" class="join-attachment-remove" data-clear-banner>×</button></div>`
+      : '';
+    document.querySelector('[data-banner-menu]')?.classList.remove('open');
+  });
+});
+document.addEventListener('click', (e) => {
+  if ((e.target as HTMLElement).closest('[data-clear-banner]')) {
+    selectedBanner = '';
+    document.querySelectorAll('.banner-swatch').forEach((b) => b.classList.remove('selected'));
+    document.getElementById('post-banner-preview')!.innerHTML = '';
+  }
+});
+
+function renderPost(p: any, isOwnPost: boolean) {
+  const name = p.author_name || 'Member';
+  const initials = name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase() || '?';
+  const when = new Date(p.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  const trending = (p.like_count || 0) >= 10;
+  const banner = p.banner_style && BANNER_GRADIENTS[p.banner_style]
+    ? `<div class="post-card-visual" style="background:${BANNER_GRADIENTS[p.banner_style]};"></div>` : '';
+  return `<div class="pcard post-card" data-post-id="${p.id}">
+    <div class="post-head">
+      <div class="post-head-id"><span class="post-avatar">${esc(initials)}</span>
+        <div><strong>${esc(name)}</strong><div class="mform-note">${p.neighborhood ? esc(p.neighborhood) + ' · ' : ''}${when}</div></div>
+      </div>
+      ${isOwnPost ? `<button type="button" class="post-menu-btn" data-delete-post="${p.id}" aria-label="Delete post">🗑</button>` : ''}
+    </div>
+    <p>${esc(p.body)}</p>
+    ${banner}
+    <div class="post-actions">
+      <button type="button" class="like-btn" data-like-post="${p.id}" data-liked="${p.liked_by_me ? '1' : '0'}">${p.liked_by_me ? '♥ Liked' : '♡ Like'}</button>
+      <span class="mform-note">${p.like_count || 0} ${(p.like_count || 0) === 1 ? 'like' : 'likes'}</span>
+      ${trending ? '<span class="feed-trending-badge">🔥 Trending</span>' : ''}
+    </div>
+  </div>`;
+}
+
+async function loadPosts(mode: 'own' | 'visitor', targetAuthorId: string) {
+  if (!membersReady) { postsEl.innerHTML = ''; return; }
+  const sb = supabase();
+  let query = sb
+    .from('posts')
+    .select('id, body, neighborhood, banner_style, created_at, author_id, profiles!posts_author_id_fkey(first_name,last_name)')
+    .eq('visibility', 'public')
+    .order('created_at', { ascending: false })
+    .limit(mode === 'own' ? 50 : 20);
+  if (mode === 'visitor') query = query.eq('author_id', targetAuthorId);
+  else if (currentHood !== 'all') query = query.eq('neighborhood', currentHood);
+  const { data: posts, error } = await query;
+  if (error) { postsEl.innerHTML = `<p class="mform-note">${esc(friendly(error.message))}</p>`; return; }
+  const ids = (posts || []).map((p: any) => p.id);
+  const counts: Record<string, number> = {};
+  const likedByMe = new Set<string>();
+  if (ids.length) {
+    const { data: likes } = await sb.from('post_likes').select('post_id, profile_id').in('post_id', ids);
+    (likes || []).forEach((l: any) => {
+      counts[l.post_id] = (counts[l.post_id] || 0) + 1;
+      if (myId && l.profile_id === myId) likedByMe.add(l.post_id);
+    });
+  }
+  let rows = (posts || []).map((p: any) => ({
+    ...p,
+    author_name: [p.profiles?.first_name, p.profiles?.last_name].filter(Boolean).join(' '),
+    like_count: counts[p.id] || 0,
+    liked_by_me: likedByMe.has(p.id),
+  }));
+  if (mode === 'own' && searchQuery) {
+    const q = searchQuery.toLowerCase();
+    rows = rows.filter((p: any) => p.body.toLowerCase().includes(q) || p.author_name.toLowerCase().includes(q));
+  }
+  postsEl.innerHTML = rows.length
+    ? rows.map((p: any) => renderPost(p, p.author_id === myId)).join('')
+    : `<div class="pcard"><p class="mform-note">${mode === 'own' ? 'No public posts yet. Be the first to share something.' : 'No public posts yet.'}</p></div>`;
+
+  if (mode === 'own') {
+    const trending = rows.filter((p: any) => p.like_count >= 10).slice(0, 6);
+    trendingCard.hidden = trending.length === 0;
+    trendingScroll.innerHTML = trending.map((p: any) => `
+      <div class="pcard trending-item">
+        <strong>${esc(p.author_name || 'Member')}</strong>
+        <p>${esc(p.body.slice(0, 120))}${p.body.length > 120 ? '…' : ''}</p>
+        <span class="mform-note">♥ ${p.like_count} likes</span>
+      </div>`).join('');
+  }
+}
+
+document.addEventListener('click', async (e) => {
+  const likeBtn = (e.target as HTMLElement).closest('[data-like-post]') as HTMLElement | null;
+  if (likeBtn) {
+    const user = await currentUser();
+    if (!user) return;
+    const postId = likeBtn.dataset.likePost!;
+    const sb = supabase();
+    if (likeBtn.dataset.liked === '1') await sb.from('post_likes').delete().eq('post_id', postId).eq('profile_id', user.id);
+    else await sb.from('post_likes').insert({ post_id: postId, profile_id: user.id });
+    reloadCurrent();
+    return;
+  }
+  const delBtn = (e.target as HTMLElement).closest('[data-delete-post]') as HTMLElement | null;
+  if (delBtn) {
+    if (!confirm('Delete this post?')) return;
+    await supabase().from('posts').delete().eq('id', delBtn.dataset.deletePost);
+    reloadCurrent();
+  }
+});
+
+searchInput?.addEventListener('input', () => { searchQuery = searchInput.value.trim(); reloadCurrent(); });
+hoodSelect?.addEventListener('change', () => { currentHood = hoodSelect.value; reloadCurrent(); });
+
+function reloadCurrent() {
+  if (viewingOwnId && myId === viewingOwnId) loadPosts('own', viewingOwnId);
+  else if (viewingOwnId) loadPosts('visitor', viewingOwnId);
+}
+
+postForm?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  say(postForm, '');
+  const user = await currentUser();
+  if (!user) return say(postForm, 'Please sign in to post.');
+  const body = bodyInput.value.trim();
+  if (!body) return;
+  const row = {
+    author_id: user.id,
+    body,
+    visibility: visSelect.value,
+    neighborhood: selectedArea || null,
+    banner_style: selectedBanner || null,
+  };
+  const { error } = await busy(postForm, 'Posting…', () => supabase().from('posts').insert(row));
+  if (error) return say(postForm, friendly(error.message));
+  bodyInput.value = '';
+  selectedArea = '';
+  selectedBanner = '';
+  document.getElementById('post-banner-preview')!.innerHTML = '';
+  document.querySelectorAll('.banner-swatch').forEach((b) => b.classList.remove('selected'));
+  reloadCurrent();
+});
 
 function renderProfile(p: any, isOwn: boolean) {
   const name = p.display_name || [p.first_name, p.last_name].filter(Boolean).join(' ') || 'Member';
@@ -97,45 +339,34 @@ function renderProfile(p: any, isOwn: boolean) {
   } else interestsCard.hidden = true;
 
   (document.querySelector('[data-p-own-note]') as HTMLElement).hidden = !isOwn;
-  show(profileEl);
-  loadPosts(p.id);
-}
+  (document.querySelector('[data-p-composer]') as HTMLElement).hidden = !isOwn;
+  (document.querySelector('[data-p-search]') as HTMLElement).hidden = !isOwn;
+  postsTitleEl.textContent = isOwn ? 'Community' : 'Posts';
+  viewingOwnId = p.id;
 
-async function loadPosts(authorId: string) {
-  const postsEl = document.querySelector('[data-p-posts]') as HTMLElement;
-  const sb = supabase();
-  const { data, error } = await sb
-    .from('posts')
-    .select('id, body, neighborhood, banner_style, created_at')
-    .eq('author_id', authorId)
-    .eq('visibility', 'public')
-    .order('created_at', { ascending: false })
-    .limit(20);
-  if (error) { postsEl.innerHTML = `<p class="mform-note">${esc(error.message)}</p>`; return; }
-  if (!data || !data.length) { postsEl.innerHTML = '<p class="mform-note">No public posts yet.</p>'; return; }
-  postsEl.innerHTML = data.map((post: any) => {
-    const when = new Date(post.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    return `<div class="pcard">
-      <p class="mform-note">${post.neighborhood ? esc(post.neighborhood) + ' · ' : ''}${when}</p>
-      <p>${esc(post.body)}</p>
-    </div>`;
-  }).join('');
+  show(profileEl);
+  if (isOwn) loadPosts('own', p.id);
+  else loadPosts('visitor', p.id);
 }
 
 async function init() {
   if (!membersReady) { show(notReadyEl); return; }
   const sb = supabase();
+  const user = await currentUser();
+  myId = user?.id ?? null;
   const hashUsername = decodeURIComponent(location.hash.replace(/^#/, '')).trim().toLowerCase();
 
   if (hashUsername) {
     const { data, error } = await sb.from('public_profiles').select('*').eq('username', hashUsername).maybeSingle();
     if (error || !data) { show(notFoundEl); return; }
-    const user = await currentUser();
-    renderProfile(data, Boolean(user && user.id === data.id));
+    if (myId && myId === data.id) {
+      const own = await sb.from('profiles').select('id, first_name, last_name, username, display_name, bio, interests, area_of_interest').eq('id', myId).maybeSingle();
+      if (!own.error && own.data) { renderProfile(own.data, true); return; }
+    }
+    renderProfile(data, false);
     return;
   }
 
-  const user = await currentUser();
   if (!user) { show(notFoundEl); return; }
   const { data, error } = await sb
     .from('profiles')
@@ -170,6 +401,39 @@ init();
 .psection-title { color: #fff; font-size: 1.3rem; margin: 8px 0 16px; }
 .plink { color: var(--gold); font-weight: 600; text-decoration: none; }
 .mform-note { font-size: 13px; color: #8f96a3; margin: 6px 0 0; }
+
+.composer-row { display: flex; align-items: center; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+.composer-row .btn { margin-left: auto; }
+.join-add-wrap, .join-pin-wrap { position: relative; }
+.join-add-btn { width: 40px; height: 40px; border-radius: 50%; border: 1.5px solid #2c3647; background: #161d29; color: #e8e9ec; font-size: 18px; line-height: 1; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.join-add-btn:hover { border-color: var(--gold); }
+.join-add-menu, .join-pin-menu { display: none; position: absolute; bottom: 48px; left: 0; background: #1d2635; border: 1px solid #2c3647; border-radius: 12px; box-shadow: 0 10px 28px rgba(0,0,0,.4); padding: 10px; width: 220px; max-height: 280px; overflow-y: auto; z-index: 20; }
+.join-add-menu.open, .join-pin-menu.open { display: block; }
+.join-pin-menu button, .join-add-menu .opt-label { display: block; width: 100%; text-align: left; background: none; border: 0; padding: 8px 10px; border-radius: 6px; font-size: 13.5px; color: #e8e9ec; cursor: pointer; }
+.join-pin-menu button:hover { background: #161d29; }
+.opt-label { color: #8f96a3; font-size: 11.5px; font-weight: 700; padding: 0 0 6px !important; cursor: default !important; }
+.banner-swatches { display: flex; gap: 8px; }
+.banner-swatch { width: 40px; height: 40px; border-radius: 8px; border: 2px solid transparent; padding: 0; cursor: pointer; }
+.banner-swatch.selected { border-color: var(--gold); }
+.join-attachment { margin-top: 10px; border-radius: 8px; height: 60px; position: relative; }
+.join-attachment-remove { position: absolute; top: 4px; right: 4px; width: 22px; height: 22px; border-radius: 50%; background: rgba(0,0,0,.5); color: #fff; border: 0; cursor: pointer; }
+.vis-select { background: #161d29; border: 1px solid #2c3647; border-radius: 8px; padding: 9px 12px; color: #fff; font-size: 13.5px; }
+.search-bar { display: flex; gap: 10px; flex-wrap: wrap; }
+.search-bar input, .search-bar select { background: #161d29; border: 1px solid #2c3647; border-radius: 999px; padding: 10px 16px; color: #fff; font-size: 14px; }
+.search-bar input { flex: 1; min-width: 200px; }
+.trending-scroll { display: flex; gap: 12px; overflow-x: auto; }
+.trending-item { flex: none; width: 220px; margin-bottom: 0 !important; }
+.post-card { margin-bottom: 0; }
+.post-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.post-head-id { display: flex; align-items: center; gap: 10px; }
+.post-avatar { width: 36px; height: 36px; border-radius: 50%; background: #3a4a3a; color: var(--gold); display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-size: .9rem; flex-shrink: 0; }
+.post-menu-btn { background: none; border: 0; color: #8f96a3; cursor: pointer; font-size: 15px; }
+.post-card-visual { margin-top: 12px; border-radius: 8px; height: 70px; }
+.post-actions { display: flex; align-items: center; gap: 14px; margin-top: 12px; padding-top: 12px; border-top: 1px solid #2c3647; }
+.like-btn { background: none; border: 0; color: #cfd3da; cursor: pointer; font-size: 14px; font-weight: 600; }
+.like-btn[data-liked="1"] { color: var(--gold); }
+.feed-trending-badge { background: var(--gold); color: #171f2b; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px; }
+[data-p-posts] > .pcard { margin-bottom: 20px; }
 
 @media (max-width: 720px) {
   .pgrid { grid-template-columns: 1fr; }
