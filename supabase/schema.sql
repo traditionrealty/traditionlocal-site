@@ -139,3 +139,12 @@ create policy "Admins can read RSVPs"
   on public.rsvps for select to authenticated
   using (public.is_admin());
 grant select on public.rsvps to authenticated;
+
+-- 6. Neighborhood info requests. Anyone can submit one. A signed in member
+-- sees only their own; everyone else is read in the Supabase Table Editor.
+create table if not exists public.info_requests (id uuid primary key default gen_random_uuid(), created_at timestamptz not null default now(), member_id uuid default auth.uid() references auth.users(id) on delete set null, first_name text not null, email text not null, areas text[] not null default '{}', address text, topics text[] not null default '{}', note text, subscribe boolean not null default false, status text not null default 'new');
+alter table public.info_requests enable row level security;
+create policy "Anyone can submit an info request" on public.info_requests for insert to anon, authenticated with check (member_id is null or member_id = auth.uid());
+create policy "Members can read their own info requests" on public.info_requests for select to authenticated using (member_id = (select auth.uid()));
+grant insert on public.info_requests to anon, authenticated;
+grant select on public.info_requests to authenticated;
