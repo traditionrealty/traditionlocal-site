@@ -49,3 +49,7 @@ Make this your pick when everyone in the group wants a different kind of treat. 
 Which fits your plans? Choose milk + sugar for inventive combinations, Jeni's for flavors inspired by familiar desserts, or Van Leeuwen for a group with several different cravings.
 
 Google ratings: [milk + sugar](https://wanderlog.com/place/details/429427/milk--sugar) via Wanderlog, [Jeni's](https://reviews.birdeye.com/jenis-splendid-ice-creams-173506461739947) via Birdeye, and [Van Leeuwen](https://www.google.com/maps/search/888%20Westheimer%20Rd%20Suite%20126%2C%20Houston%2C%20TX%2077006) on Google Maps. Ratings and flavors may change.
+
+_____________________________________________________________
+
+Dillon Loren is a Houston, Texas Realtor with Tradition Realty Group at KW Memorial and the founder of Tradition Local, where he helps people buy and sell homes and settle into Houston neighborhoods with honest local guidance on food, coffee, parks, and daily life across the city.
