@@ -46,3 +46,7 @@ Prefer a morning visit? The menu also lists butter, chocolate, and almond croiss
 Planning your stop? Choose Angela’s Oven for breakfast and pastries, El Bolillo for a box to share, or Red Dessert Dive for brownies and pudding. Angela’s Oven and Red Dessert Dive list Monday closures, so plan those visits for another day.
 
 *Google rating references: Angela’s Oven, El Bolillo, and Red Dessert Dive. Ratings and selections may change.*
+
+_____________________________________________________________
+
+Dillon Loren is a Houston, Texas Realtor with Tradition Realty Group at KW Memorial and the founder of Tradition Local, where he helps people buy and sell homes and settle into Houston neighborhoods with honest local guidance on food, coffee, parks, and daily life across the city.
