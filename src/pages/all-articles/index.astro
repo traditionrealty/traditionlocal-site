@@ -10,8 +10,6 @@ import { url, img, fmtDate } from '../../lib/util';
 const dated = posts.filter((p: any) => p.date);
 const byRecent = [...dated].sort((a: any, b: any) => (a.date < b.date ? 1 : -1));
 const featured = byRecent[0];
-// Exclude the featured post so it isn't shown twice between the feature card and this list.
-const others = byRecent.slice(1, 4);
 const videos = (site.videos || []).slice(0, 4);
 
 const todayStr = new Date().toISOString().slice(0, 10);
@@ -20,10 +18,22 @@ const upcomingEvents = events
   .sort((a: any, b: any) => (a.date > b.date ? 1 : -1))
   .slice(0, 6);
 
-const RATING_LEVELS = [
-  { n: 1, label: 'Try at Least Once' }, { n: 2, label: 'Worth a Visit' }, { n: 3, label: 'Would Go Again' },
-  { n: 4, label: 'Highly Recommend' }, { n: 5, label: 'Local Favorite' }, { n: 6, label: "Sara's Pick" },
-];
+// Archive list: everyone except the featured post, most recent first.
+const archivePosts = byRecent.filter((p: any) => p !== featured);
+const ARCHIVE_PAGE = 15;
+const archiveVisible = archivePosts.slice(0, ARCHIVE_PAGE);
+const archiveOverflow = archivePosts.slice(ARCHIVE_PAGE);
+
+// Topic highlights: most recent post per topic, skipping a post already claimed by an earlier topic.
+const TOPIC_ORDER = ['announcement', 'food', 'neighborhoods', 'newsletter', 'spotlight', 'travel'];
+const claimed = new Set<string>();
+const topicHighlights = TOPIC_ORDER.map((slug: string) => {
+  const match = byRecent.find((p: any) => (p.categories || []).includes(slug) && !claimed.has(p.path));
+  if (!match) return null;
+  claimed.add(match.path);
+  const catInfo = categories.find((c: any) => c.slug === slug);
+  return { post: match, topicName: catInfo ? catInfo.name : slug };
+}).filter((x) => x !== null) as { post: any; topicName: string }[];
 
 function typeTag(p: any) {
   const c = (p.categories || [])[0];
@@ -43,15 +53,15 @@ function fmtEventDate(d: string) {
       <div class="wrap cp-hero-grid">
         <div>
           <p class="cp-eyebrow">Good finds. Local ideas. Shared experiences.</p>
-          <h1>A little more connected to where you live.</h1>
+          <h1>A little more <span class="cp-hl">connected</span> to where you live.</h1>
           <p class="cp-lede">Discover something new, share something useful, and make it local.</p>
           <div class="cp-hero-ctas">
-            <a class="cp-btn primary" href="#community">Join the conversation</a>
-            <a class="cp-btn ghost" href="#stories">Read recent stories</a>
+            <a class="cp-btn gold" href="#community">Join the conversation</a>
+            <a class="cp-btn outline" href="#stories">Read recent stories</a>
           </div>
         </div>
         <div class="cp-hero-preview" data-hero-preview hidden>
-          <p class="cp-tag">🔥 From the community</p>
+          <p class="cp-tag">From the community</p>
           <div class="cp-who"><span class="cp-avatar" data-hp-initials></span><div><strong data-hp-name></strong><span data-hp-when></span></div></div>
           <p class="cp-hp-body" data-hp-body></p>
         </div>
@@ -75,13 +85,31 @@ function fmtEventDate(d: string) {
             <h2>Community</h2>
             <p class="cp-sub">Updates, photos, and local finds from the people around you.</p>
           </div>
-          <a class="cp-btn primary" href={url('/members/community')}>+ Join the conversation</a>
+          <a class="cp-btn blue" href={url('/members/community')}>+ Join the conversation</a>
         </div>
         <div class="cp-feed" data-community-feed>
           <p class="cp-muted">Loading&hellip;</p>
         </div>
       </div>
     </section>
+
+    {topicHighlights.length > 0 && (
+      <section class="cp-topics">
+        <div class="wrap">
+          <p class="cp-eyebrow">Around the site</p>
+          <h2>The latest, by topic.</h2>
+          <div class="cp-topics-scroll">
+            {topicHighlights.map(({ post, topicName }) => (
+              <a class="cp-topic-card" href={url(post.path)}>
+                <span class="cp-topic-label">{topicName}</span>
+                <h4>{post.title}</h4>
+                <p class="cp-byline-sm">{post.author} &middot; {fmtDate(post.date)}</p>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+    )}
 
     <section class="cp-spotlight">
       <div class="wrap">
@@ -100,7 +128,7 @@ function fmtEventDate(d: string) {
     {videos.length > 0 && (
       <section class="cp-video">
         <div class="wrap">
-          <p class="cp-eyebrow">Trending Houston · With Dillon Loren</p>
+          <p class="cp-eyebrow">Trending Houston &middot; With Dillon Loren</p>
           <div class="cp-video-feature">
             <a class="cp-video-thumb" href={`https://www.youtube.com/watch?v=${videos[0]}`} target="_blank" rel="noopener">
               <img src={`https://img.youtube.com/vi/${videos[0]}/hqdefault.jpg`} alt="" loading="lazy" />
@@ -130,7 +158,7 @@ function fmtEventDate(d: string) {
               <h2>What should we take a closer look at?</h2>
               <p class="cp-desc">Suggest the next neighborhood, business, or story we should feature.</p>
             </div>
-            <a class="cp-btn ghost" href={`mailto:${config.contactEmail}?subject=Video%20topic%20suggestion`}>Suggest a video topic &rarr;</a>
+            <a class="cp-btn gold" href={`mailto:${config.contactEmail}?subject=Video%20topic%20suggestion`}>Suggest a video topic &rarr;</a>
           </div>
         </div>
       </section>
@@ -139,7 +167,7 @@ function fmtEventDate(d: string) {
     <section class="cp-newsletter">
       <div class="wrap cp-nl-row">
         <div>
-          <h2>Get it in your inbox.</h2>
+          <h2>Get it in your <span class="cp-hl">inbox</span>.</h2>
           <p>Become a local insider. Join for monthly stories, events, and what's trending near you.</p>
         </div>
         <div>
@@ -152,7 +180,7 @@ function fmtEventDate(d: string) {
               <input type="hidden" name="return" id="cp-nl-return" />
             </form>
           ) : (
-            <a class="cp-btn primary" href={`mailto:${config.contactEmail}?subject=Subscribe%20me%20to%20Tradition%20Local`}>Join the newsletter</a>
+            <a class="cp-btn gold" href={`mailto:${config.contactEmail}?subject=Subscribe%20me%20to%20Tradition%20Local`}>Join the newsletter</a>
           )}
           <p id="cp-nl-msg" role="status" class="cp-nl-msg" hidden></p>
         </div>
@@ -190,10 +218,10 @@ function fmtEventDate(d: string) {
         <label class="cp-search"><span class="sr-only">Search stories</span>
           <input type="search" id="cp-q" placeholder="Search a title or topic" />
         </label>
-        <p class="cp-muted" id="cp-count">{posts.length} stories</p>
+        <p class="cp-muted" id="cp-count">Showing {archiveVisible.length} of {archivePosts.length} stories</p>
 
         <div class="cp-row-list" id="cp-grid">
-          {others.map((p: any) => (
+          {archiveVisible.map((p: any) => (
             <article class="cp-story-row" data-cats={(p.categories || []).join('|')} data-name={(p.title + ' ' + (p.description || '')).toLowerCase()}>
               <div class="cp-main">
                 <span class="cp-tag">{typeTag(p)}</span>
@@ -206,7 +234,7 @@ function fmtEventDate(d: string) {
               </div>
             </article>
           ))}
-          {posts.filter((p: any) => p !== featured && !others.includes(p)).map((p: any) => (
+          {archiveOverflow.map((p: any) => (
             <article class="cp-story-row" data-cats={(p.categories || []).join('|')} data-name={(p.title + ' ' + (p.description || '')).toLowerCase()} hidden data-overflow>
               <div class="cp-main">
                 <span class="cp-tag">{typeTag(p)}</span>
@@ -221,7 +249,9 @@ function fmtEventDate(d: string) {
           ))}
         </div>
         <p id="cp-empty" class="cp-empty" hidden>No stories match that search. Try a different term or category.</p>
-        <button class="cp-btn ghost" id="cp-show-more" type="button">Show all {posts.length} stories</button>
+        {archiveOverflow.length > 0 && (
+          <button class="cp-btn outline" id="cp-show-more" type="button">Show {archiveOverflow.length} more stories</button>
+        )}
 
         <div class="cp-review-link-row">
           <p>Every review carries one of Sara's six personal rating levels, from a first try to a true favorite.</p>
@@ -265,7 +295,8 @@ function fmtEventDate(d: string) {
   const rows = [...document.querySelectorAll<HTMLElement>('.cp-story-row')];
   const count = document.getElementById('cp-count')!;
   const empty = document.getElementById('cp-empty') as HTMLElement;
-  const showMoreBtn = document.getElementById('cp-show-more') as HTMLButtonElement;
+  const showMoreBtn = document.getElementById('cp-show-more') as HTMLButtonElement | null;
+  const totalStories = rows.length;
   let cat = '';
   let expanded = false;
 
@@ -278,14 +309,15 @@ function fmtEventDate(d: string) {
       const okCat = !cat || (r.dataset.cats || '').split('|').includes(cat);
       const okTerm = !term || (r.dataset.name || '').includes(term);
       const ok = okCat && okTerm;
-      // Overflow rows only ever show while actively filtering or after "show more"; otherwise collapsed.
       const visible = ok && (filtering || expanded || !isOverflow);
       r.hidden = !visible;
       if (visible) n++;
     });
-    count.textContent = `${n} ${n === 1 ? 'story' : 'stories'}`;
+    count.textContent = filtering || expanded
+      ? `${n} ${n === 1 ? 'story' : 'stories'}`
+      : `Showing ${n} of ${totalStories} stories`;
     empty.hidden = n > 0;
-    showMoreBtn.hidden = filtering || expanded;
+    if (showMoreBtn) showMoreBtn.hidden = filtering || expanded;
   }
   chips.forEach((chip) => chip.addEventListener('click', () => {
     cat = chip.dataset.cat || '';
@@ -293,7 +325,7 @@ function fmtEventDate(d: string) {
     apply();
   }));
   q.addEventListener('input', apply);
-  showMoreBtn.addEventListener('click', () => { expanded = true; apply(); });
+  showMoreBtn?.addEventListener('click', () => { expanded = true; apply(); });
   apply();
 </script>
 
@@ -332,7 +364,6 @@ async function loadCommunityFeed() {
     </div>`;
   }).join('');
 
-  // Fill the hero preview card with the single most recent post, so the hero isn't empty.
   const top = data[0];
   const heroBox = document.querySelector('[data-hero-preview]') as HTMLElement;
   if (heroBox && top) {
@@ -345,7 +376,6 @@ async function loadCommunityFeed() {
     heroBox.hidden = false;
   }
 
-  // Real count of posts from this calendar month, for the stat strip.
   const monthAgo = new Date(); monthAgo.setDate(1); monthAgo.setHours(0, 0, 0, 0);
   const { count: monthCount } = await sb
     .from('posts')
@@ -401,128 +431,145 @@ loadSpotlight();
 
 <style is:global>
   .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-  .cp-page {
-    --cp-navy: #141231; --cp-bg: #171f2b; --cp-community-bg: #152a20; --cp-community-line: #2a4536;
-    --cp-card: #1d2635; --cp-card-2: #202c42; --cp-line: #2c3647;
-    --cp-ink: #e8e9ec; --cp-muted: #8f96a3; --cp-muted-2: #b7bdc7;
-    --cp-gold: #E7BC52; --cp-blue: #8fb6ea; --cp-green: #5fae7f;
-    --cp-serif: 'Fraunces', Georgia, serif; --cp-sans: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    background: var(--cp-bg); color: var(--cp-ink); font-family: var(--cp-sans);
-  }
-  .cp-page h1, .cp-page h2, .cp-page h3, .cp-page h4 { font-family: var(--cp-serif); font-weight: 600; color: #fff; margin: 0; }
+  .cp-page { font-family: var(--sans); color: var(--ink); background: var(--paper); }
+  .cp-page h1, .cp-page h2, .cp-page h3, .cp-page h4 { font-family: var(--serif); font-weight: 600; color: var(--navy); margin: 0; }
   .cp-page a { color: inherit; }
-  .cp-eyebrow { color: var(--cp-green); font-size: 13px; font-weight: 600; letter-spacing: .02em; margin: 0 0 12px; }
-  .cp-muted { color: var(--cp-muted); font-size: 13.5px; }
-  .cp-byline, .cp-byline-sm { color: var(--cp-muted); font-size: 13.5px; }
+  .cp-eyebrow { color: var(--brown); font-size: 13px; font-weight: 700; letter-spacing: .03em; margin: 0 0 12px; text-transform: uppercase; }
+  .cp-muted { color: var(--muted); font-size: 13.5px; }
+  .cp-byline, .cp-byline-sm { color: var(--muted); font-size: 13.5px; }
+  .cp-hl { color: var(--gold); }
 
-  .cp-btn { display: inline-flex; align-items: center; gap: 8px; border-radius: 999px; padding: 12px 22px; font-weight: 600; font-size: 14.5px; border: 0; cursor: pointer; text-decoration: none; font-family: var(--cp-sans); }
-  .cp-btn.primary { background: var(--cp-blue); color: #10202e; }
-  .cp-btn.ghost { background: transparent; border: 1.5px solid #3a4558; color: var(--cp-ink); }
+  .cp-btn { display: inline-flex; align-items: center; gap: 8px; border-radius: 999px; padding: 12px 22px; font-weight: 700; font-size: 14.5px; border: 0; cursor: pointer; text-decoration: none; font-family: var(--sans); }
+  .cp-btn.gold { background: var(--gold); color: var(--navy); }
+  .cp-btn.blue { background: var(--blue); color: #fff; }
+  .cp-btn.outline { background: transparent; border: 1.5px solid var(--line); color: var(--navy); }
+  .cp-hero .cp-btn.outline { border-color: rgba(255,255,255,.5); color: #fff; }
 
-  .cp-hero { background: var(--cp-navy); padding: 64px 0 48px; }
-  .cp-hero-grid { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 48px; align-items: center; }
-  .cp-hero h1 { font-size: clamp(2.1rem, 4vw, 3rem); line-height: 1.1; margin-bottom: 16px; }
-  .cp-lede { color: var(--cp-muted-2); font-size: 1.05rem; max-width: 42ch; margin-bottom: 24px; }
+  /* ---- Hero: real homepage blue band, gold highlight ---- */
+  .cp-hero { background: var(--blue-deep); padding: 64px 0 0; }
+  .cp-hero-grid { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 48px; align-items: center; padding-bottom: 48px; }
+  .cp-hero .cp-eyebrow { color: var(--gold-soft); }
+  .cp-hero h1 { font-size: clamp(2.1rem, 4vw, 3rem); line-height: 1.1; margin-bottom: 16px; color: #fff; }
+  .cp-hero .cp-lede { color: rgba(255,255,255,.85); font-size: 1.05rem; max-width: 42ch; margin-bottom: 24px; }
   .cp-hero-ctas { display: flex; gap: 14px; flex-wrap: wrap; }
-  .cp-hero-preview { background: var(--cp-community-bg); border: 1px solid var(--cp-community-line); border-radius: 16px; padding: 20px 22px; }
-  .cp-tag { color: var(--cp-green); font-size: 12px; font-weight: 700; margin-bottom: 12px; display: block; }
+  .cp-hero-preview { background: #fff; border-radius: 16px; padding: 22px 24px; box-shadow: 0 12px 30px rgba(0,0,0,.18); }
+  .cp-tag { color: var(--brown); font-size: 12px; font-weight: 700; margin-bottom: 12px; display: block; text-transform: uppercase; letter-spacing: .02em; }
   .cp-who { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-  .cp-avatar { width: 34px; height: 34px; border-radius: 50%; background: #2e4740; color: var(--cp-muted-2); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
-  .cp-who span { display: block; color: var(--cp-muted); font-size: 12px; }
-  .cp-hp-body { font-size: 14.5px; color: var(--cp-ink); }
+  .cp-avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--cream); color: var(--navy); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+  .cp-who strong { color: var(--navy); }
+  .cp-who span { display: block; color: var(--muted); font-size: 12px; }
+  .cp-hp-body { font-size: 14.5px; color: var(--ink); }
 
-  .cp-stat-strip { background: var(--cp-card-2); padding: 26px 0; }
-  .cp-stat-strip .wrap { display: flex; justify-content: space-around; flex-wrap: wrap; gap: 20px; text-align: center; }
-  .cp-stat strong { font-family: var(--cp-serif); font-size: 1.7rem; display: block; color: #fff; }
-  .cp-stat span { color: var(--cp-muted); font-size: 12.5px; }
+  /* ---- Stat strip: continues the blue band, gold numbers for contrast ---- */
+  .cp-stat-strip { background: var(--blue-deep); padding: 0 0 36px; }
+  .cp-stat-strip .wrap { display: flex; justify-content: space-around; flex-wrap: wrap; gap: 20px; text-align: center; border-top: 1px solid rgba(255,255,255,.18); padding-top: 28px; }
+  .cp-stat strong { font-family: var(--serif); font-size: 1.8rem; display: block; color: var(--gold); }
+  .cp-stat span { color: rgba(255,255,255,.75); font-size: 12.5px; }
 
-  .cp-community { background: var(--cp-community-bg); border-bottom: 1px solid var(--cp-community-line); padding: 52px 0 60px; }
+  /* ---- Community ---- */
+  .cp-community { background: var(--paper); padding: 56px 0 60px; border-bottom: 1px solid var(--line); }
   .cp-community-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; flex-wrap: wrap; margin-bottom: 8px; }
   .cp-community-head h2 { font-size: 1.9rem; }
-  .cp-sub { color: var(--cp-muted-2); margin-top: 8px; font-size: 14.5px; max-width: 48ch; }
+  .cp-sub { color: var(--muted); margin-top: 8px; font-size: 14.5px; max-width: 48ch; }
   .cp-feed { display: flex; flex-direction: column; margin-top: 26px; }
-  .cp-post { padding: 20px 0; border-top: 1px solid var(--cp-community-line); }
+  .cp-post { padding: 20px 0; border-top: 1px solid var(--line); }
   .cp-post:first-child { border-top: none; padding-top: 0; }
   .cp-post-top { display: flex; align-items: center; gap: 11px; margin-bottom: 10px; }
-  .cp-post-top strong { display: block; font-size: 1rem; }
-  .cp-post-body { font-size: 15px; white-space: pre-line; max-width: 62ch; }
+  .cp-post-top strong { display: block; font-size: 1rem; color: var(--navy); }
+  .cp-post-body { font-size: 15px; white-space: pre-line; max-width: 62ch; color: var(--ink); }
 
-  .cp-spotlight { padding: 48px 0; }
+  /* ---- Topic highlights: horizontal scroller ---- */
+  .cp-topics { background: var(--cream); padding: 48px 0; }
+  .cp-topics h2 { font-size: 1.7rem; margin-bottom: 22px; }
+  .cp-topics-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 6px; }
+  .cp-topic-card { flex: 0 0 230px; background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 20px; text-decoration: none; display: block; }
+  .cp-topic-card:hover { border-color: var(--blue); }
+  .cp-topic-label { color: var(--brown); font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; display: block; margin-bottom: 10px; }
+  .cp-topic-card h4 { font-size: 1.05rem; font-family: var(--sans); font-weight: 600; color: var(--navy); margin-bottom: 8px; line-height: 1.3; }
+
+  /* ---- Spotlight ---- */
+  .cp-spotlight { padding: 48px 0; background: var(--paper); }
   .cp-spotlight-head { margin-bottom: 22px; }
-  .cp-spotlight-card { display: grid; grid-template-columns: auto 1fr; gap: 22px; background: var(--cp-card); border: 1px solid var(--cp-line); border-radius: 14px; padding: 24px 26px; align-items: center; }
-  .cp-avatar-lg { width: 56px; height: 56px; border-radius: 50%; background: #30405a; color: var(--cp-blue); display: flex; align-items: center; justify-content: center; font-family: var(--cp-serif); font-size: 1.2rem; flex-shrink: 0; }
+  .cp-spotlight-card { display: grid; grid-template-columns: auto 1fr; gap: 22px; background: var(--cream); border: 1px solid var(--line); border-radius: 14px; padding: 24px 26px; align-items: center; }
+  .cp-avatar-lg { width: 56px; height: 56px; border-radius: 50%; background: var(--blue-deep); color: #fff; display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-size: 1.2rem; flex-shrink: 0; }
   .cp-spotlight-card h3 { font-size: 1.2rem; margin-bottom: 2px; }
-  .cp-hood { color: var(--cp-muted); font-size: 13px; margin: 0 0 8px; }
-  .cp-quote { color: var(--cp-muted-2); font-size: 14.5px; font-style: italic; margin: 0; max-width: 58ch; }
+  .cp-hood { color: var(--muted); font-size: 13px; margin: 0 0 8px; }
+  .cp-quote { color: var(--ink); font-size: 14.5px; font-style: italic; margin: 0; max-width: 58ch; }
 
-  .cp-video { background: var(--cp-community-bg); border-top: 1px solid var(--cp-community-line); border-bottom: 1px solid var(--cp-community-line); padding: 48px 0 56px; }
+  /* ---- Video: same blue band treatment as hero ---- */
+  .cp-video { background: var(--blue-deep); padding: 48px 0 56px; }
+  .cp-video .cp-eyebrow { color: var(--gold-soft); }
   .cp-video-feature { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; align-items: center; margin-bottom: 28px; }
-  .cp-video-thumb { position: relative; display: block; border-radius: 12px; overflow: hidden; aspect-ratio: 16/9; background: #0f1b18; }
+  .cp-video-thumb { position: relative; display: block; border-radius: 12px; overflow: hidden; aspect-ratio: 16/9; background: rgba(0,0,0,.2); }
   .cp-video-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .cp-play { position: absolute; inset: 0; margin: auto; width: 48px; height: 48px; border-radius: 50%; background: rgba(15,27,24,.75); color: #fff; display: flex; align-items: center; justify-content: center; }
+  .cp-play { position: absolute; inset: 0; margin: auto; width: 48px; height: 48px; border-radius: 50%; background: rgba(0,0,0,.55); color: #fff; display: flex; align-items: center; justify-content: center; }
   .cp-play.sm { width: 28px; height: 28px; }
-  .cp-video-info h3 { font-size: 1.35rem; margin-bottom: 10px; }
-  .cp-video-info p { color: var(--cp-muted-2); font-size: 14.5px; margin-bottom: 12px; max-width: 46ch; }
-  .cp-mlink { color: var(--cp-blue); font-weight: 600; text-decoration: none; font-size: 14px; }
+  .cp-video-info h3 { font-size: 1.35rem; margin-bottom: 10px; color: #fff; }
+  .cp-video-info p { color: rgba(255,255,255,.8); font-size: 14.5px; margin-bottom: 12px; max-width: 46ch; }
+  .cp-mlink { color: var(--gold); font-weight: 700; text-decoration: none; font-size: 14px; }
   .cp-video-picker { margin-bottom: 36px; }
-  .cp-picker-label { color: var(--cp-muted); font-size: 12px; font-weight: 600; margin-bottom: 10px; }
+  .cp-picker-label { color: rgba(255,255,255,.65); font-size: 12px; font-weight: 600; margin-bottom: 10px; }
   .cp-video-picker-row { display: flex; gap: 12px; overflow-x: auto; }
   .cp-video-pick { position: relative; flex: 0 0 150px; aspect-ratio: 16/9; border-radius: 8px; overflow: hidden; }
   .cp-video-pick img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .cp-topic-row { display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap; padding-top: 24px; border-top: 1px solid var(--cp-community-line); }
-  .cp-topic-row h2 { font-size: 1.4rem; margin-bottom: 8px; }
-  .cp-desc { color: var(--cp-muted-2); font-size: 14px; }
+  .cp-topic-row { display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap; padding-top: 24px; border-top: 1px solid rgba(255,255,255,.18); }
+  .cp-topic-row h2 { font-size: 1.4rem; margin-bottom: 8px; color: #fff; }
+  .cp-desc { color: rgba(255,255,255,.8); font-size: 14px; }
 
-  .cp-newsletter { background: linear-gradient(120deg, #1a281f, #141c2a); padding: 44px 0; }
+  /* ---- Newsletter: navy band ---- */
+  .cp-newsletter { background: var(--navy); padding: 44px 0; }
   .cp-nl-row { display: flex; justify-content: space-between; align-items: center; gap: 28px; flex-wrap: wrap; }
-  .cp-nl-row h2 { font-size: 1.4rem; margin-bottom: 8px; }
-  .cp-nl-row p { color: var(--cp-muted-2); font-size: 14px; max-width: 40ch; }
+  .cp-nl-row h2 { font-size: 1.4rem; margin-bottom: 8px; color: #fff; }
+  .cp-nl-row p { color: rgba(255,255,255,.75); font-size: 14px; max-width: 40ch; }
   .cp-nl-form { display: flex; gap: 10px; flex-wrap: wrap; }
-  .cp-nl-form input { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.18); border-radius: 999px; padding: 12px 18px; color: #fff; font: inherit; font-size: 14px; min-width: 220px; }
-  .cp-nl-form button { background: var(--cp-blue); color: #10202e; border: 0; border-radius: 999px; padding: 0 20px; font-weight: 700; cursor: pointer; font-family: var(--cp-sans); }
-  .cp-nl-msg { color: var(--cp-green); font-size: 13.5px; margin-top: 10px; }
+  .cp-nl-form input { background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.3); border-radius: 999px; padding: 12px 18px; color: #fff; font: inherit; font-size: 14px; min-width: 220px; }
+  .cp-nl-form input::placeholder { color: rgba(255,255,255,.6); }
+  .cp-nl-form button { background: var(--gold); color: var(--navy); border: 0; border-radius: 999px; padding: 0 20px; font-weight: 700; cursor: pointer; font-family: var(--sans); }
+  .cp-nl-msg { color: var(--gold-soft); font-size: 13.5px; margin-top: 10px; }
 
-  .cp-stories { padding: 56px 0; border-top: 1px solid var(--cp-line); }
+  /* ---- Stories & Reviews ---- */
+  .cp-stories { padding: 56px 0; background: var(--paper); }
   .cp-section-head { margin-bottom: 26px; }
-  .cp-feature { display: block; text-decoration: none; background: linear-gradient(145deg, #23402f, #182420); border-radius: 14px; padding: 28px 30px; margin-bottom: 34px; }
-  .cp-feature .cp-tag { color: var(--cp-green); display: inline-block; }
+  .cp-feature { display: block; text-decoration: none; background: var(--cream); border: 1px solid var(--line); border-top: 4px solid var(--gold); border-radius: 10px; padding: 28px 30px; margin-bottom: 34px; }
+  .cp-feature .cp-tag { color: var(--brown); display: inline-block; }
   .cp-feature h3 { font-size: 1.6rem; margin: 10px 0 12px; }
-  .cp-feature .cp-quote { color: var(--cp-muted-2); font-style: normal; font-size: 14.5px; max-width: 60ch; margin-bottom: 14px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .cp-feature .cp-quote { color: var(--ink); font-style: normal; font-size: 14.5px; max-width: 60ch; margin-bottom: 14px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
   .cp-feature-links { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
-  .cp-flink { color: var(--cp-blue); font-weight: 600; font-size: 14px; }
+  .cp-flink { color: var(--blue); font-weight: 700; font-size: 14px; }
 
   .cp-archive-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 14px; flex-wrap: wrap; gap: 10px; }
   .cp-archive-head h3 { font-size: 1.2rem; }
   .cp-filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
-  .cp-chip { background: var(--cp-card); border: 1.5px solid var(--cp-line); color: var(--cp-muted-2); border-radius: 999px; padding: 7px 15px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: var(--cp-sans); }
-  .cp-chip[aria-pressed="true"] { background: var(--cp-blue); color: #10202e; border-color: var(--cp-blue); }
+  .cp-chip { background: #fff; border: 1.5px solid var(--line); color: var(--navy); border-radius: 999px; padding: 7px 15px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: var(--sans); }
+  .cp-chip[aria-pressed="true"] { background: var(--blue); color: #fff; border-color: var(--blue); }
   .cp-search { display: block; max-width: 420px; margin-bottom: 14px; }
-  .cp-search input { width: 100%; padding: 11px 16px; border-radius: 10px; border: 1px solid var(--cp-line); background: var(--cp-card); color: #fff; font-size: 14.5px; }
+  .cp-search input { width: 100%; padding: 11px 16px; border-radius: 10px; border: 1px solid var(--line); background: #fff; color: var(--ink); font-size: 14.5px; }
   .cp-row-list { display: flex; flex-direction: column; }
-  .cp-story-row { padding: 16px 0; border-top: 1px solid var(--cp-line); display: flex; justify-content: space-between; gap: 20px; align-items: baseline; flex-wrap: wrap; }
+  .cp-story-row { padding: 16px 0; border-top: 1px solid var(--line); display: flex; justify-content: space-between; gap: 20px; align-items: baseline; flex-wrap: wrap; }
   .cp-story-row:first-child { border-top: none; padding-top: 0; }
-  .cp-story-row h4 { font-size: 1.02rem; font-weight: 600; font-family: var(--cp-sans); margin: 4px 0; }
-  .cp-story-row h4 a { color: var(--cp-ink); text-decoration: none; }
-  .cp-story-row h4 a:hover { color: var(--cp-blue); }
+  .cp-story-row h4 { font-size: 1.02rem; font-weight: 600; font-family: var(--sans); margin: 4px 0; color: var(--navy); }
+  .cp-story-row h4 a { color: var(--navy); text-decoration: none; }
+  .cp-story-row h4 a:hover { color: var(--blue); }
   .cp-row-links { display: flex; gap: 16px; align-items: center; font-size: 13.5px; }
-  .cp-row-links a { color: var(--cp-blue); text-decoration: none; }
-  .cp-save { background: none; border: 0; color: var(--cp-muted); cursor: pointer; font-size: 13.5px; font-family: var(--cp-sans); }
-  .cp-empty { text-align: center; color: var(--cp-muted); padding: 30px 0; }
+  .cp-row-links a { color: var(--blue); text-decoration: none; font-weight: 600; }
+  .cp-save { background: none; border: 0; color: var(--muted); cursor: pointer; font-size: 13.5px; font-family: var(--sans); }
+  .cp-empty { text-align: center; color: var(--muted); padding: 30px 0; }
   #cp-show-more { margin: 18px auto 0; display: flex; }
-  .cp-review-link-row { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--cp-line); display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
-  .cp-review-link-row p { color: var(--cp-muted-2); font-size: 14px; }
-  .cp-review-link-row a { color: var(--cp-blue); font-weight: 600; text-decoration: none; font-size: 14px; white-space: nowrap; }
+  .cp-review-link-row { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .cp-review-link-row p { color: var(--muted); font-size: 14px; }
+  .cp-review-link-row a { color: var(--blue); font-weight: 700; text-decoration: none; font-size: 14px; white-space: nowrap; }
 
-  .cp-events { background: var(--cp-card-2); padding: 52px 0 60px; }
+  /* ---- Events ---- */
+  .cp-events { background: var(--cream); padding: 52px 0 60px; }
   .cp-events-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 24px; flex-wrap: wrap; gap: 14px; }
   .cp-events-head h2 { font-size: 1.6rem; }
-  .cp-events-head a { color: var(--cp-blue); font-weight: 600; text-decoration: none; font-size: 14.5px; }
+  .cp-events-head a { color: var(--blue); font-weight: 700; text-decoration: none; font-size: 14.5px; }
   .cp-events-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 6px; }
-  .cp-event-card { flex: 0 0 220px; background: var(--cp-card); border: 1px solid var(--cp-line); border-radius: 12px; padding: 18px; }
-  .cp-event-date { display: inline-block; background: #15202e; border: 1px solid var(--cp-line); border-radius: 8px; padding: 5px 9px; font-size: 11.5px; color: var(--cp-gold); font-weight: 700; margin-bottom: 12px; }
+  .cp-event-card { flex: 0 0 220px; background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 18px; }
+  .cp-event-date { display: inline-block; background: var(--navy); border-radius: 8px; padding: 5px 9px; font-size: 11.5px; color: var(--gold); font-weight: 700; margin-bottom: 12px; }
   .cp-event-card h4 { font-size: 1rem; margin-bottom: 6px; }
-  .cp-event-loc { color: var(--cp-muted); font-size: 12.5px; margin-bottom: 14px; }
-  .cp-rsvp-btn { display: block; text-align: center; background: transparent; border: 1px solid var(--cp-blue); color: var(--cp-blue); border-radius: 999px; padding: 7px; font-size: 13px; font-weight: 600; text-decoration: none; }
+  .cp-event-loc { color: var(--muted); font-size: 12.5px; margin-bottom: 14px; }
+  .cp-rsvp-btn { display: block; text-align: center; background: transparent; border: 1px solid var(--blue); color: var(--blue); border-radius: 999px; padding: 7px; font-size: 13px; font-weight: 700; text-decoration: none; }
 
   @media (max-width: 900px) {
     .cp-hero-grid, .cp-video-feature { grid-template-columns: 1fr; }
