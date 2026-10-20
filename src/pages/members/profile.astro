@@ -324,8 +324,7 @@ function renderPost(p: any, isOwnPost: boolean) {
     <p class="post-body-text" data-raw-body="${esc(p.body)}">${esc(p.body)}</p>
     ${banner}
     <div class="post-actions">
-      <button type="button" class="like-btn" data-like-post="${p.id}" data-liked="${p.liked_by_me ? '1' : '0'}">${p.liked_by_me ? '♥ Liked' : '♡ Like'}</button>
-      <span class="mform-note">${p.like_count || 0} ${(p.like_count || 0) === 1 ? 'like' : 'likes'}</span>
+      <button type="button" class="like-btn${p.liked_by_me ? ' liked' : ''}" data-like-post="${p.id}" data-liked="${p.liked_by_me ? '1' : '0'}">${p.liked_by_me ? '♥' : '♡'}${(p.like_count || 0) >= 2 ? ' ' + (p.like_count || 0) : ''}</button>
       ${trending ? '<span class="feed-trending-badge">🔥 Trending</span>' : ''}
     </div>
   </div>`;
