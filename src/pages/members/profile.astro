@@ -285,6 +285,21 @@ document.addEventListener('click', (e) => {
   }
 });
 
+document.addEventListener('click', (e) => {
+  const t = e.target as HTMLElement;
+  const menuBtn = t.closest('[data-menu-toggle]') as HTMLElement | null;
+  if (menuBtn) {
+    const dropdown = menuBtn.nextElementSibling as HTMLElement;
+    const wasOpen = dropdown.classList.contains('open');
+    document.querySelectorAll('.post-menu-dropdown.open').forEach((d) => d.classList.remove('open'));
+    if (!wasOpen) dropdown.classList.add('open');
+    return;
+  }
+  if (!t.closest('.post-menu-wrap')) {
+    document.querySelectorAll('.post-menu-dropdown.open').forEach((d) => d.classList.remove('open'));
+  }
+});
+
 function renderPost(p: any, isOwnPost: boolean) {
   const name = p.author_name || 'Member';
   const initials = name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase() || '?';
@@ -295,11 +310,18 @@ function renderPost(p: any, isOwnPost: boolean) {
   return `<div class="pcard post-card" data-post-id="${p.id}">
     <div class="post-head">
       <div class="post-head-id"><span class="post-avatar">${esc(initials)}</span>
-        <div><strong>${esc(name)}</strong><div class="mform-note">${p.neighborhood ? esc(p.neighborhood) + ' · ' : ''}${when}</div></div>
+        <div><strong>${esc(name)}</strong><div class="mform-note">${p.neighborhood ? esc(p.neighborhood) + ' · ' : ''}${when}${isOwnPost && p.visibility === 'only_me' ? ' · <span class="hidden-tag">Hidden</span>' : ''}</div></div>
       </div>
-      ${isOwnPost ? `<button type="button" class="post-menu-btn" data-delete-post="${p.id}" aria-label="Delete post">🗑</button>` : ''}
+      ${isOwnPost ? `<div class="post-menu-wrap">
+        <button type="button" class="post-menu-btn" data-menu-toggle aria-label="Post options">⋯</button>
+        <div class="post-menu-dropdown" data-menu-dropdown>
+          <button type="button" data-edit-post="${p.id}">✏️ Edit</button>
+          <button type="button" data-hide-post="${p.id}" data-vis="${p.visibility}">${p.visibility === 'only_me' ? '👁️ Unhide' : '🙈 Hide'}</button>
+          <button type="button" class="danger" data-delete-post="${p.id}">🗑 Delete</button>
+        </div>
+      </div>` : ''}
     </div>
-    <p>${esc(p.body)}</p>
+    <p class="post-body-text" data-raw-body="${esc(p.body)}">${esc(p.body)}</p>
     ${banner}
     <div class="post-actions">
       <button type="button" class="like-btn" data-like-post="${p.id}" data-liked="${p.liked_by_me ? '1' : '0'}">${p.liked_by_me ? '♥ Liked' : '♡ Like'}</button>
@@ -407,8 +429,43 @@ document.addEventListener('click', async (e) => {
     loadOwnPosts(); if (feedLoaded) loadFeedPosts(); if (likesLoaded) loadLikes();
     return;
   }
+  const editBtn = (e.target as HTMLElement).closest('[data-edit-post]') as HTMLElement | null;
+  if (editBtn) {
+    document.querySelectorAll('.post-menu-dropdown.open').forEach((d) => d.classList.remove('open'));
+    const card = editBtn.closest('.post-card') as HTMLElement;
+    const bodyP = card.querySelector('.post-body-text') as HTMLElement;
+    const raw = bodyP.getAttribute('data-raw-body') || '';
+    const postId = editBtn.dataset.editPost!;
+    bodyP.outerHTML = `<div class="post-edit-form"><textarea class="post-edit-textarea">${esc(raw)}</textarea><div class="post-edit-actions"><button type="button" class="btn gold" data-save-edit="${postId}">Save</button><button type="button" class="btn-cancel" data-cancel-edit>Cancel</button></div></div>`;
+    return;
+  }
+  const saveBtn = (e.target as HTMLElement).closest('[data-save-edit]') as HTMLElement | null;
+  if (saveBtn) {
+    const form = saveBtn.closest('.post-edit-form') as HTMLElement;
+    const textarea = form.querySelector('textarea') as HTMLTextAreaElement;
+    const newBody = textarea.value.trim();
+    const postId = saveBtn.dataset.saveEdit!;
+    if (newBody) await supabase().from('posts').update({ body: newBody }).eq('id', postId);
+    loadOwnPosts(); if (feedLoaded) loadFeedPosts(); if (likesLoaded) loadLikes();
+    return;
+  }
+  const cancelBtn = (e.target as HTMLElement).closest('[data-cancel-edit]') as HTMLElement | null;
+  if (cancelBtn) {
+    loadOwnPosts(); if (feedLoaded) loadFeedPosts(); if (likesLoaded) loadLikes();
+    return;
+  }
+  const hideBtn = (e.target as HTMLElement).closest('[data-hide-post]') as HTMLElement | null;
+  if (hideBtn) {
+    document.querySelectorAll('.post-menu-dropdown.open').forEach((d) => d.classList.remove('open'));
+    const postId = hideBtn.dataset.hidePost!;
+    const newVis = hideBtn.dataset.vis === 'only_me' ? 'public' : 'only_me';
+    await supabase().from('posts').update({ visibility: newVis }).eq('id', postId);
+    loadOwnPosts(); if (feedLoaded) loadFeedPosts(); if (likesLoaded) loadLikes();
+    return;
+  }
   const delBtn = (e.target as HTMLElement).closest('[data-delete-post]') as HTMLElement | null;
   if (delBtn) {
+    document.querySelectorAll('.post-menu-dropdown.open').forEach((d) => d.classList.remove('open'));
     if (!confirm('Delete this post?')) return;
     await supabase().from('posts').delete().eq('id', delBtn.dataset.deletePost);
     loadOwnPosts(); if (feedLoaded) loadFeedPosts(); if (likesLoaded) loadLikes();
@@ -591,6 +648,17 @@ init();
 .post-head-id { display: flex; align-items: center; gap: 10px; }
 .post-avatar { width: 36px; height: 36px; border-radius: 50%; background: #3a4a3a; color: var(--gold); display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-size: .9rem; flex-shrink: 0; }
 .post-menu-btn { background: none; border: 0; color: #8f96a3; cursor: pointer; font-size: 15px; }
+.post-menu-wrap { position: relative; }
+.post-menu-dropdown { display: none; position: absolute; top: 26px; right: 0; background: #1d2635; border: 1px solid #2c3647; border-radius: 10px; box-shadow: 0 10px 28px rgba(0,0,0,.4); padding: 6px; width: 150px; z-index: 20; }
+.post-menu-dropdown.open { display: block; }
+.post-menu-dropdown button { display: block; width: 100%; text-align: left; background: none; border: 0; padding: 8px 10px; border-radius: 6px; font-size: 13.5px; color: #e8e9ec; cursor: pointer; font-family: inherit; }
+.post-menu-dropdown button:hover { background: #161d29; }
+.post-menu-dropdown button.danger { color: #e8817e; }
+.hidden-tag { color: #e7bc52; font-weight: 600; }
+.post-edit-form { margin: 6px 0; }
+.post-edit-textarea { width: 100%; box-sizing: border-box; background: #161d29; border: 1px solid #2c3647; border-radius: 8px; padding: 10px 12px; color: #fff; font: inherit; font-size: 15px; min-height: 70px; resize: vertical; }
+.post-edit-actions { display: flex; gap: 10px; margin-top: 8px; }
+.btn-cancel { background: none; border: 1px solid #2c3647; border-radius: 999px; padding: 8px 16px; color: #cfd3da; cursor: pointer; font-size: 13.5px; font-family: inherit; }
 .post-card-visual { margin-top: 12px; border-radius: 8px; height: 70px; }
 .post-actions { display: flex; align-items: center; gap: 14px; margin-top: 12px; padding-top: 12px; border-top: 1px solid #2c3647; }
 .like-btn { background: none; border: 0; color: #cfd3da; cursor: pointer; font-size: 14px; font-weight: 600; }
