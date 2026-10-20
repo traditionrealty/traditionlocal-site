@@ -324,7 +324,7 @@ function renderPost(p: any, isOwnPost: boolean) {
     <p class="post-body-text" data-raw-body="${esc(p.body)}">${esc(p.body)}</p>
     ${banner}
     <div class="post-actions">
-      <button type="button" class="like-btn${p.liked_by_me ? ' liked' : ''}" data-like-post="${p.id}" data-liked="${p.liked_by_me ? '1' : '0'}">${p.liked_by_me ? '♥' : '♡'}${(p.like_count || 0) >= 2 ? ' ' + (p.like_count || 0) : ''}</button>
+      <button type="button" class="like-btn${p.liked_by_me ? ' liked' : ''}" data-like-post="${p.id}" data-liked="${p.liked_by_me ? '1' : '0'}"><span class="heart-icon">${p.liked_by_me ? '♥' : '♡'}</span>${(p.like_count || 0) >= 2 ? ' ' + (p.like_count || 0) : ''}</button>
       ${trending ? '<span class="feed-trending-badge">🔥 Trending</span>' : ''}
     </div>
   </div>`;
@@ -661,6 +661,8 @@ init();
 .post-card-visual { margin-top: 12px; border-radius: 8px; height: 70px; }
 .post-actions { display: flex; align-items: center; gap: 14px; margin-top: 12px; padding-top: 12px; border-top: 1px solid #2c3647; }
 .like-btn { background: none; border: 0; color: #cfd3da; cursor: pointer; font-size: 14px; font-weight: 600; }
+.like-btn { display: inline-flex; align-items: center; gap: 4px; }
+.heart-icon { font-size: 19px; line-height: 1; }
 .like-btn[data-liked="1"] { color: var(--gold); }
 .feed-trending-badge { background: var(--gold); color: #171f2b; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px; }
 [data-own-posts] > .pcard, [data-feed-posts] > .pcard, [data-likes-posts] > .pcard { margin-bottom: 20px; }
