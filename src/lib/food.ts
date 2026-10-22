@@ -2,7 +2,7 @@
 import businesses from '../data/businesses.json';
 
 // Directory entries whose categories are all in this set are not food (gyms, salons, dentists, and so on).
-const NONFOOD = new Set([
+export const NONFOOD = new Set([
   'Gyms', 'Trainers', 'Hair Salons', 'Nail Salons', 'Waxing', 'Skin Care', 'Cosmetics & Beauty Supply', 'Cosmetic Dentists',
   'General Dentistry', 'Pediatric Dentists', 'Periodontists', 'Medical Centers', 'Heating & Air Conditioning/HVAC', 'Car Dealers',
   'Auto Repair', 'Auto Parts & Supplies', 'Car Wash', 'Furniture Stores', 'Department Stores', 'Home Decor', 'Clothing', 'Shoe Stores',
