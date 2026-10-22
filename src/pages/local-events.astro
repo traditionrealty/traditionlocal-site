@@ -264,7 +264,14 @@ function srcLabel(e: any) {
   .btn.outline.sm { padding: 7px 14px; font-size: 13px; }
 
   @media (max-width: 860px) {
-    .le-filters, .le-feat-grid { grid-template-columns: 1fr; }
+    .le-filters, .le-feat-grid { grid-template-columns: minmax(0, 1fr); }
+  }
+  /* Very narrow phones (under 360px): let each event row wrap so its buttons fit. */
+  @media (max-width: 359px) {
+    .le-row { flex-wrap: wrap; }
+    .le-rowbody { flex: 1 1 140px; }
+    .le-btnrow { flex: 1 1 100%; flex-wrap: wrap; flex-shrink: 1; }
+    .le-btnrow .btn { white-space: normal; }
   }
 
   /* The month calendar and dialog are shared with the Things To Do page's script,
