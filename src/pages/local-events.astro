@@ -241,11 +241,11 @@ function srcLabel(e: any) {
   .le-list { display: flex; flex-direction: column; gap: 14px; margin-top: 16px; }
   .le-row { display: flex; align-items: center; gap: 18px; background: var(--cream); border-radius: 12px; padding: 16px 20px; }
   .le-datebadge { flex-shrink: 0; width: 56px; text-align: center; background: #fff; border-radius: 8px; padding: 8px 0; border: 1px solid var(--line); }
-  .le-datebadge span { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--muted); }
+  .le-datebadge span { display: block; font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--muted); }
   .le-datebadge strong { font-size: 1.3rem; color: var(--navy); font-family: var(--serif); }
   .le-rowbody { flex: 1; min-width: 0; }
   .le-rowbody h3 { font-size: 1.05rem; margin: 6px 0 2px; color: var(--navy); }
-  .le-tag { display: inline-block; background: var(--gold-soft); color: var(--brown); font-size: 11px; font-weight: 700; border-radius: 999px; padding: 3px 10px; }
+  .le-tag { display: inline-block; background: var(--gold-soft); color: var(--brown); font-size: 12px; font-weight: 700; border-radius: 999px; padding: 3px 10px; }
   .le-empty { text-align: center; color: var(--muted); padding: 32px 0; }
 
   .le-feat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 20px; }
@@ -278,19 +278,19 @@ function srcLabel(e: any) {
   .td-pill.line:hover { border-color: var(--blue); }
   .td-pill.sm { padding: 7px 16px; font-size: 13px; }
   .td-meta { font-size: 14px; color: var(--muted); }
-  .td-src { display: inline-block; font-size: 11px; font-weight: 700; border-radius: 99px; padding: 1px 9px; margin-left: 6px; background: var(--gold-soft); color: #6b4a1d; vertical-align: 2px; font-family: var(--sans); }
+  .td-src { display: inline-block; font-size: 12px; font-weight: 700; border-radius: 99px; padding: 1px 9px; margin-left: 6px; background: var(--gold-soft); color: #6b4a1d; vertical-align: 2px; font-family: var(--sans); }
   .td-src.vh { background: #e6edfd; color: #1d4ed8; }
 
   .td-calwrap { display: grid; grid-template-columns: 1.35fr 1fr; gap: 24px; align-items: start; }
-  @media (max-width: 900px) { .td-calwrap { grid-template-columns: 1fr; } }
+  @media (max-width: 900px) { .td-calwrap { grid-template-columns: minmax(0, 1fr); } }
   .td-calbox, .td-daybox { background: #fff; border: 1px solid var(--line); border-radius: 14px; }
   .td-calbox { padding: 16px 16px 12px; border-top: 3px solid var(--gold); }
   .td-calbar { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
   .td-calbar h3 { font-size: 24px; color: var(--navy); flex: 1; text-align: center; margin: 0; }
   .td-cnav { width: 38px; height: 38px; border-radius: 50%; border: 1.5px solid var(--line); background: #fff; color: var(--blue); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
   .td-cnav:hover { border-color: var(--blue); }
-  .td-calgrid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
-  .td-wd { font-size: 11px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); text-align: center; padding: 4px 0; }
+  .td-calgrid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+  .td-wd { font-size: 12px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); text-align: center; padding: 4px 0; }
   .td-dc { position: relative; aspect-ratio: 1 / .92; min-height: 46px; border: 1px solid transparent; border-radius: 10px; background: var(--cream); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 6px 2px 4px; font: 600 15px var(--sans); color: var(--ink); }
   .td-dc:hover { border-color: var(--blue); }
   .td-dc.blank { background: transparent; cursor: default; border: 0; }
@@ -312,7 +312,7 @@ function srcLabel(e: any) {
   .td-dayitem:first-of-type { border-top: 0; padding-top: 0; }
   .td-dayitem h4 { font: 600 18px/1.3 var(--serif); color: var(--navy); margin: 0 0 2px; }
   .td-dayitem .td-meta { margin: 0 0 8px; }
-  .td-lab { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; border-radius: 99px; padding: 1px 9px; margin-right: 6px; background: var(--cream); border: 1px solid var(--line); color: var(--navy); }
+  .td-lab { display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; border-radius: 99px; padding: 1px 9px; margin-right: 6px; background: var(--cream); border: 1px solid var(--line); color: var(--navy); }
   .td-dayempty { color: var(--muted); margin: 0 0 6px; }
   .td-ongo { margin: 14px 0 0; padding-top: 12px; border-top: 1px dashed var(--line); font-size: 14px; color: var(--muted); }
   .td-ongo a { font-weight: 700; }
@@ -332,11 +332,13 @@ function srcLabel(e: any) {
   /* This page's calendar reads differently from the Things To Do page's: the selected day's
      detail sits above a full-width calendar (instead of beside a narrower one), and the day
      cells run bigger. */
-  .td-calwrap { grid-template-columns: 1fr; }
+  .td-calwrap { grid-template-columns: minmax(0, 1fr); }
   .td-calbox, .td-daybox { min-width: 0; }
   .td-daybox { order: -1; }
   .td-dc { min-height: 72px; font-size: 16px; }
   .td-calbar h3 { font-size: 28px; }
+  /* aspect-ratio + min-height sets a minimum cell width; seven of those can't fit a phone, so let cells shrink. */
+  @media (max-width: 640px) { .td-dc { min-height: 44px; aspect-ratio: auto; font-size: 15px; } .td-calbox { padding: 12px 10px 10px; } .td-calbar h3 { font-size: 22px; } }
   /* The selected day's events scroll through as a panoramic slider instead of stacking top to bottom. */
   #td-dayList { display: flex; flex-wrap: nowrap; gap: 14px; max-height: none; overflow-x: auto; overflow-y: visible; padding: 4px 4px 14px; margin: 0 -4px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
   .td-dayitem { scroll-snap-align: start; flex: 0 0 260px; border-top: none; padding: 16px 18px; background: var(--cream); border-radius: 10px; }
