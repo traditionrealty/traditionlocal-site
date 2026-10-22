@@ -939,6 +939,8 @@ generic = []
 for p in pages:
     if p["type"] not in ("pages", "listings", "group-lists") or p["path"] in CUSTOM:
         continue
+    if (p["title"] or "").split(" | ")[0].strip() == "404":
+        continue  # the old Wix "blank" page is just a 404 message; leave it out so the address is a true 404
     blocks = []
     for bl in p["blocks"]:
         bl = dict(bl)
@@ -971,6 +973,15 @@ for x in posts:
 for x in events:
     images.add(x["image"])
 images = sorted(i for i in images if i and "wixstatic" in i)
+
+# Some post titles, photo descriptions and summaries arrive from the Wix export already HTML encoded
+# (for example "Kulfi &amp; Sweets"). The site escapes text again when it prints it, which showed
+# "&amp;" to readers. Decode those plain text fields once here. The post bodies (html) are left alone,
+# because entities are correct inside HTML.
+for _p in posts:
+    for _k in ("title", "imageAlt", "description"):
+        if isinstance(_p.get(_k), str) and "&" in _p[_k]:
+            _p[_k] = html.unescape(_p[_k])
 
 # The Food Feature section's "Opened this month" list, hand-edited at data/new-and-notable.json.
 nn_file = ROOT / "data" / "new-and-notable.json"
