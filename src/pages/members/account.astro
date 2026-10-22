@@ -7,6 +7,7 @@ import areas from '../../data/areas.json';
 const areaNames = [...new Set((areas as any[]).map((a) => a.name))].sort();
 ---
 <Base title="My Account" description="Your Tradition Local member account.">
+  <meta slot="head" name="robots" content="noindex, follow" />
   <MemberShell active="account">
     <div class="acct-tabs" role="tablist">
       <button type="button" class="acct-tab" data-tab="account" aria-selected="true">My Account</button>
