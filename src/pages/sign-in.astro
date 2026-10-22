@@ -6,7 +6,7 @@ import { url } from '../lib/util';
 <Base title="Sign in" description="Sign in to your Tradition Local member account.">
   <MemberForm title="Welcome back" intro="Sign in to your Tradition Local member account.">
     <div data-redirect-if-member={url('/members/account')}></div>
-    <form class="mform" id="signin-form" novalidate>
+    <form class="mform" id="signin-form" method="post" data-guard novalidate>
       <p class="msg" data-msg role="alert" tabindex="-1" hidden></p>
       <label>Email
         <input type="email" name="email" autocomplete="email" required />
@@ -25,6 +25,7 @@ import { url } from '../lib/util';
   import { membersReady, supabase, siteUrl, friendly, say, busy, field } from '../lib/members';
   const form = document.getElementById('signin-form') as HTMLFormElement | null;
   if (form && membersReady) {
+    form.setAttribute('data-ready', '');
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       if (!form.reportValidity()) return;
