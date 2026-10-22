@@ -42,7 +42,7 @@ const placeCrumb = place && place !== b.city ? place : null;
 const pullQuoteCandidate = (b.review || '').split(/(?<=[.!?])\s+/).slice(0, 2).join(' ');
 const pullQuote = pullQuoteCandidate.length < (b.review || '').length * 0.75 ? pullQuoteCandidate : null;
 ---
-<Base title={`${b.name} review`} description={b.description}>
+<Base title={place ? `${b.name} review, ${place}` : `${b.name} review`} description={b.description}>
   <script type="application/ld+json" slot="head" set:html={JSON.stringify(ld)} />
 
   <section class="band">
