@@ -95,6 +95,9 @@ const items = [
 <style is:global>
   .mshell { background: #171f2b; color: #e8e9ec; min-height: 70vh; padding: 48px 24px 72px; }
   .mshell a { color: inherit; }
+  /* .mshell-grid sets display:grid, which beats the browser's [hidden] rule, so the member shell
+     showed to signed-out visitors. Make hidden win inside the shell. */
+  .mshell [hidden] { display: none !important; }
   .mshell .btn.gold { color: var(--navy); }
   .mshell .btn.blue { background: var(--blue); color: #fff; }
   .mshell .btn.ghost.light { border: 1.5px solid #e8e9ec; color: #e8e9ec; background: transparent; }
@@ -140,7 +143,12 @@ const items = [
   .btn-outline-dark { border: 1.5px solid #2c3647; color: #e8e9ec; background: transparent; padding: 10px 18px; border-radius: 6px; font-weight: 600; font-size: 14px; display: inline-block; text-decoration: none; }
 
   @media (max-width: 860px) {
-    .mshell-grid { grid-template-columns: 1fr; }
-    .mgrid2 { grid-template-columns: 1fr; }
+    /* minmax(0, 1fr), not 1fr: a bare 1fr can't shrink below its content, which stretched the
+       whole page to 459px on phones. */
+    .mshell { padding: 28px 16px 56px; }
+    .mshell-grid { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+    .mcontent { min-width: 0; }
+    .mgrid2 { grid-template-columns: minmax(0, 1fr); }
+    .mcard { padding: 20px 18px; }
   }
 </style>
