@@ -42,7 +42,20 @@ export async function currentUser(): Promise<User | null> {
   return data.session?.user ?? null;
 }
 
-export async function getProfile(user: User): Promise<Profile> {
+// The header menu and the member sidebar both ask for the same profile as a page loads. Calls made within a few
+// seconds of each other share one request, so a page load asks the database once instead of twice. The short
+// window means a profile just saved is always read fresh.
+const recent = new Map<string, { at: number; promise: Promise<Profile> }>();
+export function getProfile(user: User): Promise<Profile> {
+  const hit = recent.get(user.id);
+  if (hit && Date.now() - hit.at < 4000) return hit.promise;
+  const promise = loadProfile(user);
+  recent.set(user.id, { at: Date.now(), promise });
+  promise.catch(() => recent.delete(user.id));
+  return promise;
+}
+
+async function loadProfile(user: User): Promise<Profile> {
   const meta = user.user_metadata || {};
   const fallback: Profile = {
     first_name: meta.first_name || '', last_name: meta.last_name || '',
