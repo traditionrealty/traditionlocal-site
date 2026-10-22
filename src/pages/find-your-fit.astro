@@ -102,6 +102,8 @@ const PRIORITIES = [
   const pickB = document.getElementById('pick-b');
   const pickC = document.getElementById('pick-c');
   const cols = document.getElementById('compare-cols');
+  // In coming soon mode the compare tool is not on the page, so there is nothing to wire up.
+  if (pickA && pickB && pickC && cols) {
   const SECTIONS = [
     { key: 'home-styles', label: 'Home styles', field: 'homes' },
     { key: 'daily-routes', label: 'Your daily routes', ph: "[Compare access from different parts of the area to your daily destinations.]" },
@@ -142,6 +144,7 @@ const PRIORITIES = [
     const n = [...visitBoxes].filter((b) => b.checked).length;
     visitCount.textContent = `${n} of ${visitBoxes.length} visit notes checked`;
   }));
+  }
 </script>
 <style>
   .crumb { font-size: 13px; color: rgba(255,255,255,.65); margin: 0 0 12px; }
