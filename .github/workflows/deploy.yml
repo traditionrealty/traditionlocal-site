@@ -4,6 +4,10 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  # Rebuild every morning so the weekly picks and event lists on pages built at deploy time
+  # (area pages, newsletters) stay current. 11:00 UTC is 6 AM in Houston during daylight time.
+  schedule:
+    - cron: '0 11 * * *'
 
 permissions:
   contents: read
@@ -35,6 +39,8 @@ jobs:
         env:
           SITE_URL: ${{ steps.pages.outputs.origin }}
           BASE_PATH: ${{ steps.pages.outputs.base_path }}
+      - name: Report leftovers in the built site (never blocks the deploy)
+        run: node scripts/check-output.mjs || true
       - uses: actions/upload-pages-artifact@v3
         with: { path: dist }
 
