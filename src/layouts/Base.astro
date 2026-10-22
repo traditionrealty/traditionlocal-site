@@ -462,7 +462,7 @@ const popularSearches = ['coffee', 'brunch', 'Sugar Land', 'new builds', 'events
   .signup button { background: var(--gold); color: var(--blue); border: 0; border-radius: 999px; padding: 0 22px; font-weight: 700; cursor: pointer; }
   .legal { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; border-top: 1px solid rgba(255,255,255,.2); margin-top: 40px; padding-top: 18px; font-size: 14px; }
   @media (max-width: 760px) {
-    .footer-grid { grid-template-columns: 1fr; }
+    .footer-grid { grid-template-columns: minmax(0, 1fr); }
     .header-inner { padding-top: 14px; padding-bottom: 14px; }
     /* Main menu: bigger text, spread evenly across the full width as equal-width columns,
        centered, instead of small and clustered on the left. ".site-header nav" below is
