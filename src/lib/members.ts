@@ -63,6 +63,9 @@ export function friendly(message = '') {
   if (m.includes('already registered') || m.includes('already been registered')) return 'There is already an account with that email. Try signing in instead.';
   if (m.includes('password should be')) return 'Please use a password with at least 8 characters.';
   if (m.includes('rate limit')) return 'Too many tries in a short time. Please wait a few minutes and try again.';
+  if (m.includes('for security purposes') || m.includes('once every')) return 'For security, please wait a minute before asking for another email.';
+  if (m.includes('invalid or has expired') || m.includes('otp_expired')) return 'That link has expired or was already used. Please request a new one.';
+  if (m.includes('failed to fetch') || m.includes('networkerror') || m.includes('network request failed')) return 'We could not reach the server. Please check your connection and try again.';
   if (m.includes('same password') || m.includes('different from the old')) return 'Your new password needs to be different from your current one.';
   return message || 'Something went wrong. Please try again.';
 }
