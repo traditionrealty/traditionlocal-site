@@ -20,6 +20,49 @@ const ready = Boolean(config.supabaseUrl && config.supabaseAnonKey);
   </div>
 </section>
 
+<script is:inline>
+  // Until a sign in or join form's own script has attached, swallow the browser's native submit.
+  // Without this, pressing Enter early (or with scripts blocked) sends the email and password
+  // to the address bar, where they end up in history and server logs.
+  document.addEventListener('submit', function (e) {
+    var f = e.target;
+    if (f && f.hasAttribute && f.hasAttribute('data-guard') && !f.hasAttribute('data-ready')) e.preventDefault();
+  }, true);
+</script>
+
+<script>
+  // Adds a show/hide eye to every password field in a member form.
+  const EYE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+  const EYE_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 19c-7 0-11-7-11-7a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 7 11 7a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+  document.querySelectorAll<HTMLInputElement>('.mform input[type="password"]').forEach((input) => {
+    // The button sits next to the label, not inside it, so screen readers still announce just "Password".
+    const anchor = input.closest('label') ?? input;
+    const wrap = document.createElement('div');
+    wrap.className = 'pw-field';
+    anchor.replaceWith(wrap);
+    wrap.appendChild(anchor);
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'pw-toggle';
+    btn.setAttribute('aria-label', 'Show password');
+    btn.setAttribute('aria-pressed', 'false');
+    btn.innerHTML = EYE;
+    wrap.appendChild(btn);
+    const set = (show: boolean) => {
+      input.type = show ? 'text' : 'password';
+      btn.setAttribute('aria-pressed', String(show));
+      btn.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+      btn.innerHTML = show ? EYE_OFF : EYE;
+    };
+    // Keep the cursor in the field if the visitor was typing when they tapped the eye.
+    btn.addEventListener('mousedown', (e) => e.preventDefault());
+    btn.addEventListener('click', () => set(input.type === 'password'));
+    // Never leave a password showing after it is submitted or when the page is restored from history.
+    input.form?.addEventListener('submit', () => set(false), true);
+    window.addEventListener('pageshow', () => set(false));
+  });
+</script>
+
 <script>
   // Shows the block that matches the visitor's state.
   // Elements marked data-state="in" show for signed in members, "out" for everyone else.
@@ -61,6 +104,13 @@ const ready = Boolean(config.supabaseUrl && config.supabaseAnonKey);
   .msg.error { background: #fbeaea; color: #8a1f1f; border: 1px solid #efc4c4; }
   .msg.ok { background: #eaf4ec; color: #1e5a2b; border: 1px solid #c3e0c9; }
   .mform button[disabled] { opacity: .65; cursor: wait; }
+  .mform[data-guard]:not([data-ready]) button[type=submit] { opacity: .65; cursor: wait; }
+  .pw-field { position: relative; }
+  .pw-field input { padding-right: 48px; }
+  .pw-toggle { position: absolute; right: 4px; bottom: 4px; width: 40px; height: 40px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 6px; background: transparent; color: var(--muted); cursor: pointer; }
+  .pw-toggle:hover { color: var(--navy); }
+  .pw-toggle svg { width: 22px; height: 22px; }
+  .pw-field input::-ms-reveal, .pw-field input::-ms-clear { display: none; }
   .soon { display: grid; gap: 12px; justify-items: start; }
   .welcome { font-family: var(--serif); font-size: 1.3rem; color: var(--navy); margin: 0 0 20px; }
   .member-section { border-top: 1px solid var(--line); padding-top: 24px; margin-top: 28px; }
