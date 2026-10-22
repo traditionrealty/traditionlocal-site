@@ -4,6 +4,7 @@ import MemberForm from '../components/MemberForm.astro';
 import { url } from '../lib/util';
 ---
 <Base title="Sign in" description="Sign in to your Tradition Local member account.">
+  <meta slot="head" name="robots" content="noindex, follow" />
   <MemberForm title="Welcome back" intro="Sign in to your Tradition Local member account.">
     <div data-redirect-if-member={url('/members/account')}></div>
     <form class="mform" id="signin-form" method="post" data-guard novalidate>
